@@ -18,8 +18,8 @@ import { get } from 'lodash';
 
 const LoginPage = () => {
     const { isLoading, setAlert, setLoading, setUser, setAuthToken, setDisplayName } = useAppContext();
-    const [email, setEmail] = useState('sky@gmail.com');
-    const [password, setPassword] = useState('erp3001');
+    const [email, setEmail] = useState('reckitt@gmail.com');
+    const [password, setPassword] = useState('reckitt@123');
     const [checked, setChecked] = useState(false);
     const { layoutConfig, layoutState } = useContext(LayoutContext);
 
