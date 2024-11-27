@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { ChartData, ChartOptions } from 'chart.js';
 import { useAppContext } from '@/layout/AppWrapper';
 import Preloader from '@/components/Preloader';
+import SupplierDirectory from '@/components/SupplierDirectory';
 
 const lineData: ChartData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -124,6 +125,9 @@ const Dashboard = () => {
 
     return (
         <div className="grid">
+            <div className="card col-12">
+                <SupplierDirectory />
+            </div>
             <div className="col-12 lg:col-6 xl:col-3">
                 <div className="card mb-0">
                     <div className="flex justify-content-between mb-3">

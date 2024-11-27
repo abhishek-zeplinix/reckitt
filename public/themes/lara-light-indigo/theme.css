@@ -51,6 +51,7 @@
   --highlight-bg: #EEF2FF;
   --highlight-text-color: #4338CA;
   color-scheme: light;
+
 }
 
 @font-face {
@@ -7370,4 +7371,9 @@
   display: flex;
   gap: 20px;
   /* Adjust the gap value as needed */
+}
+.custom-box-shadow{
+  -webkit-box-shadow: 0px 0px 8px -5px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 0px 8px -5px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 8px -5px rgba(0,0,0,0.75);
 }
