@@ -91,7 +91,10 @@ const SupplierDirectory = () => {
                 scrollHeight="250px"
                 responsiveLayout="scroll"
                 onRowClick={(e) => navigateToSummary(e.data.id)}
-                style={{ scrollbarWidth: 'thin' /* Firefox */, scrollbarColor: '#888 #f1f1f1' /* Firefox: thumb and track colors */ }}
+                style={{
+                    scrollbarWidth: 'thin', // Firefox
+                    scrollbarColor: '#888 #f1f1f1' // Firefox
+                }}
             >
                 <Column field="id" header="#" />
                 <Column field="name" header="Supplier Name" />
