@@ -85,7 +85,14 @@ const SupplierDirectory = () => {
     return (
         <div className="p-m-4">
             <h3>Supplier Directory</h3>
-            <DataTable value={suppliers} scrollable scrollHeight="250px" responsiveLayout="scroll" onRowClick={(e) => navigateToSummary(e.data.id)}>
+            <DataTable
+                value={suppliers}
+                scrollable
+                scrollHeight="250px"
+                responsiveLayout="scroll"
+                onRowClick={(e) => navigateToSummary(e.data.id)}
+                style={{ scrollbarWidth: 'thin' /* Firefox */, scrollbarColor: '#888 #f1f1f1' /* Firefox: thumb and track colors */ }}
+            >
                 <Column field="id" header="#" />
                 <Column field="name" header="Supplier Name" />
                 <Column field="status" header="Status" body={statusBodyTemplate} />
