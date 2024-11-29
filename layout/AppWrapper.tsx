@@ -93,7 +93,7 @@ export const AppWrapper = React.memo(({ children }: any) => {
                 }
             }
         }
-        fetchData()
+        // fetchData()
 
         eventEmitter.on('signOut', (data: any) => {
             console.log('Event received:');
@@ -104,37 +104,37 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     }, [])
 
-    const fetchData = useCallback(async () => {
-        const token = getAuthToken();
-        const isValid = isTokenValid(token);
-        if (!axiosRef && isValid) {
-            axiosRef = 'ref';
-            const result: CustomResponse = await GetCall('/auth/profile');
-            axiosRef = null
-            if (result.code == 'SUCCESS') {
-                setUser(result.data);
-                setCompany(result.data.company)
-                setUserDetails(result.data);
-            }
-            else if (result.code == 'AUTH_FAILED') {
-                setUser(null)
-                if (token) {
-                    setAlert('error', 'Session expired')
-                }
-            }
-            else {
-                if (token) {
-                    setAlert('error', result.message)
-                }
-            }
-        }
-        else if (!isValid) {
-            if (token) {
-                removeAuthData();
-                setAlert('error', 'Session expired')
-            }
-        }
-    }, []);
+    // const fetchData = useCallback(async () => {
+    //     const token = getAuthToken();
+    //     const isValid = isTokenValid(token);
+    //     if (!axiosRef && isValid) {
+    //         axiosRef = 'ref';
+    //         const result: CustomResponse = await GetCall('/auth/profile');
+    //         axiosRef = null
+    //         if (result.code == 'SUCCESS') {
+    //             setUser(result.data);
+    //             setCompany(result.data.company)
+    //             setUserDetails(result.data);
+    //         }
+    //         else if (result.code == 'AUTH_FAILED') {
+    //             setUser(null)
+    //             if (token) {
+    //                 setAlert('error', 'Session expired')
+    //             }
+    //         }
+    //         else {
+    //             if (token) {
+    //                 setAlert('error', result.message)
+    //             }
+    //         }
+    //     }
+    //     else if (!isValid) {
+    //         if (token) {
+    //             removeAuthData();
+    //             setAlert('error', 'Session expired')
+    //         }
+    //     }
+    // }, []);
 
     const signOut = async () => {
         await removeAuthData();

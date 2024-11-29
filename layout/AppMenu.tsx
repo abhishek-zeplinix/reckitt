@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { AppMenuItem } from '@/types';
 import { get, intersection } from 'lodash';
 import { useAppContext } from './AppWrapper';
-import { getCompanyLogo } from '@/utils/uitl';
+// import { getCompanyLogo } from '@/utils/uitl';
 import {
     CAMPANY_SETTING_MENU,
     COMPANIES_MENU,
@@ -681,7 +681,7 @@ const AppMenu = () => {
         <MenuProvider>
             {layoutState.isMobile && (
                 <Link href="/" className="layout-topbar-logo">
-                    <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} />
+                    {/* <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} /> */}
                 </Link>
             )}
 

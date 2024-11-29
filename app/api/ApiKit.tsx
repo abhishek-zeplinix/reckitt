@@ -91,6 +91,7 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
         });
 
         const customResponse = response.data;
+        console.log('94',response)
 
         // Cache the response with the current timestamp
         cache.set(cacheKey, {

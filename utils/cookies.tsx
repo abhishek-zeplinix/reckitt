@@ -29,6 +29,7 @@ const getDomain = (): string => {
 };
 
 const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
+    console.log('90',token)
     const domain: string = getDomain();
     const option: any = {
         path: '/',

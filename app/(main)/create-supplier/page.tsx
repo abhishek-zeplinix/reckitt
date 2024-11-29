@@ -1,10 +1,30 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
 import Stepper from '@/components/Stepper';
 import { Dropdown } from 'primereact/dropdown';
+import { useAppContext } from '@/layout/AppWrapper';
+import { CustomResponse } from '@/types';
+import { GetCall, PostCall } from '@/app/api/ApiKit';
+import { EmptySupplier } from '@/types/forms';
+import { filter, find, get, groupBy, keyBy, map, uniq } from 'lodash';
+
+const defaultForm: EmptySupplier = {
+    supId:'',
+    supplierName : '',
+    supplierManufacturerName : '',
+    siteAddress : '',
+    procurementCategoryId : null,
+    supplierCategoryId :null,
+    warehouseLocation : '',
+    factoryId : null,
+    gmpFile:'',
+    gdpFile:'',
+    reachFile:'',
+    isoFile:'',
+};
 
 const CreateSupplierPage = () => {
     const totalSteps = 3;
@@ -12,10 +32,15 @@ const CreateSupplierPage = () => {
     const [completedSteps, setCompletedSteps] = useState<boolean[]>(Array(totalSteps).fill(false));
     // Form fields state
     const [supplierId, setSupplierId] = useState('');
+    const [factoryDetails,setFactoryDetails]=useState<any>([])
+    const [category,setCategory]=useState<any>([])
+    const [subCategory,setSubCategory]=useState<any>([])
     const [supplierName, setSupplierName] = useState('');
     const [manufacturerName, setManufacturerName] = useState('');
     const [complianceStatus, setComplianceStatus] = useState(false);
     const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
+    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [form, setForm] = useState<EmptySupplier>(defaultForm);
 
     const [checked, setChecked] = useState({
         gmp: false,
@@ -23,6 +48,26 @@ const CreateSupplierPage = () => {
         reach: false,
         iso: false
     });
+    useEffect(() => {
+        fetchFactory();
+        fetchCategory();
+        fetchSubCategory();
+        // fetchRolesData();
+    }, []);
+
+
+    const onNewAdd = async (companyForm: any) => {
+        console.log('148',companyForm);
+        setLoading(true);
+        const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setAlert('success',response.message)
+            
+        } else {
+            setAlert('error', response.message);
+        }
+    };
 
     // Navigation Handlers
     const handleNext = () => {
@@ -33,7 +78,63 @@ const CreateSupplierPage = () => {
             setCurrentStep((prevStep) => prevStep + 1);
         }
     };
+    const fetchFactory = async () => {
+        // const companyId = get(user, 'company.companyId');
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/factory`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            // setsingleRoleId(response.data.roleId);
 
+            setFactoryDetails(response.data);
+            console.log('81',response.data)
+        } else {
+            setFactoryDetails([]);
+        }
+    };
+    const fetchCategory = async () => {
+        // const companyId = get(user, 'company.companyId');
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/category`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            // setsingleRoleId(response.data.roleId);
+
+            setCategory(response.data);
+        } else {
+            setCategory([]);
+        }
+    };
+    const fetchSubCategory = async () => {
+        // const companyId = get(user, 'company.companyId');
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-category`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            // setsingleRoleId(response.data.roleId);
+
+            setSubCategory(response.data);
+            console.log('81',response.data)
+        } else {
+            setSubCategory([]);
+        }
+    };
+
+
+    const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
+        setForm((Form: any) => {
+            let updatedForm = { ...Form };
+
+            if (typeof name === 'string') {
+                updatedForm[name] = val;
+            } else {
+                updatedForm = { ...updatedForm, ...name };
+            }
+
+            return updatedForm;
+        });
+        console.log('482', form);
+    };
     const handlePrevious = () => {
         if (currentStep > 1) {
             const newCompletedSteps = [...completedSteps];
@@ -44,7 +145,9 @@ const CreateSupplierPage = () => {
     };
 
     const handleSubmit = () => {
-        console.log('Form submitted', { supplierId, supplierName, manufacturerName, complianceStatus });
+        console
+        onNewAdd(form)
+        
     };
 
     const handleCheckboxChange = (event: any) => {
@@ -72,13 +175,13 @@ const CreateSupplierPage = () => {
                                 <label htmlFor="supplierId" className="font-semibold">
                                     Supplier ID
                                 </label>
-                                <input id="supplierId" type="text" value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Supplier Id" />
+                                <InputText id="supplierId" type="text" value={get(form, 'supId')} onChange={(e) => onInputChange('supId', e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Supplier Id" />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="supplierName" className="font-semibold">
                                     Supplier Name
                                 </label>
-                                <input id="supplierName" type="text" value={supplierName} onChange={(e) => setSupplierName(e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Supplier Name" />
+                                <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Supplier Name" />
                             </div>
                         </div>
                     </div>
@@ -90,34 +193,54 @@ const CreateSupplierPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-5">
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Manufacturing Name</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
+                                <InputText id="manufacturerName" type="text" value={get(form, 'supplierManufacturerName')} onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Factory Name</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="procurementCategory">Supplier Procurement Category</label>
                                 <Dropdown
-                                    id="procurementCategory"
-                                    value={selectedProcurementCategory}
-                                    options={procurementCategories}
-                                    onChange={(e) => setSelectedProcurementCategory(e.value)}
-                                    placeholder="Select Procurement Category"
+                                    id="factoryName"
+                                    value={get(form, 'factoryId')}
+                                    options={factoryDetails}
+                                    optionLabel="factoryName"
+                                    optionValue="factoryId"
+                                    onChange={(e) => onInputChange('factoryId', e.value)}
+                                    placeholder="Select Factory Name"
                                     className="w-full"
                                 />
                             </div>
                             <div className="field col-6">
+                                <label htmlFor="procurementCategory">Supplier Procurement Category</label>
+                                <Dropdown
+                                id="procurementCategory"
+                                value={get(form, 'procurementCategoryId')}
+                                options={category}
+                                optionLabel="categoryName"
+                                optionValue="categoryId"
+                                onChange={(e) => onInputChange('procurementCategoryId', e.value)} // Map categoryId to procurementCategoryId
+                                placeholder="Select Procurement Category"
+                                className="w-full"
+                            />
+                            </div>
+                            <div className="field col-6">
                                 <label htmlFor="manufacturerName">Supplier Category</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
+                                <Dropdown
+                                    id="supplierCategory"
+                                    value={get(form, 'supplierCategoryId')}
+                                    options={subCategory}
+                                    optionLabel="subCategoryName"
+                                    optionValue="subCategoryId"
+                                    onChange={(e) => onInputChange('supplierCategoryId', e.value)} // Map subCategoryId to supplierCategoryId
+                                    placeholder="Select Supplier Category"
+                                    className="w-full"
+                                />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Site Address</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
+                                <InputText id="manufacturerName" type="text" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Warehouse Location</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
+                                <InputText id="manufacturerName" type="text" value={get(form, 'warehouseLocation')} onChange={(e) => onInputChange('warehouseLocation', e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
                             </div>
                         </div>
                     </div>
@@ -125,61 +248,126 @@ const CreateSupplierPage = () => {
             case 3:
                 return (
                     <div className="flex flex-column gap-3 pt-5">
-                        <h2 className="text-center font-bold ">Add Manufacture Details</h2>
-                        <div className="p-fluid grid md:mx-7 pt-5">
-                            <div className="field col-6">
-                                {/* Center-aligned checkbox and label */}
-                                <div className="flex items-center mb-2">
-                                    <Checkbox inputId="gmp" name="gmp" checked={checked.gmp} onChange={handleCheckboxChange} className="mr-2" />
-                                    <label htmlFor="gmp" className="mb-0">
-                                        GMP
-                                    </label>
-                                </div>
-                                <div className="flex items-center w-full">
-                                    <InputText type="file" disabled={!checked.gmp} className={`flex-grow ${!checked.gmp ? 'opacity-50' : ''}`} />
-                                </div>
+                    <h2 className="text-center font-bold ">Add Manufacture Details</h2>
+                    <div className="p-fluid grid md:mx-7 pt-5">
+                        {/* GMP */}
+                        <div className="field col-6">
+                            <div className="flex items-center mb-2">
+                                <Checkbox
+                                    inputId="gmp"
+                                    name="gmp"
+                                    checked={checked.gmp}
+                                    onChange={handleCheckboxChange}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="gmp" className="mb-0">
+                                    GMP
+                                </label>
                             </div>
-
-                            <div className="field col-6">
-                                {/* Center-aligned checkbox and label */}
-                                <div className="flex items-center mb-2">
-                                    <Checkbox inputId="gdp" name="gdp" checked={checked.gdp} onChange={handleCheckboxChange} className="mr-2" />
-                                    <label htmlFor="gdp" className="mb-0">
-                                        GDP
-                                    </label>
-                                </div>
-                                <div className="flex items-center w-full">
-                                    <InputText type="file" disabled={!checked.gdp} className={`flex-grow ${!checked.gdp ? 'opacity-50' : ''}`} />
-                                </div>
+                            <div className="flex items-center w-full">
+                                <InputText
+                                    type="file"
+                                    disabled={!checked.gmp}
+                                    className={`flex-grow ${!checked.gmp ? 'opacity-50' : ''}`}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            onInputChange('gmpFile', file);
+                                        }
+                                    }}
+                                />
                             </div>
-
-                            <div className="field col-6">
-                                {/* Center-aligned checkbox and label */}
-                                <div className="flex items-center mb-2">
-                                    <Checkbox inputId="reach" name="reach" checked={checked.reach} onChange={handleCheckboxChange} className="mr-2" />
-                                    <label htmlFor="reach" className="mb-0">
-                                        REACH
-                                    </label>
-                                </div>
-                                <div className="flex items-center w-full">
-                                    <InputText type="file" disabled={!checked.reach} className={`flex-grow ${!checked.reach ? 'opacity-50' : ''}`} />
-                                </div>
+                        </div>
+                
+                        {/* GDP */}
+                        <div className="field col-6">
+                            <div className="flex items-center mb-2">
+                                <Checkbox
+                                    inputId="gdp"
+                                    name="gdp"
+                                    checked={checked.gdp}
+                                    onChange={handleCheckboxChange}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="gdp" className="mb-0">
+                                    GDP
+                                </label>
                             </div>
-
-                            <div className="field col-6">
-                                {/* Center-aligned checkbox and label */}
-                                <div className="flex items-center mb-2">
-                                    <Checkbox inputId="iso" name="iso" checked={checked.iso} onChange={handleCheckboxChange} className="mr-2" />
-                                    <label htmlFor="iso" className="mb-0">
-                                        ISO
-                                    </label>
-                                </div>
-                                <div className="flex items-center w-full">
-                                    <InputText type="file" disabled={!checked.iso} className={`flex-grow ${!checked.iso ? 'opacity-50' : ''}`} />
-                                </div>
+                            <div className="flex items-center w-full">
+                                <InputText
+                                    type="file"
+                                    disabled={!checked.gdp}
+                                    className={`flex-grow ${!checked.gdp ? 'opacity-50' : ''}`}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            onInputChange('gdpFile', file);
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+                
+                        {/* REACH */}
+                        <div className="field col-6">
+                            <div className="flex items-center mb-2">
+                                <Checkbox
+                                    inputId="reach"
+                                    name="reach"
+                                    checked={checked.reach}
+                                    onChange={handleCheckboxChange}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="reach" className="mb-0">
+                                    REACH
+                                </label>
+                            </div>
+                            <div className="flex items-center w-full">
+                                <InputText
+                                    type="file"
+                                    disabled={!checked.reach}
+                                    className={`flex-grow ${!checked.reach ? 'opacity-50' : ''}`}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            onInputChange('reachFile', file);
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+                
+                        {/* ISO */}
+                        <div className="field col-6">
+                            <div className="flex items-center mb-2">
+                                <Checkbox
+                                    inputId="iso"
+                                    name="iso"
+                                    checked={checked.iso}
+                                    onChange={handleCheckboxChange}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="iso" className="mb-0">
+                                    ISO
+                                </label>
+                            </div>
+                            <div className="flex items-center w-full">
+                                <InputText
+                                    type="file"
+                                    disabled={!checked.iso}
+                                    className={`flex-grow ${!checked.iso ? 'opacity-50' : ''}`}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            onInputChange('isoFile', file);
+                                        }
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
+                </div>
+                
                 );
             default:
                 return null;

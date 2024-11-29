@@ -13,7 +13,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { useAppContext } from './AppWrapper';
 import { get } from 'lodash';
-import { getCompanyLogo } from '@/utils/uitl';
+// import { getCompanyLogo } from '@/utils/uitl';
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     const { setAlert, setLoading, signOut, user } = useAppContext();
@@ -76,7 +76,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     return (
         <div className="layout-topbar">
             <Link href="/" className="layout-topbar-logo">
-                <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" />
+                {/* <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" /> */}
             </Link>
 
             {layoutState.isMobile && (

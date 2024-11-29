@@ -118,27 +118,27 @@ export const generateRandomId = () => {
 };
 
 // Function to get the logo URL
-export const getCompanyLogo = (logo: string | undefined, fallback: string = '/images/reckitt.webp') => {
-    // Return fallback if logo is not defined
-    if (!logo) {
-        return fallback;
-    }
+// export const getCompanyLogo = (logo: string | undefined, fallback: string = '/images/reckitt.webp') => {
+//     // Return fallback if logo is not defined
+//     if (!logo) {
+//         return fallback;
+//     }
 
-    // Check if logo contains 'http' and return accordingly
-    return logo.includes('http') ? logo : `${CONFIG.ASSET_LINK}${logo}`;
-};
+//     // Check if logo contains 'http' and return accordingly
+//     return logo.includes('http') ? logo : `${CONFIG.ASSET_LINK}${logo}`;
+// };
 
 // Login Page
 
-export const getLoginScreenImage = (image: string | undefined, fallback: string = '/images/login.svg') => {
-    // Return fallback if image is not defined
-    if (!image) {
-        return fallback;
-    }
+// export const getLoginScreenImage = (image: string | undefined, fallback: string = '/images/login.svg') => {
+//     // Return fallback if image is not defined
+//     if (!image) {
+//         return fallback;
+//     }
 
-    // Check if image contains 'http' and return accordingly
-    return image.includes('http') ? image : `${CONFIG.ASSET_LINK}${image}`;
-};
+//     // Check if image contains 'http' and return accordingly
+//     return image.includes('http') ? image : `${CONFIG.ASSET_LINK}${image}`;
+// };
 
 export const filterArray = (data: any[], filters: any) => {
     return data.filter((item) => {

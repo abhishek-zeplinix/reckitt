@@ -1,19 +1,59 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState,useEffect } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
+import { useAppContext } from '@/layout/AppWrapper';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import {  get } from 'lodash';
+import {  CustomResponse } from '@/types';
 import { InputText } from 'primereact/inputtext';
-import { getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams,getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api/ApiKit';
+import { Supplier } from '@/types';
+
 const ManageSupplierPage = () => {
+    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
+    const [companies, setCompanies] = useState<Supplier[]>([]);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
+
+    useEffect(() => {
+        // setScroll(true);
+        fetchData();
+        // fetchRolesData();
+        return () => {
+            // setScroll(true);
+        };
+    }, []);
+
+    const fetchData = async (params?: any) => {
+        if (!params) {
+            params = { limit: limit, page: page }
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+        setLoading(false)
+        if (response.code == 'SUCCESS') {
+            setCompanies(response.data);
+            console.log('46',response.data)
+            // fetchPermissions()
+
+            if (response.total) {
+                setTotalRecords(response?.total)
+            }
+        }
+        else {
+            setCompanies([]);
+        }
+    };
 
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
@@ -72,6 +112,7 @@ const ManageSupplierPage = () => {
         }
         // Add more data here...
     ];
+    console.log('114',companies)
     return (
         <div className="grid">
             <div className="col-12">
@@ -103,28 +144,28 @@ const ManageSupplierPage = () => {
                             //         }
                             //     }
                             // ]}
-                            data={databoxx}
+                            data={companies.map((item: any) => ({
+                                supId: item.supId,
+                                supplierName: item.supplierName,
+                                categoryName: item.category?.categoryName || 'N/A', // Extract categoryName
+                                subCategories: item.category?.categoryName || 'N/A',
+                                supplierManufacturerName: item.supplierManufacturerName,
+                                warehouseLocation: item.warehouseLocation,
+                                siteAddress: item.siteAddress,
+                                factoryName: item.factoryName?.factoryName || 'N/A', // Extract factoryName
+                            }))}
                             columns={[
                                 {
-                                    header: 'Sr No',
-                                    field: 'srno',
+                                    header: 'Supplier Id',
+                                    field: 'supId',
                                     filter: true,
                                     sortable: true,
                                     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Sr No'
-                                },
-                                {
-                                    header: 'Supplier Id',
-                                    field: 'supplierid',
-                                    // body: renderVendor,
-                                    filter: true,
-                                    // filterElement: vendorDropdown,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Supplier Id'
+                                    filterPlaceholder: 'Supplier No'
                                 },
                                 {
                                     header: 'Supplier Name',
-                                    field: 'suppliername',
+                                    field: 'supplierName',
                                     sortable: true,
                                     filter: true,
                                     filterPlaceholder: 'Supplier Name',
@@ -132,7 +173,7 @@ const ManageSupplierPage = () => {
                                 },
                                 {
                                     header: 'Procurement Category',
-                                    field: 'procurementcateogyr',
+                                    field: 'categoryName',
                                     // body: renderWarehouse,
                                     filter: true,
                                     // filterElement: warehouseDropdown,
@@ -141,7 +182,7 @@ const ManageSupplierPage = () => {
                                 },
                                 {
                                     header: 'Supplier Category',
-                                    field: 'suppliercategory',
+                                    field: 'subCategories',
                                     // body: renderStatus,
                                     filter: true,
                                     filterPlaceholder: 'Search Supplier Category',
@@ -150,7 +191,7 @@ const ManageSupplierPage = () => {
                                 },
                                 {
                                     header: 'Supplier Manufacturing Name',
-                                    field: 'manufacturingname',
+                                    field: 'supplierManufacturerName',
                                     filter: true,
                                     filterPlaceholder: 'Search Supplier Manufacturing Name',
                                     bodyStyle: { minWidth: 150, maxWidth: 150 }
@@ -158,21 +199,21 @@ const ManageSupplierPage = () => {
                                 },
                                 {
                                     header: 'Site Address',
-                                    field: 'siteaaddress',
+                                    field: 'siteAddress',
                                     filter: true,
                                     filterPlaceholder: 'Search Site Address',
                                     bodyStyle: { minWidth: 150, maxWidth: 150 }
                                 },
                                 {
                                     header: 'Factory Name',
-                                    field: 'factoryname',
+                                    field: 'factoryName',
                                     filter: true,
                                     filterPlaceholder: 'Search Factory Name',
                                     bodyStyle: { minWidth: 150, maxWidth: 150 }
                                 },
                                 {
                                     header: 'Warehouse Location',
-                                    field: 'warehouselocation',
+                                    field: 'warehouseLocation',
                                     filter: true,
                                     filterPlaceholder: 'Search Warehouse Location',
                                     bodyStyle: { minWidth: 150, maxWidth: 150 }
