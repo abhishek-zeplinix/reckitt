@@ -1,15 +1,18 @@
 'use client';
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
 import Stepper from '@/components/Stepper';
 import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
-import { CustomResponse } from '@/types';
+import { CustomResponse, Supplier } from '@/types';
 import { GetCall, PostCall } from '@/app/api/ApiKit';
 import { EmptySupplier } from '@/types/forms';
 import { filter, find, get, groupBy, keyBy, map, uniq } from 'lodash';
+import { CustomDataTableRef } from '@/components/CustomDataTable';
+
 
 const defaultForm: EmptySupplier = {
     supId:'',
@@ -24,6 +27,9 @@ const defaultForm: EmptySupplier = {
     gdpFile:'',
     reachFile:'',
     isoFile:'',
+    locationId:null,
+    sublocationId:null,
+    
 };
 
 const CreateSupplierPage = () => {
@@ -31,16 +37,22 @@ const CreateSupplierPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [completedSteps, setCompletedSteps] = useState<boolean[]>(Array(totalSteps).fill(false));
     // Form fields state
+    const router = useRouter();
     const [supplierId, setSupplierId] = useState('');
+    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [factoryDetails,setFactoryDetails]=useState<any>([])
     const [category,setCategory]=useState<any>([])
     const [subCategory,setSubCategory]=useState<any>([])
+    const [locationDetails,setLocationDetails]=useState<any>([])
+    const [subLocationDetails,setSubLocationDetails]=useState<any>([])
     const [supplierName, setSupplierName] = useState('');
     const [manufacturerName, setManufacturerName] = useState('');
     const [complianceStatus, setComplianceStatus] = useState(false);
     const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
     const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [selectedCompany, setSelectedCompany] = useState<Supplier | null>(null);
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
+    const dataTableRef = useRef<CustomDataTableRef>(null)
 
     const [checked, setChecked] = useState({
         gmp: false,
@@ -52,17 +64,22 @@ const CreateSupplierPage = () => {
         fetchFactory();
         fetchCategory();
         fetchSubCategory();
-        // fetchRolesData();
+        fetchLocation();
+        fetchSubLocation();
     }, []);
 
 
     const onNewAdd = async (companyForm: any) => {
         console.log('148',companyForm);
-        setLoading(true);
+        setIsDetailLoading(true);
         const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
-        setLoading(false);
+        setIsDetailLoading(false)
+        console.log('64',response)
         if (response.code == 'SUCCESS') {
+            setSelectedCompany(response.data)
             setAlert('success',response.message)
+            dataTableRef.current?.updatePagination(1);
+            router.push('/create-supplier');
             
         } else {
             setAlert('error', response.message);
@@ -90,6 +107,34 @@ const CreateSupplierPage = () => {
             console.log('81',response.data)
         } else {
             setFactoryDetails([]);
+        }
+    };
+    const fetchLocation = async () => {
+        // const companyId = get(user, 'company.companyId');
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/location`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            // setsingleRoleId(response.data.roleId);
+
+            setLocationDetails(response.data);
+            console.log('81',response.data)
+        } else {
+            setLocationDetails([]);
+        }
+    };
+    const fetchSubLocation = async () => {
+        // const companyId = get(user, 'company.companyId');
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-location`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            // setsingleRoleId(response.data.roleId);
+
+            setSubLocationDetails(response.data);
+            console.log('81',response.data)
+        } else {
+            setSubLocationDetails([]);
         }
     };
     const fetchCategory = async () => {
@@ -173,9 +218,18 @@ const CreateSupplierPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-5">
                             <div className="field col-6">
                                 <label htmlFor="supplierId" className="font-semibold">
-                                    Supplier ID
+                                    Location
                                 </label>
-                                <InputText id="supplierId" type="text" value={get(form, 'supId')} onChange={(e) => onInputChange('supId', e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Supplier Id" />
+                                <Dropdown
+                                    id="name"
+                                    value={get(form, 'locationId')}
+                                    options={locationDetails}
+                                    optionLabel="name"
+                                    optionValue="locationId"
+                                    onChange={(e) => onInputChange('locationId', e.value)}
+                                    placeholder="Select Location Name"
+                                    className="w-full"
+                                />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="supplierName" className="font-semibold">
@@ -239,8 +293,17 @@ const CreateSupplierPage = () => {
                                 <InputText id="manufacturerName" type="text" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
                             </div>
                             <div className="field col-6">
-                                <label htmlFor="manufacturerName">Warehouse Location</label>
-                                <InputText id="manufacturerName" type="text" value={get(form, 'warehouseLocation')} onChange={(e) => onInputChange('warehouseLocation', e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
+                                <label htmlFor="manufacturerName">Sub Location</label>
+                                <Dropdown
+                                    id="name"
+                                    value={get(form, 'sublocationId')}
+                                    options={subLocationDetails}
+                                    optionLabel="name"
+                                    optionValue="sublocationId"
+                                    onChange={(e) => onInputChange('sublocationId', e.value)}
+                                    placeholder="Select Sub Location Name"
+                                    className="w-full"
+                                />
                             </div>
                         </div>
                     </div>

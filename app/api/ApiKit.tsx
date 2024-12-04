@@ -60,7 +60,8 @@ const activeRequests = new Map();
 const fetchData = async (method: string, url: string, payload = {}, headers: any = {}, isCache: boolean = false) => {
     const urlWithoutQuery = url.split('?')[0];
     const cacheKey = `${method}-${urlWithoutQuery}-${JSON.stringify(payload)}`;
-
+    
+    
     // Abort previous request if it exists
     // if (activeRequests.has(cacheKey)) {
     //     activeRequests.get(cacheKey).cancel('Operation canceled due to new request.');
@@ -72,6 +73,7 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
     try {
         // Check cache first and verify expiration
         const cachedEntry = cache.get(cacheKey);
+        console.log('63',isCache)
         if (isCache && cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_EXPIRATION_TIME)) {
             return cachedEntry.data;
         }
@@ -91,7 +93,6 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
         });
 
         const customResponse = response.data;
-        console.log('94',response)
 
         // Cache the response with the current timestamp
         cache.set(cacheKey, {
@@ -107,7 +108,7 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
             console.error('Error fetching data:', err);
         }
 
-        if (err.code == 'AUTH_FAILED') {
+        if (err.code === 'AUTH_FAILED') {
             eventEmitter.emit('signOut', {});
         }
 
@@ -116,12 +117,12 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
         activeRequests.delete(cacheKey);
     }
 };
-
+console.log('120',fetchData)
 // API methods
 const PostCall = (url: string, payload = {}, headers = {}) => fetchData('post', url, payload, headers);
 const GetCall = (url: string, headers = {}) => fetchData('get', url, {}, headers);
 const PutCall = (url: string, payload = {}, headers = {}) => fetchData('put', url, payload, headers);
-const DeleteCall = (url: string, headers = {}) => fetchData('delete', url, {}, headers);
+const DeleteCall = (url: string, payload = {}, headers = {}) => fetchData('delete', url, payload, headers);
 
 const PostPdfCall = async (url: string, payload = {}, headers = {}) => {
     const token = await getAuthToken();
@@ -155,10 +156,41 @@ const PostPdfCall = async (url: string, payload = {}, headers = {}) => {
     }
 }
 
+const GetPdfCall = async (url: string, headers = {}) => {
+    const token = await getAuthToken();
+    headers = {
+        ...headers,
+        responseType: 'blob',
+        Authorization: `Bearer ${token}`
+    };
+
+    try {
+        const response = await axios.get(`${CONFIG.BASE_URL}${url}`, { headers });
+
+        // Check if the response.data is a Blob
+        if (response.data instanceof Blob) {
+            console.log('Received Blob response.');
+            const url = window.URL.createObjectURL(response.data);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'downloaded.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url); // Clean up
+        } else {
+            return response.data
+        }
+    } catch (error: any) {
+        return { code: 'FAILED', message: error.message, data: null };
+    }
+}
+
 export {
     PostCall,
     GetCall,
     PutCall,
     DeleteCall,
-    PostPdfCall
+    PostPdfCall,
+    GetPdfCall
 };

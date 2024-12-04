@@ -49,77 +49,77 @@ type Supplier = {
     };
 };
 
-// type User = {
-//     userId: number;
-//     firstName: string;
-//     lastName: string;
-//     displayName: string;
-//     email: string;
-//     phone?: string;
-//     countryCode?: string;
-//     gender?: string;
-//     profile?: string;
-//     isEmailVerified?: boolean;
-//     isPhoneVerified?: boolean;
-//     isSuperAdmin?: boolean;
-//     isAdmin?: boolean;
-//     company?: {
-//         domain: string;
-//         companyId: string;
-//         name: string;
-//     };
-//     userRole?: string;
-//     permissions: any[];
-// };
+type User = {
+    userId: number;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    email: string;
+    phone?: string;
+    countryCode?: string;
+    gender?: string;
+    profile?: string;
+    isEmailVerified?: boolean;
+    isPhoneVerified?: boolean;
+    isSuperAdmin?: boolean;
+    isAdmin?: boolean;
+    company?: {
+        domain: string;
+        companyId: string;
+        name: string;
+    };
+    userRole?: string;
+    permissions: any[];
+};
 
-// type CustomResponse = {
-//     code: string;
-//     message: string;
-//     data: any;
-//     total?: number;
-//     filters?: any;
-//     page?: any;
-//     search?: any;
-//     totalPages?: any;
-// };
+type CustomResponse = {
+    code: string;
+    message: string;
+    data: any;
+    total?: number;
+    filters?: any;
+    page?: any;
+    search?: any;
+    totalPages?: any;
+};
 
-// type AppContextType = {
-//     displayName: any;
-//     setDisplayName: (name: any) => void;
-//     user: any;
-//     setUser: (user: any) => void;
-//     company: any;
-//     setCompany: (company: any) => void;
-//     isLoading: boolean;
-//     setLoading: (loading: boolean) => void;
-//     signOut: () => void;
-//     setAlert: (type: string, message: string) => void;
-//     authToken: any;
-//     setAuthToken: (token: any) => void;
-//     isScroll: boolean;
-//     setScroll: (loading: boolean) => void;
-//     selectedSubLocation: any;
-//     setSelectedSubLocation: (selectedSubLocation: any) => void;
-// };
+type AppContextType = {
+    displayName: any;
+    setDisplayName: (name: any) => void;
+    user: any;
+    setUser: (user: any) => void;
+    company: any;
+    setCompany: (company: any) => void;
+    isLoading: boolean;
+    setLoading: (loading: boolean) => void;
+    signOut: () => void;
+    setAlert: (type: string, message: string) => void;
+    authToken: any;
+    setAuthToken: (token: any) => void;
+    isScroll: boolean;
+    setScroll: (loading: boolean) => void;
+    selectedSubLocation: any;
+    setSelectedSubLocation: (selectedSubLocation: any) => void;
+};
 
-// interface Routes {
-//     routeId: string;
-//     method: string;
-//     path: string;
-//     desc?: string;
-// }
+interface Routes {
+    routeId: string;
+    method: string;
+    path: string;
+    desc?: string;
+}
 
-// interface Permissions {
-//     permissionId: any;
-//     module: string;
-//     permission: string;
-//     desc?: string;
-// }
-// interface Roles {
-//     roleId: any;
-//     name: string;
-//     desc?: string;
-// }
+interface Permissions {
+    permissionId: any;
+    module: string;
+    permission: string;
+    desc?: string;
+}
+interface Roles {
+    roleId: any;
+    name: string;
+    desc?: string;
+}
 
 // interface Company {
 //     companyId: number;

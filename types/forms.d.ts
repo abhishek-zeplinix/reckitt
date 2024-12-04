@@ -308,6 +308,8 @@ type EmptySupplier = {
     gdpFile?:any;
     reachFile:any;
     isoFile:any;
+    locationId?:number | null;
+    sublocationId?:number | null;
 };
 export type {
     EmptyPermissions,

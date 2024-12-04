@@ -10,7 +10,7 @@
 //     ASSET_LINK: `https://erp-api-assets.s3.amazonaws.com`
 // }
 const PROD = 'http://13.127.234.119/api';
-const LOCAL = 'http://localhost:3000/api';
+const LOCAL = 'http://localhost:4001/api';
 
 const isProd = true;
 export const CONFIG = {
