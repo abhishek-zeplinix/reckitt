@@ -9,7 +9,7 @@
 //     APP_DOMAIN: isProd ? 'dev.301io.com' : 'erp.301io.com',
 //     ASSET_LINK: `https://erp-api-assets.s3.amazonaws.com`
 // }
-const PROD = 'http://codelabspace.com/api';
+const PROD = 'https://codelabspace.com/api';
 const LOCAL = 'http://localhost:4001/api';
 
 const isProd = true;
