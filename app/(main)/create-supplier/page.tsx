@@ -15,7 +15,7 @@ import { CustomDataTableRef } from '@/components/CustomDataTable';
 
 
 const defaultForm: EmptySupplier = {
-    supId:'',
+    supId:null,
     supplierName : '',
     supplierManufacturerName : '',
     siteAddress : '',
@@ -77,9 +77,9 @@ const CreateSupplierPage = () => {
         console.log('64',response)
         if (response.code == 'SUCCESS') {
             setSelectedCompany(response.data)
-            setAlert('success',response.message)
+            setAlert('success','Supplier Added Successfully')
             dataTableRef.current?.updatePagination(1);
-            router.push('/create-supplier');
+            router.push('/manage-supplier');
             
         } else {
             setAlert('error', response.message);

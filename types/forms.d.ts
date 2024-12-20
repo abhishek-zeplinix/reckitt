@@ -296,7 +296,7 @@
 //     binGradeId? = number;
 // };
 type EmptySupplier = {
-    supId:string;
+    supId:number |null;
     supplierName : string;
     supplierManufacturerName : string;
     siteAddress : string;
@@ -310,6 +310,19 @@ type EmptySupplier = {
     isoFile:any;
     locationId?:number | null;
     sublocationId?:number | null;
+    category?:{
+        categoryId:number |null;
+        categoryName:string;
+    };
+    subCategories?:{
+        subCategoryId:number |null;
+        subCategoryName:string;
+    };
+    factoryName?:{
+        factoryId:number |null;
+        factoryName:string;
+
+    };
 };
 export type {
     EmptyPermissions,
