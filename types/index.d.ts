@@ -28,27 +28,6 @@ import {
 type ChildContainerProps = {
     children: ReactNode;
 };
-type Supplier = {
-    supId:number;
-    supplierName:string;
-    supplierManufacturerName:string;
-    warehouseLocation:string;
-    siteAddress:string;
-    category?:{
-        categoryId:number;
-        categoryName:string;
-    };
-    subCategories?:{
-        subCategoryId:number;
-        subCategoryName:string;
-    };
-    factoryName?:{
-        factoryId:number;
-        factoryName:string;
-
-    };
-};
-
 type User = {
     userId: number;
     firstName: string;
@@ -120,6 +99,30 @@ interface Roles {
     name: string;
     desc?: string;
 }
+interface Supplier {
+    supId:number;
+    supplierName:string;
+    supplierManufacturerName:string;
+    warehouseLocation:string;
+    siteAddress:string;
+    gmpFile?:any;
+    gdpFile?:any;
+    reachFile:any;
+    isoFile:any;
+    category?:{
+        categoryId:number;
+        categoryName:string;
+    };
+    subCategories?:{
+        subCategoryId:number;
+        subCategoryName:string;
+    };
+    factoryName?:{
+        factoryId:number;
+        factoryName:string;
+
+    };
+};
 
 // interface Company {
 //     companyId: number;
