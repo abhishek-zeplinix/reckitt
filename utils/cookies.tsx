@@ -9,6 +9,8 @@ const options = {
 const isTokenValid = (userToken: string) => {
     if (!userToken) return false;
     const decoded = jwtDecode(userToken);
+    console.log("decode", decoded);
+    
     if (decoded && decoded.exp) {
         const currentTime = Date.now() / 1000; // Convert to seconds
         return decoded && decoded.exp > currentTime ? decoded : false; // Check if the token is expired

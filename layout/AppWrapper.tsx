@@ -1,6 +1,6 @@
 'use client';
-import { GetCall } from '@/app/api/ApiKit';
-import eventEmitter from '@/app/api/event';
+import { GetCall } from '@/app/api-config/ApiKit';
+import eventEmitter from '@/app/api-config/event';
 import Preloader from '@/components/Preloader';
 import { CONFIG } from '@/config/config';
 import { AppContextType, CustomResponse } from '@/types';
@@ -51,8 +51,12 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     useEffect(() => {
         const isValid = isTokenValid(authToken);
+        console.log(isValid);
+        
         if (!isValid) {
             if (authRoutes.includes(pathname)) {
+                console.log("uhwhfhrfue", authRoutes, pathname);
+                
                 return;
             }
             router.replace('/login');
