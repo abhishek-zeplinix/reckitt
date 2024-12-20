@@ -33,31 +33,31 @@ const LoginPage = () => {
         setPassword(event.target.value);
     };
 
-    const loginClick = async () => {
-        if (isLoading) {
-            return;
-        }
+    // const loginClick = async () => {
+    //     if (isLoading) {
+    //         return;
+    //     }
 
-        if (userEmail && userPassword) {
-            setLoading(true);
-            const resoponse: any = await PostCall('/auth/sign-in', { userEmail, userPassword });
-            setLoading(false);
-            if (resoponse.code == 'SUCCESS') {
-                console.log('login success');
-                setAlert('success', 'Login success!!');
-                setUser(resoponse.data);
-                setAuthToken(resoponse.token);
-                setAuthData(resoponse.token, resoponse.refreshToken, resoponse.data);
-            } else if (resoponse.code == 'RESET_PASSWORD') {
-                console.log('res', resoponse);
-                setDisplayName(resoponse.name);
-                setAlert('success', 'Please reset you userPassword');
-                router.push(`/reset-userPassword?resetToken=${resoponse.resetToken}`);
-            } else {
-                setAlert('error', resoponse.message);
-            }
-        }
-    };
+    //     if (userEmail && userPassword) {
+    //         setLoading(true);
+    //         const resoponse: any = await PostCall('/auth/sign-in', { userEmail, userPassword });
+    //         setLoading(false);
+    //         if (resoponse.code == 'SUCCESS') {
+    //             console.log('login success');
+    //             setAlert('success', 'Login success!!');
+    //             setUser(resoponse.data);
+    //             setAuthToken(resoponse.token);
+    //             setAuthData(resoponse.token, resoponse.refreshToken, resoponse.data);
+    //         } else if (resoponse.code == 'RESET_PASSWORD') {
+    //             console.log('res', resoponse);
+    //             setDisplayName(resoponse.name);
+    //             setAlert('success', 'Please reset you userPassword');
+    //             router.push(`/reset-userPassword?resetToken=${resoponse.resetToken}`);
+    //         } else {
+    //             setAlert('error', resoponse.message);
+    //         }
+    //     }
+    // };
 
     const handleCheckboxChange = (e: any) => {
         setChecked(e.checked); // Update checked state
@@ -125,7 +125,7 @@ const LoginPage = () => {
                                 </div>
                             </div>
 
-                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2" onClick={loginClick} />
+                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2" onClick={()=>{router.push("/")}} />
 
                             <div className="flex align-items-center justify-content-center mb-6 mt-3 ">
                                 <Link href="/forgot-userPassword" className="font-medium no-underline ml-2  text-center cursor-pointer">
