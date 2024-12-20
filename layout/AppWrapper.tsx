@@ -59,7 +59,7 @@ export const AppWrapper = React.memo(({ children }: any) => {
                 
                 return;
             }
-            // router.replace('/login');
+            router.replace('/login');
         } else if (authToken && isValid && authRoutes.includes(pathname)) {
             console.log('app wrapper', get(isValid, 'portalLink', '/'));
             router.replace(get(isValid, 'portalLink', '/'));
