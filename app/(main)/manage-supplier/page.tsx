@@ -10,7 +10,7 @@ import {  get } from 'lodash';
 import {  CustomResponse } from '@/types';
 import { InputText } from 'primereact/inputtext';
 import { buildQueryParams,getRowLimitWithScreenHeight } from '@/utils/uitl';
-import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api/ApiKit';
+import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { Supplier } from '@/types';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';

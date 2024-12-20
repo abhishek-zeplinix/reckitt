@@ -8,7 +8,7 @@ import Stepper from '@/components/Stepper';
 import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, Supplier } from '@/types';
-import { GetCall, PostCall } from '@/app/api/ApiKit';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { EmptySupplier } from '@/types/forms';
 import { filter, find, get, groupBy, keyBy, map, uniq } from 'lodash';
 import { CustomDataTableRef } from '@/components/CustomDataTable';

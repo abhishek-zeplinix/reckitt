@@ -1,4 +1,4 @@
-import { PostPdfCall } from '@/app/api/ApiKit';
+import { PostPdfCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { get } from 'lodash';
 import { Button } from 'primereact/button';

@@ -7,7 +7,7 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import Link from 'next/link';
-import { PostCall } from '@/app/api/ApiKit';
+import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 
 const ForgotPasswordPage = () => {

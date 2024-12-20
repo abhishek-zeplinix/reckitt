@@ -7,7 +7,7 @@ import { Column, ColumnProps } from 'primereact/column';
 import { TreeTable } from 'primereact/treetable';
 import { InputText } from 'primereact/inputtext';
 import { get } from 'lodash';
-import { GetCall, PostCall } from '@/app/api/ApiKit';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
 
 interface ColumnItem extends ColumnProps {

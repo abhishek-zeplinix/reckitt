@@ -9,7 +9,7 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import Link from 'next/link';
-import { PostCall } from '@/app/api/ApiKit';
+import { PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CONFIG } from '@/config/config';
@@ -86,7 +86,7 @@ const LoginPage = () => {
                             <img src="/images/reckitt.webp" alt="Logo" width="120px" height={'50px'} />
                         </div>
                         <div className="text-center mb-5">
-                            <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
+                            <div className="text-900 text-3xl font-medium mb-3">Welcome Backkkk</div>
                             <span className="text-600 font-medium line-height-3">Enter your credentials to access your account</span>
                         </div>
 

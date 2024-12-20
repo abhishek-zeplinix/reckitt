@@ -11,7 +11,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 import { formatBytes, generateRandomId, parseYouTubeID } from '@/utils/uitl';
-import { GetCall, PostCall } from '@/app/api/ApiKit';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CONFIG } from '@/config/config';
 import DefaultLogo from './DefaultLogo';
 import { Checkbox } from 'primereact/checkbox';
