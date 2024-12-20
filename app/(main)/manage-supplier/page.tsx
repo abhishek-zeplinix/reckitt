@@ -153,7 +153,6 @@ const ManageSupplierPage = () => {
     };
 
     const onNewAdd = async (companyForm: any) => {
-            console.log('148',companyForm);
             if (action == ACTIONS.ADD) {
             setIsDetailLoading(true);
             const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
