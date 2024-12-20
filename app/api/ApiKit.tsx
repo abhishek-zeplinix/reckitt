@@ -57,48 +57,59 @@ const CACHE_EXPIRATION_TIME = 2 * 60 * 1000;
 const cache = new Map();
 const activeRequests = new Map();
 
+// Helper function to check the cache
+const getCache = (cacheKey: string, isCache: boolean) => {
+    if (isCache) {
+        const cachedEntry = cache.get(cacheKey);
+        if (cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_EXPIRATION_TIME)) {
+            return cachedEntry.data;
+        }
+    }
+    return null;
+};
+
+// Helper function to set the cache
+const setCache = (cacheKey: string, data: any) => {
+    cache.set(cacheKey, {
+        data,
+        timestamp: Date.now()
+    });
+};
+
+// Helper function to handle API call with authorization
+const fetchWithAuthorization = async (method: string, url: string, payload: any, headers: any) => {
+    const token = await getAuthToken();
+    headers = {
+        ...headers,
+        Authorization: `Bearer ${token}`
+    };
+
+    return await APIKit({
+        method,
+        url,
+        data: method !== 'get' ? payload : undefined,
+        headers
+    });
+};
+
+// Main fetch function
 const fetchData = async (method: string, url: string, payload = {}, headers: any = {}, isCache: boolean = false) => {
     const urlWithoutQuery = url.split('?')[0];
     const cacheKey = `${method}-${urlWithoutQuery}-${JSON.stringify(payload)}`;
-    
-    
-    // Abort previous request if it exists
-    // if (activeRequests.has(cacheKey)) {
-    //     activeRequests.get(cacheKey).cancel('Operation canceled due to new request.');
-    // }
 
-    // const cancelTokenSource = axios.CancelToken.source();
-    // activeRequests.set(cacheKey, cancelTokenSource);
+    // Check cache before making an API request
+    const cachedData = getCache(cacheKey, isCache);
+    if (cachedData) {
+        return cachedData;
+    }
 
     try {
-        // Check cache first and verify expiration
-        const cachedEntry = cache.get(cacheKey);
-        console.log('63',isCache)
-        if (isCache && cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_EXPIRATION_TIME)) {
-            return cachedEntry.data;
-        }
-
-        const token = await getAuthToken();
-        headers = {
-            ...headers,
-            Authorization: `Bearer ${token}`
-        };
-
-        const response = await APIKit({
-            method,
-            url,
-            data: method !== 'get' ? payload : undefined,
-            headers,
-            // cancelToken: cancelTokenSource.token
-        });
-
+        // Fetch the data from the API if not cached or cache is expired
+        const response = await fetchWithAuthorization(method, url, payload, headers);
         const customResponse = response.data;
 
-        // Cache the response with the current timestamp
-        cache.set(cacheKey, {
-            data: customResponse,
-            timestamp: Date.now()
-        });
+        // Cache the response if necessary
+        setCache(cacheKey, customResponse);
 
         return customResponse;
     } catch (err: any) {
@@ -113,11 +124,9 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
         }
 
         return { code: err.code, message: err.message, data: null };
-    } finally {
-        activeRequests.delete(cacheKey);
     }
 };
-console.log('120',fetchData)
+
 // API methods
 const PostCall = (url: string, payload = {}, headers = {}) => fetchData('post', url, payload, headers);
 const GetCall = (url: string, headers = {}) => fetchData('get', url, {}, headers);
