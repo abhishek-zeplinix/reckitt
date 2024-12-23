@@ -757,13 +757,12 @@ const ManageSupplierPage = () => {
             <Dialog
                 header="Delete confirmation"
                 visible={isDeleteDialogVisible}
-                style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
+                style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
                 className="delete-dialog"
-                headerStyle={{ backgroundColor: '#ffdddb', color: '#8c1d18' }}
                 footer={
-                    <div className="flex justify-content-end p-2">
-                        <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" severity="danger" onClick={confirmDelete} />
+                    <div className="flex justify-content-center p-2">
+                        <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7" onClick={confirmDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
@@ -773,14 +772,12 @@ const ManageSupplierPage = () => {
                         <ProgressSpinner style={{ width: '50px', height: '50px' }} />
                     </div>
                 )}
-                <div className="flex flex-column w-full surface-border p-3">
-                    <div className="flex align-items-center">
-                        <i className="pi pi-info-circle text-6xl red" style={{ marginRight: 10 }}></i>
-                        <span>
-                            This will permanently delete the selected Supplier.
-                            <br />
-                            Do you still want to delete it? This action cannot be undone.
-                        </span>
+                <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+
+                    <div className="flex flex-column align-items-center gap-1">
+                        <span>Are you sure you want to delete this supplier? </span>
+                        <span>Do you still want to delete it? This action cannot be undone. </span>
                     </div>
                 </div>
             </Dialog>
