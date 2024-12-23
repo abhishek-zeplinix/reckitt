@@ -12,7 +12,6 @@ const SupplierEvaluationTable = ({ rules }: any) => {
   const [originalPercentages, setOriginalPercentages] = useState<any>({});
   const [currentPercentages, setCurrentPercentages] = useState<any>({});
   const [totalScore, setTotalScore] = useState<any>(0);
-  const [isCapaRequired, setIsCapaRequired] = useState<boolean>(false)
 
   useEffect(() => {
     if (rules) {
@@ -272,7 +271,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
           ))}
 
 
-          <tr className="" style={{ backgroundColor: "#B6E4C9" }}>
+          <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1'  : '#B6E4C9'}}>
             <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
               Total Score:
             </td>
@@ -283,30 +282,36 @@ const SupplierEvaluationTable = ({ rules }: any) => {
 
       </table>
 
-      <div className=' right-0 bottom-0 flex flex-col justify-center gap-3 mt-5'>
-        <div className='m-3'>
-          Note: Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
-        </div>
+      <div className='flex flex-col justify-content-end gap-3 mt-5 mr-2'>
 
-        <div className=''>
-          <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
-          <InputTextarea rows={5} cols={30} />
-        </div>
+      {!(totalScore <= 50) &&
+            <div className='m-3 max-w-sm text-ellipsis overflow-hidden' style={{ wordWrap: "normal", maxWidth: "300px", alignItems: "stretch" }}>
+              <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+            </div>  }
+              
+              {/* divider */}
+            <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
 
-      </div>
 
-      
-       {/* if CAPA is required */}
-       <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-        {totalScore < 50 && <CapaRequiredTable />}
-      </div>
+            <div>
+              <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
+              <InputTextarea rows={5} cols={30} />
+            </div>
 
-      {/* submission buttons */}
-      <div className='flex justify-content-end gap-3 mt-3 p-3'>
-      <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none'}}/>
-      <Button label="Save"  style={{ backgroundColor: "#DF177C", border: 'none'}} />
+          </div>  
 
-      </div>
+          
+          {/* if CAPA is required */}
+          <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
+            {totalScore <= 50 && <CapaRequiredTable />}
+          </div>
+
+          {/* submission buttons */}
+          <div className='flex justify-content-end gap-3 mt-1 p-3'>
+          <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none'}}/>
+          <Button label="Save"  style={{ backgroundColor: "#DF177C", border: 'none'}} />
+
+          </div>
 
     </div>
   );

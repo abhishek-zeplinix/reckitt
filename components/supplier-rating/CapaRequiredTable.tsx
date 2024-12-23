@@ -77,7 +77,7 @@ const CapaRequiredTable = () => {
 
   return (
     <div className="w-full">
-      <p className="text-red-500 mb-2">CAPA Required</p>
+      <div className="text-black mb-2 text-sm"><span className="font-bold text-lg" style={{ color: "#DD5B5B"}}>CAPA Required</span> (CORRECTIVE AND PREVENTATIVE ACTION (CAPA) REQUIRED IF SCORE ≤ 50%?)</div>
       <table className="w-full bg-white border table-fixed">
         <thead>
           <tr style={{ backgroundColor: "#E9EFF6" }}>

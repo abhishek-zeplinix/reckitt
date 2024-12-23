@@ -439,7 +439,7 @@ const SupplierRatingPage = () => {
     const dataPanel = () => {
         return (
             <>
-                <div className="">
+                <div className="border">
                     <div className="p-1">
                         <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
                             {tabs.map((tab) => (
