@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'; // Correct import for Next.js router
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -8,57 +8,44 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
-
+import { CustomResponse, Supplier } from '@/types';
+import { GetCall } from '../app/api-config/ApiKit';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { useAppContext } from '@/layout/AppWrapper';
 const SupplierDirectory = () => {
     const router = useRouter();
-
-    const suppliers = [
-        {
-            id: 1,
-            name: '45667',
-            status: 'Active',
-            location: 'Copack',
-            category: 'Copack',
-            onboardingDate: '11-15-2024',
-            lastEvaluated: 'Q2 2024'
-        },
-        {
-            id: 2,
-            name: 'Apex Medical Supplies',
-            status: 'Active',
-            location: 'Raw & Pack',
-            category: 'Raw & Pack',
-            onboardingDate: '10-14-2024',
-            lastEvaluated: 'Q2 2023'
-        },
-        {
-            id: 3,
-            name: 'BioHealth Products',
-            status: 'Active',
-            location: 'Pennsylvania',
-            category: 'Raw & Pack',
-            onboardingDate: '10-03-2024',
-            lastEvaluated: 'Q1 2024'
-        },
-        {
-            id: 4,
-            name: 'Supplier Four',
-            status: 'Active',
-            location: 'Texas',
-            category: 'Packaging',
-            onboardingDate: '11-01-2023',
-            lastEvaluated: 'Q3 2023'
-        },
-        {
-            id: 5,
-            name: 'Supplier Five',
-            status: 'Inactive',
-            location: 'California',
-            category: 'Raw',
-            onboardingDate: '08-12-2024',
-            lastEvaluated: 'Q1 2024'
+    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const [page, setPage] = useState<number>(1);
+    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
+    useEffect(() => {
+        // setScroll(true);
+        fetchData();
+        // fetchRolesData();
+        return () => {
+            // setScroll(true);
+        };
+    }, []);
+    const fetchData = async (params?: any) => {
+        if (!params) {
+            params = { limit: limit, page: page };
         }
-    ];
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setSuppliers(response.data);
+            console.log('46', response.data);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setSuppliers([]);
+        }
+    };
 
     const navigateToSummary = (id: number) => {
         router.push(`/supplier-scoreboard-summary`);
@@ -96,13 +83,13 @@ const SupplierDirectory = () => {
                     scrollbarColor: '#888 #f1f1f1' // Firefox
                 }}
             >
-                <Column field="id" header="#" />
-                <Column field="name" header="Supplier Name" />
+                <Column field="supId" header="#" />
+                <Column field="supplierName" header="Supplier Name" />
                 <Column field="status" header="Status" body={statusBodyTemplate} />
-                <Column field="location" header="Location" />
-                <Column field="category" header="Category" />
-                <Column field="onboardingDate" header="Onboarding Date" />
-                <Column field="lastEvaluated" header="Last Evaluated" />
+                <Column field="location.name" header="Location" />
+                <Column field="category.categoryName" header="Category" />
+                {/* <Column field="onboardingDate" header="Onboarding Date" />
+                <Column field="lastEvaluated" header="Last Evaluated" />*/}
                 <Column header="History" body={historyBodyTemplate} />
                 <Column header="Evaluate" body={evaluateBodyTemplate} />
             </DataTable>
