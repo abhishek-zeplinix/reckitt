@@ -44,7 +44,7 @@ const LoginPage = () => {
             setLoading(false);
             if (response.code == 'SUCCESS') {
                 console.log('login success');
-                setAlert('success', 'Login success!!');
+                setAlert('success', 'Login success!');
                 setUser(response.data);
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
