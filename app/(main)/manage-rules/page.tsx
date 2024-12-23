@@ -1,12 +1,28 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { Dropdown } from 'primereact/dropdown';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Dialog } from 'primereact/dialog';
+import { useAppContext } from '@/layout/AppWrapper';
+import { sortBy } from 'lodash';
+import { SortOrder } from 'primereact/api';
+import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
+import { Rules } from '@/types';
+
+const ACTIONS = {
+    ADD: "add",
+    EDIT: "edit",
+    VIEW: "view",
+    DELETE: "delete"
+}
+
 const ManageRulesPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
@@ -15,9 +31,22 @@ const ManageRulesPage = () => {
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
 
+
+    const [selectedRuleId, setSelectedRuleId] = useState();
+    const [action, setAction] = useState(null);
+    const[isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [selectedDepartment, setSelectedDepartment] = useState("")
+    const [selectedSubCategory, setSelectedSubCategory] = useState("")
+    const [rules, setRules] = useState<Rules[]>([])
+    const [totalRecords, setTotalRecords] = useState();
+
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
+
+    const { isLoading, setLoading, setAlert } = useAppContext();
+ 
+
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -27,11 +56,12 @@ const ManageRulesPage = () => {
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
                     <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );
     };
+
     const header = renderHeader();
 
     const renderInputBox = () => {
@@ -52,40 +82,159 @@ const ManageRulesPage = () => {
             </div>
         );
     };
+
     const inputboxfeild = renderInputBox();
 
-    const databoxx = [
-        {
-            poNumber: 'PO-12345',
-            supplierName: 'ABC Supplier',
-            supplierAddress: 'ABC Address',
-            supplierContact: 'ABC Contact',
-            supplierEmail: 'abc@gmail.com',
-            supplierStatus: 'Active'
-        },
-        {
-            poNumber: 'PO-67890',
-            supplierName: 'XYZ Supplier',
-            supplierAddress: 'XYZ Address',
-            supplierContact: 'XYZ Contact',
-            supplierEmail: 'xyz@gmail.com',
-            supplierStatus: 'Inactive'
+
+
+    const fetchData = async (params?: any) => {
+
+        try{
+
+
+            if (!params) {
+                params = { limit: limit, page: page, include: "subCategories", sortOrder: "asc" };
+            }
+
+            setPage(params.page)
+
+            const queryString = buildQueryParams(params);
+
+            const response = await GetCall(`company/rules?${queryString}`);
+
+            console.log("tr" , response.data.length);
+            setTotalRecords(response.total)
+            setRules(response.data)
+
+        }catch(error){
+            setAlert('error', 'Something went wrong!')
+
+        }finally{
+            setLoading(false)
         }
-        // Add more data here...
-    ];
+       
+    }
+
+    const dataTableHeaderStyle = { fontSize: "12px" }
+
+
+    useEffect(() => {
+        fetchData();
+    }, [])
+
+    const departments = [
+        { label: "Planning", value: "Planning" },
+        { label: "Quality", value: "Quality" },
+        { label: "Development", value: "Development" },
+        { label: "Procurement", value: "Procurement" },
+        { label: "Sustainability", value: "Sustainability" }
+    ]
+
+    const subcategories = [
+        { label: "Packing Material Supplier", value: "Packing Material Supplier" },
+        { label: "Raw Material Supplier", value: "Raw Material Supplier" },
+        { label: "Copack Material Supplier", value: "Copack Material Supplier" }
+
+    ]
+
+
+    const dropdownMenuDepartment = () => {
+        return (
+            <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label"
+                placeholder="-- Select Department --" className="w-full md:w-20rem" />
+        )
+    }
+
+    const dropdownFieldDeparment = dropdownMenuDepartment();
+
+
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown value={selectedSubCategory} onChange={(e) => setSelectedSubCategory(e.value)} options={subcategories} optionLabel="label"
+                placeholder="-- Select Sub Category --" className="w-full md:w-20rem" />
+        )
+    }
+
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
+
+    const onRowSelect = async (perm: Rules, action: any) => {
+        console.log('404', perm)
+
+        setAction(action);
+
+        setSelectedRuleId(perm.ruleId)
+
+        if (action === ACTIONS.DELETE) {
+            openDeleteDialog(perm);
+        }
+        // if (action === ACTIONS.VIEW) {
+        //     setIsShowSplit(true);
+        // }
+        // if (action === ACTIONS.EDIT) {
+        //     setIsShowSplit(true);
+        //     // fetchSoDetails(perm.estimateId)
+        // }
+    };
+ 
+    const openDeleteDialog = (items :Rules) =>{
+        setIsDeleteDialogVisible(true);
+    }
+
+    const closeDeleteDialog = () =>{
+        setIsDeleteDialogVisible(false);
+    }
+
+    const onDelete = async() =>{
+        
+        setLoading(true);
+
+        try{
+            
+            const response = await DeleteCall(`/company/rules/${selectedRuleId}`)
+            
+            if(response.code === 'SUCCESS'){
+
+                setRules(prevRules => prevRules.filter(rule => rule.ruleId !== selectedRuleId));
+                closeDeleteDialog();
+                setAlert('success', "Rule successfully deleted!")
+                
+            }else{
+
+                setAlert('error', "Something went wrong!")
+                closeDeleteDialog();
+            }
+            
+        }catch(error){
+            
+            setAlert('error', "Something went wrong!")
+            
+        }finally{
+            setLoading(false)
+        }
+        
+    }
+
     return (
         <div className="grid">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
                     <div className="left-panel pt-5">
                         <div className="header">{header}</div>
-                        <div className="search-box  mt-5">{inputboxfeild}</div>
+
+                        {/* <div className="search-box  mt-5">{inputboxfeild}</div> */}
+
+                        <div className='flex gap-4'>
+                            <div className='mt-5'>{dropdownFieldDeparment}</div>
+                            <div className='mt-5'>{dropdownFieldSubCategory}</div>
+                        </div>
+
+
                         <CustomDataTable
                             ref={dataTableRef}
                             filter
                             page={page}
                             limit={limit} // no of items per page
-                            // totalRecords={totalRecords} // total records from api response
+                            totalRecords={totalRecords} // total records from api response
                             // isView={true}
                             isEdit={true} // show edit button
                             isDelete={true} // show delete button
@@ -104,88 +253,140 @@ const ManageRulesPage = () => {
                             //         }
                             //     }
                             // ]}
-                            data={databoxx}
+                            data={rules.map((item: any) => ({
+                                ruleId: item.ruleId,
+                                subCategoryName: item.subCategories?.subCategoryName,
+                                section: item.section,
+                                ratedCriteria: item.ratedCriteria,
+                                criteriaEvaluation: item.criteriaEvaluation,
+                                score: item.score,
+                                ratiosCopack: item.ratiosCopack,
+                                ratiosRawpack: item.ratiosRawpack
+                            }))}
+
                             columns={[
                                 {
                                     header: 'Sr No',
-                                    field: 'srno',
+                                    field: 'ruleId',
                                     filter: true,
                                     sortable: true,
                                     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Sr No'
+                                    headerStyle: dataTableHeaderStyle,
+                                    filterPlaceholder: 'Sr No',
+
                                 },
                                 {
-                                    header: 'Supplier Id',
+                                    header: 'DEPARTMENT PROCU CATEGORY',
                                     field: 'supplierid',
                                     // body: renderVendor,
                                     filter: true,
                                     // filterElement: vendorDropdown,
                                     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                     filterPlaceholder: 'Supplier Id'
                                 },
                                 {
-                                    header: 'Supplier Name',
-                                    field: 'suppliername',
+                                    header: 'SUB CATEGORY',
+                                    field: 'subCategoryName',
                                     sortable: true,
                                     filter: true,
                                     filterPlaceholder: 'Supplier Name',
+                                    headerStyle: dataTableHeaderStyle,
                                     style: { minWidth: 120, maxWidth: 120 }
                                 },
                                 {
-                                    header: 'Procurement Category',
-                                    field: 'procurementcateogyr',
+                                    header: 'CRITERIA CATEGORY',
+                                    field: 'section',
                                     // body: renderWarehouse,
                                     filter: true,
                                     // filterElement: warehouseDropdown,
                                     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                     filterPlaceholder: 'Search Procurement Category'
                                 },
                                 {
-                                    header: 'Supplier Category',
-                                    field: 'suppliercategory',
+                                    header: 'CRITERIA',
+                                    field: 'ratedCriteria',
                                     // body: renderStatus,
                                     filter: true,
                                     filterPlaceholder: 'Search Supplier Category',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                     // filterElement: statusDropdown
                                 },
                                 {
-                                    header: 'Supplier Manufacturing Name',
-                                    field: 'manufacturingname',
+                                    header: 'CRITERIA EVALUATION LIST',
+                                    field: 'criteriaEvaluation',
                                     filter: true,
                                     filterPlaceholder: 'Search Supplier Manufacturing Name',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                     // body: renderPOTotal
                                 },
                                 {
-                                    header: 'Site Address',
-                                    field: 'siteaaddress',
+                                    header: 'CRITERIA SCORE',
+                                    field: 'score',
                                     filter: true,
                                     filterPlaceholder: 'Search Site Address',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                 },
                                 {
-                                    header: 'Factory Name',
-                                    field: 'factoryname',
+                                    header: 'RATIOS COPACK',
+                                    field: 'ratiosCopack',
                                     filter: true,
                                     filterPlaceholder: 'Search Factory Name',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                 },
                                 {
-                                    header: 'Warehouse Location',
-                                    field: 'warehouselocation',
+                                    header: 'RATIOS RAW&PACK',
+                                    field: 'ratiosRawpack',
                                     filter: true,
                                     filterPlaceholder: 'Search Warehouse Location',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    headerStyle: dataTableHeaderStyle,
                                 }
                             ]}
-                            // onLoad={(params: any) => fetchData(params)}
+                            onLoad={(params: any) => fetchData(params)}
                             // // onView={(item: any) => onRowSelect(item, 'view')}
                             // onEdit={(item: any) => onRowSelect(item, 'edit')}
-                            // onDelete={(item: any) => onRowSelect(item, 'delete')}
+                            onDelete={(item: any) => onRowSelect(item, 'delete')}
                         />
+
                     </div>
                 </div>
+
+                <Dialog
+                    header="Delete confirmation"
+                    visible={isDeleteDialogVisible}
+                    style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
+                    className="delete-dialog"
+                    headerStyle={{ backgroundColor: '#ffdddb', color: '#8c1d18' }}
+                    footer={
+                        <div className="flex justify-content-end p-2">
+                            <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
+                            <Button label="Delete" severity="danger" onClick={onDelete} />
+                        </div>
+                    }
+                    onHide={closeDeleteDialog}
+                >
+                    {isLoading && (
+                        <div className="center-pos">
+                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                        </div>
+                    )}
+                    <div className="flex flex-column w-full surface-border p-3">
+                        <div className="flex align-items-center">
+                            <i className="pi pi-info-circle text-6xl red" style={{ marginRight: 10 }}></i>
+                            <span>
+                                This will permanently delete the selected rule.
+                                <br />
+                                Do you still want to delete it? This action cannot be undone.
+                            </span>
+                        </div>
+                    </div>
+                </Dialog>
             </div>
         </div>
     );

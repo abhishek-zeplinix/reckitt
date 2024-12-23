@@ -13,6 +13,8 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Link from 'next/link';
+
 const SupplierScoreboardSummoryPage = () => {
     const router = useRouter();
     const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
@@ -278,10 +280,18 @@ const SupplierScoreboardSummoryPage = () => {
 
     const headerComp = () => {
         return (
-            <div className="flex justify-content-between">
+            <div className="flex justify-content-between ">
                 <div className="flex justify-content-start">
                     <Dropdown id="role" value={selectedProcurementOrder} options={procurementOrder} onChange={(e) => setSelectedProcurementOrder(e.value)} placeholder="Select Year" className="w-full" />
                 </div>
+
+                <div className='flex-1 ml-5'>
+                <Link href="/supplier-scoreboard-summary/supplier-rating">
+                    <Button label="Add Inputs" severity="secondary" outlined />
+                </Link>
+
+                </div>
+
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
                     <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " style={{ marginLeft: 10 }} onClick={() => window.print()} />

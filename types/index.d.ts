@@ -124,6 +124,20 @@ interface Supplier {
     };
 };
 
+interface Rules{
+    ruleId: any;
+    section: string;
+    ratedCriteria: string;
+    criteriaEvaluation: string;
+    score: string;
+    ratiosRawpack:number;
+    ratiosCopack:number;
+    subCategories?:{
+        subCategoryName: string;
+    }
+}
+
+
 // interface Company {
 //     companyId: number;
 //     subdomain: string;
@@ -715,5 +729,6 @@ export type {
     CategoryOption,
     SKUOption, 
     Item,
-    Supplier
+    Supplier,
+    Rules
 };
