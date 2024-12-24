@@ -682,6 +682,7 @@ const AppMenu = () => {
             {layoutState.isMobile && (
                 <Link href="/" className="layout-topbar-logo">
                     {/* <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} /> */}
+                    <img src="/images/reckitt.webp" width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} />
                 </Link>
             )}
 

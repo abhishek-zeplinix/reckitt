@@ -1,9 +1,7 @@
 'use client'
-import CapaRequiredTable from "@/components/supplier-rating/CapaRequiredTable";
+import { GetCall } from "@/app/api-config/ApiKit";
 import SupplierEvaluationTable from "@/components/supplier-rating/SupplierRatingTable";
 import { Button } from "primereact/button";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { useEffect, useState } from "react";
 
@@ -143,11 +141,11 @@ const SupplierRatingPage = () => {
         { label: 'H4-2024', value: 'H4' }
     ];
 
-    // const fetchData = async() => {
+    const fetchData = async() => {
 
-    //     const response = await GetCall('/company/rules/2/2/4');
-    //     setRules(response.data)
-    // }
+        const response = await GetCall('/company/rules/2/2/4');
+        setRules(response.data)
+    }
 
 
     const dummy2 = {

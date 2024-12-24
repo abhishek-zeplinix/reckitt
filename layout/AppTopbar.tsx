@@ -76,7 +76,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     return (
         <div className="layout-topbar">
             <Link href="/" className="layout-topbar-logo">
-                {/* <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" /> */}
+                <img src="/images/reckitt.webp" width="100px" height={'35px'} alt="logo" />
             </Link>
 
             {layoutState.isMobile && (
