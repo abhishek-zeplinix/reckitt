@@ -18,17 +18,26 @@ const isTokenValid = (userToken: string) => {
     return false;
 };
 
+// const getDomain = (): string => {
+//     const hostname = window.location.host;
+//     if (hostname.indexOf('localhost') > -1) {
+//         return hostname;
+//     }
+//     const parts = hostname.split('.');
+//     if (parts.length > 2) {
+//         return `${parts.slice(-2).join('.')}`;
+//     }
+//     return `${parts.join('.')}`;
+// };
+
 const getDomain = (): string => {
-    const hostname = window.location.host;
-    if (hostname.indexOf('localhost') > -1) {
-        return hostname;
-    }
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost') return '';
     const parts = hostname.split('.');
-    if (parts.length > 2) {
-        return `${parts.slice(-2).join('.')}`;
-    }
-    return `${parts.join('.')}`;
+    return parts.length > 2 ? parts.slice(-2).join('.') : hostname;
 };
+
+
 
 const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
     console.log('90',token)
@@ -40,9 +49,12 @@ const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
         secure: true,
         sameSite: 'None'
     };
+    Cookies.set('userDetails', JSON.stringify(userDetails), option);
+
 
     if (domain.indexOf('localhost') == -1) {
         option.domain = `.${domain}`;
+        option.secure = true; // Only for production
     }
     Cookies.set('authToken', token, option);
     Cookies.set('authRefreshToken', refreshToken, option);
@@ -71,12 +83,14 @@ const getRefreshToken = (): string | undefined => {
     return Cookies.get('authRefreshToken');
 };
 
-const getUserDetails = (): any => {
+const getUserDetails = () => {
     const domain = getDomain();
     const userDetails = Cookies.get('userDetails');
     console.log('75',userDetails)
+    console.log('Setting userDetails:', JSON.stringify(userDetails));
     return userDetails ? JSON.parse(userDetails) : null;
 };
+console.log('Cookies.get("userDetails"):', Cookies.get('userDetails'));
 
 const removeAuthData = () => {
     const domain: string = getDomain();
@@ -84,7 +98,9 @@ const removeAuthData = () => {
         path: '/',
         secure: true,
         sameSite: 'None'
+        
     };
+    console.log('Options:', option);
 
     if (domain.indexOf('localhost') == -1) {
         option.domain = `.${domain}`;
