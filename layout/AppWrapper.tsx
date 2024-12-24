@@ -62,8 +62,8 @@ export const AppWrapper = React.memo(({ children }: any) => {
             router.replace('/login');
             // router.replace('/login/kau');
         } else if (authToken && isValid && authRoutes.includes(pathname)) {
-            console.log('app wrapper', get(isValid, 'https://codelabspace.com/api', '/'));
-            router.replace(get(isValid, 'https://codelabspace.com/api', '/'));
+            console.log('app wrapper', get(isValid, 'https://reckittserver.vercel.app', '/'));
+            router.replace(get(isValid, 'https://reckittserver.vercel.app', '/'));
         }
     }, [authToken]);
     useEffect(() => {
