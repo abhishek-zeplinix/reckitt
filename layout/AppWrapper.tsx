@@ -62,9 +62,9 @@ export const AppWrapper = React.memo(({ children }: any) => {
             router.replace('/login');
             // router.replace('/login/kau');
         } else if (authToken && isValid && authRoutes.includes(pathname)) {
-            console.log('app wrapper', 'https://reckittserver.vercel.app', '/');
-            router.replace('https://reckittserver.vercel.app/');
-            // router.replace(get(isValid, 'portalLink', '/'));
+            console.log('12',authToken && isValid && authRoutes.includes(pathname));
+            // router.replace('https://reckittserver.vercel.app/');
+            router.replace(get(isValid, 'portalLink', '/'));
         }
     }, [authToken]);
     useEffect(() => {

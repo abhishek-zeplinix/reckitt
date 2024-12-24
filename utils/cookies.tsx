@@ -32,6 +32,8 @@ const getDomain = (): string => {
 
 const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
     console.log('90',token)
+    console.log('91',refreshToken)
+    console.log('92',userDetails)
     const domain: string = getDomain();
     const option: any = {
         path: '/',
@@ -72,6 +74,7 @@ const getRefreshToken = (): string | undefined => {
 const getUserDetails = (): any => {
     const domain = getDomain();
     const userDetails = Cookies.get('userDetails');
+    console.log('75',userDetails)
     return userDetails ? JSON.parse(userDetails) : null;
 };
 

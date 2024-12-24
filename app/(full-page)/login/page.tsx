@@ -13,7 +13,7 @@ import { PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CONFIG } from '@/config/config';
-import { setAuthData } from '@/utils/cookies';
+import { setAuthData, setUserDetails } from '@/utils/cookies';
 import { get } from 'lodash';
 
 const LoginPage = () => {
@@ -48,6 +48,7 @@ const LoginPage = () => {
                 setUser(response.data);
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
+                setUserDetails(response.data)
             } else if (response.code == 'RESET_PASSWORD') {
                 console.log('res', response);
                 setDisplayName(response.name);
