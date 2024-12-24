@@ -11,9 +11,13 @@ const SupplierEvaluationTable = ({ rules }: any) => {
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
   const [originalPercentages, setOriginalPercentages] = useState<any>({});
   const [currentPercentages, setCurrentPercentages] = useState<any>({});
+  const [displayPercentages, setDisplayPercentages] = useState<any>({});
   const [totalScore, setTotalScore] = useState<any>(0);
 
+  // console.log(tableData);
+  
   useEffect(() => {
+
     if (rules) {
       setTableData(rules.data);
 
@@ -21,50 +25,65 @@ const SupplierEvaluationTable = ({ rules }: any) => {
       const initialPercentages: any = {};
 
       rules.data?.sections?.forEach((section: any, sIndex: number) => {
+
         section.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+          
           const key = `${sIndex}-${cIndex}`;
           initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
           initialPercentages[key] = criteria.percentage;
+          // initialPercentages[key] = criteria.evaluations[0].ratiosRawpack;
         });
       });
 
       setSelectedEvaluations(initialEvals);
       setOriginalPercentages(initialPercentages);
       setCurrentPercentages(initialPercentages);
+      const roundedPercentages = distributeRoundedPercentages(initialPercentages);
+      setDisplayPercentages(roundedPercentages);
       calculateTotalScore(initialEvals, initialPercentages);
     }
   }, [rules]);
 
-
-
-  const calculateTotalScore = (evaluations: any, percentages: any) => {
-    let scoreSum = 0;
-
-    tableData.sections?.forEach((section: any, sectionIndex: number) => {
-      section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
-        const key = `${sectionIndex}-${criteriaIndex}`;
-        const selectedEval = evaluations[key];
-        const currentPercentage = percentages[key];
-
-        // only calculate if we have valid values
-        if (selectedEval && currentPercentage !== 'NA') {
-          const evaluation = (criteria.evaluations as any[]).find(
-            (e) => e.criteriaEvaluation === selectedEval
-          );
-
-          if (evaluation && evaluation.score !== 'NA') {
-            const score = Number(evaluation.score);
-            scoreSum += (score * Number(currentPercentage)) / 10;
-          }
-        }
-      });
+  const distributeRoundedPercentages = (percentages: any) => {
+    const displayPercentages: any = {};
+    const nonNAEntries: string[] = [];
+    
+    // first, handle NA values
+    Object.entries(percentages).forEach(([key, value]) => {
+      if (value === 'NA') {
+        displayPercentages[key] = 'NA';
+      } else {
+        nonNAEntries.push(key);
+      }
     });
 
-    // setTotalScore(Math.min(Math.round(scoreSum * 100) / 100, 100));
-    setTotalScore(Math.round(scoreSum * 100) / 100);
+    if (nonNAEntries.length === 0) return displayPercentages;
 
+    // sort entries by their decimal parts
+    const sortedEntries = nonNAEntries.map(key => ({
+      key,
+      originalValue: Number(percentages[key]),
+      roundedValue: Math.floor(Number(percentages[key])),
+      decimalPart: Number(percentages[key]) % 1
+    }))
+    .sort((a, b) => b.decimalPart - a.decimalPart);
 
+    // first pass: assign floor values
+    let usedPercentage = 0;
+    sortedEntries.forEach(entry => {
+      displayPercentages[entry.key] = entry.roundedValue;
+      usedPercentage += entry.roundedValue;
+    });
+
+    // sssecond pass: distribute remaining percentage points
+    const remaining = 100 - usedPercentage;
+    for (let i = 0; i < remaining; i++) {
+      displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
+    }
+
+    return displayPercentages;
   };
+
 
 
   const recalculateAllPercentages = (evaluations: any) => {
@@ -132,6 +151,31 @@ const SupplierEvaluationTable = ({ rules }: any) => {
     return newPercentages;
   };
 
+  const calculateTotalScore = (evaluations: any, percentages: any) => {
+    let scoreSum = 0;
+
+    tableData?.sections?.forEach((section: any, sectionIndex: number) => {
+      section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
+        const key = `${sectionIndex}-${criteriaIndex}`;
+        const selectedEval = evaluations[key];
+        const currentPercentage = percentages[key];
+
+        if (selectedEval && currentPercentage !== 'NA') {
+          const evaluation = (criteria.evaluations as any[]).find(
+            (e) => e.criteriaEvaluation === selectedEval
+          );
+
+          if (evaluation && evaluation.score !== 'NA') {
+            const score = Number(evaluation.score);
+            const percentage = Number(currentPercentage);
+            scoreSum += (score * percentage) / 10;
+          }
+        }
+      });
+    });
+
+    setTotalScore(Math.round(scoreSum * 100) / 100);
+  };
 
 
 
@@ -142,23 +186,15 @@ const SupplierEvaluationTable = ({ rules }: any) => {
       [key]: value,
     };
 
-    // recalculate all percentages based on current state of evaluations
     const updatedPercentages = recalculateAllPercentages(updatedEvals);
+    const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
 
     setSelectedEvaluations(updatedEvals);
     setCurrentPercentages(updatedPercentages);
-    // pass the latest percentages to score calculation
+    setDisplayPercentages(roundedPercentages);
     calculateTotalScore(updatedEvals, updatedPercentages);
   };
-
-
-  function customRound(value: number) {
-    if (value % 1 > 0.5) {
-      return Math.ceil(value);
-    } else {
-      return Math.floor(value);
-    }
-  }
+ 
 
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
@@ -178,7 +214,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
 
         <tbody>
 
-          {tableData.sections?.map((section: any, sectionIndex: any) => (
+          {tableData?.sections?.map((section: any, sectionIndex: any) => (
             <>
               <tr key={`section-${sectionIndex}`} >
                 {
@@ -224,10 +260,10 @@ const SupplierEvaluationTable = ({ rules }: any) => {
                     <td className="px-4 py-2">
                       <InputText
                         type="text"
-                        value={currentPercentage === 'NA' ? 'NA' : customRound(Number(currentPercentage)) + '%'}
+                        value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
                         size={1}
                         readOnly
-                      />
+                      /><span>{currentPercentage}</span>
                     </td>
 
 
@@ -271,7 +307,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
           ))}
 
 
-          <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1'  : '#B6E4C9'}}>
+          <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
             <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
               Total Score:
             </td>
@@ -284,34 +320,34 @@ const SupplierEvaluationTable = ({ rules }: any) => {
 
       <div className='flex flex-col justify-content-end gap-3 mt-5 mr-2'>
 
-      {!(totalScore <= 50) &&
-            <div className='m-3 max-w-sm text-ellipsis overflow-hidden' style={{ wordWrap: "normal", maxWidth: "300px", alignItems: "stretch" }}>
-              <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
-            </div>  }
-              
-              {/* divider */}
-            <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
+        {!(totalScore <= 50) &&
+          <div className='m-3 max-w-sm text-ellipsis overflow-hidden' style={{ wordWrap: "normal", maxWidth: "300px", alignItems: "stretch" }}>
+            <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+          </div>}
+
+        {/* divider */}
+        <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
 
 
-            <div>
-              <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
-              <InputTextarea rows={5} cols={30} />
-            </div>
+        <div>
+          <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
+          <InputTextarea rows={5} cols={30} />
+        </div>
 
-          </div>  
+      </div>
 
-          
-          {/* if CAPA is required */}
-          <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {totalScore <= 50 && <CapaRequiredTable />}
-          </div>
 
-          {/* submission buttons */}
-          <div className='flex justify-content-end gap-3 mt-1 p-3'>
-          <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none'}}/>
-          <Button label="Save"  style={{ backgroundColor: "#DF177C", border: 'none'}} />
+      {/* if CAPA is required */}
+      <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
+        {totalScore <= 50 && <CapaRequiredTable />}
+      </div>
 
-          </div>
+      {/* submission buttons */}
+      <div className='flex justify-content-end gap-3 mt-1 p-3'>
+        <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
+        <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} />
+
+      </div>
 
     </div>
   );
