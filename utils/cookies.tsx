@@ -6,17 +6,33 @@ const options = {
     sameSite: 'None'
 };
 
-const isTokenValid = (userToken: string) => {
-    if (!userToken) return false;
-    const decoded = jwtDecode(userToken);
-    console.log("decode", decoded);
+// const isTokenValid = (userToken: string) => {
+//     console.log('10',userToken)
+//     if (!userToken) return false;
+//     const decoded = jwtDecode(userToken);
+//     console.log("decode", decoded);
     
-    if (decoded && decoded.exp) {
-        const currentTime = Date.now() / 1000; // Convert to seconds
-        return decoded && decoded.exp > currentTime ? decoded : false; // Check if the token is expired
+//     if (decoded && decoded.exp) {
+//         const currentTime = Date.now() / 1000; // Convert to seconds
+//         return decoded && decoded.exp > currentTime ? decoded : false; // Check if the token is expired
+//     }
+//     return false;
+// };
+const isTokenValid = (userToken: string) => {
+    try {
+        if (!userToken) return false;
+        const decoded: any = jwtDecode(userToken);
+        if (decoded && decoded.exp) {
+            const currentTime = Date.now() / 1000; // Convert to seconds
+            return decoded.exp > currentTime ? decoded : false;
+        }
+        return false;
+    } catch (error) {
+        console.error("Token decode failed:", error);
+        return false;
     }
-    return false;
 };
+
 
 // const getDomain = (): string => {
 //     const hostname = window.location.host;
@@ -44,9 +60,10 @@ const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
     console.log('91',refreshToken)
     console.log('92',userDetails)
     const domain: string = getDomain();
+    console.log("Domain:", domain);
     const option: any = {
         path: '/',
-        secure: true,
+        // secure: true,
         sameSite: 'None'
     };
     Cookies.set('userDetails', JSON.stringify(userDetails), option);
@@ -54,7 +71,7 @@ const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
 
     if (domain.indexOf('localhost') == -1) {
         option.domain = `.${domain}`;
-        option.secure = true; // Only for production
+        // option.secure = true; // Only for production
     }
     Cookies.set('authToken', token, option);
     Cookies.set('authRefreshToken', refreshToken, option);
@@ -76,6 +93,7 @@ const setUserDetails = (userDetails: any) => {
 };
 
 const getAuthToken = (): string => {
+    console.log('79',Cookies.get('authToken') || '')
     return Cookies.get('authToken') || '';
 };
 
