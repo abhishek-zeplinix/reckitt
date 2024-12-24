@@ -83,6 +83,7 @@ const fetchWithAuthorization = async (method: string, url: string, payload: any,
         ...headers,
         Authorization: `Bearer ${token}`
     };
+    console.log('81',headers)
 
     return await APIKit({
         method,
