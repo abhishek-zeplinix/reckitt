@@ -51,7 +51,7 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     useEffect(() => {
         const isValid = isTokenValid(authToken);
-        console.log(isValid);
+        console.log('54',isValid);
         
         if (!isValid) {
             if (authRoutes.includes(pathname)) {
