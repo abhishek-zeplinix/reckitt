@@ -320,14 +320,11 @@ const AppMenu = () => {
                         }
                     ]
                 },
-                {
-                    label: 'Dashboard',
-                    icon: 'pi pi-th-large'
-                },
+
                 {
                     label: 'Control Tower',
                     icon: 'pi pi-eject',
-                    url: '/',
+                    url: '/control-tower',
                     command: handleMenuClick
                     // check: (user: any) => {
                     //     const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));

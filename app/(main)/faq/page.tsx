@@ -23,13 +23,11 @@ const FaqPage = () => {
         fetchFaq();
     }, []);
     const fetchFaq = async () => {
-        // const companyId = get(user, 'company.companyId');
         setLoading(true);
         const response: CustomResponse = await GetCall(`/company/faqs`);
         console.log(response, 'abhishek');
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            // setsingleRoleId(response.data.roleId);
             setFaqData(response.data);
             console.log(response.data, 'abhishek');
         } else {
