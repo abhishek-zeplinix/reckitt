@@ -13,15 +13,15 @@ import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { sortBy } from 'lodash';
 import { SortOrder } from 'primereact/api';
-import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
-import { Rules } from '@/types';
+import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { CustomResponse, Rules } from '@/types';
 
 const ACTIONS = {
-    ADD: "add",
-    EDIT: "edit",
-    VIEW: "view",
-    DELETE: "delete"
-}
+    ADD: 'add',
+    EDIT: 'edit',
+    VIEW: 'view',
+    DELETE: 'delete'
+};
 
 const ManageRulesPage = () => {
     const router = useRouter();
@@ -31,21 +31,51 @@ const ManageRulesPage = () => {
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
 
-
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
-    const[isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    const [selectedDepartment, setSelectedDepartment] = useState("")
-    const [selectedSubCategory, setSelectedSubCategory] = useState("")
-    const [rules, setRules] = useState<Rules[]>([])
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [selectedDepartment, setSelectedDepartment] = useState('');
+    const [selectedSubCategory, setSelectedSubCategory] = useState('');
+    const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
 
+    const handleButtonClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            setIsDetailLoading(true);
+            try {
+                // Use the existing PostCall function
+                const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
+
+                setIsDetailLoading(false);
+                console.log('File upload response:', response);
+
+                if (response.code === 'SUCCESS') {
+                    setAlert('success', 'Rules imported successfully');
+                } else {
+                    setAlert('error', response.message || 'File upload failed');
+                }
+            } catch (error) {
+                setIsDetailLoading(false);
+                console.error('An error occurred during file upload:', error);
+                setAlert('error', 'An unexpected error occurred during file upload');
+            }
+        }
+    };
     const { isLoading, setLoading, setAlert } = useAppContext();
- 
 
     const renderHeader = () => {
         return (
@@ -54,9 +84,11 @@ const ManageRulesPage = () => {
                     <h3 className="mb-0">Manage Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Import Rules" aria-label="Add Rules" className="default-button " onClick={handleButtonClick} style={{ marginLeft: 10 }}>
+                        <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} />
+                    </Button>
                     <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );
@@ -85,84 +117,66 @@ const ManageRulesPage = () => {
 
     const inputboxfeild = renderInputBox();
 
-
-
     const fetchData = async (params?: any) => {
-
-        try{
-
-
+        try {
             if (!params) {
-                params = { limit: limit, page: page, include: "subCategories", sortOrder: "asc" };
+                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
             }
 
-            setPage(params.page)
+            setPage(params.page);
 
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`company/rules?${queryString}`);
 
-            console.log("tr" , response.data.length);
-            setTotalRecords(response.total)
-            setRules(response.data)
-
-        }catch(error){
-            setAlert('error', 'Something went wrong!')
-
-        }finally{
-            setLoading(false)
+            console.log('tr', response.data.length);
+            setTotalRecords(response.total);
+            setRules(response.data);
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
         }
-       
-    }
+    };
 
-    const dataTableHeaderStyle = { fontSize: "12px" }
-
+    const dataTableHeaderStyle = { fontSize: '12px' };
 
     useEffect(() => {
         fetchData();
-    }, [])
+    }, []);
 
     const departments = [
-        { label: "Planning", value: "Planning" },
-        { label: "Quality", value: "Quality" },
-        { label: "Development", value: "Development" },
-        { label: "Procurement", value: "Procurement" },
-        { label: "Sustainability", value: "Sustainability" }
-    ]
+        { label: 'Planning', value: 'Planning' },
+        { label: 'Quality', value: 'Quality' },
+        { label: 'Development', value: 'Development' },
+        { label: 'Procurement', value: 'Procurement' },
+        { label: 'Sustainability', value: 'Sustainability' }
+    ];
 
     const subcategories = [
-        { label: "Packing Material Supplier", value: "Packing Material Supplier" },
-        { label: "Raw Material Supplier", value: "Raw Material Supplier" },
-        { label: "Copack Material Supplier", value: "Copack Material Supplier" }
-
-    ]
-
+        { label: 'Packing Material Supplier', value: 'Packing Material Supplier' },
+        { label: 'Raw Material Supplier', value: 'Raw Material Supplier' },
+        { label: 'Copack Material Supplier', value: 'Copack Material Supplier' }
+    ];
 
     const dropdownMenuDepartment = () => {
-        return (
-            <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label"
-                placeholder="-- Select Department --" className="w-full md:w-20rem" />
-        )
-    }
+        return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label" placeholder="-- Select Department --" className="w-full md:w-20rem" />;
+    };
 
     const dropdownFieldDeparment = dropdownMenuDepartment();
 
-
     const dropdownMenuSubCategory = () => {
-        return (
-            <Dropdown value={selectedSubCategory} onChange={(e) => setSelectedSubCategory(e.value)} options={subcategories} optionLabel="label"
-                placeholder="-- Select Sub Category --" className="w-full md:w-20rem" />
-        )
-    }
+        return <Dropdown value={selectedSubCategory} onChange={(e) => setSelectedSubCategory(e.value)} options={subcategories} optionLabel="label" placeholder="-- Select Sub Category --" className="w-full md:w-20rem" />;
+    };
 
     const dropdownFieldSubCategory = dropdownMenuSubCategory();
 
     const onRowSelect = async (perm: Rules, action: any) => {
-        console.log('404', perm)
+        console.log('404', perm);
 
         setAction(action);
 
-        setSelectedRuleId(perm.ruleId)
+        setSelectedRuleId(perm.ruleId);
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
@@ -175,185 +189,175 @@ const ManageRulesPage = () => {
         //     // fetchSoDetails(perm.estimateId)
         // }
     };
- 
-    const openDeleteDialog = (items :Rules) =>{
+
+    const openDeleteDialog = (items: Rules) => {
         setIsDeleteDialogVisible(true);
-    }
+    };
 
-    const closeDeleteDialog = () =>{
+    const closeDeleteDialog = () => {
         setIsDeleteDialogVisible(false);
-    }
+    };
 
-    const onDelete = async() =>{
-        
+    const onDelete = async () => {
         setLoading(true);
 
-        try{
-            
-            const response = await DeleteCall(`/company/rules/${selectedRuleId}`)
-            
-            if(response.code === 'SUCCESS'){
+        try {
+            const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
-                setRules(prevRules => prevRules.filter(rule => rule.ruleId !== selectedRuleId));
+            if (response.code === 'SUCCESS') {
+                setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
                 closeDeleteDialog();
-                setAlert('success', "Rule successfully deleted!")
-                
-            }else{
-
-                setAlert('error', "Something went wrong!")
+                setAlert('success', 'Rule successfully deleted!');
+            } else {
+                setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
             }
-            
-        }catch(error){
-            
-            setAlert('error', "Something went wrong!")
-            
-        }finally{
-            setLoading(false)
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
         }
-        
-    }
+    };
 
     return (
         <div className="grid">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
-                    <div className="left-panel pt-5">
+                    <div className="left-panel">
                         <div className="header">{header}</div>
+                        <div
+                            className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
+                            style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
+                        >
+                            {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
+                            <div className="flex gap-4">
+                                <div className="mt-5">{dropdownFieldDeparment}</div>
+                                <div className="mt-5">{dropdownFieldSubCategory}</div>
+                            </div>
 
-                        {/* <div className="search-box  mt-5">{inputboxfeild}</div> */}
+                            <CustomDataTable
+                                ref={dataTableRef}
+                                filter
+                                page={page}
+                                limit={limit} // no of items per page
+                                totalRecords={totalRecords} // total records from api response
+                                // isView={true}
+                                isEdit={true} // show edit button
+                                isDelete={true} // show delete button
+                                // extraButtons={[
+                                //     {
+                                //         icon: 'pi pi-cloud-upload',
+                                //         onClick: (item) => openDialog()
+                                //     },
+                                //     {
+                                //         icon: 'pi pi-external-link',
+                                //         onClick: async (item) => {
+                                //             setDialogVisible(true);
+                                //             setPoId(item.poId); // Set the poId from the clicked item
 
-                        <div className='flex gap-4'>
-                            <div className='mt-5'>{dropdownFieldDeparment}</div>
-                            <div className='mt-5'>{dropdownFieldSubCategory}</div>
+                                //             await fetchTrackingData(item.poId);
+                                //         }
+                                //     }
+                                // ]}
+                                data={rules.map((item: any) => ({
+                                    ruleId: item.ruleId,
+                                    subCategoryName: item.subCategories?.subCategoryName,
+                                    section: item.section,
+                                    ratedCriteria: item.ratedCriteria,
+                                    criteriaEvaluation: item.criteriaEvaluation,
+                                    score: item.score,
+                                    ratiosCopack: item.ratiosCopack,
+                                    ratiosRawpack: item.ratiosRawpack
+                                }))}
+                                columns={[
+                                    {
+                                        header: 'Sr No',
+                                        field: 'ruleId',
+                                        filter: true,
+                                        sortable: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle,
+                                        filterPlaceholder: 'Sr No'
+                                    },
+                                    {
+                                        header: 'DEPARTMENT PROCU CATEGORY',
+                                        field: 'supplierid',
+                                        // body: renderVendor,
+                                        filter: true,
+                                        // filterElement: vendorDropdown,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle,
+                                        filterPlaceholder: 'Supplier Id'
+                                    },
+                                    {
+                                        header: 'SUB CATEGORY',
+                                        field: 'subCategoryName',
+                                        sortable: true,
+                                        filter: true,
+                                        filterPlaceholder: 'Supplier Name',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 120, maxWidth: 120 }
+                                    },
+                                    {
+                                        header: 'CRITERIA CATEGORY',
+                                        field: 'section',
+                                        // body: renderWarehouse,
+                                        filter: true,
+                                        // filterElement: warehouseDropdown,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle,
+                                        filterPlaceholder: 'Search Procurement Category'
+                                    },
+                                    {
+                                        header: 'CRITERIA',
+                                        field: 'ratedCriteria',
+                                        // body: renderStatus,
+                                        filter: true,
+                                        filterPlaceholder: 'Search Supplier Category',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                        // filterElement: statusDropdown
+                                    },
+                                    {
+                                        header: 'CRITERIA EVALUATION LIST',
+                                        field: 'criteriaEvaluation',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Supplier Manufacturing Name',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                        // body: renderPOTotal
+                                    },
+                                    {
+                                        header: 'CRITERIA SCORE',
+                                        field: 'score',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Site Address',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'RATIOS COPACK',
+                                        field: 'ratiosCopack',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Factory Name',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'RATIOS RAW&PACK',
+                                        field: 'ratiosRawpack',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Warehouse Location',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    }
+                                ]}
+                                onLoad={(params: any) => fetchData(params)}
+                                // // onView={(item: any) => onRowSelect(item, 'view')}
+                                // onEdit={(item: any) => onRowSelect(item, 'edit')}
+                                onDelete={(item: any) => onRowSelect(item, 'delete')}
+                            />
                         </div>
-
-
-                        <CustomDataTable
-                            ref={dataTableRef}
-                            filter
-                            page={page}
-                            limit={limit} // no of items per page
-                            totalRecords={totalRecords} // total records from api response
-                            // isView={true}
-                            isEdit={true} // show edit button
-                            isDelete={true} // show delete button
-                            // extraButtons={[
-                            //     {
-                            //         icon: 'pi pi-cloud-upload',
-                            //         onClick: (item) => openDialog()
-                            //     },
-                            //     {
-                            //         icon: 'pi pi-external-link',
-                            //         onClick: async (item) => {
-                            //             setDialogVisible(true);
-                            //             setPoId(item.poId); // Set the poId from the clicked item
-
-                            //             await fetchTrackingData(item.poId);
-                            //         }
-                            //     }
-                            // ]}
-                            data={rules.map((item: any) => ({
-                                ruleId: item.ruleId,
-                                subCategoryName: item.subCategories?.subCategoryName,
-                                section: item.section,
-                                ratedCriteria: item.ratedCriteria,
-                                criteriaEvaluation: item.criteriaEvaluation,
-                                score: item.score,
-                                ratiosCopack: item.ratiosCopack,
-                                ratiosRawpack: item.ratiosRawpack
-                            }))}
-
-                            columns={[
-                                {
-                                    header: 'Sr No',
-                                    field: 'ruleId',
-                                    filter: true,
-                                    sortable: true,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                    filterPlaceholder: 'Sr No',
-
-                                },
-                                {
-                                    header: 'DEPARTMENT PROCU CATEGORY',
-                                    field: 'supplierid',
-                                    // body: renderVendor,
-                                    filter: true,
-                                    // filterElement: vendorDropdown,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                    filterPlaceholder: 'Supplier Id'
-                                },
-                                {
-                                    header: 'SUB CATEGORY',
-                                    field: 'subCategoryName',
-                                    sortable: true,
-                                    filter: true,
-                                    filterPlaceholder: 'Supplier Name',
-                                    headerStyle: dataTableHeaderStyle,
-                                    style: { minWidth: 120, maxWidth: 120 }
-                                },
-                                {
-                                    header: 'CRITERIA CATEGORY',
-                                    field: 'section',
-                                    // body: renderWarehouse,
-                                    filter: true,
-                                    // filterElement: warehouseDropdown,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                    filterPlaceholder: 'Search Procurement Category'
-                                },
-                                {
-                                    header: 'CRITERIA',
-                                    field: 'ratedCriteria',
-                                    // body: renderStatus,
-                                    filter: true,
-                                    filterPlaceholder: 'Search Supplier Category',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                    // filterElement: statusDropdown
-                                },
-                                {
-                                    header: 'CRITERIA EVALUATION LIST',
-                                    field: 'criteriaEvaluation',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Supplier Manufacturing Name',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                    // body: renderPOTotal
-                                },
-                                {
-                                    header: 'CRITERIA SCORE',
-                                    field: 'score',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Site Address',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                },
-                                {
-                                    header: 'RATIOS COPACK',
-                                    field: 'ratiosCopack',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Factory Name',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                },
-                                {
-                                    header: 'RATIOS RAW&PACK',
-                                    field: 'ratiosRawpack',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Warehouse Location',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    headerStyle: dataTableHeaderStyle,
-                                }
-                            ]}
-                            onLoad={(params: any) => fetchData(params)}
-                            // // onView={(item: any) => onRowSelect(item, 'view')}
-                            // onEdit={(item: any) => onRowSelect(item, 'edit')}
-                            onDelete={(item: any) => onRowSelect(item, 'delete')}
-                        />
-
                     </div>
                 </div>
 

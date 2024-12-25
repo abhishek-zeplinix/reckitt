@@ -595,89 +595,95 @@ const ManageSupplierPage = () => {
         <div className="grid">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
-                    <div className="left-panel pt-5">
+                    <div className="left-panel  bg-[#F8FAFC]">
                         <div className="header">{header}</div>
-                        <div className="search-box  mt-5">{inputboxfeild}</div>
-                        <CustomDataTable
-                            ref={dataTableRef}
-                            filter
-                            page={page}
-                            limit={limit} // no of items per page
-                            totalRecords={totalRecords} // total records from api response
-                            // isView={true}
-                            isEdit={true} // show edit button
-                            isDelete={true} // show delete button
-                            data={companies}
-                            columns={[
-                                {
-                                    header: 'Supplier Id',
-                                    field: 'supId',
-                                    filter: true,
-                                    sortable: true,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Supplier No'
-                                },
-                                {
-                                    header: 'Supplier Name',
-                                    field: 'supplierName',
-                                    sortable: true,
-                                    filter: true,
-                                    filterPlaceholder: 'Supplier Name',
-                                    style: { minWidth: 120, maxWidth: 120 }
-                                },
-                                {
-                                    header: 'Procurement Category',
-                                    field: 'category.categoryName',
-                                    // body: renderWarehouse,
-                                    filter: true,
-                                    // filterElement: warehouseDropdown,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Search Procurement Category'
-                                },
-                                {
-                                    header: 'Supplier Category',
-                                    field: 'subCategories.subCategoryName',
-                                    // body: renderStatus,
-                                    filter: true,
-                                    filterPlaceholder: 'Search Supplier Category',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    // filterElement: statusDropdown
-                                },
-                                {
-                                    header: 'Supplier Manufacturing Name',
-                                    field: 'supplierManufacturerName',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Supplier Manufacturing Name',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    // body: renderPOTotal
-                                },
-                                {
-                                    header: 'Site Address',
-                                    field: 'siteAddress',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Site Address',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                },
-                                {
-                                    header: 'Factory Name',
-                                    field: 'factoryName.factoryName',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Factory Name',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                },
-                                {
-                                    header: 'Warehouse Location',
-                                    field: 'warehouseLocation',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Warehouse Location',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                }
-                            ]}
-                            onLoad={(params: any) => fetchData(params)}
-                            // // onView={(item: any) => onRowSelect(item, 'view')}
-                            onEdit={(item: any) => onRowSelect(item, 'edit')}
-                            onDelete={(item: any) => onRowSelect(item, 'delete')}
-                        />
+                        <div
+                            className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
+                            style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
+                        >
+                            <div className="search-box  mt-3 ">{inputboxfeild}</div>
+                            <CustomDataTable
+                                className="mb-3"
+                                ref={dataTableRef}
+                                filter
+                                page={page}
+                                limit={limit} // no of items per page
+                                totalRecords={totalRecords} // total records from api response
+                                // isView={true}
+                                isEdit={true} // show edit button
+                                isDelete={true} // show delete button
+                                data={companies}
+                                columns={[
+                                    {
+                                        header: 'Supplier Id',
+                                        field: 'supId',
+                                        filter: true,
+                                        sortable: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        filterPlaceholder: 'Supplier No'
+                                    },
+                                    {
+                                        header: 'Supplier Name',
+                                        field: 'supplierName',
+                                        sortable: true,
+                                        filter: true,
+                                        filterPlaceholder: 'Supplier Name',
+                                        style: { minWidth: 120, maxWidth: 120 }
+                                    },
+                                    {
+                                        header: 'Procurement Category',
+                                        field: 'category.categoryName',
+                                        // body: renderWarehouse,
+                                        filter: true,
+                                        // filterElement: warehouseDropdown,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        filterPlaceholder: 'Search Procurement Category'
+                                    },
+                                    {
+                                        header: 'Supplier Category',
+                                        field: 'subCategories.subCategoryName',
+                                        // body: renderStatus,
+                                        filter: true,
+                                        filterPlaceholder: 'Search Supplier Category',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        // filterElement: statusDropdown
+                                    },
+                                    {
+                                        header: 'Supplier Manufacturing Name',
+                                        field: 'supplierManufacturerName',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Supplier Manufacturing Name',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        // body: renderPOTotal
+                                    },
+                                    {
+                                        header: 'Site Address',
+                                        field: 'siteAddress',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Site Address',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    },
+                                    {
+                                        header: 'Factory Name',
+                                        field: 'factoryName.factoryName',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Factory Name',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    },
+                                    {
+                                        header: 'Warehouse Location',
+                                        field: 'warehouseLocation',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Warehouse Location',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    }
+                                ]}
+                                onLoad={(params: any) => fetchData(params)}
+                                // // onView={(item: any) => onRowSelect(item, 'view')}
+                                onEdit={(item: any) => onRowSelect(item, 'edit')}
+                                onDelete={(item: any) => onRowSelect(item, 'delete')}
+                            />
+                        </div>
                     </div>
                     <Sidebar
                         isVisible={isShowSplit}
