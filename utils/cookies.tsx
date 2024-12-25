@@ -70,7 +70,7 @@ const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
 
 
     if (domain.indexOf('localhost') == -1) {
-        option.domain = `.${domain}`;
+        option.domain = `reckittserver.${domain}`;
         // option.secure = true; // Only for production
     }
     console.log('76',token, option)
@@ -89,7 +89,7 @@ const setUserDetails = (userDetails: any) => {
     };
 
     if (domain.indexOf('localhost') == -1) {
-        option.domain = `.${domain}`;
+        option.domain = `reckittserver.${domain}`;
     }
     Cookies.set('userDetails', JSON.stringify(userDetails), option);
 };
