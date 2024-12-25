@@ -117,8 +117,6 @@ const ManageSupplierPage = () => {
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setCompanies(response.data);
-            console.log('46', response.data);
-            // fetchPermissions()
 
             if (response.total) {
                 setTotalRecords(response?.total);
@@ -154,7 +152,6 @@ const ManageSupplierPage = () => {
             setIsDetailLoading(true);
             const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
             setIsDetailLoading(false);
-            console.log('64', response);
             if (response.code == 'SUCCESS') {
                 // setSelectedCompany(response.data)
                 setAlert('success', 'Supplier Added Successfully');
@@ -168,7 +165,6 @@ const ManageSupplierPage = () => {
             setIsDetailLoading(true);
             const response: CustomResponse = await PutCall(`/company/supplier/${selectedSupplier?.supId}`, companyForm);
             setIsDetailLoading(false);
-            console.log('64', response);
             if (response.code == 'SUCCESS') {
                 // setSelectedCompany(response.data)
                 setAlert('success', 'Supplier Updated Successfully');
@@ -198,7 +194,6 @@ const ManageSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setFactoryDetails(response.data);
-            console.log('81', response.data);
         } else {
             setFactoryDetails([]);
         }
@@ -212,7 +207,6 @@ const ManageSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setLocationDetails(response.data);
-            console.log('81', response.data);
         } else {
             setLocationDetails([]);
         }
@@ -226,7 +220,6 @@ const ManageSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setSubLocationDetails(response.data);
-            console.log('81', response.data);
         } else {
             setSubLocationDetails([]);
         }
@@ -253,7 +246,6 @@ const ManageSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setSubCategory(response.data);
-            console.log('81', response.data);
         } else {
             setSubCategory([]);
         }
@@ -286,7 +278,6 @@ const ManageSupplierPage = () => {
 
             return updatedForm;
         });
-        console.log('482', form);
     };
     const handlePrevious = () => {
         if (currentStep > 1) {
@@ -310,7 +301,6 @@ const ManageSupplierPage = () => {
         }));
     };
     const onRowSelect = async (perm: Supplier, action: any) => {
-        console.log('493', perm);
         setAction(action);
         // setIsShowSplit(true);
         await setSelectedSupplier(perm);
@@ -590,7 +580,6 @@ const ManageSupplierPage = () => {
         }
         // Add more data here...
     ];
-    console.log('114', companies);
     return (
         <div className="grid">
             <div className="col-12">

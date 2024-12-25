@@ -24,9 +24,7 @@ const ManageUserAddPage = () => {
     const pageTitle = isEditMode ? 'Edit User' : 'Add User';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add User';
 
-    const handleSubmit = () => {
-        console.log('Form submitted', { supplierId, supplierName, manufacturerName, complianceStatus });
-    };
+    const handleSubmit = () => {};
 
     const renderNewRuleFooter = () => {
         return (

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import React, { useState,useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
@@ -13,23 +14,21 @@ import { EmptySupplier } from '@/types/forms';
 import { filter, find, get, groupBy, keyBy, map, uniq } from 'lodash';
 import { CustomDataTableRef } from '@/components/CustomDataTable';
 
-
 const defaultForm: EmptySupplier = {
-    supId:null,
-    supplierName : '',
-    supplierManufacturerName : '',
-    siteAddress : '',
-    procurementCategoryId : null,
-    supplierCategoryId :null,
-    warehouseLocation : '',
-    factoryId : null,
-    gmpFile:'',
-    gdpFile:'',
-    reachFile:'',
-    isoFile:'',
-    locationId:null,
-    sublocationId:null,
-    
+    supId: null,
+    supplierName: '',
+    supplierManufacturerName: '',
+    siteAddress: '',
+    procurementCategoryId: null,
+    supplierCategoryId: null,
+    warehouseLocation: '',
+    factoryId: null,
+    gmpFile: '',
+    gdpFile: '',
+    reachFile: '',
+    isoFile: '',
+    locationId: null,
+    sublocationId: null
 };
 
 const CreateSupplierPage = () => {
@@ -40,11 +39,11 @@ const CreateSupplierPage = () => {
     const router = useRouter();
     const [supplierId, setSupplierId] = useState('');
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [factoryDetails,setFactoryDetails]=useState<any>([])
-    const [category,setCategory]=useState<any>([])
-    const [subCategory,setSubCategory]=useState<any>([])
-    const [locationDetails,setLocationDetails]=useState<any>([])
-    const [subLocationDetails,setSubLocationDetails]=useState<any>([])
+    const [factoryDetails, setFactoryDetails] = useState<any>([]);
+    const [category, setCategory] = useState<any>([]);
+    const [subCategory, setSubCategory] = useState<any>([]);
+    const [locationDetails, setLocationDetails] = useState<any>([]);
+    const [subLocationDetails, setSubLocationDetails] = useState<any>([]);
     const [supplierName, setSupplierName] = useState('');
     const [manufacturerName, setManufacturerName] = useState('');
     const [complianceStatus, setComplianceStatus] = useState(false);
@@ -52,7 +51,7 @@ const CreateSupplierPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const [selectedCompany, setSelectedCompany] = useState<Supplier | null>(null);
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
-    const dataTableRef = useRef<CustomDataTableRef>(null)
+    const dataTableRef = useRef<CustomDataTableRef>(null);
 
     const [checked, setChecked] = useState({
         gmp: false,
@@ -68,19 +67,15 @@ const CreateSupplierPage = () => {
         fetchSubLocation();
     }, []);
 
-
     const onNewAdd = async (companyForm: any) => {
-        console.log('148',companyForm);
         setIsDetailLoading(true);
         const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
-        setIsDetailLoading(false)
-        console.log('64',response)
+        setIsDetailLoading(false);
         if (response.code == 'SUCCESS') {
-            setSelectedCompany(response.data)
-            setAlert('success','Supplier Added Successfully')
+            setSelectedCompany(response.data);
+            setAlert('success', 'Supplier Added Successfully');
             dataTableRef.current?.updatePagination(1);
             router.push('/manage-supplier');
-            
         } else {
             setAlert('error', response.message);
         }
@@ -104,7 +99,6 @@ const CreateSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setFactoryDetails(response.data);
-            console.log('81',response.data)
         } else {
             setFactoryDetails([]);
         }
@@ -118,7 +112,6 @@ const CreateSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setLocationDetails(response.data);
-            console.log('81',response.data)
         } else {
             setLocationDetails([]);
         }
@@ -132,7 +125,6 @@ const CreateSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setSubLocationDetails(response.data);
-            console.log('81',response.data)
         } else {
             setSubLocationDetails([]);
         }
@@ -159,12 +151,10 @@ const CreateSupplierPage = () => {
             // setsingleRoleId(response.data.roleId);
 
             setSubCategory(response.data);
-            console.log('81',response.data)
         } else {
             setSubCategory([]);
         }
     };
-
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
         setForm((Form: any) => {
@@ -178,7 +168,6 @@ const CreateSupplierPage = () => {
 
             return updatedForm;
         });
-        console.log('482', form);
     };
     const handlePrevious = () => {
         if (currentStep > 1) {
@@ -190,9 +179,8 @@ const CreateSupplierPage = () => {
     };
 
     const handleSubmit = () => {
-        console
-        onNewAdd(form)
-        
+        console;
+        onNewAdd(form);
     };
 
     const handleCheckboxChange = (event: any) => {
@@ -247,7 +235,14 @@ const CreateSupplierPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-5">
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Manufacturing Name</label>
-                                <InputText id="manufacturerName" type="text" value={get(form, 'supplierManufacturerName')} onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
+                                <InputText
+                                    id="manufacturerName"
+                                    type="text"
+                                    value={get(form, 'supplierManufacturerName')}
+                                    onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
+                                    className="p-inputtext w-full"
+                                    placeholder="Enter Manufacturing Name"
+                                />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Factory Name</label>
@@ -265,15 +260,15 @@ const CreateSupplierPage = () => {
                             <div className="field col-6">
                                 <label htmlFor="procurementCategory">Supplier Procurement Category</label>
                                 <Dropdown
-                                id="procurementCategory"
-                                value={get(form, 'procurementCategoryId')}
-                                options={category}
-                                optionLabel="categoryName"
-                                optionValue="categoryId"
-                                onChange={(e) => onInputChange('procurementCategoryId', e.value)} // Map categoryId to procurementCategoryId
-                                placeholder="Select Procurement Category"
-                                className="w-full"
-                            />
+                                    id="procurementCategory"
+                                    value={get(form, 'procurementCategoryId')}
+                                    options={category}
+                                    optionLabel="categoryName"
+                                    optionValue="categoryId"
+                                    onChange={(e) => onInputChange('procurementCategoryId', e.value)} // Map categoryId to procurementCategoryId
+                                    placeholder="Select Procurement Category"
+                                    className="w-full"
+                                />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Supplier Category</label>
@@ -311,126 +306,101 @@ const CreateSupplierPage = () => {
             case 3:
                 return (
                     <div className="flex flex-column gap-3 pt-5">
-                    <h2 className="text-center font-bold ">Add Manufacture Details</h2>
-                    <div className="p-fluid grid md:mx-7 pt-5">
-                        {/* GMP */}
-                        <div className="field col-6">
-                            <div className="flex items-center mb-2">
-                                <Checkbox
-                                    inputId="gmp"
-                                    name="gmp"
-                                    checked={checked.gmp}
-                                    onChange={handleCheckboxChange}
-                                    className="mr-2"
-                                />
-                                <label htmlFor="gmp" className="mb-0">
-                                    GMP
-                                </label>
+                        <h2 className="text-center font-bold ">Add Manufacture Details</h2>
+                        <div className="p-fluid grid md:mx-7 pt-5">
+                            {/* GMP */}
+                            <div className="field col-6">
+                                <div className="flex items-center mb-2">
+                                    <Checkbox inputId="gmp" name="gmp" checked={checked.gmp} onChange={handleCheckboxChange} className="mr-2" />
+                                    <label htmlFor="gmp" className="mb-0">
+                                        GMP
+                                    </label>
+                                </div>
+                                <div className="flex items-center w-full">
+                                    <InputText
+                                        type="file"
+                                        disabled={!checked.gmp}
+                                        className={`flex-grow ${!checked.gmp ? 'opacity-50' : ''}`}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                onInputChange('gmpFile', file);
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
-                            <div className="flex items-center w-full">
-                                <InputText
-                                    type="file"
-                                    disabled={!checked.gmp}
-                                    className={`flex-grow ${!checked.gmp ? 'opacity-50' : ''}`}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            onInputChange('gmpFile', file);
-                                        }
-                                    }}
-                                />
+
+                            {/* GDP */}
+                            <div className="field col-6">
+                                <div className="flex items-center mb-2">
+                                    <Checkbox inputId="gdp" name="gdp" checked={checked.gdp} onChange={handleCheckboxChange} className="mr-2" />
+                                    <label htmlFor="gdp" className="mb-0">
+                                        GDP
+                                    </label>
+                                </div>
+                                <div className="flex items-center w-full">
+                                    <InputText
+                                        type="file"
+                                        disabled={!checked.gdp}
+                                        className={`flex-grow ${!checked.gdp ? 'opacity-50' : ''}`}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                onInputChange('gdpFile', file);
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                
-                        {/* GDP */}
-                        <div className="field col-6">
-                            <div className="flex items-center mb-2">
-                                <Checkbox
-                                    inputId="gdp"
-                                    name="gdp"
-                                    checked={checked.gdp}
-                                    onChange={handleCheckboxChange}
-                                    className="mr-2"
-                                />
-                                <label htmlFor="gdp" className="mb-0">
-                                    GDP
-                                </label>
+
+                            {/* REACH */}
+                            <div className="field col-6">
+                                <div className="flex items-center mb-2">
+                                    <Checkbox inputId="reach" name="reach" checked={checked.reach} onChange={handleCheckboxChange} className="mr-2" />
+                                    <label htmlFor="reach" className="mb-0">
+                                        REACH
+                                    </label>
+                                </div>
+                                <div className="flex items-center w-full">
+                                    <InputText
+                                        type="file"
+                                        disabled={!checked.reach}
+                                        className={`flex-grow ${!checked.reach ? 'opacity-50' : ''}`}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                onInputChange('reachFile', file);
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
-                            <div className="flex items-center w-full">
-                                <InputText
-                                    type="file"
-                                    disabled={!checked.gdp}
-                                    className={`flex-grow ${!checked.gdp ? 'opacity-50' : ''}`}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            onInputChange('gdpFile', file);
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-                
-                        {/* REACH */}
-                        <div className="field col-6">
-                            <div className="flex items-center mb-2">
-                                <Checkbox
-                                    inputId="reach"
-                                    name="reach"
-                                    checked={checked.reach}
-                                    onChange={handleCheckboxChange}
-                                    className="mr-2"
-                                />
-                                <label htmlFor="reach" className="mb-0">
-                                    REACH
-                                </label>
-                            </div>
-                            <div className="flex items-center w-full">
-                                <InputText
-                                    type="file"
-                                    disabled={!checked.reach}
-                                    className={`flex-grow ${!checked.reach ? 'opacity-50' : ''}`}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            onInputChange('reachFile', file);
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-                
-                        {/* ISO */}
-                        <div className="field col-6">
-                            <div className="flex items-center mb-2">
-                                <Checkbox
-                                    inputId="iso"
-                                    name="iso"
-                                    checked={checked.iso}
-                                    onChange={handleCheckboxChange}
-                                    className="mr-2"
-                                />
-                                <label htmlFor="iso" className="mb-0">
-                                    ISO
-                                </label>
-                            </div>
-                            <div className="flex items-center w-full">
-                                <InputText
-                                    type="file"
-                                    disabled={!checked.iso}
-                                    className={`flex-grow ${!checked.iso ? 'opacity-50' : ''}`}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            onInputChange('isoFile', file);
-                                        }
-                                    }}
-                                />
+
+                            {/* ISO */}
+                            <div className="field col-6">
+                                <div className="flex items-center mb-2">
+                                    <Checkbox inputId="iso" name="iso" checked={checked.iso} onChange={handleCheckboxChange} className="mr-2" />
+                                    <label htmlFor="iso" className="mb-0">
+                                        ISO
+                                    </label>
+                                </div>
+                                <div className="flex items-center w-full">
+                                    <InputText
+                                        type="file"
+                                        disabled={!checked.iso}
+                                        className={`flex-grow ${!checked.iso ? 'opacity-50' : ''}`}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                onInputChange('isoFile', file);
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
                 );
             default:
                 return null;

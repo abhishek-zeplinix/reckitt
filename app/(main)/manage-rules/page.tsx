@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { useRouter } from 'next/navigation';
@@ -61,7 +62,6 @@ const ManageRulesPage = () => {
                 const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
 
                 setIsDetailLoading(false);
-                console.log('File upload response:', response);
 
                 if (response.code === 'SUCCESS') {
                     setAlert('success', 'Rules imported successfully');
@@ -129,7 +129,6 @@ const ManageRulesPage = () => {
 
             const response = await GetCall(`company/rules?${queryString}`);
 
-            console.log('tr', response.data.length);
             setTotalRecords(response.total);
             setRules(response.data);
         } catch (error) {
@@ -172,8 +171,6 @@ const ManageRulesPage = () => {
     const dropdownFieldSubCategory = dropdownMenuSubCategory();
 
     const onRowSelect = async (perm: Rules, action: any) => {
-        console.log('404', perm);
-
         setAction(action);
 
         setSelectedRuleId(perm.ruleId);
