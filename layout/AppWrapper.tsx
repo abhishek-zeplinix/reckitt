@@ -51,7 +51,7 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     useEffect(() => {
         const isValid = isTokenValid(authToken);
-        console.log(isValid);
+        console.log('54',isValid);
         
         if (!isValid) {
             if (authRoutes.includes(pathname)) {
@@ -62,8 +62,9 @@ export const AppWrapper = React.memo(({ children }: any) => {
             router.replace('/login');
             // router.replace('/login/kau');
         } else if (authToken && isValid && authRoutes.includes(pathname)) {
-            console.log('app wrapper', get(isValid, 'https://reckittserver.vercel.app', '/'));
-            router.replace(get(isValid, 'https://reckittserver.vercel.app', '/'));
+            console.log('12',authToken && isValid && authRoutes.includes(pathname));
+            // router.replace('https://reckittserver.vercel.app/');
+            router.replace(get(isValid, 'portalLink', '/'));
         }
     }, [authToken]);
     useEffect(() => {
