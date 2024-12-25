@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     openGraph: {
         type: 'website',
         title: 'Reckitt',
-        url: 'https://reckittserver.vercel.app/',
+        url: 'https://301io.com',
         description: 'Supplier ScoreCard Management',
         images: [],
         ttl: 604800
