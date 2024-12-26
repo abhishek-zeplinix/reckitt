@@ -320,6 +320,20 @@ const AppMenu = () => {
                         }
                     ]
                 },
+
+                {
+                    label: 'Control Tower',
+                    icon: 'pi pi-eject',
+                    url: '/control-tower',
+                    command: handleMenuClick
+                    // check: (user: any) => {
+                    //     const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                    //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                    //         return true;
+                    //     }
+                    //     return false;
+                    // },
+                },
                 {
                     label: 'My Permissions',
                     icon: 'pi pi-lock-open',

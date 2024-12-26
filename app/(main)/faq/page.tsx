@@ -1,12 +1,39 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { useAppContext } from '@/layout/AppWrapper';
+import { CustomResponse } from '@/types';
+import { GetCall } from '@/app/api-config/ApiKit';
+
+interface FAQ {
+    id: number;
+    question: string;
+    answer: string;
+}
 
 const FaqPage = () => {
     const router = useRouter();
+    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [faqData, setFaqData] = useState<FAQ[]>([]);
+    useEffect(() => {
+        fetchFaq();
+    }, []);
+    const fetchFaq = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/faqs`);
+        console.log(response, 'abhishek');
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setFaqData(response.data);
+            console.log(response.data, 'abhishek');
+        } else {
+            setFaqData([]);
+        }
+    };
 
     return (
         <div className="grid">
@@ -17,19 +44,21 @@ const FaqPage = () => {
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
                     </div>
                     <div className="p-card-body" style={{ height: '68vh' }}>
-                        <Accordion>
-                            <AccordionTab header="What is PrimeReact?">
-                                <p>PrimeReact is a rich set of UI components for React, including various features such as buttons, forms, dialogs, and more.</p>
-                            </AccordionTab>
-                            <AccordionTab header="How do I install PrimeReact?">
-                                <p>
-                                    You can install PrimeReact using npm with the following command: <code>npm install primereact primeicons</code>.
-                                </p>
-                            </AccordionTab>
-                            <AccordionTab header="Is PrimeReact free?">
-                                <p>Yes, PrimeReact is open-source and free to use under the MIT license.</p>
-                            </AccordionTab>
-                        </Accordion>
+                        <div>
+                            {isLoading ? (
+                                <p>Loading FAQs...</p>
+                            ) : faqData.length > 0 ? (
+                                <Accordion>
+                                    {faqData.map((faq) => (
+                                        <AccordionTab key={faq.id} header={faq.question}>
+                                            <p>{faq.answer}</p>
+                                        </AccordionTab>
+                                    ))}
+                                </Accordion>
+                            ) : (
+                                <p>No FAQs available at the moment.</p>
+                            )}
+                        </div>
                     </div>
                     {/* Footer Buttons */}
                     <hr />

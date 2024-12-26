@@ -180,7 +180,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                 rows={props.limit}
                 value={props.data}
                 filterDisplay={props.filter ? 'row' : undefined}
-                className="reckitt-table p-datatable-thead"
+                className="reckitt-table p-datatable-thead "
                 pageLinkSize={3}
                 scrollHeight={tableHeight}
                 onPage={onPage}
@@ -195,7 +195,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                 {props.columns.map((item: ColumnProps, index: any) => (
                     <Column key={index} {...item}></Column>
                 ))}
-                {(props.isEdit || props.isView || props.isDelete || props.extraButtons?.length) && <Column alignFrozen="right" frozen body={renderActions}></Column>}
+                {(props.isEdit || props.isView || props.isDelete || props.extraButtons?.length) && <Column header="Actions" alignFrozen="right" frozen body={renderActions}></Column>}
             </DataTable>
         </div>
     );

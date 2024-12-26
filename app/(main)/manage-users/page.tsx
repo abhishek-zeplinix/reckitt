@@ -86,68 +86,74 @@ const ManageUsersPage = () => {
         <div className="grid">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
-                    <div className="left-panel pt-5">
+                    <div className="left-panel ">
                         <div className="header">{header}</div>
-                        <div className="search-box  mt-5">{inputboxfeild}</div>
-                        <CustomDataTable
-                            ref={dataTableRef}
-                            filter
-                            page={page}
-                            limit={limit} // no of items per page
-                            // totalRecords={totalRecords} // total records from api response
-                            // isView={true}
-                            // isEdit={true} // show edit button
-                            isDelete={true} // show delete button
-                            extraButtons={[
-                                {
-                                    icon: 'pi pi-user-edit',
-                                    onClick: (e) => {
-                                        // Assuming e is the row data, which has the userId property
-                                        handleEditUser(e.id); // Pass the userId from the row data
+
+                        <div
+                            className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
+                            style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
+                        >
+                            <div className="search-box  mt-5">{inputboxfeild}</div>
+                            <CustomDataTable
+                                ref={dataTableRef}
+                                filter
+                                page={page}
+                                limit={limit} // no of items per page
+                                // totalRecords={totalRecords} // total records from api response
+                                // isView={true}
+                                // isEdit={true} // show edit button
+                                isDelete={true} // show delete button
+                                extraButtons={[
+                                    {
+                                        icon: 'pi pi-user-edit',
+                                        onClick: (e) => {
+                                            // Assuming e is the row data, which has the userId property
+                                            handleEditUser(e.id); // Pass the userId from the row data
+                                        }
                                     }
-                                }
-                            ]}
-                            data={databoxx}
-                            columns={[
-                                {
-                                    header: 'Sr No',
-                                    field: 'srno',
-                                    filter: true,
-                                    sortable: true,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Sr No'
-                                },
-                                {
-                                    header: 'Role',
-                                    field: 'role',
-                                    filter: true,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Search Role'
-                                },
-                                {
-                                    header: 'Name',
-                                    field: 'name',
-                                    sortable: true,
-                                    filter: true,
-                                    filterPlaceholder: 'Search Name',
-                                    style: { minWidth: 120, maxWidth: 120 }
-                                },
-                                {
-                                    header: 'User Name',
-                                    field: 'username',
-                                    filter: true,
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    filterPlaceholder: 'Search User Name'
-                                },
-                                {
-                                    header: 'Mobile ',
-                                    field: 'mobile',
-                                    filter: true,
-                                    filterPlaceholder: 'Search Mobile ',
-                                    bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                }
-                            ]}
-                        />
+                                ]}
+                                data={databoxx}
+                                columns={[
+                                    {
+                                        header: 'Sr No',
+                                        field: 'srno',
+                                        filter: true,
+                                        sortable: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        filterPlaceholder: 'Sr No'
+                                    },
+                                    {
+                                        header: 'Role',
+                                        field: 'role',
+                                        filter: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        filterPlaceholder: 'Search Role'
+                                    },
+                                    {
+                                        header: 'Name',
+                                        field: 'name',
+                                        sortable: true,
+                                        filter: true,
+                                        filterPlaceholder: 'Search Name',
+                                        style: { minWidth: 120, maxWidth: 120 }
+                                    },
+                                    {
+                                        header: 'User Name',
+                                        field: 'username',
+                                        filter: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        filterPlaceholder: 'Search User Name'
+                                    },
+                                    {
+                                        header: 'Mobile ',
+                                        field: 'mobile',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Mobile ',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    }
+                                ]}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
