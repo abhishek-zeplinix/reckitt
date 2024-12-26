@@ -24,7 +24,7 @@ const FaqPage = () => {
     }, []);
     const fetchFaq = async () => {
         setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/faqs`);
+        const response: CustomResponse = await GetCall(`/company/faq`);
         console.log(response, 'abhishek');
         setLoading(false);
         if (response.code == 'SUCCESS') {

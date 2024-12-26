@@ -23,7 +23,7 @@ const SupplyGlossaryPage = () => {
     }, []);
     const fetchGlossary = async () => {
         setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/supply-glossaries`);
+        const response: CustomResponse = await GetCall(`/company/supplyglossaries`);
         console.log(response, 'abhishek');
         setLoading(false);
         if (response.code == 'SUCCESS') {
