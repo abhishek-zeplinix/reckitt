@@ -2,11 +2,10 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Tag } from 'primereact/tag';
 import { useState, useEffect } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 
-const SupplierEvaluationTable = ({ rules }: any) => {
+const SupplierEvaluationTable = ({ rules, category }: any) => {
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
   const [originalPercentages, setOriginalPercentages] = useState<any>({});
@@ -14,24 +13,36 @@ const SupplierEvaluationTable = ({ rules }: any) => {
   const [displayPercentages, setDisplayPercentages] = useState<any>({});
   const [totalScore, setTotalScore] = useState<any>(0);
 
-  // console.log(tableData);
-  
+  console.log(category);
+
   useEffect(() => {
 
     if (rules) {
-      setTableData(rules.data);
+      // setTableData(rules.data);
+      setTableData(rules);
 
       const initialEvals: any = {};
       const initialPercentages: any = {};
 
-      rules.data?.sections?.forEach((section: any, sIndex: number) => {
+      rules?.sections?.forEach((section: any, sIndex: number) => {
 
         section.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
-          
+
           const key = `${sIndex}-${cIndex}`;
           initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
-          initialPercentages[key] = criteria.percentage;
+          // initialPercentages[key] = criteria.percentage;
           // initialPercentages[key] = criteria.evaluations[0].ratiosRawpack;
+          // initialPercentages[key] = criteria?.evaluations[0][category];
+
+
+
+          if (category && criteria?.evaluations?.[0]?.[category] !== undefined) {
+            initialPercentages[key] = criteria.evaluations[0][category];
+          } else {
+            initialPercentages[key] = 0;
+            // console.warn('Data is not yet available for the category');
+          }
+
         });
       });
 
@@ -47,7 +58,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
   const distributeRoundedPercentages = (percentages: any) => {
     const displayPercentages: any = {};
     const nonNAEntries: string[] = [];
-    
+
     // first, handle NA values
     Object.entries(percentages).forEach(([key, value]) => {
       if (value === 'NA') {
@@ -66,7 +77,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
       roundedValue: Math.floor(Number(percentages[key])),
       decimalPart: Number(percentages[key]) % 1
     }))
-    .sort((a, b) => b.decimalPart - a.decimalPart);
+      .sort((a, b) => b.decimalPart - a.decimalPart);
 
     // first pass: assign floor values
     let usedPercentage = 0;
@@ -78,6 +89,8 @@ const SupplierEvaluationTable = ({ rules }: any) => {
     // sssecond pass: distribute remaining percentage points
     const remaining = 100 - usedPercentage;
     for (let i = 0; i < remaining; i++) {
+
+      //cyclic distribution ...in case if remaining is larger than the sortedEntries ..it ensure that index loops back to the start of sortedEntries once it reaches the end...
       displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
     }
 
@@ -192,9 +205,10 @@ const SupplierEvaluationTable = ({ rules }: any) => {
     setSelectedEvaluations(updatedEvals);
     setCurrentPercentages(updatedPercentages);
     setDisplayPercentages(roundedPercentages);
-    calculateTotalScore(updatedEvals, updatedPercentages);
+    // calculateTotalScore(updatedEvals, updatedPercentages);
+    calculateTotalScore(updatedEvals, roundedPercentages);
   };
- 
+
 
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
@@ -263,7 +277,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
                         value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
                         size={1}
                         readOnly
-                      /><span>{currentPercentage}</span>
+                      />
                     </td>
 
 
@@ -320,7 +334,7 @@ const SupplierEvaluationTable = ({ rules }: any) => {
 
       <div className='flex flex-col justify-content-end gap-3 mt-5 mr-2'>
 
-        {!(totalScore <= 50) &&
+        {totalScore > 50 &&
           <div className='m-3 max-w-sm text-ellipsis overflow-hidden' style={{ wordWrap: "normal", maxWidth: "300px", alignItems: "stretch" }}>
             <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
           </div>}

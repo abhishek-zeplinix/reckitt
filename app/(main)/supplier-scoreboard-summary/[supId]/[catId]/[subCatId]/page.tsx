@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -16,13 +16,24 @@ import html2canvas from 'html2canvas';
 import Link from 'next/link';
 
 const SupplierScoreboardSummoryPage = () => {
-    const router = useRouter();
     const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
     const [products, setProducts] = useState([]);
-
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [supplierData, setSupplierData] = useState<any>();
+
+
+    const params = useParams();
+
+    const { supId, catId, subCatId } = params;
 
     useEffect(() => {
+
+        const storedData = sessionStorage.getItem('supplier-data');
+        if(storedData){
+            setSupplierData(JSON.parse(storedData))
+        }
+
+
         const handleResize = () => {
             setIsSmallScreen(window.innerWidth <= 768);
         };
@@ -286,9 +297,12 @@ const SupplierScoreboardSummoryPage = () => {
                 </div>
 
                 <div className='flex-1 ml-5'>
-                <Link href="/supplier-scoreboard-summary/supplier-rating">
-                    <Button label="Add Inputs" severity="secondary" outlined />
-                </Link>
+
+                    <Link
+                        href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/supplier-rating`}
+                    >
+                        <Button label="Add Inputs" severity="secondary" outlined />
+                    </Link>
 
                 </div>
 
