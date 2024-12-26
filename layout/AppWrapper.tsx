@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { GetCall } from '@/app/api-config/ApiKit';
 import eventEmitter from '@/app/api-config/event';
@@ -51,18 +52,14 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     useEffect(() => {
         const isValid = isTokenValid(authToken);
-        console.log('54',isValid);
-        
+
         if (!isValid) {
             if (authRoutes.includes(pathname)) {
-                console.log("uhwhfhrfue", authRoutes, pathname);
-                
                 return;
             }
             router.replace('/login');
             // router.replace('/login/kau');
         } else if (authToken && isValid && authRoutes.includes(pathname)) {
-            console.log('12',authToken && isValid && authRoutes.includes(pathname));
             // router.replace('https://reckittserver.vercel.app/');
             router.replace(get(isValid, 'portalLink', '/'));
         }
