@@ -63,13 +63,13 @@ const AppMenu = () => {
                 {
                     label: 'Guidlines & Glossary',
                     icon: 'pi pi-sliders-v',
-                    // check: (user: any) => {
-                    //     const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
-                    //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                    //         return true;
-                    //     }
-                    //     return false;
-                    // },
+                    check: (user: any) => {
+                        const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                        if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            return true;
+                        }
+                        return false;
+                    },
                     items: [
                         {
                             label: 'FAQs',

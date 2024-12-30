@@ -26,21 +26,14 @@ const SupplierRatingPage = () => {
 
     console.log(supplierData);
 
-    
-    // supplierData?.category?.categoryName?.toLowerCase() === 'raw & pack'
-    //     ? "ratiosRawpack"
-    //     : supplierData?.category?.categoryName?.toLowerCase() === 'copack'
-    //         ? "ratiosCopack"
-    //         : null;
 
-
-            const categoriesMap:any = {
-                'raw & pack': 'ratiosRawpack',
-                'copack': 'ratiosCopack',
-            };
+     const categoriesMap:any = {
+            'raw & pack': 'ratiosRawpack',
+            'copack': 'ratiosCopack',
+        };
             
-            const categoryName = supplierData?.category?.categoryName?.toLowerCase();
-            const category:any = categoriesMap[categoryName] || null; // Default to null if no match
+     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
+     const category:any = categoriesMap[categoryName] || null; // default to null if no match
             
 
 
@@ -50,20 +43,20 @@ const SupplierRatingPage = () => {
         const currentYear = currentDate.getFullYear();
         // const currentMonth = currentDate.getMonth() + 1;
 
-        if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
-            return [
-                { label: `H1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
-                { label: `H2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` }
-            ];
+    if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
+        return [
+            { label: `H1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
+            { label: `H2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` }
+        ];
 
-        } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
-            return [
-                { label: `Q1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
-                { label: `Q2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` },
-                { label: `Q3-${currentYear}`, value: `${evolutionType}-3-${currentYear}` },
-                { label: `Q4-${currentYear}`, value: `${evolutionType}-4-${currentYear}` }
-            ];
-        }
+    } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
+        return [
+            { label: `Q1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
+            { label: `Q2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` },
+            { label: `Q3-${currentYear}`, value: `${evolutionType}-3-${currentYear}` },
+            { label: `Q4-${currentYear}`, value: `${evolutionType}-4-${currentYear}` }
+        ];
+    }
 
         return [];
     };
@@ -107,11 +100,6 @@ const SupplierRatingPage = () => {
 
 
     useEffect(() => {
-
-        // const storedData = sessionStorage.getItem('supplier-data');
-        // if(storedData){
-        //     setSupplierData(JSON.parse(storedData))
-        // }
 
         const handleResize = () => {
             setIsSmallScreen(window.innerWidth <= 768);
@@ -216,7 +204,7 @@ const SupplierRatingPage = () => {
     };
 
     const renderSummoryInfo = summoryCards();
-
+    
 
     const fetchData = async (params?: any) => {
         setLoading(true);
@@ -234,13 +222,14 @@ const SupplierRatingPage = () => {
             const response = await GetCall(`/company/rules/${catId}/${subCatId}/${selectedDepartment}`);
             setRules(response.data);
 
-
-            params = {}
-            params.filters = {supId : supId}
-            const queryString = buildQueryParams(params);
-            const supplierDetailResponse = await GetCall(`/company/supplier?${queryString}`)
-
-            setSupplierData(supplierDetailResponse.data[0])
+            if(!supplierData){
+                params = {}
+                params.filters = {supId : supId}
+                const queryString = buildQueryParams(params);
+                const supplierDetailResponse = await GetCall(`/company/supplier?${queryString}`)
+                setSupplierData(supplierDetailResponse.data[0])
+            }
+           
             // console.log();
             
 
