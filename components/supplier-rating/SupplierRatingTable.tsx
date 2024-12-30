@@ -13,47 +13,44 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
   const [displayPercentages, setDisplayPercentages] = useState<any>({});
   const [totalScore, setTotalScore] = useState<any>(0);
 
-  console.log(category);
 
+  console.log(rules);
+
+  // Reset initialization when category changes
   useEffect(() => {
-
-    if (rules) {
-      // setTableData(rules.data);
+    if (rules && category) {
       setTableData(rules);
-
-      const initialEvals: any = {};
-      const initialPercentages: any = {};
-
-      rules?.sections?.forEach((section: any, sIndex: number) => {
-
-        section.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
-
-          const key = `${sIndex}-${cIndex}`;
-          initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
-          // initialPercentages[key] = criteria.percentage;
-          // initialPercentages[key] = criteria.evaluations[0].ratiosRawpack;
-          // initialPercentages[key] = criteria?.evaluations[0][category];
-
-
-
-          if (category && criteria?.evaluations?.[0]?.[category] !== undefined) {
-            initialPercentages[key] = criteria.evaluations[0][category];
-          } else {
-            initialPercentages[key] = 0;
-            // console.warn('Data is not yet available for the category');
-          }
-
-        });
-      });
-
-      setSelectedEvaluations(initialEvals);
-      setOriginalPercentages(initialPercentages);
-      setCurrentPercentages(initialPercentages);
-      const roundedPercentages = distributeRoundedPercentages(initialPercentages);
-      setDisplayPercentages(roundedPercentages);
-      calculateTotalScore(initialEvals, initialPercentages);
+      initializeData(rules);
     }
-  }, [rules]);
+  }, [rules, category]);
+
+
+  const initializeData = (currentRules: any) => {
+    const initialEvals: any = {};
+    const initialPercentages: any = {};
+
+    currentRules?.sections?.forEach((section: any, sIndex: number) => {
+      section.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+        const key = `${sIndex}-${cIndex}`;
+        
+        // Set initial evaluation
+        initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
+        
+        // Set initial percentage
+        const categoryValue = criteria?.evaluations?.[0]?.[category];
+        initialPercentages[key] = categoryValue ?? 0;
+      });
+    });
+
+    setSelectedEvaluations(initialEvals);
+    setOriginalPercentages(initialPercentages);
+    setCurrentPercentages(initialPercentages);
+    
+    const roundedPercentages = distributeRoundedPercentages(initialPercentages);
+    setDisplayPercentages(roundedPercentages);
+    calculateTotalScore(initialEvals, initialPercentages);
+  };
+  
 
   const distributeRoundedPercentages = (percentages: any) => {
     const displayPercentages: any = {};
@@ -110,7 +107,7 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
 
       const [secIdx, critIdx] = key.split('-').map(Number);
 
-      const evaluation = (tableData.sections[secIdx].ratedCriteria[critIdx].evaluations as any[])
+      const evaluation = (tableData?.sections[secIdx].ratedCriteria[critIdx].evaluations as any[])
         .find(e => e.criteriaEvaluation === evalValue);
 
       if (evaluation?.score === 'NA') {
@@ -193,6 +190,7 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
 
 
   const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
+    
     const key = `${sectionIndex}-${criteriaIndex}`;
     const updatedEvals = {
       ...selectedEvaluations,
@@ -209,7 +207,7 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
     calculateTotalScore(updatedEvals, roundedPercentages);
   };
 
-
+  
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
     <div className=" w-full shadow-sm mt-5">
@@ -242,7 +240,7 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
 
               </tr>
 
-              {section.ratedCriteria.map((criteria: any, criteriaIndex: any) => {
+              {section?.ratedCriteria?.map((criteria: any, criteriaIndex: any) => {
 
                 const key = `${sectionIndex}-${criteriaIndex}`;
                 const selectedEval = selectedEvaluations[key];
@@ -251,7 +249,7 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
                 const score =
                   criteria.evaluations.find(
                     (evaluation: any) => evaluation.criteriaEvaluation === selectedEval
-                  )?.score || '0';
+                  )?.score || 'NA';
 
                 return (
 
@@ -280,7 +278,7 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
                       />
                     </td>
 
-
+                    
                     <td className="px-4 py-2">
 
                       <Dropdown
@@ -294,7 +292,6 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
                         className="w-full md:w-14rem"
                       />
                     </td>
-
 
 
                     <td className="px-4 py-2">
