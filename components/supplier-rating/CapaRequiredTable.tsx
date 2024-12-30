@@ -1,61 +1,61 @@
 import { Dropdown } from "primereact/dropdown";
 import { useState } from "react";
 
-const dummyData = [
+// type StatusOption = string;
+
+// interface CapaItem {
+//   id: string;
+//   capaQuestion: string;
+//   status: {
+//     options: StatusOption[];
+//   };
+// }
+
+// interface SelectedValues {
+//   [key: number]: string | null;
+// }
+
+const improvedData: any[] = [
   {
-    capaQuetions: "Reckitt informed the supplier about the points poorly rated in the scorecard. This could be through email, meeting etc.?",
-    status: [
-      { statusEvaluation: "Yes" },
-      { statusEvaluation: "No" },
-    ]
+    id: "CAPA_001",
+    capaQuestion: "Was supplier informed about scorecard ratings?",
+    status: {
+      options: ["Yes", "No"]
+    }
   },
   {
-    capaQuetions: "CAPA Proposed by Supplier?",
-    status: [
-      { statusEvaluation: "Yes" },
-      { statusEvaluation: "No" },
-    ]
+    id: "CAPA_002",
+    capaQuestion: "Has supplier proposed CAPA?",
+    status: {
+      options: ["Yes", "No"]
+    }
   },
   {
-    capaQuetions: "CAPA STATUS?",
-    status: [
-      { statusEvaluation: "CAPA Open" },
-      { statusEvaluation: "CAPA Completed. This means root cause.." },
-    ]
+    id: "CAPA_003",
+    capaQuestion: "What is the current CAPA status?",
+    status: {
+      options: ["Open", "In Progress", "Completed"]
+    }
   },
   {
-    capaQuetions: "CAPA Due Date or Date of Completion",
-    status: [
-      { statusEvaluation: "End of Q1" },
-      { statusEvaluation: "End of Q2" },
-      { statusEvaluation: "End of Q3" },
-      { statusEvaluation: "End of Q4" },
-    ]
-  },
-  {
-    capaQuetions: "CAPA Overdue?",
-    status: [
-      { statusEvaluation: "Yes" },
-      { statusEvaluation: "No" },
-    ]
-  },
-  {
-    capaQuetions: "CAPA IDENTIFIER/EVIDENCE - email stored in SBS Folder in SharePoint, or CAPA ref # for quality etc",
-    status: [
-      { statusEvaluation: "Yes" },
-      { statusEvaluation: "No" },
-      { statusEvaluation: "Not Applicable" },
-    ]
+    id: "CAPA_004",
+    capaQuestion: "What is the CAPA due date?",
+    status: {
+      options: ["Q1", "Q2", "Q3", "Q4"]
+    }
   }
 ];
 
 const CapaRequiredTable = () => {
   const [selectedValues, setSelectedValues] = useState<any>(
-    dummyData.reduce((acc: any, _, index) => {
+    improvedData.reduce((acc, _, index) => {
       acc[index] = null;
       return acc;
-    }, {})
+    }, {} as any)
   );
+
+  console.log(selectedValues);
+  
 
   const handleDropdownChange = (itemIndex: number, value: string) => {
     setSelectedValues((prevState: any) => ({
@@ -65,24 +65,29 @@ const CapaRequiredTable = () => {
   };
 
   const handleSubmit = () => {
-    const payload = dummyData.map((item, index) => ({
-      question: item.capaQuetions,
-      selectedStatus: selectedValues[index],
+    const payload = improvedData.map((item, index) => ({
+      id: item.id,
+      capaQuestion: item.capaQuestion,
+      response: {
+        status: selectedValues[index]
+      }
     }));
     console.log("API Payload:", payload);
   };
 
-  console.log(selectedValues);
-  
-
   return (
     <div className="w-full">
-      <div className="text-black mb-2 text-sm"><span className="font-bold text-lg" style={{ color: "#DD5B5B"}}>CAPA Required</span> (CORRECTIVE AND PREVENTATIVE ACTION (CAPA) REQUIRED IF SCORE ≤ 50%?)</div>
+      <div className="text-black mb-2 text-sm">
+        <span className="font-bold text-lg" style={{ color: "#DD5B5B" }}>
+          CAPA Required
+        </span>{" "}
+        (CORRECTIVE AND PREVENTATIVE ACTION (CAPA) REQUIRED IF SCORE ≤ 50%?)
+      </div>
       <table className="w-full bg-white border table-fixed">
         <thead>
           <tr style={{ backgroundColor: "#E9EFF6" }}>
             <th className="px-4 py-3 text-left text-md font-bold text-black w-3/4">
-              {`COMPLETE BELOW IF CAPA IS REQUIRED (SCORE <= 50%)`}
+              COMPLETE BELOW IF CAPA IS REQUIRED (SCORE ≤ 50%)
             </th>
             <th className="px-4 py-3 text-left text-md font-bold text-black w-1/4">
               STATUS
@@ -90,16 +95,16 @@ const CapaRequiredTable = () => {
           </tr>
         </thead>
         <tbody>
-          {dummyData.map((item, itemIndex) => (
-            <tr key={itemIndex} className="border-b hover:bg-gray-50">
+          {improvedData.map((item, itemIndex) => (
+            <tr key={item.id} className="border-b hover:bg-gray-50">
               <td className="px-4 py-2 break-words">
-                {item.capaQuetions}
+                {item.capaQuestion}
               </td>
               <td className="px-4 py-2">
                 <Dropdown
-                  options={item.status.map((stat) => ({
-                    label: stat.statusEvaluation,
-                    value: stat.statusEvaluation,
+                  options={item.status.options.map((option: any) => ({
+                    label: option,
+                    value: option,
                   }))}
                   value={selectedValues[itemIndex] || ""}
                   onChange={(e) => handleDropdownChange(itemIndex, e.value)}

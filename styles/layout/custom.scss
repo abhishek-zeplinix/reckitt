@@ -557,3 +557,22 @@ $spacing-sizes: (
   height: 100px !important;
   text-align: center !important;
 }
+
+
+// add-field-btn
+
+.custom-add-field-button .p-button-label {
+  color: #64748B; 
+}
+
+.custom-add-field-button .p-button-icon {
+  color: #DF177C;
+  // box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+  background-color: #F2A2CB33;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.custom-add-field-button:hover{
+  background-color: #ffff;
+}

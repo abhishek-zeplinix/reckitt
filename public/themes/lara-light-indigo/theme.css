@@ -908,7 +908,7 @@
   .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-focus {
     outline: 0 none;
     outline-offset: 0;
-    box-shadow: 0 0 0 0.2rem #C7D2FE;
+    /* box-shadow: 0 0 0 0.2rem #C7D2FE; */
     border-color: #EC4899;
   }
 
@@ -927,7 +927,7 @@
   }
 
   .p-input-filled .p-checkbox .p-checkbox-box.p-highlight {
-    background: #0068e3;
+    /* background: #0068e3; */
   }
 
   .p-input-filled .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:hover {
@@ -935,7 +935,7 @@
   }
 
   .p-input-filled .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover {
-    background: #4338CA;
+    /* background: #4338CA; */
   }
 
   .p-chips .p-chips-multiple-container {

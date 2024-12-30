@@ -10,9 +10,13 @@ const AddFeedBackPage = () => {
     return (
         <div className="grid">
             <div className="col-12">
-                <div className="card">
-                    <h5>AddFeedBackPage</h5>
-                    <p>Use this page to start from scratch and place your custom content.</p>
+                <div className="card p-4">
+
+                    <div className="flex flex-col md:flex-row mt-8 mb-8">
+
+                       
+                    </div>
+
                 </div>
             </div>
         </div>
