@@ -296,34 +296,43 @@
 //     binGradeId? = number;
 // };
 type EmptySupplier = {
-    supId:number |null;
-    supplierName : string;
-    supplierManufacturerName : string;
-    siteAddress : string;
-    procurementCategoryId ?: number | null;
-    supplierCategoryId ?:number | null;
-    warehouseLocation ?: string;
-    factoryId ?: number | null;
-    gmpFile?:any;
-    gdpFile?:any;
-    reachFile:any;
-    isoFile:any;
-    locationId?:number | null;
-    sublocationId?:number | null;
-    category?:{
-        categoryId:number |null;
-        categoryName:string;
+    supId: number | null;
+    supplierName: string;
+    supplierManufacturerName: string;
+    siteAddress: string;
+    procurementCategoryId?: number | null;
+    supplierCategoryId?: number | null;
+    warehouseLocation?: string;
+    factoryId?: number | null;
+    gmpFile?: any;
+    gdpFile?: any;
+    reachFile: any;
+    isoFile: any;
+    locationId?: number | null;
+    sublocationId?: number | null;
+    category?: {
+        categoryId: number | null;
+        categoryName: string;
     };
-    subCategories?:{
-        subCategoryId:number |null;
-        subCategoryName:string;
+    subCategories?: {
+        subCategoryId: number | null;
+        subCategoryName: string;
     };
-    factoryName?:{
-        factoryId:number |null;
-        factoryName:string;
+    factoryName?: {
+        factoryId: number | null;
+        factoryName: string;
 
     };
 };
+
+
+type EmptyFeedback = {
+    supplierName: string;
+    year: number | null;
+    quarter: string;
+    info: string;
+    filePath: string;
+}
 export type {
     EmptyPermissions,
     EmptyCompany,
@@ -346,5 +355,6 @@ export type {
     EmptyPallet,
     EmptyGradeToBin,
     receivepurchaseItem,
-    EmptySupplier
+    EmptySupplier,
+    EmptyFeedback
 };
