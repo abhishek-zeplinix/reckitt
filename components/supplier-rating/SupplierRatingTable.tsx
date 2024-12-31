@@ -4,15 +4,22 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { useState, useEffect } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
+import { useParams } from 'next/navigation';
 
-const SupplierEvaluationTable = ({ rules, category }: any) => {
+const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryName, departmentID, department}: any) => {
+  
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
   const [originalPercentages, setOriginalPercentages] = useState<any>({});
   const [currentPercentages, setCurrentPercentages] = useState<any>({});
   const [displayPercentages, setDisplayPercentages] = useState<any>({});
   const [totalScore, setTotalScore] = useState<any>(0);
+  const [comments, setComments] = useState('');
+  const [capaData, setCapaData] = useState<any[]>([]);
 
+
+  const urlParams = useParams();
+  const { supId, catId, subCatId } = urlParams;
 
   console.log(rules);
 
@@ -23,6 +30,9 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
       initializeData(rules);
     }
   }, [rules, category]);
+
+  console.log(tableData);
+  
 
 
   const initializeData = (currentRules: any) => {
@@ -197,6 +207,8 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
       [key]: value,
     };
 
+    console.log(updatedEvals);
+
     const updatedPercentages = recalculateAllPercentages(updatedEvals);
     const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
 
@@ -205,9 +217,85 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
     setDisplayPercentages(roundedPercentages);
     // calculateTotalScore(updatedEvals, updatedPercentages);
     calculateTotalScore(updatedEvals, roundedPercentages);
+
+    
   };
 
+
+  const prepareApiData = () => {
+    const sections = tableData?.sections?.map((section: any) => {
+      return {
+        sectionName: section.sectionName,
+        ratedCriteria: section.ratedCriteria.map((criteria: any, criteriaIndex: number) => {
+          const sectionIndex = tableData.sections.indexOf(section);
+          const key = `${sectionIndex}-${criteriaIndex}`;
+          const selectedEval = selectedEvaluations[key];
+          
+          const evaluation = criteria.evaluations.find(
+            (e: any) => e.criteriaEvaluation === selectedEval
+          );
+
+          if (!evaluation) return null;
+
+          // get the current percentage for this criteria
+          const currentPercentage = displayPercentages[key];
+          
+          // get the score
+          const score = evaluation.score;
+          
+          // prepare the ratio key based on category
+          const ratioKey = category === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
+
+          return {
+            criteriaName: criteria.criteriaName,
+            evaluations: [{
+              criteriaEvaluation: evaluation.criteriaEvaluation,
+              // Keep score as string if it's 'NA', otherwise convert to number
+              // score: score === 'NA' ? 'NA' : Number(score),
+              score: score === 'NA' ? 'NA' : String(score),
+              // Keep ratio as string if it's 'NA', otherwise use the current percentage
+              [ratioKey]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
+            }]
+          };
+        }).filter(Boolean)
+      };
+    });
+
+    const subCategoryId = subCatId
+    const categoryData = {
+      "categoryId": catId,
+		  "categoryName": categoryName
+    }
+
+    const apiData = {
+      supId,
+      departmentID,
+      department,
+      category: categoryData,
+      subCategoryId,
+      evaluationPeriod,
+      sections,
+      totalScore,
+      comments,
+      ...(totalScore <= 50 && { capa: capaData })
+    };
+
+    return apiData;
+  };
+
+  const handleSubmit = async () => {
+
+      const apiData = prepareApiData();
+        console.log(apiData);
+      
+  };
+
+  // Update capaData when CapaRequiredTable changes
+  // const handleCapaDataChange = (data: any[]) => {
+  //   setCapaData(data);
+  // };
   
+
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
     <div className=" w-full shadow-sm mt-5">
@@ -342,7 +430,8 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
 
         <div>
           <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
-          <InputTextarea rows={5} cols={30} />
+          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)}
+          />
         </div>
 
       </div>
@@ -356,7 +445,8 @@ const SupplierEvaluationTable = ({ rules, category }: any) => {
       {/* submission buttons */}
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
         <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
-        <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} />
+        <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} onClick={handleSubmit}
+        />
 
       </div>
 

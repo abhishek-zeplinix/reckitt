@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { Button } from 'primereact/button';
+
 interface RightSidePanel {
     isVisible: boolean;
     title?: any;
@@ -34,6 +35,7 @@ const Sidebar = ({
     width = '60vw', // Default width to '87vw'
     onSave = () => {}
 }: RightSidePanel) => {
+    
     const { layoutState } = useContext(LayoutContext);
 
     // Conditionally set width based on staticMenuDesktopInactive

@@ -176,25 +176,37 @@ export const filterArray = (data: any[], filters: any) => {
 
 export const buildQueryParams = (params: any) => {
     const query = new URLSearchParams();
-
+    
+    if (params.pagination !== false) { 
     query.append('limit', (params.limit ? params.limit : 10) || 10);
     query.append('page', (params.page ? params.page : 1) || 1);
+    }
 
+    // Sorting parameters
     if (params.sortBy) {
         query.append('sortBy', params.sortBy);
         query.append('sortOrder', params.sortOrder);
     }
 
+    // Filters
     for (const filterField in params.filters) {
         if (params.filters[filterField]) {
             query.append(`filters.${filterField}`, params.filters[filterField]);
         }
     }
 
+    // Include parameters
     if (typeof params.include == 'object') {
         query.append('include', params.include.join(','));
     } else if (typeof params.include == 'string') {
         query.append('include', params.include);
+    }
+
+      // if another parameter passed apart from above ...
+      for (const key in params) {
+        if (!['limit', 'page', 'sortBy', 'sortOrder', 'filters', 'include', 'pagination'].includes(key)) {
+            query.append(key, params[key]);
+        }
     }
 
     return query.toString();

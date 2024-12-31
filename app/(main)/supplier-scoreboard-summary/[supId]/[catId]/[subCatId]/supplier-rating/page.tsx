@@ -2,7 +2,7 @@
 import { GetCall } from "@/app/api-config/ApiKit";
 import SupplierEvaluationTable from "@/components/supplier-rating/SupplierRatingTable";
 import { useAppContext } from "@/layout/AppWrapper";
-import { buildQueryParams } from "@/utils/uitl";
+import { buildQueryParams, getRowLimitWithScreenHeight } from "@/utils/uitl";
 import { useParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
@@ -18,13 +18,13 @@ const SupplierRatingPage = () => {
     const [departments, setDepartments] = useState<any>();
     const [selectedDepartment, setSelectedDepartment] = useState<number>(1);
     const [supplierData, setSupplierData] = useState<any>();
-    const [periodOptions, setPeriodOptions] = useState([]);
-    const urlParams = useParams();
+    const [periodOptions, setPeriodOptions] = useState<any>([]);
 
+    const urlParams = useParams();
     const { supId, catId, subCatId } = urlParams;
     const { setLoading, setAlert } = useAppContext();
 
-    console.log(supplierData);
+    // console.log(supplierData);
 
 
      const categoriesMap:any = {
@@ -34,7 +34,138 @@ const SupplierRatingPage = () => {
             
      const categoryName = supplierData?.category?.categoryName?.toLowerCase();
      const category:any = categoriesMap[categoryName] || null; // default to null if no match
+
+
+
+     //fetch department api
+    const fetchDepartments = async () => {
+
+        try {
+            const response = await GetCall('/company/department');
+            setDepartments(response.data);
+            return response.data;
+
+        } catch (error) {
+            setAlert('error', 'Failed to fetch departments');
+        }
+    };
+
+    //fetch indivisual supplier data
+    const fetchSupplierData = async () => {
+
+        try {
+
+            const params = { filters: { supId } };
+            const queryString = buildQueryParams(params);
+            const response = await GetCall(`/company/supplier?${queryString}`);
+            setSupplierData(response.data[0]);
+            return response.data[0];
+
+        } catch (error) {
+            setAlert('error', 'Failed to fetch supplier data');
+        }
+    };
+
+    //fetch rules
+    const fetchRules = async () => {
+        if (!selectedPeriod || !selectedDepartment) return;
+        
+        try {
+
+            const rulesParams = { effectiveFrom: selectedPeriod, pagination: false };
+            const queryString = buildQueryParams(rulesParams);
+            const response = await GetCall(`/company/rules/${catId}/${subCatId}/${selectedDepartment}?${queryString}`);
+            setRules(response.data);
+            return response.data;
+
+        } catch (error) {
+            setAlert('error', 'Failed to fetch rules');
+        }
+    };
+
+
+
+    useEffect(() => {
+        const initializeData = async () => {
+            setLoading(true);
+            try {
+                if (!departments) {
+                    await fetchDepartments();
+                }
+                if (!supplierData) {
+                    await fetchSupplierData();
+                }
+            } catch (error) {
+                setAlert('error', 'Something went wrong during initialization');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializeData();
+    }, []);
+
+
+    
+    useEffect(() => {
+        const fetchRulesData = async () => {
+            if (!selectedPeriod) return;
+    
+            // verify if the selected period is valid for current department
+            const currentDepartment = (departments as any[])?.find(dep => dep.departmentId === selectedDepartment);
+            if (!currentDepartment) return;
+    
+            const validPeriods = getPeriodOptions(currentDepartment.evolutionType);
+            const isPeriodValid = validPeriods.some(option => option.value === selectedPeriod);
             
+            if (!isPeriodValid) return;
+    
+            setLoading(true);
+            try {
+                await fetchRules();
+            } catch (error) {
+                // Error already handled in fetchRules
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchRulesData();
+        
+    }, [selectedDepartment, selectedPeriod]);
+
+
+// Screen size effect
+    useEffect(() => {
+        const handleResize = () => {
+            setIsSmallScreen(window.innerWidth <= 768);
+        };
+        
+        window.addEventListener('resize', handleResize);
+        handleResize();
+        
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+
+    useEffect(() => {
+        if (departments) {
+            const currentDepartment = (departments as any[])?.find(dep => dep.departmentId === selectedDepartment);
+            if (currentDepartment) {
+                const options = getPeriodOptions(currentDepartment.evolutionType);
+                setPeriodOptions(options);
+                
+                // Instead of immediately setting the period, check if the current period is valid
+                const defaultPeriod:any = getDefaultPeriod(currentDepartment.evolutionType);
+                const isCurrentPeriodValid = options.some(option => option.value === selectedPeriod);
+                
+                if (!isCurrentPeriodValid) {
+                    setSelectedPeriod(defaultPeriod);
+                }
+            }
+        }
+    }, [selectedDepartment, departments]);
+
 
 
      //function to get periods based on evolution type...
@@ -81,36 +212,6 @@ const SupplierRatingPage = () => {
     };
 
 
-
-    // update periods when department changes
-    useEffect(() => {
-        if (departments) {
-            const currentDepartment = (departments as any[]).find(dep => dep.departmentId === selectedDepartment);
-            if (currentDepartment) {
-                const options: any = getPeriodOptions(currentDepartment.evolutionType);
-                setPeriodOptions(options);
-                
-                // Set default period
-                const defaultPeriod:any = getDefaultPeriod(currentDepartment.evolutionType);
-                setSelectedPeriod(defaultPeriod);
-            }
-        }
-    }, [selectedDepartment, departments]);
-
-
-
-    useEffect(() => {
-
-        const handleResize = () => {
-            setIsSmallScreen(window.innerWidth <= 768);
-        };
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Check the initial screen size
-
-        fetchData();
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, [selectedDepartment]);
     
 
 
@@ -149,7 +250,7 @@ const SupplierRatingPage = () => {
                         }}
                     >
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {leftPanelData.map((item, index) => (
+                            {leftPanelData?.map((item, index) => (
                                 <>
                                     <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
                                         <div>
@@ -181,7 +282,7 @@ const SupplierRatingPage = () => {
                         }}
                     >
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {RightPanelData.map((item, index) => (
+                            {RightPanelData?.map((item, index) => (
                                 <>
                                     <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
                                         <div>
@@ -206,44 +307,7 @@ const SupplierRatingPage = () => {
     const renderSummoryInfo = summoryCards();
     
 
-    const fetchData = async (params?: any) => {
-        setLoading(true);
-
-        try{
-
-            if(!departments){
-                console.log("calling dep api.......");
-    
-                const departmentResponse = await GetCall('/company/department')
-                setDepartments(departmentResponse.data);
-        
-            }
-    
-            const response = await GetCall(`/company/rules/${catId}/${subCatId}/${selectedDepartment}`);
-            setRules(response.data);
-
-            if(!supplierData){
-                params = {}
-                params.filters = {supId : supId}
-                const queryString = buildQueryParams(params);
-                const supplierDetailResponse = await GetCall(`/company/supplier?${queryString}`)
-                setSupplierData(supplierDetailResponse.data[0])
-            }
-           
-            // console.log();
-            
-
-        }catch(err){
-            setAlert('error', 'Something went wrong!!')
-        }finally{
-            setLoading(false)
-        }
-       
-
-    }
-    
-
-    console.log(departments);
+    // console.log(departments);
     console.log(selectedDepartment);
     console.log(selectedPeriod);
     
@@ -270,7 +334,7 @@ const SupplierRatingPage = () => {
                                         setSelectedDepartment(department.departmentId); // Set departmentID state
                                     }}
                                 >
-                                    {department.name}
+                                    {department.name.toUpperCase()}
                                 </div>
                             ))}
                         </div>
@@ -295,7 +359,7 @@ const SupplierRatingPage = () => {
 
                     {/* <div className="mt-4">{renderContent()}</div> */}
 
-                    {rules && <SupplierEvaluationTable rules={rules} category={category}/>}
+                    {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentID={selectedDepartment} department={activeTab}/>}
 
                 </div>
             </>
