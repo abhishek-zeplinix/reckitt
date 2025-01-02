@@ -327,11 +327,11 @@ type EmptySupplier = {
 
 
 type EmptyFeedback = {
-    supplierName: string;
+    suppliername: string;
     year: number | null;
     quarter: string;
     info: string;
-    filePath: string;
+    file?: any;
 }
 export type {
     EmptyPermissions,

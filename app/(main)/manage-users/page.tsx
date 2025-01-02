@@ -1,11 +1,14 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { useAppContext } from '@/layout/AppWrapper';
+import { CustomResponse, CompanyUsers } from '@/types';
+import { GetCall } from '@/app/api-config/ApiKit';
 
 const ManageUsersPage = () => {
     const router = useRouter();
@@ -14,7 +17,12 @@ const ManageUsersPage = () => {
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [companyUsers, setCompanyUsers] = useState<CompanyUsers[]>([]);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
     // Sample data for the users
     const databoxx = [
         {
@@ -82,6 +90,17 @@ const ManageUsersPage = () => {
         router.push(`/manage-users/user?edit=true&userId=${userId}`);
     };
 
+    const fetchData = async (params?: any) => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/user`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setCompanyUsers(response.data);
+        } else {
+            setCompanyUsers([]);
+        }
+    };
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -112,41 +131,56 @@ const ManageUsersPage = () => {
                                         }
                                     }
                                 ]}
-                                data={databoxx}
+                                data={companyUsers}
                                 columns={[
                                     {
                                         header: 'Sr No',
-                                        field: 'srno',
+                                        field: 'id',
                                         filter: true,
                                         sortable: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         filterPlaceholder: 'Sr No'
                                     },
                                     {
-                                        header: 'Role',
-                                        field: 'role',
+                                        header: 'Name',
+                                        field: 'name',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         filterPlaceholder: 'Search Role'
                                     },
                                     {
-                                        header: 'Name',
-                                        field: 'name',
+                                        header: 'Role Name',
+                                        field: 'roleName',
+                                        filter: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        filterPlaceholder: 'Search Role'
+                                    },
+                                    {
+                                        header: 'Email',
+                                        field: 'email',
                                         sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Search Name',
-                                        style: { minWidth: 120, maxWidth: 120 }
+                                        style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
-                                        header: 'User Name',
-                                        field: 'username',
+                                        header: 'Phone Number',
+                                        field: 'phone',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         filterPlaceholder: 'Search User Name'
                                     },
                                     {
-                                        header: 'Mobile ',
-                                        field: 'mobile',
+                                        header: 'Role Id ',
+                                        field: 'roleId',
+                                        filter: true,
+                                        filterPlaceholder: 'Search Mobile ',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                    },
+
+                                    {
+                                        header: 'Status ',
+                                        field: 'isActive',
                                         filter: true,
                                         filterPlaceholder: 'Search Mobile ',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }

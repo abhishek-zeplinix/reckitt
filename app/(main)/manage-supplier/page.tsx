@@ -482,6 +482,7 @@ const ManageSupplierPage = () => {
                                             const file = e.target.files?.[0];
                                             if (file) {
                                                 onInputChange('gdpFile', file);
+                                                console.log(file, 'gdp file to upload');
                                             }
                                         }}
                                     />
