@@ -15,6 +15,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { CONFIG } from '@/config/config';
 import { setAuthData, setUserDetails } from '@/utils/cookies';
 import { get } from 'lodash';
+import { encryptPassword } from '@/utils/encryption';
 
 const LoginPage = () => {
     const { isLoading, setAlert, setLoading, setUser, setAuthToken, setDisplayName } = useAppContext();
@@ -39,8 +40,14 @@ const LoginPage = () => {
         }
 
         if (email && password) {
+
             setLoading(true);
-            const response: any = await PostCall('/auth/sign-in', { email, password });
+
+            // const encryptedPassword = await encryptPassword(password);
+            
+            // console.log(encryptedPassword);
+            
+            const response: any = await PostCall('/auth/sign-in', { email, password});
             setLoading(false);
             if (response.code == 'SUCCESS') {
                 console.log('login success');
@@ -49,6 +56,7 @@ const LoginPage = () => {
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
                 setUserDetails(response.data)
+
             } else if (response.code == 'RESET_PASSWORD') {
                 console.log('res', response);
                 setDisplayName(response.name);
@@ -63,6 +71,15 @@ const LoginPage = () => {
     const handleCheckboxChange = (e: any) => {
         setChecked(e.checked); // Update checked state
     };
+
+    const handleCopy = (e: any) => {
+        e.preventDefault();
+        const encryptedPassword = encryptPassword(password);
+        navigator.clipboard.writeText(encryptedPassword).then(() => {
+          alert("Encrypted password copied to clipboard!");
+        });
+      };
+
     const containerClassName = classNames('surface-ground flex align-items-center justify-between min-h-screen overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
 
     return (
@@ -107,7 +124,7 @@ const LoginPage = () => {
                                     Forgot your password?
                                 </Link>
                             </div>
-                            <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} />
+                            <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} onCopy={handleCopy}/>
 
                             <div className="flex flex-wrap justify-content-left gap-3 mb-2">
                                 <div className="flex align-items-center mb-2">

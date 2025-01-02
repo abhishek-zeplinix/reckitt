@@ -79,6 +79,7 @@ type AppContextType = {
     setScroll: (loading: boolean) => void;
     selectedSubLocation: any;
     setSelectedSubLocation: (selectedSubLocation: any) => void;
+   
 };
 
 interface Routes {

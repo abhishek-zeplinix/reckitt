@@ -46,7 +46,7 @@ const improvedData: any[] = [
   }
 ];
 
-const CapaRequiredTable = () => {
+const CapaRequiredTable = ({onDataChange}: any) => {
   const [selectedValues, setSelectedValues] = useState<any>(
     improvedData.reduce((acc, _, index) => {
       acc[index] = null;

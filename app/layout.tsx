@@ -5,6 +5,7 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import '../styles/layout/layout.scss';
 import { AppWrapper } from '@/layout/AppWrapper';
+// import './globals.css'
 
 interface RootLayoutProps {
     children: React.ReactNode;
