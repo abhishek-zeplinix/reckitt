@@ -5,6 +5,10 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
+import { useAppContext } from '@/layout/AppWrapper';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { CustomResponse } from '@/types';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
 
 const ManageUserAddPage = () => {
     const router = useRouter();
@@ -13,18 +17,112 @@ const ManageUserAddPage = () => {
 
     const [supplierId, setSupplierId] = useState('');
     const [supplierName, setSupplierName] = useState('');
+    const [supplierData, setSupplierData] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
+    const [roleName, setRoleName] = useState('');
+    const [roleEmail, setRoleEmail] = useState('');
+    const [rolePhone, setRolePhone] = useState('');
+    const [rolePassword, setRolePassword] = useState('');
     const [manufacturerName, setManufacturerName] = useState('');
+    const [createRole, setCreateRole] = useState('');
     const [complianceStatus, setComplianceStatus] = useState(false);
     const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
-    const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
+    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    // const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
+    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const [page, setPage] = useState<number>(1);
     const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState(null);
     const [selectedSupplierCategory, setSelectedSupplierCategory] = useState(null);
+    const { setAlert, setLoading, isLoading } = useAppContext();
+    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
+    const [roles, setRoles] = useState([]);
+
+    useEffect(() => {
+        fetchData();
+        fetchSupplierData();
+    }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const response: CustomResponse = await GetCall(`/company/roles`);
+            if (response.code === 'SUCCESS') {
+                const formattedData = response.data.map((item: any) => ({
+                    label: item.name, // Dropdown label
+                    value: item.roleId // Dropdown value
+                }));
+                setRoles(formattedData);
+            } else {
+                setRoles([]);
+            }
+        } catch (error) {
+            console.error('Error fetching roles:', error);
+            setRoles([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchSupplierData = async (params?: any) => {
+        if (!params) {
+            params = { limit: limit, page: page };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            const formattedData = response.data.map((item: any) => ({
+                label: item.supplierName, // Dropdown label
+                value: item.supId // Dropdown value
+            }));
+            setSupplierData(formattedData);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setSupplierData([]);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!roleName || !roleEmail || !rolePhone || !rolePassword || !roles) {
+            setAlert('Error', 'Please fill all required feilds');
+            return;
+        }
+
+        setIsDetailLoading(true);
+
+        const payload = {
+            roleId: createRole,
+            name: roleName,
+            email: roleEmail,
+            password: rolePassword,
+            phone: rolePhone
+        };
+
+        try {
+            const endpoint = isEditMode ? `/company/user/edit` : `/company/user`;
+            const response: CustomResponse = await PostCall(endpoint, payload); // Using PostCall for POST/PUT API
+
+            if (response.code === 'SUCCESS') {
+                setAlert('success', isEditMode ? 'User updated successfully!' : 'User added successfully!');
+                router.push('/manage-users');
+            } else {
+                setAlert('error', response.message || 'Failed to submit user data.');
+            }
+        } catch (error) {
+            console.error('Error submitting user data:', error);
+            setAlert('error', 'An error occurred while submitting user data.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit User' : 'Add User';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add User';
-
-    const handleSubmit = () => {};
 
     const renderNewRuleFooter = () => {
         return (
@@ -47,6 +145,7 @@ const ManageUserAddPage = () => {
         { label: '3', value: 'machinery' },
         { label: '4', value: 'services' }
     ];
+    console.log('Selected role:', createRole);
 
     const renderContentbody = () => {
         return (
@@ -56,24 +155,29 @@ const ManageUserAddPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-5">
                             <div className="field col-6">
                                 <label htmlFor="role">Role</label>
-                                <Dropdown id="role" value={selectedProcurementOrder} options={procurementOrder} onChange={(e) => setSelectedProcurementOrder(e.value)} placeholder="Select Role" className="w-full" />
+                                <Dropdown id="role" value={createRole} options={roles} onChange={(e) => setCreateRole(e.value)} placeholder="Select Role" className="w-full" />
                             </div>
-
+                            {Number(createRole) === 2 && (
+                                <div className="field col-6">
+                                    <label htmlFor="supplier">Supplier</label>
+                                    <Dropdown id="supplier" value={supplierId} options={supplierData} onChange={(e) => setSupplierId(e.value)} placeholder="Select Supplier" className="w-full" />
+                                </div>
+                            )}
                             <div className="field col-6">
-                                <label htmlFor="manufacturerName">Full Name</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Full Name" />
+                                <label htmlFor="manufacturerName">Role Name</label>
+                                <input id="manufacturerName" type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Name" />
                             </div>
                             <div className="field col-6">
-                                <label htmlFor="manufacturerName">Email</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Email" />
+                                <label htmlFor="manufacturerName">Role Email</label>
+                                <input id="manufacturerName" type="text" value={roleEmail} onChange={(e) => setRoleEmail(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Email" />
                             </div>
                             <div className="field col-6">
-                                <label htmlFor="manufacturerName">Phone Number</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Phone Number" />
+                                <label htmlFor="manufacturerName">Role Phone Number</label>
+                                <input id="manufacturerName" type="text" value={rolePhone} onChange={(e) => setRolePhone(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Phone Number" />
                             </div>
                             <div className="field col-6">
                                 <label htmlFor="manufacturerName">Password</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Password" />
+                                <input id="manufacturerName" type="text" value={rolePassword} onChange={(e) => setRolePassword(e.target.value)} className="p-inputtext w-full" placeholder="Enter Password" />
                             </div>
                         </div>
                     </div>

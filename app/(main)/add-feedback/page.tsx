@@ -16,11 +16,11 @@ import { CustomDataTableRef } from '@/components/CustomDataTable';
 import { buildQueryParams } from '@/utils/uitl';
 
 const defaultForm: EmptyFeedback = {
-    supplierName: '',
+    suppliername: '',
     year: null,
     quarter: '',
     info: '',
-    filePath: ''
+    file: null
 };
 
 const AddFeedBackPages = () => {
@@ -42,34 +42,21 @@ const AddFeedBackPages = () => {
         fetchData();
     }, []);
 
-    const onNewAdd = async (companyForm: EmptyFeedback) => {
-        const formData = new FormData();
-
-        // Append all fields from the form, including the file
-        const isFile = (value: unknown): value is File => value instanceof File;
-
-        Object.keys(companyForm).forEach((key) => {
-            const value = companyForm[key as keyof EmptyFeedback];
-            if (value) {
-                if (key === 'filePath' && isFile(value)) {
-                    formData.append(key, value);
-                } else {
-                    formData.append(key, value.toString());
-                }
-            }
-        });
-
+    const onNewAdd = async (payload: EmptyFeedback | FormData) => {
         setIsDetailLoading(true);
 
+        // Check the type of payload and set the appropriate Content-Type header
+        const headers = payload instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' };
+
         try {
-            const response: CustomResponse = await PostCall(`/company/feedback-request`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            // Make the API call with the correct headers and payload
+            const response: CustomResponse = await PostCall(`/company/feedback-request`, payload, { headers });
 
             setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Feedback Generated Successfully');
+                // Optionally handle the response data
+                setAlert('success', 'Feedback Added Successfully');
             } else {
                 setAlert('error', response.message);
             }
@@ -99,22 +86,39 @@ const AddFeedBackPages = () => {
             let updatedForm = { ...Form };
 
             if (typeof name === 'string') {
-                if (name === 'filePath' && val instanceof FileList) {
-                    // Store the first file from the FileList
-                    updatedForm[name] = val[0];
-                } else {
-                    updatedForm[name] = val;
-                }
+                updatedForm[name] = val;
             } else {
                 updatedForm = { ...updatedForm, ...name };
             }
 
+            console.log(updatedForm, 'Abhishek');
             return updatedForm;
         });
     };
 
-    const handleSubmit = () => {
-        onNewAdd(form);
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const { file, suppliername, year, quarter, info } = form;
+
+        // Ensure all required fields are filled
+        if (!file || !suppliername || !year || !quarter || !info) {
+            console.error('Missing required fields or file');
+            return;
+        }
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append('file', file); // Add the file
+        formData.append('suppliername', suppliername.toString());
+        formData.append('year', year?.toString() || '');
+        formData.append('quarter', quarter || '');
+        formData.append('info', info || '');
+
+        console.log('Submitting FormData:', Array.from(formData.entries()));
+
+        // Call API with FormData
+        onNewAdd(formData); // Call the API
     };
 
     const currentYear = new Date().getFullYear();
@@ -147,17 +151,17 @@ const AddFeedBackPages = () => {
                         </label>
                         <Dropdown
                             id="supplierId"
-                            value={form.supplierName}
+                            value={form.suppliername}
                             options={supplier}
                             optionLabel="name"
                             optionValue="value"
-                            onChange={(e) => onInputChange('supplierName', e.value)}
+                            onChange={(e) => onInputChange('suppliername', e.value)}
                             placeholder="Select Supplier Name"
                             className="w-full bg-white"
                         />
                     </div>
                     <div className="field col-6">
-                        <label htmlFor="supplierName" className="font-semibold">
+                        <label htmlFor="suppliername" className="font-semibold">
                             Year
                         </label>
                         <Dropdown
@@ -175,7 +179,7 @@ const AddFeedBackPages = () => {
                         />
                     </div>
                     <div className="field col-6">
-                        <label htmlFor="supplierName" className="font-semibold">
+                        <label htmlFor="suppliername" className="font-semibold">
                             Quarter
                         </label>
 
@@ -191,18 +195,35 @@ const AddFeedBackPages = () => {
                         />
                     </div>
                     <div className="field col-6">
-                        <label htmlFor="supplierName" className="font-semibold">
-                            Supplier Name
+                        <label htmlFor="suppliername" className="font-semibold">
+                            Browse a file
                         </label>
-                        <div className="flex items-center justify-between border-1 border-gray-300 rounded-r-md " style={{ alignItems: 'center', borderRadius: '6px' }}>
+                        {/* <div className="flex items-center justify-between border-1 border-gray-300 rounded-r-md " style={{ alignItems: 'center', borderRadius: '6px' }}>
                             <label className="flex-grow px-4 w-full  text-gray-500 cursor-pointer">
                                 Browse a file
-                                <input type="file" className="hidden" onChange={(e) => onInputChange('filePath', e.target.files)} />
+                                <InputText
+                                    type="file"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        onInputChange('file', e.target.files);
+                                        console.log(e.target.files, 'Abhishek');
+                                    }}
+                                />
                             </label>
                             <button type="button" className="w-6 cursor-pointer text-black font-medium rounded-r-md border-l border-gray-300  p-inputtext" style={{ background: '#CBD5E1' }}>
                                 Choose
                             </button>
-                        </div>
+                        </div> */}
+                        <InputText
+                            type="file"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    console.log('File selected:', file);
+                                    setForm((prevForm) => ({ ...prevForm, file }));
+                                }
+                            }}
+                        />
                     </div>
                     <div className="field col-6">
                         <label htmlFor="info" className="font-semibold">

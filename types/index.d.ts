@@ -101,40 +101,54 @@ interface Roles {
     desc?: string;
 }
 interface Supplier {
-    supId:number;
-    supplierName:string;
-    supplierManufacturerName:string;
-    warehouseLocation:string;
-    siteAddress:string;
-    gmpFile?:any;
-    gdpFile?:any;
-    reachFile:any;
-    isoFile:any;
-    category?:{
-        categoryId:number;
-        categoryName:string;
+    supId: number;
+    supplierName: string;
+    supplierManufacturerName: string;
+    warehouseLocation: string;
+    siteAddress: string;
+    gmpFile?: any;
+    gdpFile?: any;
+    reachFile: any;
+    isoFile: any;
+    category?: {
+        categoryId: number;
+        categoryName: string;
     };
-    subCategories?:{
-        subCategoryId:number;
-        subCategoryName:string;
+    subCategories?: {
+        subCategoryId: number;
+        subCategoryName: string;
     };
-    factoryName?:{
-        factoryId:number;
-        factoryName:string;
+    factoryName?: {
+        factoryId: number;
+        factoryName: string;
 
     };
 };
 
-interface Rules{
+interface Rules {
     ruleId: any;
     section: string;
     ratedCriteria: string;
     criteriaEvaluation: string;
     score: string;
-    ratiosRawpack:number;
-    ratiosCopack:number;
-    subCategories?:{
+    ratiosRawpack: number;
+    ratiosCopack: number;
+    subCategories?: {
         subCategoryName: string;
+    }
+}
+
+interface CompanyUsers {
+    id: number;
+    name: string;
+    email: string;
+    phone: number;
+    roleId: number;
+    isSuperAdmin: boolean;
+    isActive: boolean;
+    roleName: string;
+    role?: {
+        name: string
     }
 }
 
@@ -728,8 +742,9 @@ export type {
     GradeTobin,
     ReceivePurchaseOrder,
     CategoryOption,
-    SKUOption, 
+    SKUOption,
     Item,
     Supplier,
-    Rules
+    Rules,
+    CompanyUsers
 };
