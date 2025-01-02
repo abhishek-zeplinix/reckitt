@@ -36,7 +36,7 @@ const SupplierRatingPage = () => {
      const category:any = categoriesMap[categoryName] || null; // default to null if no match
 
 
-
+        
      //fetch department api
     const fetchDepartments = async () => {
 

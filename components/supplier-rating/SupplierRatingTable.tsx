@@ -5,6 +5,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { useState, useEffect } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
+import SubmitResetButtons from '../control-tower/submit-reset-buttons';
 
 const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryName, departmentID, department}: any) => {
   
@@ -290,10 +291,15 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
       
   };
 
-  // Update capaData when CapaRequiredTable changes
-  // const handleCapaDataChange = (data: any[]) => {
-  //   setCapaData(data);
-  // };
+  const handleReset=()=>{
+    setComments('')
+  }
+
+  //update capaData when CapaRequiredTable changes
+
+  const handleCapaDataChange = (data: any[]) => {
+    setCapaData(data);
+  };
   
 
   return (
@@ -439,16 +445,18 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
       {/* if CAPA is required */}
       <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-        {totalScore <= 50 && <CapaRequiredTable />}
+        {totalScore <= 50 && <CapaRequiredTable onDataChange={handleCapaDataChange} />}
       </div>
 
       {/* submission buttons */}
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
-        <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
+        {/* <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
         <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} onClick={handleSubmit}
-        />
+        /> */}
 
       </div>
+
+      <SubmitResetButtons onSubmit={handleSubmit} onReset={handleReset} label='Save' />
 
     </div>
   );

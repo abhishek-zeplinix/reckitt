@@ -14,13 +14,16 @@ import { Tag } from 'primereact/tag';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import Link from 'next/link';
+import { useAppContext } from '@/layout/AppWrapper';
+import { useAuth } from '@/layout/context/authContext';
 
 const SupplierScoreboardSummoryPage = () => {
     const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
     const [products, setProducts] = useState([]);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
-
+    const {isSuperAdmin} = useAuth();
+    
 
     const params = useParams();
 
@@ -29,7 +32,7 @@ const SupplierScoreboardSummoryPage = () => {
     useEffect(() => {
 
         const storedData = sessionStorage.getItem('supplier-data');
-        if(storedData){
+        if (storedData) {
             setSupplierData(JSON.parse(storedData))
         }
 
@@ -296,15 +299,13 @@ const SupplierScoreboardSummoryPage = () => {
                     <Dropdown id="role" value={selectedProcurementOrder} options={procurementOrder} onChange={(e) => setSelectedProcurementOrder(e.value)} placeholder="Select Year" className="w-full" />
                 </div>
 
-                <div className='flex-1 ml-5'>
-
-                    <Link
-                        href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/supplier-rating`}
-                    >
-                        <Button label="Add Inputs" severity="secondary" outlined />
-                    </Link>
-
-                </div>
+                {isSuperAdmin() && (
+                    <div className="flex-1 ml-5">
+                        <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/supplier-rating`}>
+                            <Button label="Add Inputs" severity="secondary" outlined />
+                        </Link>
+                    </div>
+                )}
 
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />

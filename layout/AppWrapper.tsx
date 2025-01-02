@@ -11,30 +11,39 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Toast } from 'primereact/toast';
 import React, { useCallback } from 'react';
 import { createContext, Suspense, useContext, useEffect, useRef, useState } from 'react';
+import { AuthProvider } from './context/authContext';
 
 let axiosRef: string | null = null;
 
 const defaultContext: AppContextType = {
     displayName: '',
-    setDisplayName: () => {},
+    setDisplayName: () => { },
     user: null,
-    setUser: () => {},
+    setUser: () => { },
     company: null,
-    setCompany: () => {},
+    setCompany: () => { },
     isLoading: true,
-    setLoading: () => {},
-    signOut: () => {},
-    setAlert: () => {},
+    setLoading: () => { },
+    signOut: () => { },
+    setAlert: () => { },
     authToken: null,
-    setAuthToken: () => {},
+    setAuthToken: () => { },
     isScroll: true,
-    setScroll: () => {},
+    setScroll: () => { },
     selectedSubLocation: null,
-    setSelectedSubLocation: () => {}
+    setSelectedSubLocation: () => { }
 };
 const AppContext = createContext(defaultContext);
 
 const authRoutes = ['/login', '/reset-password', '/forgot-password'];
+
+export const userRoles = {
+    SUPER_ADMIN: 'Superadmin',
+    SUPPLIER: 'Supplier',
+    ADMIN: 'Admin',
+    USER: 'User'
+} as const;
+
 
 export const AppWrapper = React.memo(({ children }: any) => {
     const pathname = usePathname();
@@ -81,12 +90,12 @@ export const AppWrapper = React.memo(({ children }: any) => {
         if (userData) {
             try {
                 setUser(userData);
-            } catch (error) {}
+            } catch (error) { }
 
             if (userData && userData.company) {
                 try {
                     setCompany(userData.company);
-                } catch (error) {}
+                } catch (error) { }
             }
         }
         // fetchData();
@@ -142,6 +151,11 @@ export const AppWrapper = React.memo(({ children }: any) => {
         toastRef.current.show({ severity: type, summary: type.toUpperCase(), detail: message, life: 3000 });
     };
 
+    console.log(user);
+
+    // const isSuperAdmin = () => get(user, 'isSuperAdmin', false);
+    // const isSupplier = () => get(user, 'userRole') === userRoles.SUPPLIER;
+
     return (
         <Suspense fallback={<Preloader />}>
             <AppContext.Provider
@@ -161,12 +175,17 @@ export const AppWrapper = React.memo(({ children }: any) => {
                     isScroll,
                     setScroll,
                     selectedSubLocation,
-                    setSelectedSubLocation
+                    setSelectedSubLocation,
+
                 }}
             >
-                <Toast ref={toastRef} />
-                {isLoading && <div className="running-border"></div>}
-                <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>{children}</div>
+                <AuthProvider user={user}>
+
+                    <Toast ref={toastRef} />
+                    {isLoading && <div className="running-border"></div>}
+                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>{children}</div>'
+                    
+                </AuthProvider>
             </AppContext.Provider>
         </Suspense>
     );

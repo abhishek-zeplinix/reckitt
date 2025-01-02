@@ -8,14 +8,15 @@ import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTabl
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
-import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
-import { sortBy } from 'lodash';
-import { SortOrder } from 'primereact/api';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
+import ScoreTiles from '@/components/supplier-score/score-tiles';
+import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
+import useFetchDepartments from '@/hooks/useFetchDepartments';
+import useFetchSuppliers from '@/hooks/useFetchSuppliers';
 
 const ACTIONS = {
     ADD: 'add',
@@ -35,13 +36,14 @@ const ManageSupplierScorePage = () => {
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    const [selectedDepartment, setSelectedDepartment] = useState('');
-    const [selectedSubCategory, setSelectedSubCategory] = useState('');
     const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
+    const { departments } = useFetchDepartments();
+    const {suppliers} = useFetchSuppliers();
+    
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
@@ -82,7 +84,7 @@ const ManageSupplierScorePage = () => {
             <>
                 <div className="flex justify-content-between">
                     <span className="p-input-icon-left flex align-items-center">
-                        <h3 className="mb-0">Manage Supplier Rule</h3>
+                        <h3 className="mb-0">Suppliers Assessment List</h3>
                     </span>
                     {/* <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Rules" aria-label="Add Rules" className="default-button " onClick={handleButtonClick} style={{ marginLeft: 10 }}>
@@ -140,64 +142,12 @@ const ManageSupplierScorePage = () => {
         }
     };
 
-    const dataTableHeaderStyle = { fontSize: '12px' };
+    const dataTableHeaderStyle = { fontSize: '14px' };
 
     useEffect(() => {
         fetchData();
     }, []);
 
-    const departments = [
-        { label: 'Planning', value: 'Planning' },
-        { label: 'Quality', value: 'Quality' },
-        { label: 'Development', value: 'Development' },
-        { label: 'Procurement', value: 'Procurement' },
-        { label: 'Sustainability', value: 'Sustainability' }
-    ];
-
-    const subcategories = [
-        { label: 'Packing Material Supplier', value: 'Packing Material Supplier' },
-        { label: 'Raw Material Supplier', value: 'Raw Material Supplier' },
-        { label: 'Copack Material Supplier', value: 'Copack Material Supplier' }
-    ];
-
-    const dropdownMenuDepartment = () => {
-        return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label" placeholder="-- Select Department --" className="w-full md:w-[15rem] lg:w-[25rem] xl:w-[25rem]" />;
-    };
-
-    const dropdownFieldDeparment = dropdownMenuDepartment();
-
-    const dropdownMenuSubCategory = () => {
-        return <Dropdown value={selectedSubCategory} onChange={(e) => setSelectedSubCategory(e.value)} options={subcategories} optionLabel="label" placeholder="-- Select Sub Category --" className="w-full md:w-[15rem] lg:w-[25rem] xl:w-[25rem]" />;
-    };
-
-    const dropdownFieldSubCategory = dropdownMenuSubCategory();
-
-    const representationColor = () => {
-        return (
-            <div className="col-span-12">
-                <div className="legend-box flex justify-between">
-                    <div className="legend-item flex items-center">
-                        <span className="legend-color w-4 h-4 rounded-full" style={{ backgroundColor: '#F44336' }}></span>
-                        <span className="legend-label ml-2">Critical (0-50)</span>
-                    </div>
-                    <div className="legend-item flex items-center mt-2">
-                        <span className="legend-color w-4 h-4 rounded-full" style={{ backgroundColor: '#FF9800' }}></span>
-                        <span className="legend-label ml-2">Improvement Needed (51-70)</span>
-                    </div>
-                    <div className="legend-item flex items-center mt-2">
-                        <span className="legend-color w-4 h-4 rounded-full" style={{ backgroundColor: '#4CAF50' }}></span>
-                        <span className="legend-label ml-2">Good (71-90)</span>
-                    </div>
-                    <div className="legend-item flex items-center mt-2">
-                        <span className="legend-color w-4 h-4 rounded-full" style={{ backgroundColor: '#2196F3' }}></span>
-                        <span className="legend-label ml-2">Excellent (91-100)</span>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const RepresentationColor = representationColor();
 
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
@@ -245,8 +195,14 @@ const ManageSupplierScorePage = () => {
         }
     };
 
+
+    const handleFilterChange = (filters: any) => {
+        console.log('Selected filters:', filters);
+        // You can use these values to update your API calls or local filtering
+    };
+
     return (
-        <div className="grid">
+        <div className="grid bottom-0">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
                     <div className="left-panel">
@@ -256,18 +212,17 @@ const ManageSupplierScorePage = () => {
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
                             {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
-                            <div className="flex flex-wrap gap-2 md:justify-between lg:justify-start">
-                                <div className="mt-5 w-full md:w-auto">{dropdownFieldDeparment}</div>
-                                <div className="mt-5 w-full md:w-auto">{dropdownFieldDeparment}</div>
-                                <div className="mt-5 w-full md:w-auto">{dropdownFieldDeparment}</div>
-                                <div className="mt-5 w-full md:w-auto">{dropdownFieldSubCategory}</div>
-                            </div>
+                                <div>
+                                    <FilterDropdowns onFilterChange={handleFilterChange} suppliers={suppliers} departments={departments}/>
+                                </div>
 
-                            <div className="mt-5 ">{RepresentationColor}</div>
+                            {/* <div className="mt-5 ">{RepresentationColor}</div> */}
+                            <div className="mt-5 "><ScoreTiles /></div>
+
 
                             <CustomDataTable
                                 ref={dataTableRef}
-                                filter
+                                // filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
@@ -380,8 +335,13 @@ const ManageSupplierScorePage = () => {
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>
+
+
                     </div>
+
                 </div>
+
+
 
                 <Dialog
                     header="Delete confirmation"
@@ -414,7 +374,11 @@ const ManageSupplierScorePage = () => {
                     </div>
                 </Dialog>
             </div>
+
+
         </div>
+
+
     );
 };
 
