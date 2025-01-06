@@ -187,7 +187,7 @@ const ManageFeedbackPage = () => {
         <div className="grid">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
-                    <div className="left-panel">
+                    <div className="left-panel mb-0">
                         <div className="header">{header}</div>
                         <div
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"

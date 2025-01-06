@@ -292,6 +292,8 @@ const SupplierScoreboardSummoryPage = () => {
     };
     const renderSummoryInfo = summoryCards();
 
+
+
     const headerComp = () => {
         return (
             <div className="flex justify-content-between ">
@@ -302,7 +304,7 @@ const SupplierScoreboardSummoryPage = () => {
                 {isSuperAdmin() && (
                     <div className="flex-1 ml-5">
                         <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/supplier-rating`}>
-                            <Button label="Add Inputs" severity="secondary" outlined />
+                            <Button label="Add Inputs" outlined className='!font-light text-color-secondary'/>
                         </Link>
                     </div>
                 )}

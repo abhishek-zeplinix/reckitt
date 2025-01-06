@@ -22,13 +22,14 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
 
-  console.log(rules);
+  console.log('total score', totalScore);
 
   // Reset initialization when category changes
   useEffect(() => {
     if (rules && category) {
       setTableData(rules);
-      initializeData(rules);
+      
+       initializeData(rules);
     }
   }, [rules, category]);
 
@@ -41,15 +42,16 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
     const initialPercentages: any = {};
 
     currentRules?.sections?.forEach((section: any, sIndex: number) => {
-      section.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+      section?.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
         const key = `${sIndex}-${cIndex}`;
         
         // Set initial evaluation
-        initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
+        initialEvals[key] = criteria?.evaluations[0]?.criteriaEvaluation;
         
         // Set initial percentage
         const categoryValue = criteria?.evaluations?.[0]?.[category];
         initialPercentages[key] = categoryValue ?? 0;
+        
       });
     });
 
@@ -387,22 +389,21 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                       />
                     </td>
 
-
                     <td className="px-4 py-2">
 
                       {score === 'NA' ?
                         <Button label={score} size='small'
-                          className="p-button-sm bg-gray-400 text-white border-none w-10" />
+                          className="p-button-sm bg-gray-400 text-white border-none w-10 mx-1" />
                         :
                         Number(score) >= 7
                           ? <Button label={score} size='small'
-                            className="p-button-sm bg-green-600 text-white border-none w-10" /> :
+                            className="p-button-sm bg-green-600 text-white border-none w-10 mx-1" /> :
                           Number(score) >= 4
                             ? <Button label={score} size='small'
-                              className="p-button-sm bg-yellow-400 text-white border-none w-10" /> :
+                              className="p-button-sm bg-yellow-400 text-white border-none w-10 mx-1" /> :
 
                             <Button label={score} size='small'
-                              className="p-button-sm bg-red-400 text-white border-none w-10" />
+                              className="p-button-sm bg-red-400 text-white border-none w-10 mx-1" />  
                       }
                     </td>
                   </tr>

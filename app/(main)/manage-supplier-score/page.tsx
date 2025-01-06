@@ -44,9 +44,6 @@ const ManageSupplierScorePage = () => {
     const { departments } = useFetchDepartments();
     const {suppliers} = useFetchSuppliers();
     
-    const handleCreateNavigation = () => {
-        router.push('/create-supplier'); // Replace with the route you want to navigate to
-    };
 
     const handleButtonClick = () => {
         fileInputRef.current?.click();
@@ -82,7 +79,7 @@ const ManageSupplierScorePage = () => {
     const renderHeader = () => {
         return (
             <>
-                <div className="flex justify-content-between">
+                <div className="flex justify-content-between mt-0">
                     <span className="p-input-icon-left flex align-items-center">
                         <h3 className="mb-0">Suppliers Assessment List</h3>
                     </span>
@@ -100,26 +97,7 @@ const ManageSupplierScorePage = () => {
 
     const header = renderHeader();
 
-    const renderInputBox = () => {
-        return (
-            <div style={{ position: 'relative' }}>
-                <InputText placeholder="Search" style={{ paddingLeft: '40px', width: '40%' }} />
-                <span
-                    className="pi pi-search"
-                    style={{
-                        position: 'absolute',
-                        left: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'gray',
-                        fontSize: '1.5rem'
-                    }}
-                ></span>
-            </div>
-        );
-    };
 
-    const inputboxfeild = renderInputBox();
 
     const fetchData = async (params?: any) => {
         try {
@@ -202,7 +180,7 @@ const ManageSupplierScorePage = () => {
     };
 
     return (
-        <div className="grid bottom-0">
+        <div className="grid">
             <div className="col-12">
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
                     <div className="left-panel">
@@ -244,7 +222,7 @@ const ManageSupplierScorePage = () => {
                                 //         }
                                 //     }
                                 // ]}
-                                data={rules.map((item: any) => ({
+                                data={rules?.map((item: any) => ({
                                     ruleId: item.ruleId,
                                     subCategoryName: item.subCategories?.subCategoryName,
                                     section: item.section,

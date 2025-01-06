@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { Ripple } from 'primereact/ripple';
 import { Menu } from 'primereact/menu';
-import React, { useEffect, useContext, useRef } from 'react';
+import React, { useEffect, useContext, useRef, useState } from 'react';
 import { MenuContext } from './context/menucontext';
 import { AppMenuItemProps } from '@/types';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -22,10 +22,38 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const searchParams = useSearchParams();
     const { activeMenu, setActiveMenu } = useContext(MenuContext);
     const item = props.item;
-    const key = props.parentKey ? props.parentKey + '-' + props.index : String(props.index);
-    const isActiveRoute = item!.to && pathname === item!.to;
-    const active = activeMenu === key || (activeMenu && activeMenu.startsWith(key + '-'));
+    const key = props.parentKey ? props.parentKey + '-' + props.index : String(props.index) + '-0';
+    const active = activeMenu === key || activeMenu?.startsWith(key + '-');
+
+
+    const [isHydrated, setIsHydrated] = useState(false);
+
+
+    const isItemActive = () => {
+        // Active if activeMenu matches key and the item has no subitems
+        return activeMenu === key && (!item?.items || item?.items?.length === 0);
+    };
+
+    const isSubItemActive = (subItemLabel: string) => {
+        // Active if activeMenu matches the subitem key
+        return activeMenu === `${key}-${subItemLabel}`;
+    };
     
+
+
+    useEffect(() => {
+        setIsHydrated(true);
+    }, []);
+    
+    useEffect(() => {
+        if (isHydrated && !activeMenu && pathname === '/') {
+            setActiveMenu('0-0'); 
+        }
+    }, [isHydrated, activeMenu, pathname]);
+
+
+
+
     const onRouteChange = (url: string) => {
         if (item!.to && item!.to === url) {
             setActiveMenu(key);
@@ -34,75 +62,105 @@ const AppMenuitem = (props: AppMenuItemProps) => {
 
     useEffect(() => {
         onRouteChange(pathname);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pathname, searchParams]);
 
+   
     const itemClick = (event: any, subItem?: any) => {
-        //avoid processing disabled items
         if (item!.disabled) {
             event.preventDefault();
             return;
         }
-
+    
+        if (subItem) {
+            const subItemKey = `${key}-${subItem.label}`;
+            setActiveMenu(subItemKey);
+        } else if (!item?.items || item?.items?.length === 0) {
+            setActiveMenu(key); // Correctly set for standalone items
+        }
+    
+        // Additional logic
         if (item?.command) {
-            item?.command({ originalEvent: event, item: item });
+            item.command({ originalEvent: event, item: item });
         }
-
+    
         if (subItem?.command) {
-            subItem?.command({ originalEvent: event, item: subItem });
+            subItem.command({ originalEvent: event, item: subItem });
         }
-
-        if (!subItem && layoutState.staticMenuDesktopInactive && menu && menu.current) {
-            menu?.current?.toggle(event);
-        }
-
-        if (!subItem && item && item.items && item!.items?.length > 0) {
-            event.preventDefault();
-            return;
-        }
-
-        // toggle active state
-        if (item!.items) setActiveMenu(active ? (props.parentKey as string) : key);
-        else setActiveMenu(key);
     };
+    
 
     if (item?.check && !item.check(user)) {
-        return;
+        return null;
     }
+
+ 
+
+    const getItemClassName = (isSubItem = false, subItemLabel?: string) => {
+        const baseClass = isSubItem
+            ? "p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors  pl-5 mx-1"
+            : "p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item mx-1";
+
+        const isActive = isSubItem
+            ? isSubItemActive(subItemLabel!)
+            : isItemActive(); // Use the updated isItemActive for standalone items
+
+        return `${baseClass} ${isActive ? 'bg-pink-500' : ''}`;
+    };
+
+
+    const getTextColorClass = (isSubItem = false, subItemLabel?: string) => {
+        const isActive = isSubItem
+            ? isSubItemActive(subItemLabel!)
+            : isItemActive(); // Now accurately checks for standalone items
+
+        return isActive ? 'text-white' : 'text-slate-400';
+    };
+
+  
 
     return (
         <li>
-            {item && item.items && item?.items?.length > 0 ? (
+            {item && item.items && item.items.length > 0 ? (
+
                 <StyleClass nodeRef={btnRef4} selector="@next" enterClassName="hidden" enterActiveClassName="slidedown" leaveToClassName="hidden" leaveActiveClassName="slideup">
-                    <div ref={btnRef4} className="p-ripple p-3 pl-1 flex align-items-center justify-content-between text-slate-400 cursor-pointer custom-menu-item" onClick={itemClick}>
-                        <div>
-                            {item && item.icon != null && <i className={item.icon + ' mr-2 text-xl'}></i>}
-                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className="font-medium text-lg">{item?.label}</span>}
+                    <div ref={btnRef4} className={getItemClassName()} onClick={itemClick}>
+                        <div className="flex align-items-center">
+                            {item.icon && (
+                                <i className={`${item.icon} mr-2 text-xl ${getTextColorClass()}`}></i>
+                            )}
+                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                                <span className={`font-medium text-lg ${getTextColorClass()}`}>
+                                    {item.label}
+                                </span>
+                            )}
                         </div>
-                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && item && item.items && item?.items?.length > 0 && <i className="pi pi-chevron-down"></i>}
-                        {!layoutState.isMobile && layoutState.staticMenuDesktopInactive && item && item.items && item?.items?.length > 0 && <div className="pi pi-circle-fill" style={{ fontSize: 3 }}></div>}
+                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                            <i className={`pi pi-chevron-down ${getTextColorClass()}`}></i>
+                        )}
                         <Ripple />
                     </div>
                 </StyleClass>
             ) : item?.url ? (
-                <Link href={item?.url} className="p-ripple p-3 pl-1 flex align-items-center justify-content-between text-slate-400 cursor-pointer custom-menu-item">
-                    <div>
-                        {item && item.icon != null && <i className={item.icon + ' mr-2 text-xl'}></i>}
-                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className="font-medium text-lg">{item?.label}</span>}
+                <Link href={item.url} className={getItemClassName()} onClick={itemClick}>
+                    <div className="flex align-items-center">
+                        {item.icon && (
+                            <i className={`${item.icon} mr-2 text-xl ${getTextColorClass()}`}></i>
+                        )}
+                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                            <span className={`font-medium text-lg ${getTextColorClass()}`}>
+                                {item.label}
+                            </span>
+                        )}
                     </div>
-                    {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && item && item.items && item?.items?.length > 0 && <i className="pi pi-chevron-down"></i>}
-                    {!layoutState.isMobile && layoutState.staticMenuDesktopInactive && item && item.items && item?.items?.length > 0 && <div className="pi pi-circle-fill" style={{ fontSize: 3 }}></div>}
                     <Ripple />
                 </Link>
-            ) : (
-                <></>
-            )}
+            ) : null}
 
             {item && item.items && item.items.length > 0 && (
                 <ul className="list-none p-0 m-0 hidden overflow-hidden">
                     {item.items.map((child, i) => {
                         if (child.check && !child.check(user)) {
-                            return null; // Ensure a value is returned
+                            return null;
                         }
                         if (!layoutState.isMobile && layoutState.staticMenuDesktopInactive) {
                             return (
@@ -110,28 +168,32 @@ const AppMenuitem = (props: AppMenuItemProps) => {
                                     model={item.items}
                                     popup
                                     ref={menu}
-                                    key={`menu-${i}`} // Key added here
+                                    key={`menu-${i}`}
                                 />
                             );
                         }
                         if (child.url) {
                             return (
                                 <li key={`item-${i}`}>
-                                    {' '}
-                                    {/* Key added here */}
                                     <Link
                                         href={child.url}
-                                        className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-white hover:surface-100 hover:text-700 custom-menu-item transition-duration-150 transition-colors w-full pl-30"
+                                        className={getItemClassName(true, child.label)}
                                         onClick={(event) => itemClick(event, child)}
                                     >
-                                        {child.icon != null && <i className={`${child.icon} mr-2`}></i>}
-                                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className="font-medium text-lg">{child.label}</span>}
+                                        {child.icon && (
+                                            <i className={`${child.icon} mr-2 ${getTextColorClass(true, child.label)}`}></i>
+                                        )}
+                                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                                            <span className={`font-medium text-lg ${getTextColorClass(true, child.label)}`}>
+                                                {child.label}
+                                            </span>
+                                        )}
                                         <Ripple />
                                     </Link>
                                 </li>
                             );
                         }
-                        return null; // Return null if no conditions are met
+                        return null;
                     })}
                 </ul>
             )}
