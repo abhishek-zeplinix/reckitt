@@ -1,14 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @next/next/no-img-element */
-'use client';
+/* eslint-disable @next/next/no-img-element */'use client';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse } from '@/types';
-import { GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { GetCall, PostCall, PutCall, DeleteCall } from '@/app/api-config/ApiKit';
 import { Dialog } from 'primereact/dialog';
+import 'primeicons/primeicons.css';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { LayoutContext } from '@/layout/context/layoutcontext';
+
 interface FAQ {
     id: number;
     question: string;
@@ -16,123 +19,293 @@ interface FAQ {
 }
 
 const FaqPage = () => {
-    const router = useRouter();
-    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+
+    const { user, isLoading, setLoading, setAlert } = useAppContext();
+    const { layoutState } = useContext(LayoutContext);
+
     const [faqData, setFaqData] = useState<FAQ[]>([]);
     const [visible, setVisible] = useState(false);
-    const [faqQuestion, setFaqQuestion] = useState('');
-    const [faqAnswer, setFaqAnswer] = useState('');
+    const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
+    const [formData, setFormData] = useState({
+        question: '',
+        answer: ''
+    });
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [selectedFaqToDelete, setSelectedFaqToDelete] = useState<any | null>(null);
+
     useEffect(() => {
         fetchFaq();
     }, []);
+
     const fetchFaq = async () => {
         setLoading(true);
         const response: CustomResponse = await GetCall(`/company/faq`);
-        console.log(response, 'abhishek');
         setLoading(false);
-        if (response.code == 'SUCCESS') {
+        if (response.code === 'SUCCESS') {
             setFaqData(response.data);
-            console.log(response.data, 'abhishek');
         } else {
             setFaqData([]);
         }
     };
 
+    const handleEditClick = (faq: FAQ) => {
+        setSelectedFaq(faq);
+        setFormData({
+            question: faq.question,
+            answer: faq.answer
+        });
+        setVisible(true);
+    };
+
+    const handleAddNew = () => {
+        setSelectedFaq(null);
+        setFormData({
+            question: '',
+            answer: ''
+        });
+        setVisible(true);
+    };
+
     const handleSubmit = async () => {
-        if (!faqQuestion || !faqAnswer) {
-            setAlert('Error', 'Please fill all required feilds');
+        if (!formData.question || !formData.answer) {
+            setAlert('Error', 'Please fill all required fields');
             return;
         }
 
         setIsDetailLoading(true);
 
-        const payload = {
-            question: faqQuestion,
-            answer: faqAnswer
-        };
-
         try {
-            setIsDetailLoading(true);
-            const response: CustomResponse = await PostCall(`/company/faq`, payload);
+            let response: CustomResponse;
+
+            if (selectedFaq) {
+
+                response = await PutCall(`/company/faq/${selectedFaq.id}`, formData);
+
+            } else {
+
+                response = await PostCall(`/company/faq`, formData);
+            }
+
             setIsDetailLoading(false);
-            if (response.code == 'SUCCESS') {
-                // setSelectedCompany(response.data)
-                setAlert('success', 'Faq Added Successfully');
+
+            if (response.code === 'SUCCESS') {
+                setAlert('success', `FAQ ${selectedFaq ? 'updated' : 'added'} successfully`);
+                setVisible(false);
+                fetchFaq();
             } else {
                 setAlert('error', response.message);
             }
         } catch (error) {
-            console.error('Error submitting Faq data:', error);
-            setAlert('error', 'An error occurred while submitting Faq data.');
+
+            console.error('Error submitting FAQ data:', error);
+
+            setAlert('error', 'An error occurred while submitting FAQ data.');
+
+        } finally {
+            setIsDetailLoading(false);
+        }
+    };
+
+    const confirmDelete = async () => {
+
+        if (!selectedFaqToDelete) return;
+
+        try {
+
+            setLoading(true);
+
+            const response: CustomResponse = await DeleteCall(`/company/faq/${selectedFaqToDelete}`);
+
+            if (response.code === 'SUCCESS') {
+                setAlert('success', 'FAQ deleted successfully');
+                setIsDeleteDialogVisible(false);
+                fetchFaq();
+            } else {
+                setAlert('error', response.message);
+            }
+        } catch (error) {
+            setAlert('error', 'An error occurred while deleting the FAQ.');
         } finally {
             setLoading(false);
         }
     };
 
-    const popupFooter = () => {
-        return <Button label="Submit" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 my-2" onClick={handleSubmit} />;
+    const DialogFooter = () => (
+        <Button
+            label={selectedFaq ? 'Update' : 'Submit'}
+            icon="pi pi-check"
+            className="bg-pink-500 border-pink-500 hover:bg-pink-400 my-2"
+            onClick={handleSubmit}
+            loading={isDetailLoading}
+        />
+    );
+
+    const openDeleteDialog = (id: number) => {
+        setIsDeleteDialogVisible(true);
+        setSelectedFaqToDelete(id)
     };
 
+    const closeDeleteDialog = () => {
+        setIsDeleteDialogVisible(false);
+        setSelectedFaqToDelete(null)
+    };
+
+
+
     return (
-        <>
-            <div className="grid p-4 ">
-                <div className="col-12">
-                    <div className="p-card">
-                        <div className="p-card-header flex justify-content-between items-center pt-5 px-4">
-                            <div>
-                                <h1 className="mb-1 font-semibold">Frequently Asked Question ?</h1>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
+        <div className="grid p-4">
+            <div className="col-12">
+                <div className="p-card">
+                    <div className="p-card-header flex justify-content-between items-center pt-5 px-4">
+                        <div>
+                            <h1 className="mb-1 font-semibold">Frequently Asked Questions</h1>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
+                        </div>
+                        <div>
+                            <Button
+                                icon="pi pi-plus"
+                                size="small"
+                                label="Add FAQ"
+                                className="bg-pink-500 border-pink-500"
+                                onClick={handleAddNew}
+                            />
+                        </div>
+                    </div>
+
+                    <Dialog
+                        header={selectedFaq ? 'Edit FAQ' : 'Add New FAQ'}
+                        visible={visible}
+                        style={{ width: '50vw' }}
+                        onHide={() => setVisible(false)}
+                        footer={<DialogFooter />}
+                    >
+                        <div className="m-0">
+                            <div className="field mb-4">
+                                <label htmlFor="faqQuestion" className="block mb-2">FAQ Question</label>
+                                <input
+                                    id="faqQuestion"
+                                    type="text"
+                                    value={formData.question}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, question: e.target.value }))}
+                                    className="p-inputtext w-full"
+                                    placeholder="Enter FAQ Question"
+                                />
                             </div>
-                            <div>
-                                <Button icon="pi pi-plus" size="small" label="Add Faq" aria-label="Add Faq" className="bg-pink-500 border-pink-500 " onClick={() => setVisible(true)} style={{ marginLeft: 10 }} />
+                            <div className="field">
+                                <label htmlFor="faqAnswer" className="block mb-2">FAQ Answer</label>
+                                <textarea
+                                    id="faqAnswer"
+                                    value={formData.answer}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, answer: e.target.value }))}
+                                    className="p-inputtext w-full"
+                                    placeholder="Enter FAQ Answer"
+                                    rows={4}
+                                />
                             </div>
                         </div>
-                        <Dialog
-                            header="Add New FAQ"
-                            visible={visible}
-                            style={{ width: '50vw' }}
-                            onHide={() => {
-                                if (!visible) return;
-                                setVisible(false);
-                            }}
-                            footer={popupFooter}
-                        >
-                            <div className="m-0">
-                                <div className="field ">
-                                    <label htmlFor="faqQuestion">Enter Faq Question</label>
-                                    <input id="faqQuestion" type="text" value={faqQuestion} onChange={(e) => setFaqQuestion(e.target.value)} className="p-inputtext w-full" placeholder="Enter Faq Question" />
-                                </div>
-                                <div className="field ">
-                                    <label htmlFor="faqAnswer">Enter Faq Answer</label>
-                                    <input id="faqAnswer" type="text" value={faqAnswer} onChange={(e) => setFaqAnswer(e.target.value)} className="p-inputtext w-full" placeholder="Enter Faq Answer" />
-                                </div>
+                    </Dialog>
+
+
+                    <Dialog
+                        header="Delete confirmation"
+                        visible={isDeleteDialogVisible}
+                        style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
+                        className="delete-dialog"
+                        footer={
+                            <div className="flex justify-content-center p-2">
+                                <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
+                                <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7" onClick={confirmDelete} />
                             </div>
-                        </Dialog>
-                        <div className="p-card-body" style={{ height: '68vh' }}>
-                            <div>
-                                {isLoading ? (
-                                    <p>Loading FAQs...</p>
-                                ) : faqData.length > 0 ? (
-                                    <Accordion>
-                                        {faqData.map((faq) => (
-                                            <AccordionTab key={faq.id} header={faq.question}>
-                                                <p>{faq.answer}</p>
-                                            </AccordionTab>
-                                        ))}
-                                    </Accordion>
-                                ) : (
-                                    <p>No FAQs available at the moment.</p>
-                                )}
+                        }
+                        onHide={closeDeleteDialog}
+                    >
+                        {isLoading && (
+                            <div className="center-pos">
+                                <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                            </div>
+                        )}
+                        <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
+                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+
+                            <div className="flex flex-column align-items-center gap-1">
+                                <span>Are you sure you want to delete this FAQ? </span>
+                                <span>This action cannot be undone. </span>
                             </div>
                         </div>
-                        {/* Footer Buttons */}
-                        <hr />
-                        <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 "></div>
+                    </Dialog>
+
+
+                    <div className="p-card-body">
+                        {isLoading ? (
+                            <p>Loading FAQs...</p>
+                        ) : faqData.length > 0 ? (
+                            <div className='w-full'>
+                                <Accordion>
+                                    {faqData.map((faq) => (
+                                        <AccordionTab
+                                            key={faq.id}
+                                            headerTemplate={(options: any) => (
+                                                <button
+                                                    className={options.className}
+                                                    onClick={options.onClick}
+                                                    style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}
+                                                >
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        width: '100%'
+                                                    }}>
+                                                        <span className='font-bold' style={{ color: "#333333", fontSize: '14px', fontWeight: '500' }}>{faq.question}</span>
+                                                        <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                                                            <i
+                                                                className={options.expanded ? 'pi pi-chevron-up' : 'pi pi-plus'}
+                                                                style={{ color: '#64748B',padding: '5px'}}
+                                                            />
+
+                                                            <i
+                                                                className="pi pi-file-edit"
+                                                                style={{
+                                                                    color: "#64748B",
+                                                                    padding: '5px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleEditClick(faq);
+                                                                }}
+                                                            />
+                                                            <i
+                                                                className="pi pi-trash"
+                                                                style={{
+                                                                    color: "#F56565",
+                                                                    padding: '5px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openDeleteDialog(faq.id);
+                                                                }}
+                                                            />
+
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            )}
+                                        >
+                                            <p className="m-0">{faq.answer}</p>
+                                        </AccordionTab>
+                                    ))}
+                                </Accordion>
+                            </div>
+                        ) : (
+                            <p>No FAQs available at the moment.</p>
+                        )}
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
