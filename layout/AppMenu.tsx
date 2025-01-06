@@ -713,8 +713,8 @@ const AppMenu = () => {
                         <div
                             className="overflow-y-auto "
                             style={{
-                                scrollbarWidth: 'thin' /* Firefox */,
-                                scrollbarColor: '#888 #f1f1f1' /* Firefox: thumb and track colors */
+                                scrollbarWidth: 'thin' ,
+                                scrollbarColor: 'transparent transparent'
                             }}
                         >
                             <ul className="list-none p-3 m-0">
