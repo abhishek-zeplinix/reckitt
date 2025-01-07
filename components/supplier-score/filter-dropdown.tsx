@@ -10,7 +10,6 @@ interface Department {
 }
 
 const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
-    
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -18,51 +17,42 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
     const [periodOptions, setPeriodOptions] = useState([]);
     const [suppliersToList, setSuppliersToList] = useState([]);
-    
 
     useEffect(() => {
-
         if (departments && selectedDepartment) {
-            const currentDepartment = (departments as any[]).find(dep => dep.departmentId === selectedDepartment?.departmentId);
+            const currentDepartment = (departments as any[]).find((dep) => dep.departmentId === selectedDepartment?.departmentId);
 
             if (currentDepartment) {
                 const options: any = getPeriodOptions(currentDepartment.evolutionType);
                 setPeriodOptions(options);
 
-                    handleFilterChange({
-                        supplier: selectedSupplier,
-                        department: selectedDepartment?.name,
-                        period: selectedPeriod,
-                        category: selectedCategory,
-                    });
+                handleFilterChange({
+                    supplier: selectedSupplier,
+                    department: selectedDepartment?.name,
+                    period: selectedPeriod,
+                    category: selectedCategory
+                });
             }
         }
 
-        if(suppliers){
-            const suppliersListOnlyNames: any = (suppliers as any[])?.map(supplier => ({
-                supId: supplier.supId,  
-                supplierName: supplier.supplierName 
+        if (suppliers) {
+            const suppliersListOnlyNames: any = (suppliers as any[])?.map((supplier) => ({
+                supId: supplier.supId,
+                supplierName: supplier.supplierName
             }));
-            
+
             setSuppliersToList(suppliersListOnlyNames);
         }
-       
-        
-
     }, [departments, selectedDepartment]);
-    
-    
 
     const categories = [
         { label: 'Copack Material', value: 'copack' },
         { label: 'Raw & Pack Material', value: 'raw_pack' }
     ];
 
-
-
     const handleSupplierChange = (e: any) => {
         setSelectedSupplier(e.value);
-        
+
         onFilterChange({
             supplier: e.value,
             department: selectedDepartment?.name || '',
@@ -76,7 +66,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
         onFilterChange({
             supplier: selectedSupplier,
-            department: e.target.value.name  || '',
+            department: e.target.value.name || '',
             period: selectedPeriod,
             category: selectedCategory
         });
@@ -86,7 +76,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
         setSelectedPeriod(e.value);
         onFilterChange({
             supplier: selectedSupplier,
-            department: selectedDepartment?.name  || '',
+            department: selectedDepartment?.name || '',
             period: e.value,
             category: selectedCategory
         });
@@ -96,7 +86,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
         setSelectedCategory(e.value);
         onFilterChange({
             supplier: selectedSupplier,
-            department: selectedDepartment?.name  || '',
+            department: selectedDepartment?.name || '',
             period: selectedPeriod,
             category: e.value
         });
@@ -106,7 +96,6 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
         onFilterChange(filters);
     };
 
-    
     const containerStyle: any = {
         display: 'flex',
         justifyContent: 'space-between',
@@ -122,55 +111,25 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
     };
 
     const fixedDropdown = {
-        width: '249px', /* fixed width for the dropdown */
-        minWidth: '150px', /*ensures dropdown is not smaller than this */
+        width: '249px' /* fixed width for the dropdown */,
+        minWidth: '150px' /*ensures dropdown is not smaller than this */,
         padding: '4px',
-        height: '49px'
-    }
-    
+        height: '45px'
+    };
 
     return (
         <div style={containerStyle}>
             <div style={itemStyle}>
-                <Dropdown
-                    value={selectedSupplier}
-                    onChange={handleSupplierChange}
-                    options={suppliersToList}
-                    optionLabel="supplierName"
-                    optionValue="supId"
-                    placeholder="-- Select Supplier --"
-                    style={fixedDropdown}
-                />
+                <Dropdown value={selectedSupplier} onChange={handleSupplierChange} options={suppliersToList} optionLabel="supplierName" optionValue="supId" placeholder="-- Select Supplier --" style={fixedDropdown} />
             </div>
             <div style={itemStyle}>
-                <Dropdown
-                    value={selectedDepartment}
-                    onChange={handleDepartmentChange}
-                    options={departments}
-                    optionLabel="name"
-                    placeholder="-- Select Department --"
-                    style={fixedDropdown}
-                />
+                <Dropdown value={selectedDepartment} onChange={handleDepartmentChange} options={departments} optionLabel="name" placeholder="-- Select Department --" style={fixedDropdown} />
             </div>
             <div style={itemStyle}>
-                <Dropdown
-                    value={selectedPeriod}
-                    onChange={handlePeriodChange}
-                    options={periodOptions}
-                    optionLabel="label"
-                    placeholder="-- Select Quarter --"
-                    style={fixedDropdown}
-                />
+                <Dropdown value={selectedPeriod} onChange={handlePeriodChange} options={periodOptions} optionLabel="label" placeholder="-- Select Quarter --" style={fixedDropdown} />
             </div>
             <div style={itemStyle}>
-                <Dropdown
-                    value={selectedCategory}
-                    onChange={handleCategoryChange}
-                    options={categories}
-                    optionLabel="label"
-                    placeholder="-- Select Category --"
-                    style={fixedDropdown}
-                />
+                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categories} optionLabel="label" placeholder="-- Select Category --" style={fixedDropdown} />
             </div>
         </div>
     );

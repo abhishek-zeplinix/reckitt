@@ -40,17 +40,15 @@ const LoginPage = () => {
         }
 
         if (email && password) {
-
             setLoading(true);
 
-            // const encryptedPassword = encryptPassword(password);
-            
+            // const encryptedPassword = await encryptPassword(password);
+
             // console.log(encryptedPassword);
-            
+
             // const response: any = await PostCall('/auth/sign-in', { email, password: encryptedPassword});
 
-
-            const response: any = await PostCall('/auth/sign-in', { email, password});
+            const response: any = await PostCall('/auth/sign-in', { email, password });
 
             setLoading(false);
             if (response.code == 'SUCCESS') {
@@ -59,8 +57,7 @@ const LoginPage = () => {
                 setUser(response.data);
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
-                setUserDetails(response.data)
-
+                setUserDetails(response.data);
             } else if (response.code == 'RESET_PASSWORD') {
                 console.log('res', response);
                 setDisplayName(response.name);
@@ -80,9 +77,9 @@ const LoginPage = () => {
         e.preventDefault();
         const encryptedPassword = encryptPassword(password);
         navigator.clipboard.writeText(encryptedPassword).then(() => {
-          alert("Encrypted password copied to clipboard!");
+            alert('Encrypted password copied to clipboard!');
         });
-      };
+    };
 
     const containerClassName = classNames('surface-ground flex align-items-center justify-between min-h-screen overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
 
@@ -108,7 +105,7 @@ const LoginPage = () => {
                             <img src="/images/reckitt.webp" alt="Logo" width="120px" height={'50px'} />
                         </div>
                         <div className="text-center mb-5">
-                            <div className="text-900 text-3xl font-medium mb-3">Welcome Backkkk</div>
+                            <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
                             <span className="text-600 font-medium line-height-3">Enter your credentials to access your account</span>
                         </div>
 
@@ -128,7 +125,7 @@ const LoginPage = () => {
                                     Forgot your password?
                                 </Link>
                             </div>
-                            <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} onCopy={handleCopy}/>
+                            <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} onCopy={handleCopy} />
 
                             <div className="flex flex-wrap justify-content-left gap-3 mb-2">
                                 <div className="flex align-items-center mb-2">

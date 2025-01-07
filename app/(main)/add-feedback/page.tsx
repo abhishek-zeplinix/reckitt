@@ -239,9 +239,7 @@ const AddFeedBackPages = () => {
     return (
         <div className="md:p-4 md:mx-5 md:my-5">
             <div className="p-card">
-                <div className="p-card-body">
-                    {feedbackForm()}
-                </div>
+                <div className="p-card-body">{feedbackForm()}</div>
                 {/* Footer Buttons */}
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 ">

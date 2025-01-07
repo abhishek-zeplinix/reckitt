@@ -201,109 +201,104 @@ const CreateSupplierPage = () => {
         switch (currentStep) {
             case 1:
                 return (
-                    <div className="flex flex-column gap-3 pt-5">
-                        <h2 className="text-center font-bold ">Add Supplier Information</h2>
-                        <div className="p-fluid grid md:mx-7 pt-5">
-                            <div className="field col-6">
-                                <label htmlFor="supplierId" className="font-semibold">
-                                    Location
-                                </label>
-                                <Dropdown
-                                    id="name"
-                                    value={get(form, 'locationId')}
-                                    options={locationDetails}
-                                    optionLabel="name"
-                                    optionValue="locationId"
-                                    onChange={(e) => onInputChange('locationId', e.value)}
-                                    placeholder="Select Location Name"
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="supplierName" className="font-semibold">
-                                    Supplier Name
-                                </label>
-                                <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Supplier Name" />
+                    <div>
+                        <div className="flex flex-column gap-3 pt-5">
+                            <h2 className="text-center font-bold ">Add Supplier Information</h2>
+                            <div className="p-fluid grid md:mx-7 pt-5">
+                                <div className="field col-6">
+                                    <label htmlFor="supplierId" className="font-semibold">
+                                        Location
+                                    </label>
+                                    <Dropdown
+                                        id="name"
+                                        value={get(form, 'locationId')}
+                                        options={locationDetails}
+                                        optionLabel="name"
+                                        optionValue="locationId"
+                                        onChange={(e) => onInputChange('locationId', e.value)}
+                                        placeholder="Select Location Name"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="supplierName" className="font-semibold">
+                                        Supplier Name
+                                    </label>
+                                    <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full " placeholder="Enter Supplier Name" />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="manufacturerName">Manufacturing Name</label>
+                                    <InputText
+                                        id="manufacturerName"
+                                        type="text"
+                                        value={get(form, 'supplierManufacturerName')}
+                                        onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
+                                        className="p-inputtext w-full"
+                                        placeholder="Enter Manufacturing Name"
+                                    />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="manufacturerName">Factory Name</label>
+                                    <Dropdown
+                                        id="factoryName"
+                                        value={get(form, 'factoryId')}
+                                        options={factoryDetails}
+                                        optionLabel="factoryName"
+                                        optionValue="factoryId"
+                                        onChange={(e) => onInputChange('factoryId', e.value)}
+                                        placeholder="Select Factory Name"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="procurementCategory">Supplier Procurement Category</label>
+                                    <Dropdown
+                                        id="procurementCategory"
+                                        value={get(form, 'procurementCategoryId')}
+                                        options={category}
+                                        optionLabel="categoryName"
+                                        optionValue="categoryId"
+                                        onChange={(e) => onInputChange('procurementCategoryId', e.value)} // Map categoryId to procurementCategoryId
+                                        placeholder="Select Procurement Category"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="manufacturerName">Supplier Category</label>
+                                    <Dropdown
+                                        id="supplierCategory"
+                                        value={get(form, 'supplierCategoryId')}
+                                        options={subCategory}
+                                        optionLabel="subCategoryName"
+                                        optionValue="subCategoryId"
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // Map subCategoryId to supplierCategoryId
+                                        placeholder="Select Supplier Category"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="manufacturerName">Site Address</label>
+                                    <InputText id="manufacturerName" type="text" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
+                                </div>
+                                <div className="field col-6">
+                                    <label htmlFor="manufacturerName">Sub Location</label>
+                                    <Dropdown
+                                        id="name"
+                                        value={get(form, 'sublocationId')}
+                                        options={subLocationDetails}
+                                        optionLabel="name"
+                                        optionValue="sublocationId"
+                                        onChange={(e) => onInputChange('sublocationId', e.value)}
+                                        placeholder="Select Sub Location Name"
+                                        className="w-full"
+                                    />
+                                </div>
                             </div>
                         </div>
+                        <div className="flex flex-column gap-3 pt-5"></div>
                     </div>
                 );
             case 2:
-                return (
-                    <div className="flex flex-column gap-3 pt-5">
-                        <h2 className="text-center font-bold ">Add Manufacture Details</h2>
-                        <div className="p-fluid grid md:mx-7 pt-5">
-                            <div className="field col-6">
-                                <label htmlFor="manufacturerName">Manufacturing Name</label>
-                                <InputText
-                                    id="manufacturerName"
-                                    type="text"
-                                    value={get(form, 'supplierManufacturerName')}
-                                    onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
-                                    className="p-inputtext w-full"
-                                    placeholder="Enter Manufacturing Name"
-                                />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="manufacturerName">Factory Name</label>
-                                <Dropdown
-                                    id="factoryName"
-                                    value={get(form, 'factoryId')}
-                                    options={factoryDetails}
-                                    optionLabel="factoryName"
-                                    optionValue="factoryId"
-                                    onChange={(e) => onInputChange('factoryId', e.value)}
-                                    placeholder="Select Factory Name"
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="procurementCategory">Supplier Procurement Category</label>
-                                <Dropdown
-                                    id="procurementCategory"
-                                    value={get(form, 'procurementCategoryId')}
-                                    options={category}
-                                    optionLabel="categoryName"
-                                    optionValue="categoryId"
-                                    onChange={(e) => onInputChange('procurementCategoryId', e.value)} // Map categoryId to procurementCategoryId
-                                    placeholder="Select Procurement Category"
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="manufacturerName">Supplier Category</label>
-                                <Dropdown
-                                    id="supplierCategory"
-                                    value={get(form, 'supplierCategoryId')}
-                                    options={subCategory}
-                                    optionLabel="subCategoryName"
-                                    optionValue="subCategoryId"
-                                    onChange={(e) => onInputChange('supplierCategoryId', e.value)} // Map subCategoryId to supplierCategoryId
-                                    placeholder="Select Supplier Category"
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="manufacturerName">Site Address</label>
-                                <InputText id="manufacturerName" type="text" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
-                            </div>
-                            <div className="field col-6">
-                                <label htmlFor="manufacturerName">Sub Location</label>
-                                <Dropdown
-                                    id="name"
-                                    value={get(form, 'sublocationId')}
-                                    options={subLocationDetails}
-                                    optionLabel="name"
-                                    optionValue="sublocationId"
-                                    onChange={(e) => onInputChange('sublocationId', e.value)}
-                                    placeholder="Select Sub Location Name"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                );
-            case 3:
                 return (
                     <div className="flex flex-column gap-3 pt-5">
                         <h2 className="text-center font-bold ">Add Manufacture Details</h2>
@@ -408,12 +403,12 @@ const CreateSupplierPage = () => {
     };
 
     return (
-        <div className="md:p-4 md:mx-5 md:my-5">
-            <Stepper currentStep={currentStep} completedSteps={completedSteps} />
+        <div className="md:p-1 md:mx-2 md:my-2">
             <div className="p-card">
+                <Stepper currentStep={currentStep} completedSteps={completedSteps} />
                 {/* Progress Bar */}
                 {/* <ProgressBar value={(currentStep / 3) * 100} /> */}
-                <div className="p-card-body" style={{ height: '68vh' }}>
+                <div className="p-card-body">
                     {/* Step Content */}
                     {renderStepContent()}
                 </div>
@@ -421,13 +416,8 @@ const CreateSupplierPage = () => {
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 ">
                     {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleNext} />}
+
                     {currentStep === 2 && (
-                        <>
-                            <Button label="Previous" icon="pi pi-arrow-left" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150" onClick={handlePrevious} />
-                            <Button label="Next" icon="pi pi-arrow-right" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleNext} />
-                        </>
-                    )}
-                    {currentStep === 3 && (
                         <>
                             <Button label="Back" icon="pi pi-arrow-left" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150" onClick={handlePrevious} />
                             <Button label="Submit" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleSubmit} />

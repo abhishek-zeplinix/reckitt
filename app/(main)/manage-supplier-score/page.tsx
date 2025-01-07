@@ -42,8 +42,11 @@ const ManageSupplierScorePage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     const { departments } = useFetchDepartments();
-    const {suppliers} = useFetchSuppliers();
-    
+    const { suppliers } = useFetchSuppliers();
+
+    const handleCreateNavigation = () => {
+        router.push('/create-supplier'); // Replace with the route you want to navigate to
+    };
 
     const handleButtonClick = () => {
         fileInputRef.current?.click();
@@ -126,7 +129,6 @@ const ManageSupplierScorePage = () => {
         fetchData();
     }, []);
 
-
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
@@ -173,7 +175,6 @@ const ManageSupplierScorePage = () => {
         }
     };
 
-
     const handleFilterChange = (filters: any) => {
         console.log('Selected filters:', filters);
         // You can use these values to update your API calls or local filtering
@@ -190,13 +191,14 @@ const ManageSupplierScorePage = () => {
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
                             {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
-                                <div>
-                                    <FilterDropdowns onFilterChange={handleFilterChange} suppliers={suppliers} departments={departments}/>
-                                </div>
+                            <div>
+                                <FilterDropdowns onFilterChange={handleFilterChange} suppliers={suppliers} departments={departments} />
+                            </div>
 
                             {/* <div className="mt-5 ">{RepresentationColor}</div> */}
-                            <div className="mt-5 "><ScoreTiles /></div>
-
+                            <div className="mt-3 ">
+                                <ScoreTiles />
+                            </div>
 
                             <CustomDataTable
                                 ref={dataTableRef}
@@ -313,13 +315,8 @@ const ManageSupplierScorePage = () => {
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>
-
-
                     </div>
-
                 </div>
-
-
 
                 <Dialog
                     header="Delete confirmation"
@@ -352,11 +349,7 @@ const ManageSupplierScorePage = () => {
                     </div>
                 </Dialog>
             </div>
-
-
         </div>
-
-
     );
 };
 

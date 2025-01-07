@@ -3329,13 +3329,14 @@
 
   .p-datatable .p-datatable-thead>tr>th {
     text-align: left;
-    padding: 1rem 1rem;
+    padding: 10px 1rem;
     border: 1px solid #e5e7eb;
     border-width: 0 0 1px 0;
     font-weight: 700;
     color: #374151;
     background: #f9fafb;
     transition: box-shadow 0.2s;
+    font-size: 14px;
   }
 
   .p-datatable .p-datatable-tfoot>tr>td {
@@ -4639,7 +4640,7 @@
 
   .p-accordion .p-accordion-header:not(.p-disabled).p-highlight:hover .p-accordion-header-link {
     border-color: #e5e7eb;
-    background: #f3f4f6;
+    /* background: #eb92be; */
     color: #374151;
   }
 

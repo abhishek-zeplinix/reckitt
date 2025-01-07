@@ -42,8 +42,23 @@ const ManageRulesPage = () => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
+    const limitOptions = [
+        { label: '10', value: 10 },
+        { label: '20', value: 20 },
+        { label: '50', value: 50 },
+        { label: '70', value: 70 },
+        { label: '100', value: 100 }
+    ];
+    // Handle limit change
+    const onLimitChange = (e: any) => {
+        setLimit(e.value); // Update limit
+        fetchData({ limit: e.value, page: 1 }); // Fetch data with new limit
+    };
+    useEffect(() => {
+        fetchData();
+    }, [limit, page]); // Re-fetch when limit or page changes
     const handleCreateNavigation = () => {
-        router.push('/create-supplier'); // Replace with the route you want to navigate to
+        router.push('/create-new-rules'); // Replace with the route you want to navigate to
     };
 
     const handleButtonClick = () => {
@@ -87,7 +102,7 @@ const ManageRulesPage = () => {
                     <Button icon="pi pi-plus" size="small" label="Import Rules" aria-label="Add Rules" className="default-button " onClick={handleButtonClick} style={{ marginLeft: 10 }}>
                         <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} />
                     </Button>
-                    <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
+                    {/* <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
@@ -227,9 +242,14 @@ const ManageRulesPage = () => {
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
                             {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
-                            <div className="flex gap-4">
-                                <div className="mt-5">{dropdownFieldDeparment}</div>
-                                <div className="mt-5">{dropdownFieldSubCategory}</div>
+                            <div className="flex justify-content-between items-center border-b">
+                                <div>
+                                    <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '40px' }} />
+                                </div>
+                                <div className="flex  gap-4">
+                                    <div className="mt-2">{dropdownFieldDeparment}</div>
+                                    <div className="mt-2">{dropdownFieldSubCategory}</div>
+                                </div>
                             </div>
 
                             <CustomDataTable
