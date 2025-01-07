@@ -183,11 +183,11 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
             <div className={containerClass}>
                 <MyFileUpload />
                 <AppTopbar ref={topbarRef} />
-                {/* {!layoutState.isMobile && (
+                {!layoutState.isMobile && (
                     <div className={menuToggleClass} onClick={onMenuToggle}>
                         <i className={iconClass}></i>
                     </div>
-                )} */}
+                )}
                 <div ref={sidebarRef} className="layout-sidebar">
                     <AppSidebar />
                 </div>

@@ -1,44 +1,39 @@
 // @ts-ignore
 import crypto from 'crypto-browserify';
 
-const publicKey = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtMfyJFrSKukTDuRdMDIL
-q8+IFC1GD6y3kORPurUL2YNu+FdiqAIQTix+XOfMhFYG2xJwCVSyuHvo+LZYAJrM
-240c9IRd85M+PWtPqGnZS7jgsoHbDyfKxhmZ7+d8IWo/f98xbkD7RbXmsPmHCdEv
-dHNMWaZgNaOUxQughJuNjgQv9yd7q9msOQAwV6ikituBKEcqVJQnJP+F/9nhwEf/
-Mm/WusuNzhBCkpgVYnUeE0WYoxbDi0YT3JwLu4QwmUrDJ7qxcfRA5g5bK/qEQiR4
-hGWIj8NtGXMLszFbFm2D3D5rqVaSNM0KRA71gpe0FHVp1I7a/hFOkbjo4iuIE2yw
-VwIDAQAB
------END PUBLIC KEY-----`;
+const publicKey = `-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEAo/4Al1MNPAWQ3/aRDWsjxuUQlDb/S0ZWhFbCXZsGN3txFFlRhXE9
+EdEix+GvDtFHfszJkgZgSGKqjNFQxQnnl76VLObM6MZWWIfdhC5biEM5iXq+4YcK
+2SuFsijM7SOnCMdQuepSLqo5L9znDzdVPyBRvy60WLZAK5fMKgglU0IwDShDTqdV
+M6s4EnfeOhMRTOdFqwxWOO3N62Yj+CwB2JXJGGn9H4V6iVhJKwpUgYQjLFl9PCwG
+KTlfU09kAerWaSmexYcppJ3qBJPwbmR/5aD6minegs9EYhb0cN4zo1lrRZcRmK0Y
+7DSrbmKKgPfrS7jK41XHroudr/QHFlOi1QIDAQAB
+-----END RSA PUBLIC KEY-----
+`;
 
-  
-export const encryptPassword = (password: any) => {
 
+
+export const encryptPassword = (password: string): string => {
+  try {
+
+    console.log(password);
+    
     const buffer = Buffer.from(password, 'utf8');
-
-    // Encrypt the data with the public key using RSA
+    
     const encrypted = crypto.publicEncrypt(
       {
         key: publicKey,
-        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING, // Use OAEP padding for security
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: 'sha256'
       },
       buffer
     );
 
-    return encrypted.toString('base64'); // Return as base64 string
+    return encrypted.toString('base64');
 
-  };
-  
+  } catch (error) {
+    console.error('Encryption error:', error);
+    throw new Error('Failed to encrypt password');
+  }
+};
 
-
-  //for backend decryption 
-
-   
-// const decryptPassword = (encryptedData) => {  
-//   const buffer = Buffer.from(encryptedData, 'base64'); // Decode base64 to bufferconst
-//    decrypted = crypto.privateDecrypt( 
-//       {      key: privateKey,
-//             padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,  
-//       },    buffer  ); 
-//     return decrypted.toString('utf8'); 
-//    };

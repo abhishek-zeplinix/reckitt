@@ -46,7 +46,10 @@ const LoginPage = () => {
 
             // console.log(encryptedPassword);
 
+            // const response: any = await PostCall('/auth/sign-in', { email, password: encryptedPassword});
+
             const response: any = await PostCall('/auth/sign-in', { email, password });
+
             setLoading(false);
             if (response.code == 'SUCCESS') {
                 console.log('login success');

@@ -324,7 +324,7 @@ const ManageSupplierPage = () => {
                 </span>
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " onClick={showAddNew} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );
@@ -562,25 +562,25 @@ const ManageSupplierPage = () => {
     };
     const inputboxfeild = renderInputBox();
 
-    const databoxx = [
-        {
-            poNumber: 'PO-12345',
-            supplierName: 'ABC Supplier',
-            supplierAddress: 'ABC Address',
-            supplierContact: 'ABC Contact',
-            supplierEmail: 'abc@gmail.com',
-            supplierStatus: 'Active'
-        },
-        {
-            poNumber: 'PO-67890',
-            supplierName: 'XYZ Supplier',
-            supplierAddress: 'XYZ Address',
-            supplierContact: 'XYZ Contact',
-            supplierEmail: 'xyz@gmail.com',
-            supplierStatus: 'Inactive'
-        }
-        // Add more data here...
-    ];
+    // const databoxx = [
+    //     {
+    //         poNumber: 'PO-12345',
+    //         supplierName: 'ABC Supplier',
+    //         supplierAddress: 'ABC Address',
+    //         supplierContact: 'ABC Contact',
+    //         supplierEmail: 'abc@gmail.com',
+    //         supplierStatus: 'Active'
+    //     },
+    //     {
+    //         poNumber: 'PO-67890',
+    //         supplierName: 'XYZ Supplier',
+    //         supplierAddress: 'XYZ Address',
+    //         supplierContact: 'XYZ Contact',
+    //         supplierEmail: 'xyz@gmail.com',
+    //         supplierStatus: 'Inactive'
+    //     }
+    //     // Add more data here...
+    // ];
     return (
         <div className="grid">
             <div className="col-12">
@@ -675,53 +675,6 @@ const ManageSupplierPage = () => {
                             />
                         </div>
                     </div>
-                    <Sidebar
-                        isVisible={isShowSplit}
-                        action={action}
-                        width={ACTIONS.VIEW == action ? '60vw' : undefined}
-                        title={`${action == ACTIONS.EDIT || action == ACTIONS.VIEW ? selectedSupplier?.supplierName : 'Create Supplier'}`}
-                        closeIcon={closeIcon}
-                        onSave={onNewAdd}
-                        content={
-                            <>
-                                {isDetailLoading && (
-                                    <div className="center-pos">
-                                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                                    </div>
-                                )}
-                                {(action === ACTIONS.ADD || action === ACTIONS.EDIT) && (
-                                    <div className="md:p-4 md:mx-5 md:my-5">
-                                        <Stepper currentStep={currentStep} completedSteps={completedSteps} />
-                                        <div className="p-card">
-                                            {/* Progress Bar */}
-                                            {/* <ProgressBar value={(currentStep / 3) * 100} /> */}
-                                            <div className="p-card-body" style={{ height: '68vh' }}>
-                                                {/* Step Content */}
-                                                {renderStepContent()}
-                                            </div>
-                                            {/* Footer Buttons */}
-                                            <hr />
-                                            <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 ">
-                                                {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleNext} />}
-                                                {currentStep === 2 && (
-                                                    <>
-                                                        <Button label="Previous" icon="pi pi-arrow-left" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150" onClick={handlePrevious} />
-                                                        <Button label="Next" icon="pi pi-arrow-right" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleNext} />
-                                                    </>
-                                                )}
-                                                {currentStep === 3 && (
-                                                    <>
-                                                        <Button label="Back" icon="pi pi-arrow-left" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150" onClick={handlePrevious} />
-                                                        <Button label="Submit" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleSubmit} />
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        }
-                    />
                 </div>
             </div>
             <Dialog
