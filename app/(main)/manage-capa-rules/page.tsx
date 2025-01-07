@@ -43,7 +43,7 @@ const ManageCapaRulesPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     const handleCreateNavigation = () => {
-        router.push('/create-new-capa-rules'); // Replace with the route you want to navigate to
+        router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
 
     const handleButtonClick = () => {
@@ -87,7 +87,7 @@ const ManageCapaRulesPage = () => {
                     <Button icon="pi pi-plus" size="small" label="Import Rules" aria-label="Add Rules" className="default-button " onClick={handleButtonClick} style={{ marginLeft: 10 }}>
                         <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} />
                     </Button>
-                    <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
+                    {/* <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
@@ -228,8 +228,8 @@ const ManageCapaRulesPage = () => {
                         >
                             {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
                             <div className="flex gap-4">
-                                <div className="mt-5">{dropdownFieldDeparment}</div>
-                                <div className="mt-5">{dropdownFieldSubCategory}</div>
+                                <div className="mt-2">{dropdownFieldDeparment}</div>
+                                <div className="mt-2">{dropdownFieldSubCategory}</div>
                             </div>
 
                             <CustomDataTable

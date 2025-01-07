@@ -29,20 +29,12 @@ const Stepper: React.FC<StepperProps> = ({ currentStep, completedSteps }) => {
             template: (item: any) => itemRenderer(item, 0)
         },
         {
-            icon: 'pi pi-calendar',
-            template: (item: any) => itemRenderer(item, 1)
-        },
-        {
             icon: 'pi pi-check',
-            template: (item: any) => itemRenderer(item, 2)
+            template: (item: any) => itemRenderer(item, 1)
         }
     ];
 
-    return (
-        <div className="card">
-            <Steps model={items} activeIndex={currentStep - 1} readOnly={false} className="m-2 pt-4" />
-        </div>
-    );
+    return <Steps model={items} activeIndex={currentStep - 1} readOnly={false} className="m-2 pt-20" />;
 };
 
 export default Stepper;

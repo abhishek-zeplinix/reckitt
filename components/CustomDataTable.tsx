@@ -168,11 +168,11 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
 
     // console.log('lazyParams', lazyParams)
     return (
-        <div className="card reckitt-table-container mt-4">
+        <div className="card reckitt-table-container mt-3 ">
             <DataTable
                 lazy
                 paginator
-                scrollable
+                // scrollable
                 removableSort
                 {...props}
                 totalRecords={props.totalRecords || 0}
@@ -182,7 +182,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                 filterDisplay={props.filter ? 'row' : undefined}
                 className="reckitt-table p-datatable-thead "
                 pageLinkSize={3}
-                scrollHeight={tableHeight}
+                // scrollHeight={tableHeight}
                 onPage={onPage}
                 onFilter={onFilter}
                 onSort={onFilter}
