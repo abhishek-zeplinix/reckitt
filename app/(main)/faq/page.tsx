@@ -11,6 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import 'primeicons/primeicons.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import CustomToast from '@/components/toast/Toast';
 
 interface FAQ {
     id: number;
@@ -37,6 +38,7 @@ const FaqPage = () => {
     useEffect(() => {
         fetchFaq();
     }, []);
+    
 
     const fetchFaq = async () => {
         setLoading(true);
@@ -150,6 +152,8 @@ const FaqPage = () => {
         setIsDeleteDialogVisible(false);
         setSelectedFaqToDelete(null)
     };
+
+    
 
 
 
@@ -305,6 +309,24 @@ const FaqPage = () => {
                     </div>
                 </div>
             </div>
+                        {/* <div>
+            <CustomToast
+                type="success"
+                message="Operation Successfully Failed"
+                
+              />
+              <CustomToast
+                type="error"
+                message="Operation Successfully Failed"
+                
+              />
+              <CustomToast
+                type="info"
+                message="Operation Successfully Failed"
+                
+              />
+            </div> */}
+            
         </div>
     );
 };

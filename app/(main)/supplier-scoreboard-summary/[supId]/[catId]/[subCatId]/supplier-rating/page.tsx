@@ -1,6 +1,7 @@
 'use client'
 import { GetCall } from "@/app/api-config/ApiKit";
 import SupplierEvaluationTable from "@/components/supplier-rating/SupplierRatingTable";
+import useFetchDepartments from "@/hooks/useFetchDepartments";
 import { useAppContext } from "@/layout/AppWrapper";
 import { buildQueryParams, getRowLimitWithScreenHeight } from "@/utils/uitl";
 import { useParams } from "next/navigation";
@@ -15,7 +16,7 @@ const SupplierRatingPage = () => {
     const [activeTab, setActiveTab] = useState("PLANNING");
     const [selectedPeriod, setSelectedPeriod] = useState()
     const [rules, setRules] = useState([])
-    const [departments, setDepartments] = useState<any>();
+    // const [departments, setDepartments] = useState<any>();
     const [selectedDepartment, setSelectedDepartment] = useState<number>(1);
     const [supplierData, setSupplierData] = useState<any>();
     const [periodOptions, setPeriodOptions] = useState<any>([]);
@@ -23,6 +24,9 @@ const SupplierRatingPage = () => {
     const urlParams = useParams();
     const { supId, catId, subCatId } = urlParams;
     const { setLoading, setAlert } = useAppContext();
+
+    //hooks
+    const {departments} = useFetchDepartments();
 
     // console.log(supplierData);
 
@@ -38,17 +42,17 @@ const SupplierRatingPage = () => {
 
         
      //fetch department api
-    const fetchDepartments = async () => {
+    // const fetchDepartments = async () => {
 
-        try {
-            const response = await GetCall('/company/department');
-            setDepartments(response.data);
-            return response.data;
+    //     try {
+    //         const response = await GetCall('/company/department');
+    //         setDepartments(response.data);
+    //         return response.data;
 
-        } catch (error) {
-            setAlert('error', 'Failed to fetch departments');
-        }
-    };
+    //     } catch (error) {
+    //         setAlert('error', 'Failed to fetch departments');
+    //     }
+    // };
 
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
@@ -89,9 +93,9 @@ const SupplierRatingPage = () => {
         const initializeData = async () => {
             setLoading(true);
             try {
-                if (!departments) {
-                    await fetchDepartments();
-                }
+                // if (!departments) {
+                //     await fetchDepartments();
+                // }
                 if (!supplierData) {
                     await fetchSupplierData();
                 }
