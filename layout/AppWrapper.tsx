@@ -12,6 +12,8 @@ import { Toast } from 'primereact/toast';
 import React, { useCallback } from 'react';
 import { createContext, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { AuthProvider } from './context/authContext';
+import CustomToast from '@/components/toast/Toast';
+import ToastContainer from '@/components/toast/ToastContainer';
 
 let axiosRef: string | null = null;
 
@@ -57,7 +59,12 @@ export const AppWrapper = React.memo(({ children }: any) => {
     const [isScroll, setScroll] = useState(true);
     const [selectedSubLocation, setSelectedSubLocation] = useState<any>(null);
 
-    const toastRef = useRef<any>(null);
+    // const toastRef = useRef<any>(null);
+
+    const [toasts, setToasts] = useState<Array<{ id: number; type: string; message: string }>>([]);
+
+
+    console.log(toasts);
 
     useEffect(() => {
         const isValid = isTokenValid(authToken);
@@ -143,15 +150,26 @@ export const AppWrapper = React.memo(({ children }: any) => {
         router.replace(`/login`, undefined);
     };
 
-    const setAlert = (type: string, message: string) => {
-        if (toastRef.current) {
-            toastRef.current.clear(); // Clear existing toast
-        }
+    // const setAlert = (type: string, message: string) => {
+    //     if (toastRef.current) {
+    //         toastRef.current.clear(); // Clear existing toast
+    //     }
 
-        toastRef.current.show({ severity: type, summary: type.toUpperCase(), detail: message, life: 3000 });
-    };
+    //     toastRef.current.show({ severity: type, summary: type.toUpperCase(), detail: message, life: 3000 });
+    // };
 
-    console.log(user);
+    
+    const removeToast = useCallback((id: number) => {
+
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      }, []);
+
+      
+      const setAlert = (type: string, message: string) => {
+        const id = Date.now();
+        setToasts((prev) => [...prev, { id, type, message }]);
+      };
+
 
     // const isSuperAdmin = () => get(user, 'isSuperAdmin', false);
     // const isSupplier = () => get(user, 'userRole') === userRoles.SUPPLIER;
@@ -181,10 +199,28 @@ export const AppWrapper = React.memo(({ children }: any) => {
             >
                 <AuthProvider user={user}>
 
-                    <Toast ref={toastRef} />
+                    {/* <Toast ref={toastRef} />
                     {isLoading && <div className="running-border"></div>}
-                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>{children}</div>'
-                    
+                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>{children}</div>' */}
+
+                    {/* {isLoading && <div className="running-border"></div>}
+                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>
+                        {children}
+                    </div> */}
+
+                    {/* Render Custom Toasts */}
+                    {/* <div className="fixed top-4 right-4 space-y-4 z-50"  style={{ border: '1px solid red' }}>
+                        {toasts.map((toast) => (
+                            <CustomToast key={toast.id} type={toast.type} message={toast.message} />
+                        ))}
+
+                        
+                    </div> */}
+                    <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+                    {isLoading && <div className="running-border"></div>}
+                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>{children}</div>
+
                 </AuthProvider>
             </AppContext.Provider>
         </Suspense>
