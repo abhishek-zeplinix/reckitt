@@ -4639,7 +4639,7 @@
 
   .p-accordion .p-accordion-header:not(.p-disabled).p-highlight:hover .p-accordion-header-link {
     border-color: #e5e7eb;
-    background: #f3f4f6;
+    /* background: #eb92be; */
     color: #374151;
   }
 

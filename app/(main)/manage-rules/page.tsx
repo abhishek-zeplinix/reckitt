@@ -43,7 +43,7 @@ const ManageRulesPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     const handleCreateNavigation = () => {
-        router.push('/create-supplier'); // Replace with the route you want to navigate to
+        router.push('/create-new-rules'); // Replace with the route you want to navigate to
     };
 
     const handleButtonClick = () => {
