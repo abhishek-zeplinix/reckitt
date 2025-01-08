@@ -356,7 +356,17 @@ const ManageRulesPage = () => {
                                 }))}
                                 columns={[
                                     {
-                                        header: 'Sr No',
+                                        header: 'Sr. No',
+                                        body: (data: any, options: any) => {
+                                            const normalizedRowIndex = options.rowIndex % limit;
+                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                           
+                                            return <span>{srNo}</span>;
+                                        },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    },
+                                    {
+                                        header: 'Rule ID',
                                         field: 'ruleId',
                                         filter: true,
                                         sortable: true,
