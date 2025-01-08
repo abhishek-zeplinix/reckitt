@@ -126,13 +126,13 @@ const ManageUserAddPage = () => {
 
     const renderNewRuleFooter = () => {
         return (
-            <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 ">
+            <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
                 <Button
                     label="Cancel"
-                    className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150"
+                    className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3"
                     onClick={() => router.push('/manage-users')} // Navigate back to manage users
                 />
-                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleSubmit} />
+                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleSubmit} />
             </div>
         );
     };
@@ -152,30 +152,30 @@ const ManageUserAddPage = () => {
             <div className="grid">
                 <div className="col-12">
                     <div className="flex flex-column gap-3">
-                        <div className="p-fluid grid md:mx-7 pt-5">
-                            <div className="field col-6">
+                        <div className="p-fluid grid md:mx-7 pt-2">
+                            <div className="field col-4">
                                 <label htmlFor="role">Role</label>
                                 <Dropdown id="role" value={createRole} options={roles} onChange={(e) => setCreateRole(e.value)} placeholder="Select Role" className="w-full" />
                             </div>
                             {Number(createRole) === 2 && (
-                                <div className="field col-6">
+                                <div className="field col-4">
                                     <label htmlFor="supplier">Supplier</label>
                                     <Dropdown id="supplier" value={supplierId} options={supplierData} onChange={(e) => setSupplierId(e.value)} placeholder="Select Supplier" className="w-full" />
                                 </div>
                             )}
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Role Name</label>
                                 <input id="manufacturerName" type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Name" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Role Email</label>
                                 <input id="manufacturerName" type="text" value={roleEmail} onChange={(e) => setRoleEmail(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Email" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Role Phone Number</label>
                                 <input id="manufacturerName" type="text" value={rolePhone} onChange={(e) => setRolePhone(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Phone Number" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Password</label>
                                 <input id="manufacturerName" type="text" value={rolePassword} onChange={(e) => setRolePassword(e.target.value)} className="p-inputtext w-full" placeholder="Enter Password" />
                             </div>
@@ -193,7 +193,7 @@ const ManageUserAddPage = () => {
     };
 
     return (
-        <div className="md:p-4 md:mx-5 md:my-5" style={{ position: 'relative' }}>
+        <div className="" style={{ position: 'relative' }}>
             <div className="p-card">
                 {/* Header Section */}
                 <div className="p-card-header">

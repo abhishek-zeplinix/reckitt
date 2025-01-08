@@ -43,7 +43,7 @@ const ManageCapaRulesPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     const handleCreateNavigation = () => {
-        router.push('/create-supplier'); // Replace with the route you want to navigate to
+        router.push('/create-new-capa-rules'); // Replace with the route you want to navigate to
     };
 
     const handleButtonClick = () => {
@@ -272,7 +272,7 @@ const ManageCapaRulesPage = () => {
                                         field: 'ruleId',
                                         filter: true,
                                         sortable: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Sr No'
                                     },
@@ -282,7 +282,7 @@ const ManageCapaRulesPage = () => {
                                         // body: renderVendor,
                                         filter: true,
                                         // filterElement: vendorDropdown,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 200, maxWidth: 200 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
                                     },
@@ -293,7 +293,7 @@ const ManageCapaRulesPage = () => {
                                         filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 120, maxWidth: 120 }
+                                        style: { minWidth: 180, maxWidth: 180 }
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',

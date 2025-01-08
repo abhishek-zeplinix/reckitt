@@ -138,7 +138,7 @@ const ManageUsersPage = () => {
                                         field: 'id',
                                         filter: true,
                                         sortable: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
                                         filterPlaceholder: 'Sr No'
                                     },
                                     {
@@ -175,7 +175,7 @@ const ManageUsersPage = () => {
                                         field: 'roleId',
                                         filter: true,
                                         filterPlaceholder: 'Search Mobile ',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' }
                                     },
 
                                     {
