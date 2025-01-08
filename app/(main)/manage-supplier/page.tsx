@@ -83,7 +83,6 @@ const ManageSupplierPage = () => {
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [selectedSupplierToDelete, setSelectedSupplierToDelete] = useState<Supplier | null>(null);
-    const [selectedDropdownValue, setSelectedDropdownValue] = useState<number | null>(null);
     const [checked, setChecked] = useState({
         gmp: false,
         gdp: false,
@@ -312,29 +311,7 @@ const ManageSupplierPage = () => {
             setIsShowSplit(true);
         }
     };
-    const handleDropdownChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedDropdownValue(Number(event.target.value));
-    };
 
-    const tableValueDropdown = () => {
-        return (
-            <div className="flex ">
-                <select
-                    id="dropdown"
-                    value={selectedDropdownValue ?? ''}
-                    onChange={handleDropdownChange}
-                    className="block w-full px-1 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="" disabled>
-                        Choose a value
-                    </option>
-                    <option value="20">20</option>
-                    <option value="30">30</option>
-                    <option value="50">50</option>
-                </select>
-            </div>
-        );
-    };
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
@@ -347,7 +324,6 @@ const ManageSupplierPage = () => {
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
                     <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
-                    <div className="ml-3">{tableValueDropdown()}</div>
                 </div>
             </div>
         );
@@ -407,7 +383,7 @@ const ManageSupplierPage = () => {
                             <CustomDataTable
                                 className="mb-3"
                                 ref={dataTableRef}
-                                // filter
+                                filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
@@ -417,15 +393,15 @@ const ManageSupplierPage = () => {
                                 data={companies}
                                 columns={[
                                     {
-                                        header: 'Supplier Id',
+                                        header: 'Id',
                                         field: 'supId',
                                         filter: true,
                                         sortable: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
                                         filterPlaceholder: 'Supplier No'
                                     },
                                     {
-                                        header: 'Supplier Name',
+                                        header: 'Name',
                                         field: 'supplierName',
                                         sortable: true,
                                         filter: true,
@@ -442,7 +418,7 @@ const ManageSupplierPage = () => {
                                         filterPlaceholder: 'Search Procurement Category'
                                     },
                                     {
-                                        header: 'Supplier Category',
+                                        header: 'Category',
                                         field: 'subCategories.subCategoryName',
                                         // body: renderStatus,
                                         filter: true,

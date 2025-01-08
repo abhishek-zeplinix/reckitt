@@ -232,7 +232,7 @@ const ManageFeedbackPage = () => {
                                         field: 'id',
                                         filter: true,
                                         sortable: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Sr No'
                                     },

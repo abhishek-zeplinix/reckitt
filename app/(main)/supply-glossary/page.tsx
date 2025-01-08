@@ -20,7 +20,6 @@ interface Glossary {
 }
 
 const SupplyGlossaryPage = () => {
-
     const { user, isLoading, setLoading, setAlert } = useAppContext();
     const { layoutState } = useContext(LayoutContext);
 
@@ -80,11 +79,8 @@ const SupplyGlossaryPage = () => {
             let response: CustomResponse;
 
             if (selectedGlossary) {
-
                 response = await PutCall(`/company/supplyglossaries/${selectedGlossary.id}`, formData);
-
             } else {
-
                 response = await PostCall(`/company/supplyglossaries`, formData);
             }
 
@@ -98,20 +94,16 @@ const SupplyGlossaryPage = () => {
                 setAlert('error', response.message);
             }
         } catch (error) {
-
             setAlert('error', 'An error occurred while submitting glossary data.');
-
         } finally {
             setIsDetailLoading(false);
         }
     };
 
     const confirmDelete = async () => {
-
         if (!selectedGlossaryToDelete) return;
 
         try {
-
             setLoading(true);
 
             const response: CustomResponse = await DeleteCall(`/company/supplyglossaries/${selectedGlossaryToDelete}`);
@@ -130,81 +122,48 @@ const SupplyGlossaryPage = () => {
         }
     };
 
-    const DialogFooter = () => (
-        <Button
-            label={selectedGlossary ? 'Update' : 'Submit'}
-            icon="pi pi-check"
-            className="bg-pink-500 border-pink-500 hover:bg-pink-400 my-2"
-            onClick={handleSubmit}
-            loading={isDetailLoading}
-        />
-    );
+    const DialogFooter = () => <Button label={selectedGlossary ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 my-2" onClick={handleSubmit} loading={isDetailLoading} />;
 
     const openDeleteDialog = (id: number) => {
         setIsDeleteDialogVisible(true);
-        setSeletedGlossaryToDelete(id)
+        setSeletedGlossaryToDelete(id);
     };
 
     const closeDeleteDialog = () => {
         setIsDeleteDialogVisible(false);
-        setSeletedGlossaryToDelete(null)
+        setSeletedGlossaryToDelete(null);
     };
 
-
-
     return (
-        <div className="grid p-4">
+        <div className="grid ">
             <div className="col-12">
                 <div className="p-card">
                     <div className="p-card-header flex justify-content-between items-center pt-5 px-4">
                         <div>
-                            <h1 className="mb-1 font-semibold">Supply glossary of categories</h1>
+                            <h3 className="mb-1 font-semibold">Supply glossary of categories</h3>
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
                         </div>
                         <div>
-                            <Button
-                                icon="pi pi-plus"
-                                size="small"
-                                label="Add Supplier Glossary"
-                                className="bg-pink-500 border-pink-500"
-                                onClick={handleAddNew}
-                            />
+                            <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-pink-500 border-pink-500" onClick={handleAddNew} />
                         </div>
                     </div>
 
-                    <Dialog
-                        header={selectedGlossary ? 'Edit Supply Glossary' : 'Add New Supply Glossary'}
-                        visible={visible}
-                        style={{ width: '50vw' }}
-                        onHide={() => setVisible(false)}
-                        footer={<DialogFooter />}
-                    >
+                    <Dialog header={selectedGlossary ? 'Edit Supply Glossary' : 'Add New Supply Glossary'} visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} footer={<DialogFooter />}>
                         <div className="m-0">
                             <div className="field mb-4">
-                                <label htmlFor="sQuestion" className="block mb-2">Supply Glossary Question</label>
-                                <input
-                                    id="sQuestion"
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                    className="p-inputtext w-full"
-                                    placeholder="Enter Question"
-                                />
+                                <label htmlFor="sQuestion" className="block mb-2">
+                                    Supply Glossary Question
+                                </label>
+                                <input id="sQuestion" type="text" value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} className="p-inputtext w-full" placeholder="Enter Question" />
                             </div>
                             <div className="field">
-                                <label htmlFor="sAnswer" className="block mb-2">Supply Glossary Answer</label>
-                                <textarea
-                                    id="sAnswer"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                    className="p-inputtext w-full"
-                                    placeholder="Enter Answer"
-                                    rows={4}
-                                />
+                                <label htmlFor="sAnswer" className="block mb-2">
+                                    Supply Glossary Answer
+                                </label>
+                                <textarea id="sAnswer" value={formData.description} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} className="p-inputtext w-full" placeholder="Enter Answer" rows={4} />
                             </div>
                         </div>
                     </Dialog>
-
 
                     <Dialog
                         header="Delete confirmation"
@@ -234,7 +193,6 @@ const SupplyGlossaryPage = () => {
                         </div>
                     </Dialog>
 
-
                     <div className="p-card-body">
                         {isLoading ? (
                             <p>Loading Supply Glossary...</p>
@@ -244,28 +202,25 @@ const SupplyGlossaryPage = () => {
                                     <AccordionTab
                                         key={glossary.id}
                                         headerTemplate={(options: any) => (
-                                            <button
-                                                className={options.className}
-                                                onClick={options.onClick}
-                                                style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}
-                                            >
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    width: '100%'
-                                                }}>
-                                                    <span className='font-bold' style={{ color: "#333333", fontSize: '14px', fontWeight: '500' }}>{glossary.name}</span>
+                                            <button className={options.className} onClick={options.onClick} style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        width: '100%'
+                                                    }}
+                                                >
+                                                    <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
+                                                        {glossary.name}
+                                                    </span>
                                                     <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                        <i
-                                                            className={options.expanded ? 'pi pi-chevron-up' : 'pi pi-plus'}
-                                                            style={{ color: '#64748B', padding: '5px' }}
-                                                        />
+                                                        <i className={options.expanded ? 'pi pi-chevron-up' : 'pi pi-plus'} style={{ color: '#64748B', padding: '5px' }} />
 
                                                         <i
                                                             className="pi pi-file-edit"
                                                             style={{
-                                                                color: "#64748B",
+                                                                color: '#64748B',
                                                                 padding: '5px',
                                                                 cursor: 'pointer'
                                                             }}
@@ -277,7 +232,7 @@ const SupplyGlossaryPage = () => {
                                                         <i
                                                             className="pi pi-trash"
                                                             style={{
-                                                                color: "#F56565",
+                                                                color: '#F56565',
                                                                 padding: '5px',
                                                                 cursor: 'pointer'
                                                             }}
@@ -286,7 +241,6 @@ const SupplyGlossaryPage = () => {
                                                                 openDeleteDialog(glossary.id);
                                                             }}
                                                         />
-
                                                     </div>
                                                 </div>
                                             </button>

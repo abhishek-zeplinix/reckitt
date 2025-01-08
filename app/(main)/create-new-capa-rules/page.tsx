@@ -22,9 +22,9 @@ const CreateNewRulesPage = () => {
 
     const renderNewRuleFooter = () => {
         return (
-            <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 ">
-                <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150" />
-                <Button label="Submit" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleSubmit} />
+            <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
+                <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3" />
+                <Button label="Submit" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleSubmit} />
             </div>
         );
     };
@@ -59,18 +59,18 @@ const CreateNewRulesPage = () => {
         return (
             <div className="grid">
                 <div className="col-12">
-                    <div className="flex flex-column gap-3 pt-5">
+                    <div className="flex flex-column gap-3 pt-2">
                         <h2 className="text-center font-bold ">Create / Add New Capa Rules</h2>
-                        <div className="p-fluid grid md:mx-7 pt-5">
-                            <div className="field col-6">
+                        <div className="p-fluid grid md:mx-7 pt-2">
+                            <div className="field col-4">
                                 <label htmlFor="procurementCategory">Order By</label>
                                 <Dropdown id="procurementCategory" value={selectedProcurementOrder} options={procurementOrder} onChange={(e) => setSelectedProcurementOrder(e.value)} placeholder="Select Order By" className="w-full" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="procurementCategory">Department</label>
                                 <Dropdown id="procurementCategory" value={selectedProcurementDepartment} options={procurementDepartment} onChange={(e) => setSelectedProcurementDepartment(e.value)} placeholder="Select Department" className="w-full" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="procurementCategory">Procurement Category</label>
                                 <Dropdown
                                     id="procurementCategory"
@@ -81,31 +81,31 @@ const CreateNewRulesPage = () => {
                                     className="w-full"
                                 />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="procurementCategory">Supplier Category</label>
                                 <Dropdown id="procurementCategory" value={selectedSupplierCategory} options={supplierCategories} onChange={(e) => setSelectedSupplierCategory(e.value)} placeholder="Select Supplier Category" className="w-full" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Criteria Category</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Criteria</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Criteria Evaluation List</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Criteria Score</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Ratio Co Pack</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
                             </div>
-                            <div className="field col-6">
+                            <div className="field col-4">
                                 <label htmlFor="manufacturerName">Ratios Raw & Pack</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
                             </div>
@@ -117,7 +117,7 @@ const CreateNewRulesPage = () => {
     };
     const contentBody = renderContentbody();
     return (
-        <div className="md:p-4 md:mx-5 md:my-5">
+        <div className="">
             <div className="p-card">
                 <div className="p-card-body">
                     {/* Body rendering */}

@@ -240,12 +240,12 @@ const ManageSupplierScorePage = () => {
                                         field: 'ruleId',
                                         filter: true,
                                         sortable: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Sr No'
                                     },
                                     {
-                                        header: 'Supplier Name',
+                                        header: 'Name',
                                         field: 'supplierid',
                                         // body: renderVendor,
                                         filter: true,

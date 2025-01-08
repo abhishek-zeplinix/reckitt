@@ -142,10 +142,10 @@ const AddFeedBackPages = () => {
 
     const feedbackForm = () => {
         return (
-            <div className="flex flex-column gap-3 pt-5">
+            <div className="flex flex-column gap-3 pt-2">
                 <h2 className="text-center font-bold ">Generate Feedback</h2>
-                <div className="p-fluid grid md:mx-7 pt-5">
-                    <div className="field col-6">
+                <div className="p-fluid grid md:mx-7 pt-2">
+                    <div className="field col-4">
                         <label htmlFor="supplierName" className="font-semibold">
                             Supplier ID
                         </label>
@@ -160,7 +160,7 @@ const AddFeedBackPages = () => {
                             className="w-full bg-white"
                         />
                     </div>
-                    <div className="field col-6">
+                    <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
                             Year
                         </label>
@@ -178,7 +178,7 @@ const AddFeedBackPages = () => {
                             className="w-full"
                         />
                     </div>
-                    <div className="field col-6">
+                    <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
                             Quarter
                         </label>
@@ -194,7 +194,7 @@ const AddFeedBackPages = () => {
                             className="w-full"
                         />
                     </div>
-                    <div className="field col-6">
+                    <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
                             Browse a file
                         </label>
@@ -225,7 +225,7 @@ const AddFeedBackPages = () => {
                             }}
                         />
                     </div>
-                    <div className="field col-6">
+                    <div className="field col-4">
                         <label htmlFor="info" className="font-semibold">
                             More Info
                         </label>
@@ -237,13 +237,13 @@ const AddFeedBackPages = () => {
     };
 
     return (
-        <div className="md:p-4 md:mx-5 md:my-5">
+        <div className="">
             <div className="p-card">
                 <div className="p-card-body">{feedbackForm()}</div>
                 {/* Footer Buttons */}
                 <hr />
-                <div className="p-card-footer flex justify-content-end px-4 gap-3 py-3 bg-slate-300 shadow-slate-400 ">
-                    <Button label="Generate request" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400" onClick={handleSubmit} />
+                <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
+                    <Button label="Generate request" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleSubmit} />
                 </div>
             </div>
         </div>
