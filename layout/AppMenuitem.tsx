@@ -1,13 +1,10 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { Ripple } from 'primereact/ripple';
 import { Menu } from 'primereact/menu';
 import React, { useEffect, useContext, useRef, useState } from 'react';
-import { MenuContext } from './context/menucontext';
 import { AppMenuItemProps } from '@/types';
 import { usePathname } from 'next/navigation';
 import { useAppContext } from './AppWrapper';
-import { StyleClass } from 'primereact/styleclass';
 import { LayoutContext } from './context/layoutcontext';
 import Link from 'next/link';
 
@@ -21,6 +18,8 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const [height, setHeight] = useState<string>("0px");
     const contentRef = useRef<HTMLUListElement>(null);
 
+    console.log(props);
+    
     useEffect(() => {
         // Keep dropdown open if current path matches any child URL
         if (item?.items) {

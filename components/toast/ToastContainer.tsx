@@ -6,8 +6,8 @@ const ToastContainer = ({ toasts, removeToast }: {toasts: any, removeToast: any}
     
     return (
 
-      <div className="relative" style={{ maxWidth: '25rem', zIndex: 998, margin:'0 auto', clear: 'left'}}>
-
+      <div className="fixed top-0 left-0 right-0" style={{ maxWidth: '25rem', zIndex: 99999, margin:'0 auto'}}>
+        
         <div className="flex flex-column gap-2">
 
           {toasts.map((toast: any) => (

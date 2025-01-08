@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @next/next/no-img-element */ 'use client';
-import { useRouter } from 'next/navigation';
+/* eslint-disable @next/next/no-img-element */
+'use client';
 import React, { useContext, useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
@@ -11,7 +11,6 @@ import { Dialog } from 'primereact/dialog';
 import 'primeicons/primeicons.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import CustomToast from '@/components/toast/Toast';
 
 interface FAQ {
     id: number;
@@ -260,23 +259,7 @@ const FaqPage = () => {
                     </div>
                 </div>
             </div>
-            {/* <div>
-            <CustomToast
-                type="success"
-                message="Operation Successfully Failed"
-                
-              />
-              <CustomToast
-                type="error"
-                message="Operation Successfully Failed"
-                
-              />
-              <CustomToast
-                type="info"
-                message="Operation Successfully Failed"
-                
-              />
-            </div> */}
+            
         </div>
     );
 };

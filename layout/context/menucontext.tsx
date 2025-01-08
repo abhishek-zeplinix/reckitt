@@ -4,7 +4,7 @@ import { ChildContainerProps, MenuContextProps } from '@/types';
 export const MenuContext = createContext({} as MenuContextProps);
 
 export const MenuProvider = ({ children }: ChildContainerProps) => {
-    const [activeMenu, setActiveMenu] = useState('0-0');
+    const [activeMenu, setActiveMenu] = useState('');
 
     const value = {
         activeMenu,

@@ -7,8 +7,8 @@ import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
 import SubmitResetButtons from '../control-tower/submit-reset-buttons';
 
-const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryName, departmentID, department}: any) => {
-  
+const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentID, department }: any) => {
+
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
   const [originalPercentages, setOriginalPercentages] = useState<any>({});
@@ -29,18 +29,18 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
     if (rules && category) {
       setTableData(rules);
-      
-       initializeData(rules);
+
+      initializeData(rules);
     }
 
   }, [rules, category]);
 
-  
+
   //capa rule visibility logic
-  const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key,value]) => value !== undefined);
+  const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined);
 
   console.log('capa rule visibility logic', isCapaRulesVisibleOnInitialRender);
-  
+
 
 
   const initializeData = (currentRules: any) => {
@@ -51,33 +51,33 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
     currentRules?.sections?.forEach((section: any, sIndex: number) => {
 
       section?.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
-        
+
         const key = `${sIndex}-${cIndex}`;
-        
+
         // Set initial evaluation
 
         //uncomment if you want to initialized with first evaluation
         // initialEvals[key] = criteria?.evaluations[0]?.criteriaEvaluation;
 
         initialEvals[key] = criteria?.evaluations.criteriaEvaluation;
-        
+
         // Set initial percentage
         //here category is either rawPack or copack..it coming as a prop
         const categoryValue = criteria?.evaluations?.[0]?.[category];
         initialPercentages[key] = categoryValue ?? 0;
-        
+
       });
     });
 
     setSelectedEvaluations(initialEvals);
     setOriginalPercentages(initialPercentages);
     setCurrentPercentages(initialPercentages);
-    
+
     const roundedPercentages = distributeRoundedPercentages(initialPercentages);
     setDisplayPercentages(roundedPercentages);
     calculateTotalScore(initialEvals, initialPercentages);
   };
-  
+
 
   const distributeRoundedPercentages = (percentages: any) => {
     const displayPercentages: any = {};
@@ -219,7 +219,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
 
   const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
-    
+
     const key = `${sectionIndex}-${criteriaIndex}`;
     const updatedEvals = {
       ...selectedEvaluations,
@@ -237,7 +237,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
     // calculateTotalScore(updatedEvals, updatedPercentages);
     calculateTotalScore(updatedEvals, roundedPercentages);
 
-    
+
   };
 
 
@@ -249,7 +249,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
           const sectionIndex = tableData.sections.indexOf(section);
           const key = `${sectionIndex}-${criteriaIndex}`;
           const selectedEval = selectedEvaluations[key];
-          
+
           const evaluation = criteria.evaluations.find(
             (e: any) => e.criteriaEvaluation === selectedEval
           );
@@ -258,10 +258,10 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
           // get the current percentage for this criteria
           const currentPercentage = displayPercentages[key];
-          
+
           // get the score
           const score = evaluation.score;
-          
+
           // prepare the ratio key based on category
           const ratioKey = category === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
 
@@ -283,7 +283,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
     const subCategoryId = subCatId
     const categoryData = {
       "categoryId": catId,
-		  "categoryName": categoryName
+      "categoryName": categoryName
     }
 
     const apiData = {
@@ -304,12 +304,12 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
   const handleSubmit = async () => {
 
-      const apiData = prepareApiData();
-        console.log(apiData);
-      
+    const apiData = prepareApiData();
+    console.log(apiData);
+
   };
 
-  const handleReset=()=>{
+  const handleReset = () => {
     setComments('')
   }
 
@@ -318,7 +318,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
   const handleCapaDataChange = (data: any[]) => {
     setCapaData(data);
   };
-  
+
 
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
@@ -362,7 +362,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                 const score =
                   criteria.evaluations.find(
                     (evaluation: any) => evaluation.criteriaEvaluation === selectedEval
-                  )?.score || 'NA';
+                  )?.score || 'empty';
 
                 return (
 
@@ -374,7 +374,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                       <td
                         className="px-4 py-2 text-md text-black-800"
                         rowSpan={section.ratedCriteria.length}
-                        // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
+                      // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
                       >
                         {section.sectionName}
                       </td>
@@ -392,7 +392,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                       />
                     </td>
 
-                    
+
                     <td className="px-4 py-2">
 
                       <Dropdown
@@ -416,12 +416,15 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                         Number(score) >= 7
                           ? <Button label={score} size='small'
                             className="p-button-sm bg-green-600 text-white border-none w-10 mx-1" /> :
-                          Number(score) >= 4
-                            ? <Button label={score} size='small'
-                              className="p-button-sm bg-yellow-400 text-white border-none w-10 mx-1" /> :
+                          score >= "empty"
+                            ? <Button size='small'
+                              className="p-button-sm bg-white text-white border-1 border-500 w-10 mx-1" /> :
+                            Number(score) >= 4
+                              ? <Button label={score} size='small'
+                                className="p-button-sm bg-yellow-400 text-white border-none w-10 mx-1" /> :
 
-                            <Button label={score} size='small'
-                              className="p-button-sm bg-red-400 text-white border-none w-10 mx-1" />  
+                              <Button label={score} size='small'
+                                className="p-button-sm bg-red-400 text-white border-none w-10 mx-1" />
                       }
                     </td>
                   </tr>
@@ -464,7 +467,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
       {/* if CAPA is required */}
       <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-        {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) &&  <CapaRequiredTable onDataChange={handleCapaDataChange} />}
+        {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} />}
       </div>
 
       {/* submission buttons */}
