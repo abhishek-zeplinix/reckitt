@@ -80,8 +80,11 @@ export const AppWrapper = React.memo(({ children }: any) => {
             router.replace(get(isValid, 'portalLink', '/'));
         }
     }, [authToken]);
+
     useEffect(() => {
+
         setLoading(true);
+        
         const userToken: string = getAuthToken();
         if (userToken) {
             setLoading(false);
@@ -208,14 +211,6 @@ export const AppWrapper = React.memo(({ children }: any) => {
                         {children}
                     </div> */}
 
-                    {/* Render Custom Toasts */}
-                    {/* <div className="fixed top-4 right-4 space-y-4 z-50"  style={{ border: '1px solid red' }}>
-                        {toasts.map((toast) => (
-                            <CustomToast key={toast.id} type={toast.type} message={toast.message} />
-                        ))}
-
-                        
-                    </div> */}
                     <ToastContainer toasts={toasts} removeToast={removeToast} />
 
                     {isLoading && <div className="running-border"></div>}

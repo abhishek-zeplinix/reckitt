@@ -1,13 +1,10 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { Ripple } from 'primereact/ripple';
 import { Menu } from 'primereact/menu';
-import React, { useEffect, useContext, useRef } from 'react';
-import { MenuContext } from './context/menucontext';
+import React, { useEffect, useContext, useRef, useState } from 'react';
 import { AppMenuItemProps } from '@/types';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAppContext } from './AppWrapper';
-import { StyleClass } from 'primereact/styleclass';
 import { LayoutContext } from './context/layoutcontext';
 import Link from 'next/link';
 
@@ -22,15 +19,24 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const searchParams = useSearchParams();
     const { activeMenu, setActiveMenu } = useContext(MenuContext);
     const item = props.item;
-    const key = props.parentKey ? props.parentKey + '-' + props.index : String(props.index);
-    const isActiveRoute = item!.to && pathname === item!.to;
-    const active = activeMenu === key || (activeMenu && activeMenu.startsWith(key + '-'));
+    const [isOpen, setIsOpen] = useState(false);
+    const [height, setHeight] = useState<string>('0px');
+    const contentRef = useRef<HTMLUListElement>(null);
 
-    const onRouteChange = (url: string) => {
-        if (item!.to && item!.to === url) {
-            setActiveMenu(key);
+    console.log(props);
+
+    useEffect(() => {
+        // Keep dropdown open if current path matches any child URL
+        if (item?.items) {
+            const shouldBeOpen = item.items.some((child) => child.url === pathname);
+            setIsOpen(shouldBeOpen);
+            if (shouldBeOpen && contentRef.current) {
+                setHeight(`${contentRef.current.scrollHeight}px`);
+            } else {
+                setHeight('0px');
+            }
         }
-    };
+    }, [pathname, item]);
 
     useEffect(() => {
         onRouteChange(pathname);

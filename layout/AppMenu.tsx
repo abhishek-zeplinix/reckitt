@@ -219,18 +219,18 @@ const AppMenu = () => {
                             },
                             command: handleMenuClick
                         },
-                        {
-                            label: 'Create New Rules',
-                            url: '/create-new-rules',
-                            check: (user: any) => {
-                                const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
-                                if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                                    return true;
-                                }
-                                return false;
-                            },
-                            command: handleMenuClick
-                        }
+                        // {
+                        //     label: 'Create New Rules',
+                        //     url: '/create-new-rules',
+                        //     check: (user: any) => {
+                        //         const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                        //         if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                        //             return true;
+                        //         }
+                        //         return false;
+                        //     },
+                        //     command: handleMenuClick
+                        // }
                     ]
                 },
                 {
