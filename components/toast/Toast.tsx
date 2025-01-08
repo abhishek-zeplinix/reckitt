@@ -5,16 +5,10 @@ const CustomToast = ({ type, message, onClose }: { type: string; message: string
   console.log('custome', type);
   
   const gradientStyles: any = {
-    success: 'linear-gradient(to right,rgb(195, 242, 228),rgb(236, 245, 234))',
+    success: 'linear-gradient(to right,rgb(195, 242, 228),rgb(255, 255, 255))',
     info: 'linear-gradient(to right,rgb(194, 206, 250),rgb(235, 237, 247))',   
     error: 'linear-gradient(to right,rgb(249, 192, 192), rgb(249, 230, 230))'
   };
-
-  // const toastStyles: any = {
-  //   success: 'bg-green-100 border-left-3 border-green-500 text-green-700',
-  //   info: 'bg-blue-100 border-left-3 border-blue-500 text-blue-700',
-  //   error: 'bg-red-100 border-left-3 border-red-500 text-red-700'
-  // };
 
 
   const icons: any = {
@@ -35,7 +29,7 @@ const CustomToast = ({ type, message, onClose }: { type: string; message: string
 
     <div
       // className={`${toastStyles[type] || toastStyles.info} shadow-2 border-round transition-all transition-duration-300`}
-      className={'shadow-2 border-round transition-all transition-duration-300'}
+      className={'-mt-3 shadow-2 border-round transition-all transition-duration-300'}
       style={{
         minWidth: '20rem',
         maxWidth: '25rem',
