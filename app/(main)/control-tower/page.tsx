@@ -40,7 +40,7 @@ const ControlTower = () => {
             case 'Routes':
                 return <Routes />;
             case 'Accessibility':
-                return <Permission />;
+                return <Routes />;
             case 'Permissions':
                 return <PermissionManagement />;
             default:
