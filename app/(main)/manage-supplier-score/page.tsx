@@ -44,6 +44,8 @@ const ManageSupplierScorePage = () => {
     const { departments } = useFetchDepartments();
     const { suppliers } = useFetchSuppliers();
 
+    console.log('page and limit: ', page, limit);
+    
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
@@ -111,6 +113,8 @@ const ManageSupplierScorePage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
+
+            console.log('Fetching data with params:', queryString); // Debug log
 
             const response = await GetCall(`company/rules?${queryString}`);
 
@@ -236,7 +240,17 @@ const ManageSupplierScorePage = () => {
                                 }))}
                                 columns={[
                                     {
-                                        header: 'Sr No',
+                                        header: 'Sr. No.',
+                                        body: (data: any, options: any) => {
+                                            const normalizedRowIndex = options.rowIndex % limit;
+                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                           
+                                            return <span>{srNo}</span>;
+                                        },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    },
+                                    {
+                                        header: 'Sup. ID',
                                         field: 'ruleId',
                                         filter: true,
                                         sortable: true,

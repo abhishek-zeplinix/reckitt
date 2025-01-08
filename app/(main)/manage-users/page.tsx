@@ -112,7 +112,7 @@ const ManageUsersPage = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
-                            <div className="search-box  mt-2">{inputboxfeild}</div>
+                            {/* <div className="search-box  mt-2">{inputboxfeild}</div> */}
                             <CustomDataTable
                                 ref={dataTableRef}
                                 filter
@@ -134,7 +134,17 @@ const ManageUsersPage = () => {
                                 data={companyUsers}
                                 columns={[
                                     {
-                                        header: 'Sr No',
+                                        header: 'Sr. No',
+                                        body: (data: any, options: any) => {
+                                            const normalizedRowIndex = options.rowIndex % limit;
+                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                           
+                                            return <span>{srNo}</span>;
+                                        },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    },
+                                    {
+                                        header: 'User ID',
                                         field: 'id',
                                         filter: true,
                                         sortable: true,
