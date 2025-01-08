@@ -2,10 +2,10 @@
 import { useRouter } from 'next/navigation';
 import { Ripple } from 'primereact/ripple';
 import { Menu } from 'primereact/menu';
-import React, { useEffect, useContext, useRef } from 'react';
+import React, { useEffect, useContext, useRef, useState } from 'react';
 import { MenuContext } from './context/menucontext';
 import { AppMenuItemProps } from '@/types';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAppContext } from './AppWrapper';
 import { StyleClass } from 'primereact/styleclass';
 import { LayoutContext } from './context/layoutcontext';
@@ -14,127 +14,162 @@ import Link from 'next/link';
 const AppMenuitem = (props: AppMenuItemProps) => {
     const { user } = useAppContext();
     const menu = useRef<any>(null);
-    const { layoutConfig, layoutState, setLayoutState, onMenuToggle } = useContext(LayoutContext);
-    const btnRef4 = useRef(null);
-
-    const router = useRouter();
+    const { layoutState } = useContext(LayoutContext);
     const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const { activeMenu, setActiveMenu } = useContext(MenuContext);
     const item = props.item;
-    const key = props.parentKey ? props.parentKey + '-' + props.index : String(props.index);
-    const isActiveRoute = item!.to && pathname === item!.to;
-    const active = activeMenu === key || (activeMenu && activeMenu.startsWith(key + '-'));
-    
-    const onRouteChange = (url: string) => {
-        if (item!.to && item!.to === url) {
-            setActiveMenu(key);
-        }
-    };
+    const [isOpen, setIsOpen] = useState(false);
+    const [height, setHeight] = useState<string>("0px");
+    const contentRef = useRef<HTMLUListElement>(null);
 
     useEffect(() => {
-        onRouteChange(pathname);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pathname, searchParams]);
+        // Keep dropdown open if current path matches any child URL
+        if (item?.items) {
+            const shouldBeOpen = item.items.some(child => child.url === pathname);
+            setIsOpen(shouldBeOpen);
+            if (shouldBeOpen && contentRef.current) {
+                setHeight(`${contentRef.current.scrollHeight}px`);
+            } else {
+                setHeight("0px");
+            }
+        }
+    }, [pathname, item]);
 
-    const itemClick = (event: any, subItem?: any) => {
-        //avoid processing disabled items
+    useEffect(() => {
+        if (contentRef.current) {
+            setHeight(isOpen ? `${contentRef.current.scrollHeight}px` : "0px");
+        }
+    }, [isOpen]);
+
+    const isItemActive = () => {
+        return item?.url === pathname;
+    };
+
+    const isSubItemActive = (subItemUrl: string) => {
+        return pathname === subItemUrl;
+    };
+
+    const itemClick = (event: React.MouseEvent, subItem?: any) => {
         if (item!.disabled) {
             event.preventDefault();
             return;
         }
 
+        if (!subItem && item?.items) {
+            setIsOpen(!isOpen);
+        }
+
         if (item?.command) {
-            item?.command({ originalEvent: event, item: item });
+            item.command({ originalEvent: event, item: item }as any);
         }
 
         if (subItem?.command) {
-            subItem?.command({ originalEvent: event, item: subItem });
+            subItem.command({ originalEvent: event, item: subItem });
         }
+    };
 
-        if (!subItem && layoutState.staticMenuDesktopInactive && menu && menu.current) {
-            menu?.current?.toggle(event);
-        }
+    const getItemClassName = (isSubItem = false, subItemUrl?: string) => {
+        const baseClass = isSubItem
+            ? "p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5 mx-1"
+            : "p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item mx-1";
 
-        if (!subItem && item && item.items && item!.items?.length > 0) {
-            event.preventDefault();
-            return;
-        }
+        const isActive = isSubItem
+            ? isSubItemActive(subItemUrl!)
+            : isItemActive();
 
-        // toggle active state
-        if (item!.items) setActiveMenu(active ? (props.parentKey as string) : key);
-        else setActiveMenu(key);
+        return `${baseClass} ${isActive ? 'bg-pink-500' : ''}`;
+    };
+
+    const getTextColorClass = (isSubItem = false, subItemUrl?: string) => {
+        const isActive = isSubItem
+            ? isSubItemActive(subItemUrl!)
+            : isItemActive();
+
+        return isActive ? 'text-white' : 'text-slate-400';
     };
 
     if (item?.check && !item.check(user)) {
-        return;
+        return null;
     }
 
     return (
         <li>
-            {item && item.items && item?.items?.length > 0 ? (
-                <StyleClass nodeRef={btnRef4} selector="@next" enterClassName="hidden" enterActiveClassName="slidedown" leaveToClassName="hidden" leaveActiveClassName="slideup">
-                    <div ref={btnRef4} className="p-ripple p-3 pl-1 flex align-items-center justify-content-between text-slate-400 cursor-pointer custom-menu-item" onClick={itemClick}>
-                        <div>
-                            {item && item.icon != null && <i className={item.icon + ' mr-2 text-xl'}></i>}
-                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className="font-medium text-lg">{item?.label}</span>}
+            {item && item.items && item.items.length > 0 ? (
+                <>
+                    <div className={getItemClassName()} onClick={(e) => itemClick(e)}>
+                        <div className="flex align-items-center">
+                            {item.icon && (
+                                <i className={`${item.icon} mr-2 text-xl ${getTextColorClass()}`}></i>
+                            )}
+                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                                <span className={`font-medium text-lg ${getTextColorClass()}`}>
+                                    {item.label}
+                                </span>
+                            )}
                         </div>
-                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && item && item.items && item?.items?.length > 0 && <i className="pi pi-chevron-down"></i>}
-                        {!layoutState.isMobile && layoutState.staticMenuDesktopInactive && item && item.items && item?.items?.length > 0 && <div className="pi pi-circle-fill" style={{ fontSize: 3 }}></div>}
+                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                            <i className={`pi pi-chevron-down transition-transform transition-duration-200 ${isOpen ? 'rotate-180' : ''} ${getTextColorClass()}`}></i>
+                        )}
                         <Ripple />
                     </div>
-                </StyleClass>
+                    <ul 
+                        ref={contentRef}
+                        className="list-none p-0 m-0 overflow-hidden transition-all transition-duration-200 ease-in-out"
+                        style={{ maxHeight: height }}
+                    >
+                        {item.items.map((child, i) => {
+                            if (child.check && !child.check(user)) {
+                                return null;
+                            }
+                            if (!layoutState.isMobile && layoutState.staticMenuDesktopInactive) {
+                                return (
+                                    <Menu
+                                        model={item.items}
+                                        popup
+                                        ref={menu}
+                                        key={`menu-${i}`}
+                                    />
+                                );
+                            }
+                            if (child.url) {
+                                return (
+                                    <li key={`item-${i}`}>
+                                        <Link
+                                            href={child.url}
+                                            className={getItemClassName(true, child.url)}
+                                            onClick={(event) => itemClick(event, child)}
+                                        >
+                                            {child.icon && (
+                                                <i className={`${child.icon} mr-2 ${getTextColorClass(true, child.url)}`}></i>
+                                            )}
+                                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                                                <span className={`font-medium text-lg ${getTextColorClass(true, child.url)}`}>
+                                                    {child.label}
+                                                </span>
+                                            )}
+                                            <Ripple />
+                                        </Link>
+                                    </li>
+                                );
+                            }
+                            return null;
+                        })}
+                    </ul>
+                </>
             ) : item?.url ? (
-                <Link href={item?.url} className="p-ripple p-3 pl-1 flex align-items-center justify-content-between text-slate-400 cursor-pointer custom-menu-item">
-                    <div>
-                        {item && item.icon != null && <i className={item.icon + ' mr-2 text-xl'}></i>}
-                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className="font-medium text-lg">{item?.label}</span>}
+                <Link href={item.url} className={getItemClassName()} onClick={itemClick}>
+                    <div className="flex align-items-center">
+                        {item.icon && (
+                            <i className={`${item.icon} mr-2 text-xl ${getTextColorClass()}`}></i>
+                        )}
+                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && (
+                            <span className={`font-medium text-lg ${getTextColorClass()}`}>
+                                {item.label}
+                            </span>
+                        )}
                     </div>
-                    {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && item && item.items && item?.items?.length > 0 && <i className="pi pi-chevron-down"></i>}
-                    {!layoutState.isMobile && layoutState.staticMenuDesktopInactive && item && item.items && item?.items?.length > 0 && <div className="pi pi-circle-fill" style={{ fontSize: 3 }}></div>}
                     <Ripple />
                 </Link>
-            ) : (
-                <></>
-            )}
-
-            {item && item.items && item.items.length > 0 && (
-                <ul className="list-none p-0 m-0 hidden overflow-hidden">
-                    {item.items.map((child, i) => {
-                        if (child.check && !child.check(user)) {
-                            return null; // Ensure a value is returned
-                        }
-                        if (!layoutState.isMobile && layoutState.staticMenuDesktopInactive) {
-                            return (
-                                <Menu
-                                    model={item.items}
-                                    popup
-                                    ref={menu}
-                                    key={`menu-${i}`} // Key added here
-                                />
-                            );
-                        }
-                        if (child.url) {
-                            return (
-                                <li key={`item-${i}`}>
-                                    {' '}
-                                    {/* Key added here */}
-                                    <Link
-                                        href={child.url}
-                                        className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-white hover:surface-100 hover:text-700 custom-menu-item transition-duration-150 transition-colors w-full pl-30"
-                                        onClick={(event) => itemClick(event, child)}
-                                    >
-                                        {child.icon != null && <i className={`${child.icon} mr-2`}></i>}
-                                        {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className="font-medium text-lg">{child.label}</span>}
-                                        <Ripple />
-                                    </Link>
-                                </li>
-                            );
-                        }
-                        return null; // Return null if no conditions are met
-                    })}
-                </ul>
-            )}
+            ) : null}
         </li>
     );
 };

@@ -234,6 +234,7 @@ $spacing-sizes: (
 .left-panel {
   width: 100%;
   box-sizing: border-box;
+  margin: auto;
 }
 
 .right-panel {
@@ -479,11 +480,11 @@ $spacing-sizes: (
 
 .custom-menu-item {
   i {
-    color: var(--text-white) !important;
+    color: var(--text-white) ;
   }
 
   span {
-    color:#6c757d !important;
+    color:#6c757d;
   }
 }
 
@@ -589,5 +590,18 @@ $spacing-sizes: (
   cursor: pointer;
 }
 
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
 
+@keyframes fadeIn {
+  from {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}
 

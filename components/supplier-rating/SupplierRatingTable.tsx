@@ -22,34 +22,50 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
 
-  console.log(rules);
+
 
   // Reset initialization when category changes
   useEffect(() => {
+
     if (rules && category) {
       setTableData(rules);
-      initializeData(rules);
+      
+       initializeData(rules);
     }
+
   }, [rules, category]);
 
-  console.log(tableData);
+  
+  //capa rule visibility logic
+  const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key,value]) => value !== undefined);
+
+  console.log('capa rule visibility logic', isCapaRulesVisibleOnInitialRender);
   
 
 
   const initializeData = (currentRules: any) => {
+
     const initialEvals: any = {};
     const initialPercentages: any = {};
 
     currentRules?.sections?.forEach((section: any, sIndex: number) => {
-      section.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+
+      section?.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+        
         const key = `${sIndex}-${cIndex}`;
         
         // Set initial evaluation
-        initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
+
+        //uncomment if you want to initialized with first evaluation
+        // initialEvals[key] = criteria?.evaluations[0]?.criteriaEvaluation;
+
+        initialEvals[key] = criteria?.evaluations.criteriaEvaluation;
         
         // Set initial percentage
+        //here category is either rawPack or copack..it coming as a prop
         const categoryValue = criteria?.evaluations?.[0]?.[category];
         initialPercentages[key] = categoryValue ?? 0;
+        
       });
     });
 
@@ -128,6 +144,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
         remainingTotal += originalPercentages[key];
       }
     });
+
+
 
     // if all criteria are NA or no NA selections, return original percentages
     if (naKeys.length === 0 || naKeys.length === Object.keys(evaluations).length) {
@@ -340,6 +358,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                 const selectedEval = selectedEvaluations[key];
                 const currentPercentage = currentPercentages[key];
 
+                //if no evaluation is selected, 'NA' will be assigned to score by default
                 const score =
                   criteria.evaluations.find(
                     (evaluation: any) => evaluation.criteriaEvaluation === selectedEval
@@ -355,7 +374,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                       <td
                         className="px-4 py-2 text-md text-black-800"
                         rowSpan={section.ratedCriteria.length}
-                        style={{ verticalAlign: "top" }}
+                        // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
                       >
                         {section.sectionName}
                       </td>
@@ -369,6 +388,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                         value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
                         size={1}
                         readOnly
+                        className='m-auto'
                       />
                     </td>
 
@@ -387,22 +407,21 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
                       />
                     </td>
 
-
                     <td className="px-4 py-2">
 
                       {score === 'NA' ?
                         <Button label={score} size='small'
-                          className="p-button-sm bg-gray-400 text-white border-none w-10" />
+                          className="p-button-sm bg-gray-400 text-white border-none w-10 mx-1" />
                         :
                         Number(score) >= 7
                           ? <Button label={score} size='small'
-                            className="p-button-sm bg-green-600 text-white border-none w-10" /> :
+                            className="p-button-sm bg-green-600 text-white border-none w-10 mx-1" /> :
                           Number(score) >= 4
                             ? <Button label={score} size='small'
-                              className="p-button-sm bg-yellow-400 text-white border-none w-10" /> :
+                              className="p-button-sm bg-yellow-400 text-white border-none w-10 mx-1" /> :
 
                             <Button label={score} size='small'
-                              className="p-button-sm bg-red-400 text-white border-none w-10" />
+                              className="p-button-sm bg-red-400 text-white border-none w-10 mx-1" />  
                       }
                     </td>
                   </tr>
@@ -445,7 +464,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod,categoryNam
 
       {/* if CAPA is required */}
       <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-        {totalScore <= 50 && <CapaRequiredTable onDataChange={handleCapaDataChange} />}
+        {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) &&  <CapaRequiredTable onDataChange={handleCapaDataChange} />}
       </div>
 
       {/* submission buttons */}

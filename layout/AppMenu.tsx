@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-
+'use client'
 import React, { useContext, useRef } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { LayoutContext } from './context/layoutcontext';
@@ -246,7 +246,7 @@ const AppMenu = () => {
                     items: [
                         {
                             label: "Manage Api's",
-                            url: '/manage-users',
+                            url: '/manage-api',
                             check: (user: any) => {
                                 const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
                                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {

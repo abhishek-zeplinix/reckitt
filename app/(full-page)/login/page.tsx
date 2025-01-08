@@ -88,7 +88,7 @@ const LoginPage = () => {
             <div className="flex align-items-center justify-between w-full h-screen">
                 {/* Left side image (hidden on small devices) */}
                 <div className="img-box hidden md:flex justify-content-center align-items-center w-1/2 h-full">
-                    <img src="/images/login.svg" alt="Login" className="w-full h-full object-cover" />
+                    <img src="/images/login-home.png" alt="Login" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Right side form with huge space between */}
