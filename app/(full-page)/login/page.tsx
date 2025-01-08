@@ -144,7 +144,7 @@ const LoginPage = () => {
                                 </div>
                             </div>
 
-                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2" onClick={loginClick} />
+                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2 hover:text-white" onClick={loginClick} />
 
                             <div className="flex align-items-center justify-content-center mb-6 mt-3 ">
                                 <Link href="/forgot-password" className="font-medium no-underline ml-2  text-center cursor-pointer">
