@@ -174,7 +174,7 @@ const FaqPage = () => {
                         footer={
                             <div className="flex justify-content-center p-2">
                                 <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                                <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7" onClick={confirmDelete} />
+                                <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                             </div>
                         }
                         onHide={closeDeleteDialog}
