@@ -9,7 +9,8 @@ import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { MultiSelect } from 'primereact/multiselect';
-
+import { CustomResponse } from '@/types';
+import SubmitResetButtons from './submit-reset-buttons';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -23,19 +24,16 @@ const Permission = () => {
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [selectedRoleId, setSelectedRoleId] = useState<any>();
-    const [permission, setPermission] = useState<any>();
+    const [permissions, setPermissions] = useState<any>([]); // Store fetched permissions
+    const [selectedPermissions, setSelectedPermissions] = useState<any>([]); // Store selected permissionIds
     const [visible, setVisible] = useState(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
     const [selectedRole, setSelectedRole] = useState<any>(null);
-    const [selectedCities, setSelectedCities] = useState(null);
-    const cities = [
-        { name: 'New York', code: 'NY' },
-        { name: 'Rome', code: 'RM' },
-        { name: 'London', code: 'LDN' },
-        { name: 'Istanbul', code: 'IST' },
-        { name: 'Paris', code: 'PRS' }
-    ];
+    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    const [module, setModule] = useState('');
+    const [permissionData, setPermissionData] = useState('');
+    const [description, setdescription] = useState('');
     useEffect(() => {
         fetchData();
         fetchPermissionData();
@@ -58,11 +56,59 @@ const Permission = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/permissions');
-            setPermission(response.data);
-            setTotalRecords(response.total);
+            const response = await GetCall('/settings/permissions');
+
+            // Log the response to the console for debugging
+            console.log('Fetched Permissions Response:', response);
+
+            // Format the data into the structure expected by MultiSelect
+            const formattedPermissions = response.data.map((permission: any) => ({
+                label: permission.permission, // Display the permission name
+                value: permission.permissionId // Use the permissionId as the value
+            }));
+
+            setPermissions(formattedPermissions); // Set the formatted data
         } catch (err) {
-            setAlert('error', 'Something went wrong!');
+            console.error('Error fetching permissions:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!selectedPermissions) {
+            setAlert('Error', 'Please select permissions');
+            return;
+        }
+
+        setIsDetailLoading(true);
+
+        // const payload = {
+        //     roleId: createRole,
+        //     name: roleName,
+        //     email: roleEmail,
+        //     password: rolePassword,
+        //     phone: rolePhone
+        // };
+        const payload = {
+            roleId: selectedRoleId,
+            permissionId: selectedPermissions
+        };
+        console.log(selectedRoleId, 'Abh');
+
+        try {
+            const response: CustomResponse = await PostCall('/settings/role-permissions', payload);
+
+            if (response.code === 'SUCCESS') {
+                setAlert('success', 'Permission added successfully!');
+                setVisible(false);
+                setSelectedPermissions(null);
+            } else {
+                setAlert('error', response.message || 'Failed to provide permissions.');
+            }
+        } catch (error) {
+            console.error('Error submitting permissions :', error);
+            setAlert('error', 'An error occurred while submitting permissions .');
         } finally {
             setLoading(false);
         }
@@ -87,10 +133,11 @@ const Permission = () => {
         return (
             <div className="flex justify-content-end p-2 footer-panel">
                 <Button label="Cancel" severity="secondary" text onClick={() => {}} />
-                <Button label="Ok" text onClick={() => {}} />
+                <Button label="Ok" text onClick={handleSubmit} />
             </div>
         );
     };
+
     return (
         <>
             <div className="mt-1">
@@ -139,15 +186,15 @@ const Permission = () => {
                 }}
             >
                 <MultiSelect
-                    value={selectedCities}
-                    onChange={(e) => setSelectedCities(e.value)}
-                    options={cities}
-                    optionLabel="name"
-                    filter
-                    placeholder="Select Cities"
-                    panelFooterTemplate={multiSelectFooter}
-                    maxSelectedLabels={3}
-                    className="w-full "
+                    value={selectedPermissions} // Selected permissionIds
+                    onChange={(e) => setSelectedPermissions(e.value)} // Update selected permissionIds
+                    options={permissions} // Pass the formatted permissions as options
+                    optionLabel="label" // Use 'label' to display the permission name
+                    filter // Enable filtering
+                    placeholder="Select Permissions" // Placeholder text
+                    panelFooterTemplate={multiSelectFooter} // Optional footer template
+                    maxSelectedLabels={3} // Limit the number of selected labels
+                    className="w-full"
                 />
             </Dialog>
         </>
