@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import AddRoleControl from '@/components/control-tower/add-role-control';
 import DynamicInput from '@/components/control-tower/dynamic-inputs';
+import Permission from '@/components/control-tower/permissionAssignment';
+import PermissionManagement from '@/components/control-tower/permissionManagement';
 
-const Tabs = ['Location', 'Sub Location', 'Category', 'Sub Category', 'Department', 'Roles'];
+const Tabs = ['Location', 'Sub Location', 'Category', 'Sub Category', 'Department', 'Roles', 'Accessibility', 'Permissions'];
 
 const ControlTower = () => {
-    const [activeTab, setActiveTab] = useState('Roles');
+    const [activeTab, setActiveTab] = useState('Location');
 
     const renderHeader = () => {
         return (
@@ -22,10 +24,22 @@ const ControlTower = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'Roles':
-                return <AddRoleControl />;
             case 'Location':
                 return <DynamicInput />;
+            case 'Sub Location':
+                return null;
+            case 'Category':
+                return null;
+            case 'Sub Category':
+                return null;
+            case 'Department':
+                return null;
+            case 'Roles':
+                return <AddRoleControl />;
+            case 'Accessibility':
+                return <Permission />;
+            case 'Permissions':
+                return <PermissionManagement />;
             default:
                 return <></>;
         }

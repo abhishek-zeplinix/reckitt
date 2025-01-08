@@ -18,6 +18,8 @@ import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
+import { Calendar } from 'primereact/calendar';
+
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -44,8 +46,9 @@ const ManageRulesPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [checked, setChecked] = useState(false);
-    const [date, setDate] = useState('');
+    const [date, setDate] = useState<Date | null>(null);
     const [isValid, setIsValid] = useState(true);
+
     const limitOptions = [
         { label: '10', value: 10 },
         { label: '20', value: 20 },
@@ -65,42 +68,63 @@ const ManageRulesPage = () => {
         router.push('/create-new-rules'); // Replace with the route you want to navigate to
     };
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
+    const handleFileUpload = async (event: { files: File[] }) => {
+        const file = event.files[0]; // Retrieve the uploaded file
+        if (!file) {
+            setAlert('error', 'Please select a file to upload.');
+            return;
+        }
 
-            setIsDetailLoading(true);
-            try {
-                // Use the existing PostCall function
-                const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
+        if (checked && !date) {
+            setAlert('error', 'Please enter a valid date.');
+            return;
+        }
 
-                setIsDetailLoading(false);
+        const formData = new FormData();
+        formData.append('file', file);
 
-                if (response.code === 'SUCCESS') {
-                    setAlert('success', 'Rules imported successfully');
-                } else {
-                    setAlert('error', response.message || 'File upload failed');
-                }
-            } catch (error) {
-                setIsDetailLoading(false);
-                console.error('An error occurred during file upload:', error);
-                setAlert('error', 'An unexpected error occurred during file upload');
+        const formatDate = (date: Date): string => {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        };
+
+        // In the handleFileUpload function
+        if (checked && date) {
+            formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
+        }
+
+        setIsDetailLoading(true);
+        try {
+            // Use the existing PostCall function
+            const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
+
+            setIsDetailLoading(false);
+
+            if (response.code === 'SUCCESS') {
+                setAlert('success', 'Rules imported successfully');
+            } else {
+                setAlert('error', response.message || 'File upload failed');
             }
+        } catch (error) {
+            setIsDetailLoading(false);
+            console.error('An error occurred during file upload:', error);
+            setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
+
     const { isLoading, setLoading, setAlert } = useAppContext();
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
+    // const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     let value = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
 
-        // Format as DD-MM-YYYY automatically
-        if (value.length >= 1) {
-            value = value.substring(0, 2) + (value.length > 2 ? '-' : '') + value.substring(2, 4) + (value.length > 4 ? '-' : '') + value.substring(4, 8);
-        }
+    //     // Format as DD-MM-YYYY automatically
+    //     if (value.length >= 1) {
+    //         value = value.substring(0, 2) + (value.length > 2 ? '-' : '') + value.substring(2, 4) + (value.length > 4 ? '-' : '') + value.substring(4, 8);
+    //     }
 
-        setDate(value); // Update the state with the formatted value
-    };
+    //     setDate(value); // Update the state with the formatted value
+    // };
 
     const renderHeader = () => {
         return (
@@ -109,6 +133,7 @@ const ManageRulesPage = () => {
                     <h3 className="mb-0">Manage Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
+                    {/* <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} /> */}
                     <Button
                         icon="pi pi-plus"
                         size="small"
@@ -118,40 +143,33 @@ const ManageRulesPage = () => {
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
                     />
-                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} />
                     <Dialog
                         header="Choose your file"
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <FileUpload name="demo[]" url={'/api/upload'} multiple accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} />
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
 
-                        <div className="mt-3 ">
-                            <div className="flex justify-center items-center gap-4">
-                                <Checkbox onChange={(e: any) => setChecked(e.checked)} checked={checked}></Checkbox>
-                                <span className=" text-lg">Enable Effective From </span>
+                        <div className="mt-3">
+                            <div className="flex justify-center items-center gap-4 w-full">
+                                <div className="flex justify-center items-center gap-3 mt-1">
+                                    <Checkbox onChange={(e: any) => setChecked(e.checked)} checked={checked}></Checkbox>
+                                    <span className="text-md font-medium mt-1">Enable Effective From</span>
+                                </div>
+                            </div>
+                            <div>
+                                {checked && (
+                                    <div className="flex justify-center items-center gap-4 mt-2">
+                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                            Select Effective Date:
+                                        </label>
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <div>
-                            {checked && (
-                                <div className="mt-3">
-                                    <label htmlFor="dateInput" className="block mb-2 text-sm font-medium">
-                                        Enter a Date (DD-MM-YYYY):
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="dateInput"
-                                        value={date}
-                                        onChange={handleDateChange}
-                                        placeholder="DD-MM-YYYY"
-                                        className="border border-gray-300 rounded-lg p-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                            )}
-                        </div>
                     </Dialog>
-
                     {/* <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>

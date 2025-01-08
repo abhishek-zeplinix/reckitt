@@ -2104,8 +2104,8 @@
 
   .p-button {
     color: #ffffff;
-    background: #0068e3;
-    border: 1px solid #0068e3;
+    background: #df177c;
+    border: 1px solid #df177c;
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
@@ -2113,15 +2113,15 @@
   }
 
   .p-button:not(:disabled):hover {
-    background: #4F46E5;
-    color: #ffffff;
-    border-color: #4F46E5;
+    background: transparent;
+    color: #df177c;
+    border-color: #df177c;
   }
 
   .p-button:not(:disabled):active {
-    background: #4338CA;
+    background: #df177c;
     color: #ffffff;
-    border-color: #4338CA;
+    border-color: #df177c;
   }
 
   .p-button.p-button-outlined {
@@ -2192,7 +2192,7 @@
   .p-button:focus {
     outline: 0 none;
     outline-offset: 0;
-    box-shadow: 0 0 0 0.2rem #C7D2FE;
+    /* box-shadow: 0 0 0 0.2rem #C7D2FE; */
   }
 
   .p-button .p-button-label {
@@ -7326,7 +7326,7 @@
   }
 
   .p-button:focus {
-    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #b1b3f8, 0 1px 2px 0 black;
+    /* box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #b1b3f8, 0 1px 2px 0 black; */
   }
 
   .p-button.p-button-secondary:enabled:focus {

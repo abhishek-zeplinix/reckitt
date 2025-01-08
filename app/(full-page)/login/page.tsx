@@ -88,7 +88,7 @@ const LoginPage = () => {
             <div className="flex align-items-center justify-between w-full h-screen">
                 {/* Left side image (hidden on small devices) */}
                 <div className="img-box hidden md:flex justify-content-center align-items-center w-1/2 h-full">
-                    <img src="/images/login-home.png" alt="Login" className="w-full h-full object-cover" />
+                    <img src="/images/login.png" alt="Login" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Right side form with huge space between */}
@@ -144,7 +144,7 @@ const LoginPage = () => {
                                 </div>
                             </div>
 
-                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2" onClick={loginClick} />
+                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2 hover:text-white" onClick={loginClick} />
 
                             <div className="flex align-items-center justify-content-center mb-6 mt-3 ">
                                 <Link href="/forgot-password" className="font-medium no-underline ml-2  text-center cursor-pointer">

@@ -176,10 +176,10 @@ export const filterArray = (data: any[], filters: any) => {
 
 export const buildQueryParams = (params: any) => {
     const query = new URLSearchParams();
-    
-    if (params.pagination !== false) { 
-    query.append('limit', (params.limit ? params.limit : 10) || 10);
-    query.append('page', (params.page ? params.page : 1) || 1);
+
+    if (params.pagination !== false) {
+        query.append('limit', (params.limit ? params.limit : 10) || 10);
+        query.append('page', (params.page ? params.page : 1) || 1);
     }
 
     // Sorting parameters
@@ -202,8 +202,8 @@ export const buildQueryParams = (params: any) => {
         query.append('include', params.include);
     }
 
-      // if another parameter passed apart from above ...
-      for (const key in params) {
+    // if another parameter passed apart from above ...
+    for (const key in params) {
         if (!['limit', 'page', 'sortBy', 'sortOrder', 'filters', 'include', 'pagination'].includes(key)) {
             query.append(key, params[key]);
         }
