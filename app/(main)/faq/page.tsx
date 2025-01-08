@@ -123,7 +123,7 @@ const FaqPage = () => {
         }
     };
 
-    const DialogFooter = () => <Button label={selectedFaq ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 my-2" onClick={handleSubmit} loading={isDetailLoading} />;
+    const DialogFooter = () => <Button label={selectedFaq ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
 
     const openDeleteDialog = (id: number) => {
         setIsDeleteDialogVisible(true);
@@ -141,11 +141,11 @@ const FaqPage = () => {
                 <div className="p-card">
                     <div className="p-card-header flex justify-content-between items-center pt-5 px-4">
                         <div>
-                            <h3 className="mb-1 font-semibold">Frequently Asked Questions</h3>
+                            <h3 className="mb-1 text-md font-medium">Frequently Asked Questions</h3>
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
                         </div>
                         <div>
-                            <Button icon="pi pi-plus" size="small" label="Add FAQ" className="bg-pink-500 border-pink-500" onClick={handleAddNew} />
+                            <Button icon="pi pi-plus" size="small" label="Add FAQ" className="bg-pink-500 hover:text-white border-pink-500" onClick={handleAddNew} />
                         </div>
                     </div>
 
@@ -259,7 +259,6 @@ const FaqPage = () => {
                     </div>
                 </div>
             </div>
-            
         </div>
     );
 };

@@ -323,7 +323,7 @@ const ManageSupplierPage = () => {
                 </span>
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );
@@ -397,10 +397,10 @@ const ManageSupplierPage = () => {
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                           
+
                                             return <span>{srNo}</span>;
                                         },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
                                         header: 'Sup. ID',
