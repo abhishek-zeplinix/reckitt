@@ -365,15 +365,15 @@ const ManageRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    {
-                                        header: 'Rule ID',
-                                        field: 'ruleId',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Sr No'
-                                    },
+                                    // {
+                                    //     header: 'Rule ID',
+                                    //     field: 'ruleId',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    //     headerStyle: dataTableHeaderStyle,
+                                    //     filterPlaceholder: 'Sr No'
+                                    // },
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'supplierid',

@@ -268,14 +268,24 @@ const ManageCapaRulesPage = () => {
                                 }))}
                                 columns={[
                                     {
-                                        header: 'Sr No',
-                                        field: 'ruleId',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Sr No'
+                                        header: 'Sr. No',
+                                        body: (data: any, options: any) => {
+                                            const normalizedRowIndex = options.rowIndex % limit;
+                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+
+                                            return <span>{srNo}</span>;
+                                        },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
+                                    // {
+                                    //     header: 'Sr No',
+                                    //     field: 'ruleId',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    //     headerStyle: dataTableHeaderStyle,
+                                    //     filterPlaceholder: 'Sr No'
+                                    // },
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'supplierid',
