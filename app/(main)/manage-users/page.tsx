@@ -143,14 +143,14 @@ const ManageUsersPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    {
-                                        header: 'User ID',
-                                        field: 'id',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                        filterPlaceholder: 'Sr No'
-                                    },
+                                    // {
+                                    //     header: 'User ID',
+                                    //     field: 'id',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    //     filterPlaceholder: 'Sr No'
+                                    // },
                                     {
                                         header: 'Name',
                                         field: 'name',
