@@ -18,7 +18,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const [height, setHeight] = useState<string>('0px');
     const contentRef = useRef<HTMLUListElement>(null);
 
-    console.log(props);
+    // console.log(props);
 
     useEffect(() => {
         // Keep dropdown open if current path matches any child URL
