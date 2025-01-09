@@ -104,6 +104,8 @@ const ManageRulesPage = () => {
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Rules imported successfully');
+                setVisible(false);
+                fetchData();
             } else {
                 setAlert('error', response.message || 'File upload failed');
             }

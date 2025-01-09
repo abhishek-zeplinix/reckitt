@@ -86,28 +86,12 @@ const CreateNewRulesPage = () => {
                                 <Dropdown id="procurementCategory" value={selectedSupplierCategory} options={supplierCategories} onChange={(e) => setSelectedSupplierCategory(e.value)} placeholder="Select Supplier Category" className="w-full" />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="manufacturerName">Criteria Category</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
+                                <label htmlFor="manufacturerName">Complete below if capa is required</label>
+                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter if capa is required" />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="manufacturerName">Criteria</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="manufacturerName">Criteria Evaluation List</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="manufacturerName">Criteria Score</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="manufacturerName">Ratio Co Pack</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="manufacturerName">Ratios Raw & Pack</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
+                                <label htmlFor="manufacturerName">Status</label>
+                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Lower Range" />
                             </div>
                         </div>
                     </div>

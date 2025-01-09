@@ -11,8 +11,6 @@ import { Dropdown } from 'primereact/dropdown';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import Link from 'next/link';
 import { useAppContext } from '@/layout/AppWrapper';
 import { useAuth } from '@/layout/context/authContext';
@@ -22,20 +20,17 @@ const SupplierScoreboardSummoryPage = () => {
     const [products, setProducts] = useState([]);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
-    const {isSuperAdmin} = useAuth();
-    
+    const { isSuperAdmin } = useAuth();
 
     const params = useParams();
 
     const { supId, catId, subCatId } = params;
 
     useEffect(() => {
-
         const storedData = sessionStorage.getItem('supplier-data');
         if (storedData) {
-            setSupplierData(JSON.parse(storedData))
+            setSupplierData(JSON.parse(storedData));
         }
-
 
         const handleResize = () => {
             setIsSmallScreen(window.innerWidth <= 768);
@@ -53,26 +48,6 @@ const SupplierScoreboardSummoryPage = () => {
         { label: '2021', value: 'services' }
     ];
 
-    const printContent = () => {
-        // Create a new jsPDF instance
-        const doc = new jsPDF();
-
-        // Grab the content you want to print
-        const content = document.getElementById('content-to-print');
-
-        if (content) {
-            // Use jsPDF's HTML rendering method to capture the content and generate a PDF
-            doc.html(content, {
-                callback: () => {
-                    // Save the PDF when ready
-                    doc.save('document.pdf');
-                },
-                margin: [10, 10, 10, 10], // Optional margins
-                x: 10, // X position
-                y: 10 // Y position
-            });
-        }
-    };
     const lineData: ChartData = {
         labels: ['Q1 2025', 'Q2 h1 / 2024', 'Q3 2024', 'Q4 h2 / 2024'], // Same labels for all datasets
         datasets: [
@@ -292,8 +267,6 @@ const SupplierScoreboardSummoryPage = () => {
     };
     const renderSummoryInfo = summoryCards();
 
-
-
     const headerComp = () => {
         return (
             <div className="flex justify-content-between ">
@@ -304,7 +277,7 @@ const SupplierScoreboardSummoryPage = () => {
                 {isSuperAdmin() && (
                     <div className="flex-1 ml-5">
                         <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/supplier-rating`}>
-                            <Button label="Add Inputs" outlined className='!font-light text-color-secondary'/>
+                            <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
                         </Link>
                     </div>
                 )}
