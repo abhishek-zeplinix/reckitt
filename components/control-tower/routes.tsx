@@ -19,7 +19,8 @@ const ACTIONS = {
 };
 
 const Routes = () => {
-    const [rolesList, setRolesList] = useState<any>([]);
+    const [routeList, setRoutesList] = useState<any>([]);
+    const [routeId, setSelectedRouteId] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
@@ -30,6 +31,7 @@ const Routes = () => {
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
     const [selectedRole, setSelectedRole] = useState<any>(null);
+    const [selectedRoute, setSelectedRoute] = useState<any>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [module, setModule] = useState('');
     const [permissionData, setPermissionData] = useState('');
@@ -41,11 +43,11 @@ const Routes = () => {
 
     const fetchData = async (params?: any) => {
         setLoading(true);
-
         try {
-            const response = await GetCall('/company/roles');
-            setRolesList(response.data);
+            const response = await GetCall('/settings/routes');
+            setRoutesList(response.data);
             setTotalRecords(response.total);
+            console.log(response.data, 'abhishek');
         } catch (err) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -83,21 +85,16 @@ const Routes = () => {
 
         setIsDetailLoading(true);
 
-        // const payload = {
-        //     roleId: createRole,
-        //     name: roleName,
-        //     email: roleEmail,
-        //     password: rolePassword,
-        //     phone: rolePhone
-        // };
-        const payload = {
-            roleId: selectedRoleId,
-            permissionId: selectedPermissions
-        };
-        console.log(selectedRoleId, 'Abh');
+        const payload = [
+            {
+                routeId: routeId,
+                permissionId: selectedPermissions.toString(),
+                action: 'add'
+            }
+        ];
 
         try {
-            const response: CustomResponse = await PostCall('/settings/role-permissions', payload);
+            const response: CustomResponse = await PostCall('/settings/sync-route-permissions', payload);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Permission added successfully!');
@@ -123,10 +120,10 @@ const Routes = () => {
 
         if (action === ACTIONS.VIEW) {
             openViewDialog(perm);
-            setSelectedRoleId(perm.roleId);
-            setSelectedRole(perm.role);
-            console.log(perm.roleId);
-            console.log(perm.role);
+            setSelectedRouteId(perm.routeId);
+            setSelectedRoute(perm.path);
+            console.log(perm.routeId, 'abhishek');
+            console.log(perm.method);
         }
     };
     const multiSelectFooter = () => {
@@ -142,7 +139,7 @@ const Routes = () => {
         <>
             <div className="mt-1">
                 <CustomDataTable
-                    ref={rolesList}
+                    ref={routeList}
                     // filter
                     page={page}
                     limit={limit} // no of items per page
@@ -150,14 +147,15 @@ const Routes = () => {
                     isView={true}
                     isEdit={false} // show edit button
                     isDelete={false} // show delete button
-                    data={rolesList?.map((item: any) => ({
-                        roleId: item?.roleId,
-                        role: item?.name
+                    data={routeList?.map((item: any) => ({
+                        routeId: item?.routeId,
+                        method: item?.method,
+                        path: item?.path
                     }))}
                     columns={[
                         {
                             header: 'Role ID',
-                            field: 'roleId',
+                            field: 'routeId',
                             filter: true,
                             sortable: true,
                             bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -165,19 +163,26 @@ const Routes = () => {
                         },
                         {
                             header: 'Role',
-                            field: 'role',
+                            field: 'method',
+                            filter: true,
+                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                            filterPlaceholder: 'Role'
+                        },
+                        {
+                            header: 'Role',
+                            field: 'path',
                             filter: true,
                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                             filterPlaceholder: 'Role'
                         }
                     ]}
-                    onLoad={(params: any) => fetchData(params)}
+                    // onLoad={(params: any) => fetchData(params)}
                     onView={(item: any) => onRowSelect(item, 'view')}
                 />
             </div>
 
             <Dialog
-                header={`Select permission for role: ${selectedRole || 'N/A'}`}
+                header={`Select permission for route: ${selectedRoute || 'N/A'}`}
                 visible={visible}
                 style={{ width: '50vw', height: '40rem' }}
                 onHide={() => {

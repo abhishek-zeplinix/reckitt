@@ -79,7 +79,7 @@ type AppContextType = {
     setScroll: (loading: boolean) => void;
     selectedSubLocation: any;
     setSelectedSubLocation: (selectedSubLocation: any) => void;
-   
+
 };
 
 interface Routes {
@@ -152,7 +152,11 @@ interface CompanyUsers {
     }
 }
 
-
+interface PayloadItem {
+    routeId: number;
+    permissionId: string;
+    action: string;
+};
 // interface Company {
 //     companyId: number;
 //     subdomain: string;
@@ -746,5 +750,6 @@ export type {
     Item,
     Supplier,
     Rules,
-    CompanyUsers
+    CompanyUsers,
+    PayloadItem
 };
