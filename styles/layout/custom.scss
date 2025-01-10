@@ -605,3 +605,8 @@ $spacing-sizes: (
   }
 }
 
+//mulitinput
+
+.p-multiselect:not(.p-disabled):hover{
+  border-color: #DF177C;
+}

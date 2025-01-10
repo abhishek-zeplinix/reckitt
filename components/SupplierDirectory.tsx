@@ -10,7 +10,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
 import { CustomResponse, Supplier } from '@/types';
 import { GetCall } from '../app/api-config/ApiKit';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 
 

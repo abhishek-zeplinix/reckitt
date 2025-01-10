@@ -227,3 +227,15 @@ export const validateString = (firstName: string, key?: string) => {
     }
     return true;
 };
+
+
+//sort and map data based on specific property
+
+const sortAndMap = (array: any, sortKey:any, mapFn:any, order = 'asc') => {
+    return (array as any[])
+      .sort((a, b) =>
+        order === 'asc' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]
+      )
+      .map(mapFn);
+  };
+  
