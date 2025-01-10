@@ -9,7 +9,7 @@ import { LayoutContext } from '@/layout/context/layoutcontext';
 import { get } from 'lodash';
 import { CustomResponse } from '@/types';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { Supplier } from '@/types';
 import { Dialog } from 'primereact/dialog';

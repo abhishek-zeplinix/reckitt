@@ -8,7 +8,7 @@ import { Card } from 'primereact/card';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 
 const ManageUserAddPage = () => {
     const router = useRouter();

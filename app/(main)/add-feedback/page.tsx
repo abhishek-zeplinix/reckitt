@@ -13,7 +13,7 @@ import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { EmptyFeedback } from '@/types/forms';
 import { get } from 'lodash';
 import { CustomDataTableRef } from '@/components/CustomDataTable';
-import { buildQueryParams } from '@/utils/uitl';
+import { buildQueryParams } from '@/utils/utils';
 
 const defaultForm: EmptyFeedback = {
     suppliername: '',

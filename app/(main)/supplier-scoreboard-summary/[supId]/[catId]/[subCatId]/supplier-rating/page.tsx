@@ -3,7 +3,7 @@ import { GetCall } from "@/app/api-config/ApiKit";
 import SupplierEvaluationTable from "@/components/supplier-rating/SupplierRatingTable";
 import useFetchDepartments from "@/hooks/useFetchDepartments";
 import { useAppContext } from "@/layout/AppWrapper";
-import { buildQueryParams, getRowLimitWithScreenHeight } from "@/utils/uitl";
+import { buildQueryParams, getRowLimitWithScreenHeight } from "@/utils/utils";
 import { useParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 const SupplierRatingPage = () => {
 
     const [isSmallScreen, setIsSmallScreen] = useState(false);
-    const [activeTab, setActiveTab] = useState("PLANNING");
+    const [activeTab, setActiveTab] = useState("PROCUREMENT");
     const [selectedPeriod, setSelectedPeriod] = useState()
     const [rules, setRules] = useState([])
     // const [departments, setDepartments] = useState<any>();
@@ -26,22 +26,25 @@ const SupplierRatingPage = () => {
     const { setLoading, setAlert } = useAppContext();
 
     //hooks
-    const {departments} = useFetchDepartments();
+    const { departments } = useFetchDepartments();
 
     // console.log(supplierData);
 
 
-     const categoriesMap:any = {
-            'raw & pack': 'ratiosRawpack',
-            'copack': 'ratiosCopack',
-        };
-            
-     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
-     const category:any = categoriesMap[categoryName] || null; // default to null if no match
+    const categoriesMap: any = {
+        'raw & pack': 'ratiosRawpack',
+        'copack': 'ratiosCopack',
+    };
+
+    const categoryName = supplierData?.category?.categoryName?.toLowerCase();
 
 
-        
-     //fetch department api
+    const category: any = categoriesMap[categoryName] || null; // default to null if no match
+
+    console.log(category);
+
+
+    //fetch department api
     // const fetchDepartments = async () => {
 
     //     try {
@@ -73,7 +76,7 @@ const SupplierRatingPage = () => {
     //fetch rules
     const fetchRules = async () => {
         if (!selectedPeriod || !selectedDepartment) return;
-        
+
         try {
 
             const rulesParams = { effectiveFrom: selectedPeriod, pagination: false };
@@ -110,20 +113,20 @@ const SupplierRatingPage = () => {
     }, []);
 
 
-    
+
     useEffect(() => {
         const fetchRulesData = async () => {
             if (!selectedPeriod) return;
-    
+
             // verify if the selected period is valid for current department
             const currentDepartment = (departments as any[])?.find(dep => dep.departmentId === selectedDepartment);
             if (!currentDepartment) return;
-    
+
             const validPeriods = getPeriodOptions(currentDepartment.evolutionType);
             const isPeriodValid = validPeriods.some(option => option.value === selectedPeriod);
-            
+
             if (!isPeriodValid) return;
-    
+
             setLoading(true);
             try {
                 await fetchRules();
@@ -133,21 +136,21 @@ const SupplierRatingPage = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchRulesData();
-        
+
     }, [selectedDepartment, selectedPeriod]);
 
 
-// Screen size effect
+    // Screen size effect
     useEffect(() => {
         const handleResize = () => {
             setIsSmallScreen(window.innerWidth <= 768);
         };
-        
+
         window.addEventListener('resize', handleResize);
         handleResize();
-        
+
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
@@ -158,11 +161,11 @@ const SupplierRatingPage = () => {
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
                 setPeriodOptions(options);
-                
+
                 // Instead of immediately setting the period, check if the current period is valid
-                const defaultPeriod:any = getDefaultPeriod(currentDepartment.evolutionType);
+                const defaultPeriod: any = getDefaultPeriod(currentDepartment.evolutionType);
                 const isCurrentPeriodValid = options.some(option => option.value === selectedPeriod);
-                
+
                 if (!isCurrentPeriodValid) {
                     setSelectedPeriod(defaultPeriod);
                 }
@@ -172,26 +175,26 @@ const SupplierRatingPage = () => {
 
 
 
-     //function to get periods based on evolution type...
-     const getPeriodOptions = (evolutionType: string) => {
+    //function to get periods based on evolution type...
+    const getPeriodOptions = (evolutionType: string) => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
         // const currentMonth = currentDate.getMonth() + 1;
 
-    if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
-        return [
-            { label: `H1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
-            { label: `H2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` }
-        ];
+        if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
+            return [
+                { label: `H1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
+                { label: `H2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` }
+            ];
 
-    } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
-        return [
-            { label: `Q1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
-            { label: `Q2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` },
-            { label: `Q3-${currentYear}`, value: `${evolutionType}-3-${currentYear}` },
-            { label: `Q4-${currentYear}`, value: `${evolutionType}-4-${currentYear}` }
-        ];
-    }
+        } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
+            return [
+                { label: `Q1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
+                { label: `Q2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` },
+                { label: `Q3-${currentYear}`, value: `${evolutionType}-3-${currentYear}` },
+                { label: `Q4-${currentYear}`, value: `${evolutionType}-4-${currentYear}` }
+            ];
+        }
 
         return [];
     };
@@ -205,7 +208,7 @@ const SupplierRatingPage = () => {
         if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
             return currentMonth <= 6 ? `${evolutionType}-1-${currentYear}` : `${evolutionType}-2-${currentYear}`;
 
-        }else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
+        } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
 
             if (currentMonth <= 3) return `${evolutionType}-1-${currentYear}`;
             if (currentMonth <= 6) return `${evolutionType}-2-${currentYear}`;
@@ -216,18 +219,24 @@ const SupplierRatingPage = () => {
     };
 
 
-    
+
 
 
     const leftPanelData = [
-        { label: 'Category :', value: `${supplierData?.category?.categoryName
-        }` },
-        { label: 'Sub-Category :', value: `${supplierData?.subCategories?.subCategoryName
+        {
+            label: 'Category :', value: `${supplierData?.category?.categoryName
+                }`
+        },
+        {
+            label: 'Sub-Category :', value: `${supplierData?.subCategories?.subCategoryName
 
-        }` },
-        { label: 'Supplier Name :', value: `${supplierData?.supplierName
+                }`
+        },
+        {
+            label: 'Supplier Name :', value: `${supplierData?.supplierName
 
-        }` },
+                }`
+        },
 
     ];
     const RightPanelData = [
@@ -309,12 +318,12 @@ const SupplierRatingPage = () => {
     };
 
     const renderSummoryInfo = summoryCards();
-    
+
 
     // console.log(departments);
     console.log(selectedDepartment);
     console.log(selectedPeriod);
-    
+
 
     const dataPanel = () => {
         return (
@@ -322,37 +331,39 @@ const SupplierRatingPage = () => {
                 <div className="border">
                     <div className="p-1">
                         <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
-                            {departments?.map((department: any) => (
-                                <div
-                                    key={department.name}
-                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name
-                                        ? 'text-pink-500 border border-pink-500 rounded-lg'
-                                        : 'text-gray-500 border-none'
-                                        }`}
-                                    style={{
-                                        border: activeTab === department.name ? '1px solid #ec4899' : 'none',
-                                        borderRadius: activeTab === department.name ? '12px' : '0',
-                                    }}
-                                    onClick={() => {
-                                        setActiveTab(department.name); // Set activeTab state
-                                        setSelectedDepartment(department.departmentId); // Set departmentID state
-                                    }}
-                                >
-                                    {department.name.toUpperCase()}
-                                </div>
-                            ))}
+                            {departments
+                                ?.sort((a: any, b: any) => a.orderBy - b.orderBy) // Sort by orderBy property
+                                .map((department: any) => (
+                                    <div
+                                        key={department.name}
+                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name
+                                                ? 'text-pink-500 border border-pink-500 rounded-lg'
+                                                : 'text-gray-500 border-none'
+                                            }`}
+                                        style={{
+                                            border: activeTab === department.name ? '1px solid #ec4899' : 'none',
+                                            borderRadius: activeTab === department.name ? '12px' : '0',
+                                        }}
+                                        onClick={() => {
+                                            setActiveTab(department.name); // Set activeTab state
+                                            setSelectedDepartment(department.departmentId); // Set departmentID state
+                                        }}
+                                    >
+                                        {department.name.toUpperCase()}
+                                    </div>
+                                ))}
                         </div>
                     </div>
                     <hr />
 
                     <div className="flex justify-content-between">
-                        <Dropdown 
-                            value={selectedPeriod} 
-                            onChange={(e) => setSelectedPeriod(e.value)} 
-                            options={periodOptions} 
+                        <Dropdown
+                            value={selectedPeriod}
+                            onChange={(e) => setSelectedPeriod(e.value)}
+                            options={periodOptions}
                             optionLabel="label"
-                            placeholder="Select Period" 
-                            className="w-full md:w-14rem" 
+                            placeholder="Select Period"
+                            className="w-full md:w-14rem"
                         />
 
                         <div className="flex justify-content-end">
@@ -363,7 +374,7 @@ const SupplierRatingPage = () => {
 
                     {/* <div className="mt-4">{renderContent()}</div> */}
 
-                    {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentID={selectedDepartment} department={activeTab}/>}
+                    {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentID={selectedDepartment} department={activeTab} />}
 
                 </div>
             </>

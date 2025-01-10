@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, CompanyUsers } from '@/types';
 import { GetCall } from '@/app/api-config/ApiKit';

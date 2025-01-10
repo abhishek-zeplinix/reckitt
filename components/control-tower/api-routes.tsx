@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import CustomDataTable from '../CustomDataTable';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -101,12 +101,33 @@ const Routes = () => {
 
 
 
+    // const fetchPermissionsByRouteId = async (rId: Number) => {
+    //     try {
+    //         setIsDetailLoading(true);
+    //         const response = await GetCall(`settings/routes/${rId}`);
+    //         console.log('Fetched route permissions:', response.data);
+    //         setSpecificRoutePermissions(response.data);
+    //     } catch (error) {
+    //         console.error('Error fetching route permissions:', error);
+    //         setAlert('error', 'Failed to fetch route permissions');
+    //     } finally {
+    //         setIsDetailLoading(false);
+    //     }
+    // };
+
+
     const fetchPermissionsByRouteId = async (rId: Number) => {
         try {
             setIsDetailLoading(true);
             const response = await GetCall(`settings/routes/${rId}`);
             console.log('Fetched route permissions:', response.data);
             setSpecificRoutePermissions(response.data);
+
+            // Pre-select existing permissions in MultiSelect
+            const existingPermissionIds = response.data.permissions.map(
+                (perm: any) => perm.permission.permissionId
+            );
+            setSelectedPermissions(existingPermissionIds);
         } catch (error) {
             console.error('Error fetching route permissions:', error);
             setAlert('error', 'Failed to fetch route permissions');
@@ -131,38 +152,62 @@ const Routes = () => {
 
 
     const handleSubmit = async () => {
-        if (!selectedPermissions || selectedPermissions.length === 0) {
-            setAlert('error', 'Please select permissions');
-            return;
-        }
-
         setIsDetailLoading(true);
 
-        const payloadToSend = (selectedPermissions as any[]).map(permissionId => ({
-            routeId: routeId,
-            permissionId: permissionId,
-            action: 'add'
-        }));
+        // Get the current permissions for comparison
+        const currentPermissions = specificRoutePermissions?.permissions?.map(
+            (perm: any) => perm.permission.permissionId
+        ) || [];
+
+        // Create payload with add/remove actions
+        const payloadToSend = [];
+
+        // Handle removed permissions
+        for (const permId of currentPermissions) {
+            if (!selectedPermissions.includes(permId)) {
+                payloadToSend.push({
+                    routeId: routeId,
+                    permissionId: permId,
+                    action: 'remove'
+                });
+            }
+        }
+
+        // Handle added permissions
+        for (const permId of selectedPermissions) {
+            if (!currentPermissions.includes(permId)) {
+                payloadToSend.push({
+                    routeId: routeId,
+                    permissionId: permId,
+                    action: 'add'
+                });
+            }
+        }
 
         try {
+            if (payloadToSend.length === 0) {
+                setAlert('info', 'No changes to submit');
+                return;
+            }
+
             const response: CustomResponse = await PostCall('/settings/sync-route-permissions', payloadToSend);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Permissions added successfully!');
-                // Reset the MultiSelect
-                setSelectedPermissions([]);
+                setAlert('success', 'Permissions updated successfully!');
                 // Refresh the permissions list for this route
                 await fetchPermissionsByRouteId(routeId);
             } else {
-                setAlert('error', response.message || 'Failed to provide permissions.');
+                setAlert('error', response.message || 'Failed to update permissions.');
             }
         } catch (error) {
             console.error('Error submitting permissions:', error);
-            setAlert('error', 'An error occurred while submitting permissions.');
+            setAlert('error', 'An error occurred while updating permissions.');
         } finally {
             setIsDetailLoading(false);
         }
     };
+
+    
 
     const multiSelectFooter = () => {
         return (
@@ -179,9 +224,9 @@ const Routes = () => {
                     disabled={!selectedPermissions || selectedPermissions.length === 0}
                 /> */}
 
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={()=>setSelectedPermissions([])} label="Add" />
+                <SubmitResetButtons onSubmit={handleSubmit} onReset={() => setSelectedPermissions([])} label="Assign" />
             </div>
-        );  
+        );
     };
 
 
@@ -260,8 +305,8 @@ const Routes = () => {
                             filter
                             placeholder="Select Permissions"
                             panelFooterTemplate={multiSelectFooter}
-                            maxSelectedLabels={3}
-                            className="text-pink-500 w-full"
+                            // maxSelectedLabels={3}
+                            className="w-full"
                             display='chip'
                         />
                     </div>
