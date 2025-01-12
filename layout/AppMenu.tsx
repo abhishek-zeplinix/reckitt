@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { LayoutContext } from './context/layoutcontext';
 import { MenuProvider } from './context/menucontext';
@@ -36,19 +36,31 @@ import {
 } from '@/config/permissions';
 import { classNames } from 'primereact/utils';
 import { useRouter } from 'next/navigation';
+import Loader from '@/components/common/Loader';
+import { useLoaderContext } from './context/LoaderContext';
 
 const AppMenu = () => {
     const router = useRouter();
     const { user } = useAppContext();
     const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
+    const { loader, setLoader } = useLoaderContext();
 
     const handleMenuClick = ({ originalEvent, item }: any) => {
         if (originalEvent) {
-            originalEvent.preventDefault();
+          originalEvent.preventDefault();
         }
-        router.push(item.url);
-    };
+        
+        // Show the loader
+        setLoader(true);
+    
+        // Simulate a delay of 1 second before routing
+        setTimeout(() => {
+          router.push(item.url);
+          setLoader(false); // Hide the loader after 1 second
+        }, 500);
+      };
 
+      console.log('63',loader)
     const model: AppMenuItem[] = [
         {
             label: '',
@@ -699,46 +711,25 @@ const AppMenu = () => {
         'pi-angle-right text-lg text-white p-3': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
     });
     return (
+        <>
+        {loader && <Loader />} 
         <MenuProvider>
-            {layoutState.isMobile && (
-                <Link href="/" className="layout-topbar-logo">
-                    {/* <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} /> */}
-                    <img src="/images/reckitt.webp" width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} />
-                </Link>
-            )}
-
-            <div className="min-h-screen flex relative lg:static">
-                <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
-                    <div className="flex flex-column" style={{ height: '92%' }}>
-                        <div
-                            className="overflow-y-auto "
-                            style={{
-                                scrollbarWidth: 'thin' ,
-                                scrollbarColor: 'transparent transparent'
-                            }}
-                        >
-                            <ul className="list-none p-3 m-0">
-                                {get(model, '0.items', []).map((item, i) => {
-                                    return !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>;
-                                })}
-                            </ul>
-                        </div>
-                        {/* {!layoutState.isMobile && (
-                            <div className="mt-auto">
-                                <a
-                                    v-ripple
-                                    onClick={onMenuToggle}
-                                    className="flex mb-1 justify-content-center align-items-center cursor-pointer p-2 text-700 transition-duration-150 transition-colors p-ripple bg-secondary"
-                                    style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250 }}
-                                >
-                                    <i className={iconClass}></i>
-                                </a>
+                <div className="min-h-screen flex relative lg:static">
+                    <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
+                        <div className="flex flex-column" style={{ height: '92%' }}>
+                            <div className="overflow-y-auto " style={{ scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
+                                <ul className="list-none p-3 m-0">
+                                    {get(model, '0.items', []).map((item, i) => (
+                                        !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>
+                                    ))}
+                                </ul>
                             </div>
-                        )} */}
+                        </div>
                     </div>
                 </div>
-            </div>
+            
         </MenuProvider>
+    </>
     );
 };
 
