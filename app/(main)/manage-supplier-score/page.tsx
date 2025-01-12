@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
@@ -45,7 +45,7 @@ const ManageSupplierScorePage = () => {
     const { suppliers } = useFetchSuppliers();
 
     console.log('page and limit: ', page, limit);
-    
+
     const handleCreateNavigation = () => {
         router.push('/create-supplier'); // Replace with the route you want to navigate to
     };
@@ -101,8 +101,6 @@ const ManageSupplierScorePage = () => {
     };
 
     const header = renderHeader();
-
-
 
     const fetchData = async (params?: any) => {
         try {
@@ -244,20 +242,20 @@ const ManageSupplierScorePage = () => {
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                           
+
                                             return <span>{srNo}</span>;
                                         },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    {
-                                        header: 'Sup. ID',
-                                        field: 'ruleId',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Sr No'
-                                    },
+                                    // {
+                                    //     header: 'Sup. ID',
+                                    //     field: 'ruleId',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                    //     headerStyle: dataTableHeaderStyle,
+                                    //     filterPlaceholder: 'Sr No'
+                                    // },
                                     {
                                         header: 'Name',
                                         field: 'supplierid',

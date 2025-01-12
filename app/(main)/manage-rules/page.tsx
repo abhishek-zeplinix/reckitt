@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
@@ -108,6 +108,8 @@ const ManageRulesPage = () => {
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Rules imported successfully');
+                setVisible(false);
+                fetchData();
             } else {
                 setAlert('error', response.message || 'File upload failed');
             }
@@ -370,15 +372,15 @@ const ManageRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    {
-                                        header: 'Rule ID',
-                                        field: 'ruleId',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Sr No'
-                                    },
+                                    // {
+                                    //     header: 'Rule ID',
+                                    //     field: 'ruleId',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    //     headerStyle: dataTableHeaderStyle,
+                                    //     filterPlaceholder: 'Sr No'
+                                    // },
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'supplierid',

@@ -9,7 +9,7 @@ import { LayoutContext } from '@/layout/context/layoutcontext';
 import { get } from 'lodash';
 import { CustomResponse } from '@/types';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { Supplier } from '@/types';
 import { Dialog } from 'primereact/dialog';
@@ -402,14 +402,14 @@ const ManageSupplierPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    {
-                                        header: 'Sup. ID',
-                                        field: 'supId',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                        filterPlaceholder: 'Supplier No'
-                                    },
+                                    // {
+                                    //     header: 'Sup. ID',
+                                    //     field: 'supId',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    //     filterPlaceholder: 'Supplier No'
+                                    // },
                                     {
                                         header: 'Name',
                                         field: 'supplierName',
@@ -483,7 +483,7 @@ const ManageSupplierPage = () => {
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7" onClick={confirmDelete} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}

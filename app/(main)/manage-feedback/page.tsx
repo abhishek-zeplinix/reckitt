@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
@@ -232,20 +232,20 @@ const ManageFeedbackPage = () => {
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                           
+
                                             return <span>{srNo}</span>;
                                         },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    {
-                                        header: 'ID',
-                                        field: 'id',
-                                        filter: true,
-                                        sortable: true,
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Sr No'
-                                    },
+                                    // {
+                                    //     header: 'ID',
+                                    //     field: 'id',
+                                    //     filter: true,
+                                    //     sortable: true,
+                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                    //     headerStyle: dataTableHeaderStyle,
+                                    //     filterPlaceholder: 'Sr No'
+                                    // },
                                     {
                                         header: 'Supplier Name',
                                         field: 'supplierName',

@@ -1,4 +1,3 @@
-// authContext.tsx
 import React, { createContext, useContext, useCallback } from 'react';
 import { get } from 'lodash';
 
@@ -48,12 +47,22 @@ export const AuthProvider = ({user,children}: {user: any | null; children: React
 
     // Check if user has a specific permission
     const hasPermission = useCallback((permission: string): boolean => {
+
         if (!user) return false;
+
+        //if user is Super Admin, he will get all permissions by default
+        //remove this line if you want to assign custom permission to the superAdmin
         if (get(user, 'isSuperAdmin', false)) return true;
 
+        //retrieve userRole of logged in user to check his permission
         const userRole = get(user, 'userRole') as UserRole;
+
+        //here you will get all assigned permission to the logged in user
         const permissions: any = ROLE_PERMISSIONS[userRole] || [];
+
+        //return boolen if passed permission is available in above permissions..
         return permissions.includes(permission);
+
     }, [user]);
 
 
