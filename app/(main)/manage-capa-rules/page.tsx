@@ -7,13 +7,11 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
-import { sortBy } from 'lodash';
-import { SortOrder } from 'primereact/api';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
@@ -49,10 +47,6 @@ const ManageCapaRulesPage = () => {
     const [date, setDate] = useState<Date | null>(null);
     const handleCreateNavigation = () => {
         router.push('/create-new-capa-rules'); // Replace with the route you want to navigate to
-    };
-
-    const handleButtonClick = () => {
-        fileInputRef.current?.click();
     };
 
     const handleFileUpload = async (event: { files: File[] }) => {
@@ -147,7 +141,6 @@ const ManageCapaRulesPage = () => {
                             </div>
                         </div>
                     </Dialog>
-                    {/* <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
@@ -174,8 +167,6 @@ const ManageCapaRulesPage = () => {
             </div>
         );
     };
-
-    const inputboxfeild = renderInputBox();
 
     const fetchData = async (params?: any) => {
         try {
@@ -238,13 +229,6 @@ const ManageCapaRulesPage = () => {
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
-        // if (action === ACTIONS.VIEW) {
-        //     setIsShowSplit(true);
-        // }
-        // if (action === ACTIONS.EDIT) {
-        //     setIsShowSplit(true);
-        //     // fetchSoDetails(perm.estimateId)
-        // }
     };
 
     const openDeleteDialog = (items: Rules) => {
@@ -298,24 +282,8 @@ const ManageCapaRulesPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                // isView={true}
                                 isEdit={true} // show edit button
                                 isDelete={true} // show delete button
-                                // extraButtons={[
-                                //     {
-                                //         icon: 'pi pi-cloud-upload',
-                                //         onClick: (item) => openDialog()
-                                //     },
-                                //     {
-                                //         icon: 'pi pi-external-link',
-                                //         onClick: async (item) => {
-                                //             setDialogVisible(true);
-                                //             setPoId(item.poId); // Set the poId from the clicked item
-
-                                //             await fetchTrackingData(item.poId);
-                                //         }
-                                //     }
-                                // ]}
                                 data={rules.map((item: any) => ({
                                     capaRuleId: item.capaRuleId,
                                     name: item.department?.name,
@@ -334,21 +302,11 @@ const ManageCapaRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    // {
-                                    //     header: 'Sr No',
-                                    //     field: 'ruleId',
-                                    //     filter: true,
-                                    //     sortable: true,
-                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                    //     headerStyle: dataTableHeaderStyle,
-                                    //     filterPlaceholder: 'Sr No'
-                                    // },
+
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'name',
-                                        // body: renderVendor,
                                         filter: true,
-                                        // filterElement: vendorDropdown,
                                         bodyStyle: { minWidth: 200, maxWidth: 200 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
@@ -365,9 +323,7 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'categoryName',
-                                        // body: renderWarehouse,
                                         filter: true,
-                                        // filterElement: warehouseDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Search Procurement Category'
@@ -375,50 +331,13 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'CRITERIA',
                                         field: 'status',
-                                        // body: renderStatus,
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // filterElement: statusDropdown
                                     }
-                                    // {
-                                    //     header: 'CRITERIA EVALUATION LIST',
-                                    //     field: 'criteriaEvaluation',
-                                    //     filter: true,
-                                    //     filterPlaceholder: 'Search Supplier Manufacturing Name',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    //     // body: renderPOTotal
-                                    // },
-                                    // {
-                                    //     header: 'CRITERIA SCORE',
-                                    //     field: 'score',
-                                    //     filter: true,
-                                    //     filterPlaceholder: 'Search Site Address',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    // },
-                                    // {
-                                    //     header: 'RATIOS COPACK',
-                                    //     field: 'ratiosCopack',
-                                    //     filter: true,
-                                    //     filterPlaceholder: 'Search Factory Name',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    // },
-                                    // {
-                                    //     header: 'RATIOS RAW&PACK',
-                                    //     field: 'ratiosRawpack',
-                                    //     filter: true,
-                                    //     filterPlaceholder: 'Search Warehouse Location',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    // }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
-                                // // onView={(item: any) => onRowSelect(item, 'view')}
-                                // onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>

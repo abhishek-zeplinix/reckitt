@@ -11,7 +11,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, Supplier } from '@/types';
 import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { EmptySupplier } from '@/types/forms';
-import { filter, find, get, groupBy, keyBy, map, uniq } from 'lodash';
+import { get } from 'lodash';
 import { CustomDataTableRef } from '@/components/CustomDataTable';
 
 const defaultForm: EmptySupplier = {
@@ -37,18 +37,13 @@ const CreateSupplierPage = () => {
     const [completedSteps, setCompletedSteps] = useState<boolean[]>(Array(totalSteps).fill(false));
     // Form fields state
     const router = useRouter();
-    const [supplierId, setSupplierId] = useState('');
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [factoryDetails, setFactoryDetails] = useState<any>([]);
     const [category, setCategory] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
     const [locationDetails, setLocationDetails] = useState<any>([]);
     const [subLocationDetails, setSubLocationDetails] = useState<any>([]);
-    const [supplierName, setSupplierName] = useState('');
-    const [manufacturerName, setManufacturerName] = useState('');
-    const [complianceStatus, setComplianceStatus] = useState(false);
-    const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
-    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const { setLoading, setAlert } = useAppContext();
     const [selectedCompany, setSelectedCompany] = useState<Supplier | null>(null);
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const dataTableRef = useRef<CustomDataTableRef>(null);
@@ -191,12 +186,6 @@ const CreateSupplierPage = () => {
         }));
     };
 
-    const procurementCategories = [
-        { label: 'Raw Materials', value: 'raw-materials' },
-        { label: 'Packaging', value: 'packaging' },
-        { label: 'Machinery', value: 'machinery' },
-        { label: 'Services', value: 'services' }
-    ];
     const renderStepContent = () => {
         switch (currentStep) {
             case 1:
@@ -406,7 +395,6 @@ const CreateSupplierPage = () => {
             <div className="p-card">
                 <Stepper currentStep={currentStep} completedSteps={completedSteps} />
                 {/* Progress Bar */}
-                {/* <ProgressBar value={(currentStep / 3) * 100} /> */}
                 <div className="p-card-body">
                     {/* Step Content */}
                     {renderStepContent()}

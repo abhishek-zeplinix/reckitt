@@ -35,10 +35,8 @@ const Sidebar = ({
     width = '60vw', // Default width to '87vw'
     onSave = () => {}
 }: RightSidePanel) => {
-    
     const { layoutState } = useContext(LayoutContext);
 
-    // Conditionally set width based on staticMenuDesktopInactive
     const adjustedWidth = layoutState.staticMenuDesktopInactive ? '97vw' : width;
 
     const defaultHeaderTemplate = (options: any) => {

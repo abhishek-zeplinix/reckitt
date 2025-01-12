@@ -1,28 +1,25 @@
 'use client';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'; // Correct import for Next.js router
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import 'primeicons/primeicons.css';
-import 'primereact/resources/themes/saga-blue/theme.css';
-import 'primereact/resources/primereact.min.css';
+// import 'primeicons/primeicons.css';
+// import 'primereact/resources/themes/saga-blue/theme.css';
+// import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
 import { CustomResponse, Supplier } from '@/types';
 import { GetCall } from '../app/api-config/ApiKit';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
-
 
 const SupplierDirectory = () => {
     const router = useRouter();
-    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const { setLoading } = useAppContext();
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
-
-    // const { setSupplierDataFunc } = useContext(SupplierRatingContext); 
 
     useEffect(() => {
         // setScroll(true);
@@ -36,10 +33,11 @@ const SupplierDirectory = () => {
     const fetchData = async (params?: any) => {
         if (!params) {
             params = { limit: limit, page: page };
+            // params = { limit: limit, page: page };
         }
         setLoading(true);
         const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+        const response: CustomResponse = await GetCall(`/company/supplier`);
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setSuppliers(response.data);
@@ -54,19 +52,17 @@ const SupplierDirectory = () => {
     };
 
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
-        console.log("supplier id-->" , supId, "cat id -->", catId, "sub cat id -->", subCatId);
-        
+        console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId);
+
         const selectedSupplier = suppliers.find((supplier) => supplier.supId === supId);
 
         if (selectedSupplier) {
             // uupdate the context with the selected supplier data
 
             sessionStorage.setItem('supplier-data', JSON.stringify(selectedSupplier));
-
         }
 
         router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
-
     };
 
     // Render the status column
@@ -81,10 +77,6 @@ const SupplierDirectory = () => {
         </span>
     );
 
-    // Render the history button
-    // const historyBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-danger" onClick={() => navigateToSummary(rowData.id)} />;
-
-    // Render the evaluate button
     const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-danger" onClick={() => navigateToSummary(rowData.supId, rowData.category.categoryId, rowData.subCategories.subCategoryId)} />;
 
     return (
@@ -106,10 +98,8 @@ const SupplierDirectory = () => {
                 <Column field="status" header="Status" body={statusBodyTemplate} />
                 <Column field="location.name" header="Location" />
                 <Column field="category.categoryName" header="Category" />
-                {/* <Column field="onboardingDate" header="Onboarding Date" />
-                <Column field="lastEvaluated" header="Last Evaluated" />*/}
-                {/* <Column header="History" body={historyBodyTemplate} /> */}
-                <Column header="Evaluate" body={evaluateBodyTemplate}/>
+
+                <Column header="Evaluate" body={evaluateBodyTemplate} />
             </DataTable>
         </div>
     );

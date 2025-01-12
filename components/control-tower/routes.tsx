@@ -1,16 +1,13 @@
-import { InputText } from 'primereact/inputtext';
 import { useContext, useEffect, useState } from 'react';
-import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import CustomDataTable from '../CustomDataTable';
-import { getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { MultiSelect } from 'primereact/multiselect';
 import { CustomResponse } from '@/types';
-import SubmitResetButtons from './submit-reset-buttons';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -24,18 +21,12 @@ const Routes = () => {
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
-    const [selectedRoleId, setSelectedRoleId] = useState<any>();
     const [permissions, setPermissions] = useState<any>([]); // Store fetched permissions
     const [selectedPermissions, setSelectedPermissions] = useState<any>([]); // Store selected permissionIds
     const [visible, setVisible] = useState(false);
-    const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
-    const [selectedRole, setSelectedRole] = useState<any>(null);
     const [selectedRoute, setSelectedRoute] = useState<any>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [module, setModule] = useState('');
-    const [permissionData, setPermissionData] = useState('');
-    const [description, setdescription] = useState('');
     useEffect(() => {
         fetchData();
         fetchPermissionData();
@@ -60,13 +51,11 @@ const Routes = () => {
         try {
             const response = await GetCall('/settings/permissions');
 
-            // Log the response to the console for debugging
             console.log('Fetched Permissions Response:', response);
 
-            // Format the data into the structure expected by MultiSelect
             const formattedPermissions = response.data.map((permission: any) => ({
-                label: permission.permission, // Display the permission name
-                value: permission.permissionId // Use the permissionId as the value
+                label: permission.permission,
+                value: permission.permissionId
             }));
 
             setPermissions(formattedPermissions); // Set the formatted data
@@ -116,8 +105,6 @@ const Routes = () => {
     };
 
     const onRowSelect = async (perm: any, action: any) => {
-        // setAction(action);
-
         if (action === ACTIONS.VIEW) {
             openViewDialog(perm);
             setSelectedRouteId(perm.routeId);
@@ -140,7 +127,6 @@ const Routes = () => {
             <div className="mt-1">
                 <CustomDataTable
                     ref={routeList}
-                    // filter
                     page={page}
                     limit={limit} // no of items per page
                     totalRecords={totalRecords} // total records from api response
@@ -176,7 +162,6 @@ const Routes = () => {
                             filterPlaceholder: 'Role'
                         }
                     ]}
-                    // onLoad={(params: any) => fetchData(params)}
                     onView={(item: any) => onRowSelect(item, 'view')}
                 />
             </div>
@@ -191,14 +176,14 @@ const Routes = () => {
                 }}
             >
                 <MultiSelect
-                    value={selectedPermissions} // Selected permissionIds
-                    onChange={(e) => setSelectedPermissions(e.value)} // Update selected permissionIds
-                    options={permissions} // Pass the formatted permissions as options
-                    optionLabel="label" // Use 'label' to display the permission name
-                    filter // Enable filtering
-                    placeholder="Select Permissions" // Placeholder text
-                    panelFooterTemplate={multiSelectFooter} // Optional footer template
-                    maxSelectedLabels={3} // Limit the number of selected labels
+                    value={selectedPermissions}
+                    onChange={(e) => setSelectedPermissions(e.value)}
+                    options={permissions}
+                    optionLabel="label"
+                    filter
+                    placeholder="Select Permissions"
+                    panelFooterTemplate={multiSelectFooter}
+                    maxSelectedLabels={3}
                     className="w-full"
                 />
             </Dialog>

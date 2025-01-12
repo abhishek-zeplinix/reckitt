@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
@@ -20,7 +19,7 @@ interface Glossary {
 }
 
 const SupplyGlossaryPage = () => {
-    const { user, isLoading, setLoading, setAlert } = useAppContext();
+    const { isLoading, setLoading, setAlert } = useAppContext();
     const { layoutState } = useContext(LayoutContext);
 
     const [glossaryData, setGlossaryData] = useState<Glossary[]>([]);

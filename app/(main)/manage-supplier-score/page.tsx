@@ -6,8 +6,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
@@ -46,39 +45,6 @@ const ManageSupplierScorePage = () => {
 
     console.log('page and limit: ', page, limit);
 
-    const handleCreateNavigation = () => {
-        router.push('/create-supplier'); // Replace with the route you want to navigate to
-    };
-
-    const handleButtonClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            setIsDetailLoading(true);
-            try {
-                // Use the existing PostCall function
-                const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
-
-                setIsDetailLoading(false);
-
-                if (response.code === 'SUCCESS') {
-                    setAlert('success', 'Rules imported successfully');
-                } else {
-                    setAlert('error', response.message || 'File upload failed');
-                }
-            } catch (error) {
-                setIsDetailLoading(false);
-                console.error('An error occurred during file upload:', error);
-                setAlert('error', 'An unexpected error occurred during file upload');
-            }
-        }
-    };
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const renderHeader = () => {
@@ -88,13 +54,6 @@ const ManageSupplierScorePage = () => {
                     <span className="p-input-icon-left flex align-items-center">
                         <h3 className="mb-0">Suppliers Assessment List</h3>
                     </span>
-                    {/* <div className="flex justify-content-end">
-                    <Button icon="pi pi-plus" size="small" label="Import Rules" aria-label="Add Rules" className="default-button " onClick={handleButtonClick} style={{ marginLeft: 10 }}>
-                        <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} />
-                    </Button>
-                    <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
-                    </div> */}
                 </div>
             </>
         );
@@ -139,13 +98,6 @@ const ManageSupplierScorePage = () => {
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
-        // if (action === ACTIONS.VIEW) {
-        //     setIsShowSplit(true);
-        // }
-        // if (action === ACTIONS.EDIT) {
-        //     setIsShowSplit(true);
-        //     // fetchSoDetails(perm.estimateId)
-        // }
     };
 
     const openDeleteDialog = (items: Rules) => {
@@ -179,7 +131,6 @@ const ManageSupplierScorePage = () => {
 
     const handleFilterChange = (filters: any) => {
         console.log('Selected filters:', filters);
-        // You can use these values to update your API calls or local filtering
     };
 
     return (
@@ -192,40 +143,19 @@ const ManageSupplierScorePage = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
-                            {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
                             <div>
                                 <FilterDropdowns onFilterChange={handleFilterChange} suppliers={suppliers} departments={departments} />
                             </div>
 
-                            {/* <div className="mt-5 ">{RepresentationColor}</div> */}
                             <div className="mt-3 ">
                                 <ScoreTiles />
                             </div>
 
                             <CustomDataTable
                                 ref={dataTableRef}
-                                // filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                // isView={true}
-                                // isEdit={true} // show edit button
-                                // isDelete={true} // show delete button
-                                // extraButtons={[
-                                //     {
-                                //         icon: 'pi pi-cloud-upload',
-                                //         onClick: (item) => openDialog()
-                                //     },
-                                //     {
-                                //         icon: 'pi pi-external-link',
-                                //         onClick: async (item) => {
-                                //             setDialogVisible(true);
-                                //             setPoId(item.poId); // Set the poId from the clicked item
-
-                                //             await fetchTrackingData(item.poId);
-                                //         }
-                                //     }
-                                // ]}
                                 data={rules?.map((item: any) => ({
                                     ruleId: item.ruleId,
                                     subCategoryName: item.subCategories?.subCategoryName,
@@ -247,21 +177,11 @@ const ManageSupplierScorePage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    // {
-                                    //     header: 'Sup. ID',
-                                    //     field: 'ruleId',
-                                    //     filter: true,
-                                    //     sortable: true,
-                                    //     bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
-                                    //     headerStyle: dataTableHeaderStyle,
-                                    //     filterPlaceholder: 'Sr No'
-                                    // },
+
                                     {
                                         header: 'Name',
                                         field: 'supplierid',
-                                        // body: renderVendor,
                                         filter: true,
-                                        // filterElement: vendorDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
@@ -278,9 +198,7 @@ const ManageSupplierScorePage = () => {
                                     {
                                         header: 'Quarter',
                                         field: 'section',
-                                        // body: renderWarehouse,
                                         filter: true,
-                                        // filterElement: warehouseDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Search Procurement Category'
@@ -288,12 +206,10 @@ const ManageSupplierScorePage = () => {
                                     {
                                         header: 'Supplier Score',
                                         field: 'ratedCriteria',
-                                        // body: renderStatus,
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // filterElement: statusDropdown
                                     },
                                     {
                                         header: 'Procurement Category',
@@ -302,7 +218,6 @@ const ManageSupplierScorePage = () => {
                                         filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // body: renderPOTotal
                                     },
                                     {
                                         header: 'Supplier Category',
@@ -322,8 +237,6 @@ const ManageSupplierScorePage = () => {
                                     }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
-                                // // onView={(item: any) => onRowSelect(item, 'view')}
-                                // onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>

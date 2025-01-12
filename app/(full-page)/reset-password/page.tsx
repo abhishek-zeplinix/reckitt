@@ -1,12 +1,11 @@
 // /* eslint-disable @next/next/no-img-element */
 'use client';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useContext, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useContext, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import Link from 'next/link';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 
@@ -45,7 +44,7 @@ const ResetPasswordPage = () => {
 
             if (response.code == 'SUCCESS') {
                 setAlert('success', 'Password updated successfully!');
-                router.push('/login'); // Redirect to login page after success
+                router.push('/login');
             } else {
                 setAlert('error', response.message);
             }
@@ -61,7 +60,6 @@ const ResetPasswordPage = () => {
             <div className="flex align-items-center justify-content-center w-60rem">
                 <div className="surface-card p-4 shadow-2 border-round w-full" style={{ minWidth: layoutState.isMobile ? 0 : 400 }}>
                     <div className="text-center mb-5">
-                        {/* <img src="/images/reckitt.webp" alt="hyper" height={50} className="mb-3" /> */}
                         <div className="text-900 text-3xl font-medium mb-3">Welcome {displayName}! </div>
                         <span className="text-600 font-medium line-height-3">For your security, please change your password.</span>
                     </div>

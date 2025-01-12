@@ -19,7 +19,7 @@ interface FAQ {
 }
 
 const FaqPage = () => {
-    const { user, isLoading, setLoading, setAlert } = useAppContext();
+    const { isLoading, setLoading, setAlert } = useAppContext();
     const { layoutState } = useContext(LayoutContext);
 
     const [faqData, setFaqData] = useState<FAQ[]>([]);

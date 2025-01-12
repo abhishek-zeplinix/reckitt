@@ -2,11 +2,8 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { Button } from 'primereact/button';
 
 const InputFeildPage = () => {
-    const router = useRouter();
-
     return (
         <div className="grid">
             <div className="col-12">

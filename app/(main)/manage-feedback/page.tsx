@@ -7,15 +7,12 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
-import { Dropdown } from 'primereact/dropdown';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
-import { sortBy } from 'lodash';
-import { SortOrder } from 'primereact/api';
-import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules } from '@/types';
+import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
+import { Rules } from '@/types';
 
 const ACTIONS = {
     ADD: 'add',
@@ -25,7 +22,6 @@ const ACTIONS = {
 };
 
 const ManageFeedbackPage = () => {
-    const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
@@ -35,13 +31,10 @@ const ManageFeedbackPage = () => {
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    const [selectedDepartment, setSelectedDepartment] = useState('');
-    const [selectedSubCategory, setSelectedSubCategory] = useState('');
     const [rules, setRules] = useState<Rules[]>([]);
     const [feedback, setFeedback] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     const { isLoading, setLoading, setAlert } = useAppContext();
 
@@ -51,13 +44,6 @@ const ManageFeedbackPage = () => {
                 <span className="p-input-icon-left flex align-items-center">
                     <h3 className="mb-0">Manage Feedbacks</h3>
                 </span>
-                {/* <div className="flex justify-content-end">
-                    <Button icon="pi pi-plus" size="small" label="Import Rules" aria-label="Add Rules" className="default-button " onClick={handleButtonClick} style={{ marginLeft: 10 }}>
-                        <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} />
-                    </Button>
-                    <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
-                </div> */}
             </div>
         );
     };
@@ -83,8 +69,6 @@ const ManageFeedbackPage = () => {
         );
     };
 
-    const inputboxfeild = renderInputBox();
-
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
@@ -92,8 +76,6 @@ const ManageFeedbackPage = () => {
             }
 
             setPage(params.page);
-
-            const queryString = buildQueryParams(params);
 
             const response = await GetCall(`company/feedback-request`);
 
@@ -111,32 +93,6 @@ const ManageFeedbackPage = () => {
         fetchData();
     }, []);
 
-    const departments = [
-        { label: 'Planning', value: 'Planning' },
-        { label: 'Quality', value: 'Quality' },
-        { label: 'Development', value: 'Development' },
-        { label: 'Procurement', value: 'Procurement' },
-        { label: 'Sustainability', value: 'Sustainability' }
-    ];
-
-    const subcategories = [
-        { label: 'Packing Material Supplier', value: 'Packing Material Supplier' },
-        { label: 'Raw Material Supplier', value: 'Raw Material Supplier' },
-        { label: 'Copack Material Supplier', value: 'Copack Material Supplier' }
-    ];
-
-    // const dropdownMenuDepartment = () => {
-    //     return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label" placeholder="-- Select Department --" className="w-full md:w-20rem" />;
-    // };
-
-    // const dropdownFieldDeparment = dropdownMenuDepartment();
-
-    // const dropdownMenuSubCategory = () => {
-    //     return <Dropdown value={selectedSubCategory} onChange={(e) => setSelectedSubCategory(e.value)} options={subcategories} optionLabel="label" placeholder="-- Select Sub Category --" className="w-full md:w-20rem" />;
-    // };
-
-    // const dropdownFieldSubCategory = dropdownMenuSubCategory();
-
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
@@ -145,13 +101,6 @@ const ManageFeedbackPage = () => {
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
-        // if (action === ACTIONS.VIEW) {
-        //     setIsShowSplit(true);
-        // }
-        // if (action === ACTIONS.EDIT) {
-        //     setIsShowSplit(true);
-        //     // fetchSoDetails(perm.estimateId)
-        // }
     };
 
     const openDeleteDialog = (items: Rules) => {
@@ -193,21 +142,12 @@ const ManageFeedbackPage = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
-                            {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
-                            {/* <div className="flex gap-4">
-                                <div className="mt-5">{dropdownFieldDeparment}</div>
-                                <div className="mt-5">{dropdownFieldSubCategory}</div>
-                            </div> */}
-
                             <CustomDataTable
                                 ref={dataTableRef}
                                 filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                // isView={true}
-                                // isEdit={true} // show edit button
-                                // isDelete={true} // show delete button
                                 extraButtons={[
                                     {
                                         icon: 'pi pi-check'
@@ -237,21 +177,11 @@ const ManageFeedbackPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    // {
-                                    //     header: 'ID',
-                                    //     field: 'id',
-                                    //     filter: true,
-                                    //     sortable: true,
-                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                    //     headerStyle: dataTableHeaderStyle,
-                                    //     filterPlaceholder: 'Sr No'
-                                    // },
+
                                     {
                                         header: 'Supplier Name',
                                         field: 'supplierName',
-                                        // body: renderVendor,
                                         filter: true,
-                                        // filterElement: vendorDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
@@ -268,9 +198,7 @@ const ManageFeedbackPage = () => {
                                     {
                                         header: 'File',
                                         field: 'filePath',
-                                        // body: renderWarehouse,
                                         filter: true,
-                                        // filterElement: warehouseDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Search Procurement Category'
@@ -278,12 +206,10 @@ const ManageFeedbackPage = () => {
                                     {
                                         header: 'Info',
                                         field: 'info',
-                                        // body: renderStatus,
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // filterElement: statusDropdown
                                     },
                                     {
                                         header: 'Requested Date',
@@ -292,7 +218,6 @@ const ManageFeedbackPage = () => {
                                         filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // body: renderPOTotal
                                     },
                                     {
                                         header: 'Status',
@@ -312,8 +237,6 @@ const ManageFeedbackPage = () => {
                                     }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
-                                // // onView={(item: any) => onRowSelect(item, 'view')}
-                                // onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>

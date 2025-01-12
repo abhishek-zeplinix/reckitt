@@ -7,10 +7,8 @@ import { DataTable } from 'primereact/datatable';
 import { Menu } from 'primereact/menu';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { LayoutContext } from '../../layout/context/layoutcontext';
-import Link from 'next/link';
 import { ChartData, ChartOptions } from 'chart.js';
 import { useAppContext } from '@/layout/AppWrapper';
-import Preloader from '@/components/Preloader';
 import SupplierDirectory from '@/components/SupplierDirectory';
 
 const lineData: ChartData = {
@@ -36,7 +34,6 @@ const lineData: ChartData = {
 };
 
 const Dashboard = () => {
-    const { user } = useAppContext();
     const menu1 = useRef<Menu>(null);
     const menu2 = useRef<Menu>(null);
     const [lineOptions, setLineOptions] = useState<ChartOptions>({});

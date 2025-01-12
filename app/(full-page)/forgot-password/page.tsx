@@ -15,8 +15,6 @@ const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
     const { layoutConfig, layoutState } = useContext(LayoutContext);
 
-    const router = useRouter();
-
     const handleEmail = (event: any) => {
         setEmail(event.target.value);
     };
@@ -48,7 +46,6 @@ const ForgotPasswordPage = () => {
             <div className="flex align-items-center justify-content-center w-60rem">
                 <div className="surface-card p-4 shadow-2 border-round w-full" style={{ minWidth: layoutState.isMobile ? 0 : 400 }}>
                     <div className="text-center mb-5">
-                        {/* <img src="/images/reckitt.webp" alt="hyper" height={50} className="mb-3" /> */}
                         <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
                         <span className="text-600 font-medium line-height-3">Forgot password</span>
                     </div>

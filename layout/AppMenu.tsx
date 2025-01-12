@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-'use client'
+'use client';
 import React, { useContext, useRef } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { LayoutContext } from './context/layoutcontext';
@@ -218,7 +218,7 @@ const AppMenu = () => {
                                 return false;
                             },
                             command: handleMenuClick
-                        },
+                        }
                         // {
                         //     label: 'Create New Rules',
                         //     url: '/create-new-rules',
@@ -713,7 +713,7 @@ const AppMenu = () => {
                         <div
                             className="overflow-y-auto "
                             style={{
-                                scrollbarWidth: 'thin' ,
+                                scrollbarWidth: 'thin',
                                 scrollbarColor: 'transparent transparent'
                             }}
                         >

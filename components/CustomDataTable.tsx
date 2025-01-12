@@ -1,14 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Button } from 'primereact/button';
-import { Panel } from 'primereact/panel';
-import { classNames } from 'primereact/utils';
 import { DataTable, DataTableBaseProps, DataTableFilterEvent, DataTablePageEvent, DataTableValueArray } from 'primereact/datatable';
 import { Column, ColumnProps } from 'primereact/column';
-import { TreeTable } from 'primereact/treetable';
-import { InputText } from 'primereact/inputtext';
-import { get } from 'lodash';
-import { GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse } from '@/types';
 
 interface ColumnItem extends ColumnProps {
     dbField?: string;
@@ -166,13 +159,11 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
         return lazyParams;
     };
 
-    // console.log('lazyParams', lazyParams)
     return (
         <div className="card reckitt-table-container mt-3 ">
             <DataTable
                 lazy
                 paginator
-                // scrollable
                 removableSort
                 {...props}
                 totalRecords={props.totalRecords || 0}
@@ -182,7 +173,6 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                 filterDisplay={props.filter ? 'row' : undefined}
                 className="reckitt-table p-datatable-thead "
                 pageLinkSize={3}
-                // scrollHeight={tableHeight}
                 onPage={onPage}
                 onFilter={onFilter}
                 onSort={onFilter}

@@ -6,14 +6,11 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { InputText } from 'primereact/inputtext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/uitl';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
-import { sortBy } from 'lodash';
-import { SortOrder } from 'primereact/api';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
@@ -42,12 +39,10 @@ const ManageRulesPage = () => {
     const [selectedSubCategory, setSelectedSubCategory] = useState('');
     const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [checked, setChecked] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
-    const [isValid, setIsValid] = useState(true);
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -63,9 +58,9 @@ const ManageRulesPage = () => {
     };
     useEffect(() => {
         fetchData();
-    }, [limit, page]); // Re-fetch when limit or page changes
+    }, [limit, page]);
     const handleCreateNavigation = () => {
-        router.push('/create-new-rules'); // Replace with the route you want to navigate to
+        router.push('/create-new-rules');
     };
 
     const handleFileUpload = async (event: { files: File[] }) => {
@@ -117,16 +112,6 @@ const ManageRulesPage = () => {
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
-    // const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     let value = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
-
-    //     // Format as DD-MM-YYYY automatically
-    //     if (value.length >= 1) {
-    //         value = value.substring(0, 2) + (value.length > 2 ? '-' : '') + value.substring(2, 4) + (value.length > 4 ? '-' : '') + value.substring(4, 8);
-    //     }
-
-    //     setDate(value); // Update the state with the formatted value
-    // };
 
     const renderHeader = () => {
         return (
@@ -135,7 +120,6 @@ const ManageRulesPage = () => {
                     <h3 className="mb-0">Manage Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    {/* <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={handleFileChange} /> */}
                     <Button
                         icon="pi pi-plus"
                         size="small"
@@ -172,7 +156,6 @@ const ManageRulesPage = () => {
                             </div>
                         </div>
                     </Dialog>
-                    {/* <Button icon="pi pi-trash" size="small" label="Delete Rules" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
@@ -180,27 +163,6 @@ const ManageRulesPage = () => {
     };
 
     const header = renderHeader();
-
-    const renderInputBox = () => {
-        return (
-            <div style={{ position: 'relative' }}>
-                <InputText placeholder="Search" style={{ paddingLeft: '40px', width: '40%' }} />
-                <span
-                    className="pi pi-search"
-                    style={{
-                        position: 'absolute',
-                        left: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'gray',
-                        fontSize: '1.5rem'
-                    }}
-                ></span>
-            </div>
-        );
-    };
-
-    const inputboxfeild = renderInputBox();
 
     const fetchData = async (params?: any) => {
         try {
@@ -263,13 +225,6 @@ const ManageRulesPage = () => {
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
-        // if (action === ACTIONS.VIEW) {
-        //     setIsShowSplit(true);
-        // }
-        // if (action === ACTIONS.EDIT) {
-        //     setIsShowSplit(true);
-        //     // fetchSoDetails(perm.estimateId)
-        // }
     };
 
     const openDeleteDialog = (items: Rules) => {
@@ -311,7 +266,6 @@ const ManageRulesPage = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
-                            {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
                             <div className="flex justify-content-between items-center border-b">
                                 <div>
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '40px' }} />
@@ -328,24 +282,8 @@ const ManageRulesPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                // isView={true}
                                 isEdit={true} // show edit button
                                 isDelete={true} // show delete button
-                                // extraButtons={[
-                                //     {
-                                //         icon: 'pi pi-cloud-upload',
-                                //         onClick: (item) => openDialog()
-                                //     },
-                                //     {
-                                //         icon: 'pi pi-external-link',
-                                //         onClick: async (item) => {
-                                //             setDialogVisible(true);
-                                //             setPoId(item.poId); // Set the poId from the clicked item
-
-                                //             await fetchTrackingData(item.poId);
-                                //         }
-                                //     }
-                                // ]}
                                 data={rules.map((item: any) => ({
                                     ruleId: item.ruleId,
                                     subCategoryName: item.subCategories?.subCategoryName,
@@ -367,21 +305,11 @@ const ManageRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-                                    // {
-                                    //     header: 'Rule ID',
-                                    //     field: 'ruleId',
-                                    //     filter: true,
-                                    //     sortable: true,
-                                    //     bodyStyle: { minWidth: 50, maxWidth: 50 },
-                                    //     headerStyle: dataTableHeaderStyle,
-                                    //     filterPlaceholder: 'Sr No'
-                                    // },
+
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'supplierid',
-                                        // body: renderVendor,
                                         filter: true,
-                                        // filterElement: vendorDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
@@ -398,9 +326,7 @@ const ManageRulesPage = () => {
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'section',
-                                        // body: renderWarehouse,
                                         filter: true,
-                                        // filterElement: warehouseDropdown,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Search Procurement Category'
@@ -408,12 +334,10 @@ const ManageRulesPage = () => {
                                     {
                                         header: 'CRITERIA',
                                         field: 'ratedCriteria',
-                                        // body: renderStatus,
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // filterElement: statusDropdown
                                     },
                                     {
                                         header: 'CRITERIA EVALUATION LIST',
@@ -422,7 +346,6 @@ const ManageRulesPage = () => {
                                         filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                        // body: renderPOTotal
                                     },
                                     {
                                         header: 'CRITERIA SCORE',
@@ -450,8 +373,6 @@ const ManageRulesPage = () => {
                                     }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
-                                // // onView={(item: any) => onRowSelect(item, 'view')}
-                                // onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>
