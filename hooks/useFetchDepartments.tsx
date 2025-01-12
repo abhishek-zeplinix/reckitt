@@ -30,7 +30,6 @@ const useFetchDepartments = () => {
 
     }, [setLoading, setAlert]);
 
-
     // memoization
     const memoizedDepartments = useMemo(() => departments, [departments]);
 

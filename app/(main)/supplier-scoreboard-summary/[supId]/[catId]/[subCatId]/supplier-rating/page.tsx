@@ -3,7 +3,7 @@ import { GetCall } from '@/app/api-config/ApiKit';
 import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
-import { buildQueryParams } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
@@ -11,9 +11,10 @@ import { useEffect, useState } from 'react';
 
 const SupplierRatingPage = () => {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
-    const [activeTab, setActiveTab] = useState('PLANNING');
+    const [activeTab, setActiveTab] = useState('PROCUREMENT');
     const [selectedPeriod, setSelectedPeriod] = useState();
     const [rules, setRules] = useState([]);
+    // const [departments, setDepartments] = useState<any>();
     const [selectedDepartment, setSelectedDepartment] = useState<number>(1);
     const [supplierData, setSupplierData] = useState<any>();
     const [periodOptions, setPeriodOptions] = useState<any>([]);
@@ -25,13 +26,31 @@ const SupplierRatingPage = () => {
     //hooks
     const { departments } = useFetchDepartments();
 
+    // console.log(supplierData);
+
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
         copack: 'ratiosCopack'
     };
 
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
+
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
+
+    console.log(category);
+
+    //fetch department api
+    // const fetchDepartments = async () => {
+
+    //     try {
+    //         const response = await GetCall('/company/department');
+    //         setDepartments(response.data);
+    //         return response.data;
+
+    //     } catch (error) {
+    //         setAlert('error', 'Failed to fetch departments');
+    //     }
+    // };
 
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
@@ -82,6 +101,7 @@ const SupplierRatingPage = () => {
         const fetchRulesData = async () => {
             if (!selectedPeriod) return;
 
+            // verify if the selected period is valid for current department
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
             if (!currentDepartment) return;
 
@@ -173,9 +193,18 @@ const SupplierRatingPage = () => {
     };
 
     const leftPanelData = [
-        { label: 'Category :', value: `${supplierData?.category?.categoryName}` },
-        { label: 'Sub-Category :', value: `${supplierData?.subCategories?.subCategoryName}` },
-        { label: 'Supplier Name :', value: `${supplierData?.supplierName}` }
+        {
+            label: 'Category :',
+            value: `${supplierData?.category?.categoryName}`
+        },
+        {
+            label: 'Sub-Category :',
+            value: `${supplierData?.subCategories?.subCategoryName}`
+        },
+        {
+            label: 'Supplier Name :',
+            value: `${supplierData?.supplierName}`
+        }
     ];
     const RightPanelData = [
         { label: 'Supplier Id :', value: `${supplierData?.supId}` },
@@ -256,28 +285,34 @@ const SupplierRatingPage = () => {
 
     const renderSummoryInfo = summoryCards();
 
+    // console.log(departments);
+    console.log(selectedDepartment);
+    console.log(selectedPeriod);
+
     const dataPanel = () => {
         return (
             <>
                 <div className="border">
                     <div className="p-1">
                         <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
-                            {departments?.map((department: any) => (
-                                <div
-                                    key={department.name}
-                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name ? 'text-pink-500 border border-pink-500 rounded-lg' : 'text-gray-500 border-none'}`}
-                                    style={{
-                                        border: activeTab === department.name ? '1px solid #ec4899' : 'none',
-                                        borderRadius: activeTab === department.name ? '12px' : '0'
-                                    }}
-                                    onClick={() => {
-                                        setActiveTab(department.name); // Set activeTab state
-                                        setSelectedDepartment(department.departmentId); // Set departmentID state
-                                    }}
-                                >
-                                    {department.name.toUpperCase()}
-                                </div>
-                            ))}
+                            {departments
+                                ?.sort((a: any, b: any) => a.orderBy - b.orderBy) // Sort by orderBy property
+                                .map((department: any) => (
+                                    <div
+                                        key={department.name}
+                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name ? 'text-pink-500 border border-pink-500 rounded-lg' : 'text-gray-500 border-none'}`}
+                                        style={{
+                                            border: activeTab === department.name ? '1px solid #ec4899' : 'none',
+                                            borderRadius: activeTab === department.name ? '12px' : '0'
+                                        }}
+                                        onClick={() => {
+                                            setActiveTab(department.name); // Set activeTab state
+                                            setSelectedDepartment(department.departmentId); // Set departmentID state
+                                        }}
+                                    >
+                                        {department.name.toUpperCase()}
+                                    </div>
+                                ))}
                         </div>
                     </div>
                     <hr />
@@ -290,6 +325,8 @@ const SupplierRatingPage = () => {
                             <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div>
                     </div>
+
+                    {/* <div className="mt-4">{renderContent()}</div> */}
 
                     {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentID={selectedDepartment} department={activeTab} />}
                 </div>

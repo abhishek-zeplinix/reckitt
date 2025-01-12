@@ -8,6 +8,7 @@ import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTabl
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';

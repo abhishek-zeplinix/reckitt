@@ -6,6 +6,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import { InputText } from 'primereact/inputtext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -16,6 +17,7 @@ import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { useLoaderContext } from '@/layout/context/LoaderContext';
 
 const ACTIONS = {
     ADD: 'add',
@@ -43,6 +45,9 @@ const ManageRulesPage = () => {
     const [visible, setVisible] = useState(false);
     const [checked, setChecked] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
+    const [isValid, setIsValid] = useState(true);
+    // const { loader } = useLoaderContext();
+    const { loader, setLoader } = useLoaderContext();
 
     const limitOptions = [
         { label: '10', value: 10 },

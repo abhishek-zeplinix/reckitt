@@ -52,6 +52,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                 // Set initial percentage
                 //here category is either rawPack or copack..it coming as a prop
                 const categoryValue = criteria?.evaluations?.[0]?.[category];
+
+                console.log(categoryValue);
+
                 initialPercentages[key] = categoryValue ?? 0;
             });
         });

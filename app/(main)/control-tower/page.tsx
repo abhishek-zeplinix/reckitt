@@ -4,7 +4,7 @@ import AddRoleControl from '@/components/control-tower/add-role-control';
 import DynamicInput from '@/components/control-tower/dynamic-inputs';
 import Permission from '@/components/control-tower/permissionAssignment';
 import PermissionManagement from '@/components/control-tower/permissionManagement';
-import Routes from '@/components/control-tower/routes';
+import Routes from '@/components/control-tower/api-routes';
 
 const Tabs = ['Location', 'Sub Location', 'Category', 'Sub Category', 'Department', 'Roles', 'Routes', 'Accessibility', 'Permissions'];
 
