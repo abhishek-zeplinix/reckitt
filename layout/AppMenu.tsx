@@ -57,7 +57,7 @@ const AppMenu = () => {
         setTimeout(() => {
           router.push(item.url);
           setLoader(false); // Hide the loader after 1 second
-        }, 200);
+        }, 500);
       };
 
       console.log('63',loader)
