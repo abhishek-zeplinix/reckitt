@@ -610,3 +610,12 @@ $spacing-sizes: (
 .p-multiselect:not(.p-disabled):hover{
   border-color: #DF177C;
 }
+.mx-collapsed {
+  margin-left: 0.45rem !important;
+  margin-right: -0.75rem !important;
+}
+
+.mx-default {
+  margin-left: 0.25rem !important;
+  margin-right: 0.25rem !important;
+}

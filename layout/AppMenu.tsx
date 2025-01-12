@@ -110,6 +110,43 @@ const AppMenu = () => {
                     ]
                 },
                 {
+                    label: 'Task Management',
+                    icon: 'pi pi-ticket',
+                    // check: (user: any) => {
+                    //     const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                    //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                    //         return true;
+                    //     }
+                    //     return false;
+                    // },
+                    items: [
+                        {
+                            label: 'Suppliers task',
+                            url: '/task-management/supplier-tasks',
+                            // check: (user: any) => {
+                            //     const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // },
+                            command: handleMenuClick
+                        },
+                        {
+                            label: 'Evaluator Tasks',
+                            url: '/task-management/evaluator-tasks',
+                            // check: (user: any) => {
+                            //     const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
+                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // },
+                            command: handleMenuClick
+                        }
+                    ]
+                },
+                {
                     label: 'Suppliers',
                     icon: 'pi pi-truck',
                     check: (user: any) => {
@@ -271,6 +308,43 @@ const AppMenu = () => {
                     ]
                 },
                 {
+                    label: 'Market Metrics',
+                    icon: 'pi pi-chart-bar',
+                    check: (user: any) => {
+                        const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                        if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    items: [
+                        {
+                            label: 'Vendors',
+                            url: '/vendors',
+                            check: (user: any) => {
+                                const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                                if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                                    return true;
+                                }
+                                return false;
+                            },
+                            command: handleMenuClick
+                        },
+                        {
+                            label: 'User Groups',
+                            url: '/user-groups',
+                            check: (user: any) => {
+                                const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                                if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                                    return true;
+                                }
+                                return false;
+                            },
+                            command: handleMenuClick
+                        }
+                    ]
+                },
+                {
                     label: 'Request Management',
                     icon: 'pi pi-bolt',
                     // check: (user: any) => {
@@ -345,20 +419,8 @@ const AppMenu = () => {
                         return false;
                     },
                     command: handleMenuClick
-                },
-                {
-                    label: 'My Permissions',
-                    icon: 'pi pi-lock-open',
-                    url: '/permissions',
-                    check: (user: any) => {
-                        const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
-                        if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                            return true;
-                        }
-                        return false;
-                    },
-                    command: handleMenuClick
                 }
+
                 // {
                 //     label: 'Permissions',
                 //     icon: 'pi pi-lock',
@@ -724,6 +786,15 @@ const AppMenu = () => {
                                     )}
                                 </ul>
                             </div>
+                            {!layoutState.isMobile && (
+                                <div className="mt-auto">
+                                    <a
+                                        v-ripple
+                                        className="flex mb-1 justify-content-center align-items-center  p-2 text-700 transition-duration-150 transition-colors p-ripple "
+                                        style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '20px' }}
+                                    ></a>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
