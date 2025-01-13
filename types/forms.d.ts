@@ -308,8 +308,10 @@ type EmptySupplier = {
     gdpFile?: any;
     reachFile: any;
     isoFile: any;
-    locationId?: number | null;
+    location?: string;
     sublocationId?: number | null;
+    factoryName?: string;
+    // warehouseLocationName?: string;
     category?: {
         categoryId: number | null;
         categoryName: string;
@@ -318,11 +320,11 @@ type EmptySupplier = {
         subCategoryId: number | null;
         subCategoryName: string;
     };
-    factoryName?: {
-        factoryId: number | null;
-        factoryName: string;
+    // factoryName?: {
+    //     factoryId: number | null;
+    //     factoryName: string;
 
-    };
+    // };
 };
 
 

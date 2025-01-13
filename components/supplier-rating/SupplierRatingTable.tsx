@@ -6,11 +6,11 @@ import { useState, useEffect } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
 import SubmitResetButtons from '../control-tower/submit-reset-buttons';
-import { GetCall } from '@/app/api-config/ApiKit';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { buildQueryParams } from '@/utils/utils';
 
-const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentID, department }: any) => {
+const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department }: any) => {
 
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
@@ -278,9 +278,10 @@ const { setLoading, setAlert } = useAppContext();
 
                         // get the score
                         const score = evaluation.score;
-
+                        console.log("category", category);
+                        
                         // prepare the ratio key based on category
-                        const ratioKey = category === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
+                        // const ratioKey = category.toLowerCase() === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
 
                         return {
                             criteriaName: criteria.criteriaName,
@@ -291,7 +292,7 @@ const { setLoading, setAlert } = useAppContext();
                                     // score: score === 'NA' ? 'NA' : Number(score),
                                     score: score === 'NA' ? 'NA' : String(score),
                                     // Keep ratio as string if it's 'NA', otherwise use the current percentage
-                                    [ratioKey]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
+                                    [category]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
                                 }
                             ]
                         };
@@ -308,11 +309,11 @@ const { setLoading, setAlert } = useAppContext();
 
         const apiData = {
             supId,
-            departmentID,
+            departmentId,
             department,
-            category: categoryData,
+            categoryId: catId,
             subCategoryId,
-            evaluationPeriod,
+            evalutionPeriod: evaluationPeriod,
             sections,
             totalScore,
             comments,
@@ -323,8 +324,28 @@ const { setLoading, setAlert } = useAppContext();
     };
 
     const handleSubmit = async () => {
+
         const apiData = prepareApiData();
-        console.log(apiData);
+
+        try{
+
+            const response = await PostCall('/company/supplier-score', apiData);
+            
+            if(response.code === 'SUCCESS'){
+
+              setAlert('success', "Supplier Score Successfully Submitted!")
+            }else{
+              setAlert('error', response.message)
+            }
+        }catch(err){
+
+            setAlert('error', "Something Went Wrong!!")
+        }finally{
+
+
+        }
+
+
     };
 
     const handleReset = () => {
@@ -335,7 +356,28 @@ const { setLoading, setAlert } = useAppContext();
 
   const handleCapaDataChange = (data: any[]) => {
     setCapaData(data);
+    console.log(data);
+    
   };
+
+  const existingSelections = [
+    {
+        "capaRuleId": 4938,
+        "selectedStatus": "No"
+    },
+    {
+        "capaRuleId": 4941,
+        "selectedStatus": "No"
+    },
+    {
+        "capaRuleId": 4943,
+        "selectedStatus": "CAPA Open"
+    },
+    {
+        "capaRuleId": 4945,
+        "selectedStatus": "End of Q3"
+    }
+]
 
 
   return (
@@ -459,6 +501,7 @@ const { setLoading, setAlert } = useAppContext();
           ))}
 
 
+
           <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
             <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
               Total Score:
@@ -492,7 +535,7 @@ const { setLoading, setAlert } = useAppContext();
 
       {/* if CAPA is required */}
       <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-        {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentID}/>}
+        {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={existingSelections}/>}
       </div>
 
       {/* <div className='flex justify-content-end gap-3 mt-1 p-3'>
