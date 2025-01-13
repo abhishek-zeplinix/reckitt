@@ -179,20 +179,22 @@ console.log('47',loader)
     ];
 
     const isDefaultPage = pathname === '/';
+    console.log('182',onMenuToggle)
 
     return (
         <>
-         {loader && <Loader />} 
+         
         <React.Fragment>
-            <TopLinerLoader />
+            {/* <TopLinerLoader /> */}
+            {loader && <Loader />} 
             <div className={containerClass}>
                 <MyFileUpload />
                 <AppTopbar ref={topbarRef} />
-                {!layoutState.isMobile && (
+                {/* {!layoutState.isMobile && (
                     <div className={menuToggleClass} onClick={onMenuToggle}>
                         <i className={iconClass}></i>
                     </div>
-                )}
+                )} */}
                 <div ref={sidebarRef} className="layout-sidebar">
                     <AppSidebar />
                 </div>
