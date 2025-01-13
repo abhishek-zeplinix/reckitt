@@ -98,10 +98,10 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
     const containerStyle: any = {
         display: 'flex',
-        justifyContent: 'space-between',
+        // justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '8px'
+        gap: '12px'
     };
 
     const itemStyle = {
@@ -111,7 +111,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
     };
 
     const fixedDropdown = {
-        width: '249px' /* fixed width for the dropdown */,
+        width: '230px' /* fixed width for the dropdown */,
         minWidth: '150px' /*ensures dropdown is not smaller than this */,
         padding: '4px',
         height: '45px'
