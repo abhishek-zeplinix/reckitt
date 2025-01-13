@@ -16,28 +16,24 @@ const useFetchDepartments = () => {
 
             const response = await GetCall('/company/department');
             setDepartments(response.data);
-            return response.data;
 
         } catch (error) {
 
             setAlert('error', 'Failed to fetch departments');
-            return null;
 
         } finally {
 
             setLoading(false);
         }
 
-    }, [setLoading, setAlert]);
+    }, []);
 
     // memoization
     const memoizedDepartments = useMemo(() => departments, [departments]);
 
     useEffect(() => {
-        if (departments.length === 0) {
             fetchDepartments();
-        }
-    }, [fetchDepartments, departments]);
+    }, []);
 
     return { departments: memoizedDepartments, fetchDepartments };
 };

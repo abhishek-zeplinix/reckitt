@@ -33,7 +33,7 @@ const defaultForm: EmptySupplier = {
     gdpFile: '',
     reachFile: '',
     isoFile: '',
-    locationId: null,
+    location: '',
     sublocationId: null,
     category: {
         categoryId: null,
@@ -43,10 +43,10 @@ const defaultForm: EmptySupplier = {
         subCategoryId: null,
         subCategoryName: ''
     },
-    factoryName: {
-        factoryId: null,
-        factoryName: ''
-    }
+    // factoryName: {
+    //     factoryId: null,
+    //     factoryName: ''
+    // }
 };
 
 const ManageSupplierPage = () => {
@@ -210,7 +210,7 @@ const ManageSupplierPage = () => {
         }
     };
 
-    const onRowSelect = async (perm: Supplier, action: any) => {
+    const onRowSelect = async (perm: any, action: any) => {
         setAction(action);
         // setIsShowSplit(true);
         await setSelectedSupplier(perm);
@@ -220,11 +220,21 @@ const ManageSupplierPage = () => {
         if (action == ACTIONS.EDIT) {
             setForm(perm);
             setIsShowSplit(true);
+            handleEditSupplier(perm)
         }
+
+        
     };
 
+    const handleEditSupplier = (sup: any) => {
+        const supId = sup.supId
+        console.log(supId);
+        router.push(`/manage-supplier/supplier?edit=true&supId=${supId}`);
+    };
+
+
     const handleCreateNavigation = () => {
-        router.push('/create-supplier'); // Replace with the route you want to navigate to
+        router.push('/manage-supplier/supplier');
     };
     const renderHeader = () => {
         return (
@@ -259,6 +269,7 @@ const ManageSupplierPage = () => {
             </div>
         );
     };
+    
 
     return (
         <div className="grid">
@@ -277,6 +288,14 @@ const ManageSupplierPage = () => {
                                 isEdit={true} // show edit button
                                 isDelete={true} // show delete button
                                 data={companies}
+                                // extraButtons={[
+                                //     {
+                                //         icon: 'pi pi-user-edit',
+                                //         onClick: (e) => {
+                                //             handleEditUser(e.id); // Pass the userId from the row data
+                                //         }
+                                //     }
+                                // ]}
                                 columns={[
                                     {
                                         header: 'Sr. No.',
@@ -327,7 +346,7 @@ const ManageSupplierPage = () => {
                                     },
                                     {
                                         header: 'Factory Name',
-                                        field: 'factoryName.factoryName',
+                                        field: 'factoryName',
                                         filter: true,
                                         filterPlaceholder: 'Factory Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
@@ -371,7 +390,7 @@ const ManageSupplierPage = () => {
 
                     <div className="flex flex-column align-items-center gap-1">
                         <span>Are you sure you want to delete this supplier? </span>
-                        <span>Do you still want to delete it? This action cannot be undone. </span>
+                        <span>This action cannot be undone. </span>
                     </div>
                 </div>
             </Dialog>

@@ -6,6 +6,7 @@ import { Dropdown } from "primereact/dropdown";
 import { useState, useEffect } from "react";
 
 interface CapaRule {
+  capaRuleId: number;
   capaRulesName: string;
   status: string;
   departmentId: string;
@@ -13,8 +14,14 @@ interface CapaRule {
   subCategoryId: string;
 }
 
+interface CapaRuleResponse {
+  capaRuleId: number;
+  selectedStatus: string;
+}
+
 interface GroupedData {
   id: string;
+  capaRuleId: number;
   capaQuestion: string;
   status: {
     options: string[];
@@ -26,18 +33,27 @@ interface GroupedData {
   };
 }
 
-const CapaRequiredTable = ({ onDataChange, depId }: { onDataChange: ([]: any) => void; depId: string }) => {
+interface CapaRequiredTableProps {
+  onDataChange: (data: CapaRuleResponse[]) => void;
+  depId: string;
+  existingSelections?: CapaRuleResponse[];
+}
+
+const CapaRequiredTable = ({ onDataChange, depId, existingSelections }: CapaRequiredTableProps) => {
   const { setLoading, setAlert } = useAppContext();
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
+  const [isInitialized, setIsInitialized] = useState(false);  // Add this flag
+
 
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
 
   const groupDataByRules = (data: CapaRule[]) => {
-    return data.reduce((acc, item) => {
+    const grouped = data.reduce((acc, item) => {
       if (!acc[item.capaRulesName]) {
         acc[item.capaRulesName] = {
+          capaRuleId: item.capaRuleId,
           options: [],
           departmentId: item.departmentId,
           categoryId: item.categoryId,
@@ -46,15 +62,52 @@ const CapaRequiredTable = ({ onDataChange, depId }: { onDataChange: ([]: any) =>
       }
       acc[item.capaRulesName].options.push(item.status);
       return acc;
-    }, {} as Record<string, { options: string[]; departmentId: string; categoryId: string; subCategoryId: string; }>);
+    }, {} as Record<string, {
+      capaRuleId: number;
+      options: string[];
+      departmentId: string;
+      categoryId: string;
+      subCategoryId: string;
+    }>);
+
+    return Object.entries(grouped).map(([question, data]) => ({
+      id: question,
+      capaRuleId: data.capaRuleId,
+      capaQuestion: question,
+      status: {
+        options: data.options,
+      },
+      metadata: {
+        departmentId: data.departmentId,
+        categoryId: data.categoryId,
+        subCategoryId: data.subCategoryId
+      }
+    }));
   };
 
   useEffect(() => {
-
     if (depId) {
+      setIsInitialized(false);
+
       fetchCapaRules();
     }
   }, [depId]);
+
+
+  
+  // Initialize with existing selections only once
+  useEffect(() => {
+    if (existingSelections && groupedData.length > 0 && !isInitialized) {
+      const existingValues = existingSelections.reduce((acc, item) => {
+        acc[item.capaRuleId] = item.selectedStatus;
+        return acc;
+      }, {} as Record<number, string>);
+      
+      setSelectedValues(existingValues);
+      setIsInitialized(true);  // Mark as initialized
+    }
+  }, [existingSelections, groupedData, isInitialized]);
+
 
   const fetchCapaRules = async () => {
     setLoading(true);
@@ -69,34 +122,17 @@ const CapaRequiredTable = ({ onDataChange, depId }: { onDataChange: ([]: any) =>
       };
       const queryString = buildQueryParams(params);
       const response = await GetCall(`/company/caparule?${queryString}`);
-
-      // immediately process the data after fetching
-      const grouped = groupDataByRules(response.data || []);
-
-      // transform the grouped data into the required format
-      const formattedData = Object.entries(grouped).map(([question, data]) => ({
-        id: question,
-        capaQuestion: question,
-        status: {
-          options: data.options,
-        },
-        metadata: {
-          departmentId: data.departmentId,
-          categoryId: data.categoryId,
-          subCategoryId: data.subCategoryId
-        }
-      }));
-
+      const formattedData = groupDataByRules(response.data || []);
       setGroupedData(formattedData);
 
-      // initialize selected values
-      const initialValues = formattedData.reduce((acc, item) => {
-        acc[item.id] = "";
-        return acc;
-      }, {} as Record<string, string>);
-
-      setSelectedValues(initialValues);
-
+      // Only initialize if there are no existing selections
+      if (!existingSelections) {
+        const initialValues = formattedData.reduce((acc, item) => {
+          acc[item.id] = "";
+          return acc;
+        }, {} as Record<string, string>);
+        setSelectedValues(initialValues);
+      }
     } catch (error) {
       setAlert('error', 'Something went wrong!')
     } finally {
@@ -104,17 +140,28 @@ const CapaRequiredTable = ({ onDataChange, depId }: { onDataChange: ([]: any) =>
     }
   };
 
-
-  const handleDropdownChange = (itemId: string, value: string) => {
+  const handleDropdownChange = (itemId: string, capaRuleId: number, value: string) => {
     setSelectedValues((prevState) => {
-      const newState = {
+      // Only update if value actually changed
+      if (prevState[capaRuleId] === value) {
+        return prevState;
+      }
+
+      const newState: any = {
         ...prevState,
-        [itemId]: value,
+        [capaRuleId]: value
       };
-      onDataChange(newState);
+      
+      const apiData: CapaRuleResponse[] = groupedData.map(item => ({
+        capaRuleId: item.capaRuleId,
+        selectedStatus: newState[item.capaRuleId] || ""
+      }));
+      
+      onDataChange(apiData);
       return newState;
     });
   };
+
 
   return (
     <div className="w-full">
@@ -142,16 +189,18 @@ const CapaRequiredTable = ({ onDataChange, depId }: { onDataChange: ([]: any) =>
                 {item.capaQuestion}
               </td>
               <td className="px-4 py-2">
+
                 <Dropdown
                   options={item.status.options.map((option) => ({
                     label: option,
                     value: option,
                   }))}
-                  value={selectedValues[item.id]}
-                  onChange={(e) => handleDropdownChange(item.id, e.value)}
+                  value={selectedValues[item.capaRuleId] || ""}  // Use capaRuleId here
+                  onChange={(e) => handleDropdownChange(item.id, item.capaRuleId, e.value)}
                   placeholder="Select Status"
                   className="w-full"
                 />
+
               </td>
             </tr>
           ))}

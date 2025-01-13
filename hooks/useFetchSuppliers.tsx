@@ -15,32 +15,28 @@ const useFetchSuppliers = () => {
         try {
 
             const response = await GetCall('/company/supplier');
-            setSuppliers(response.data);
-            return response.data;
+            setSuppliers(response.data || []);
 
         } catch (error) {
 
-            setAlert('error', 'Failed to fetch departments');
-            return null;
+            setAlert('error', 'Failed to fetch suppliers');
 
         } finally {
 
             setLoading(false);
         }
 
-    }, [setLoading, setAlert]);
+    }, []);
 
 
     // memoization
-    const memoizedDepartments = useMemo(() => suppliers, [suppliers]);
+    const memoizedSuppliers  = useMemo(() => suppliers, [suppliers]);
 
     useEffect(() => {
-        if (suppliers.length === 0) {
             fetchSuppliers();
-        }
-    }, [fetchSuppliers, suppliers]);
+    }, []);
 
-    return { suppliers: memoizedDepartments, fetchSuppliers };
+    return { suppliers: memoizedSuppliers , fetchSuppliers };
 };
 
 export default useFetchSuppliers;
