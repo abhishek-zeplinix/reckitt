@@ -6,33 +6,70 @@ import { useState, useEffect } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
 import SubmitResetButtons from '../control-tower/submit-reset-buttons';
+import { GetCall } from '@/app/api-config/ApiKit';
+import { useAppContext } from '@/layout/AppWrapper';
+import { buildQueryParams } from '@/utils/utils';
 
 const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentID, department }: any) => {
-    const [tableData, setTableData] = useState(rules);
-    const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
-    const [originalPercentages, setOriginalPercentages] = useState<any>({});
-    const [currentPercentages, setCurrentPercentages] = useState<any>({});
-    const [displayPercentages, setDisplayPercentages] = useState<any>({});
-    const [totalScore, setTotalScore] = useState<any>(0);
-    const [comments, setComments] = useState('');
-    const [capaData, setCapaData] = useState<any[]>([]);
 
-    const urlParams = useParams();
-    const { supId, catId, subCatId } = urlParams;
+  const [tableData, setTableData] = useState(rules);
+  const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
+  const [originalPercentages, setOriginalPercentages] = useState<any>({});
+  const [currentPercentages, setCurrentPercentages] = useState<any>({});
+  const [displayPercentages, setDisplayPercentages] = useState<any>({});
+  const [totalScore, setTotalScore] = useState<any>(0);
+  const [comments, setComments] = useState('');
+  const [capaData, setCapaData] = useState<any[]>([]);
+  const [capaRules, setCapaRules] = useState<any[]>([]);
 
-    // Reset initialization when category changes
-    useEffect(() => {
-        if (rules && category) {
-            setTableData(rules);
+  const urlParams = useParams();
+  const { supId, catId, subCatId } = urlParams;
 
-            initializeData(rules);
-        }
-    }, [rules, category]);
+const { setLoading, setAlert } = useAppContext();
 
-    //capa rule visibility logic
-    const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined);
+  // Reset initialization when category changes
+  useEffect(() => {
+    
+    if (rules && category) {
+      setTableData(rules);
 
-    console.log('capa rule visibility logic', isCapaRulesVisibleOnInitialRender);
+      initializeData(rules);
+
+      // fetchCapaRules();
+    }
+
+  }, [rules, category]);
+
+
+  //capa rule visibility logic
+  //it is based on selectedEvaluations
+  const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
+
+  console.log('capa rule visibility logic', selectedEvaluations);
+
+//  const fetchCapaRules = async() =>{
+
+//       setLoading(true);
+//     try{
+        
+
+//        const params = { filters: {categoryId: catId, subCategoryId: subCatId, deparmentId: departmentID } };
+//         const queryString = buildQueryParams(params);
+//         const response = await GetCall(`/company/caparule?${queryString}`);
+//         console.log(response.data);
+        
+//         setCapaRules(response.data || []);
+        
+      
+//     }catch(error){
+//         setAlert('error', 'Something went wrong!')
+
+//     }finally{
+
+//       setLoading(false);
+//     }
+//  }
+
 
     const initializeData = (currentRules: any) => {
         const initialEvals: any = {};
@@ -49,15 +86,16 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
                 initialEvals[key] = criteria?.evaluations.criteriaEvaluation;
 
-                // Set initial percentage
-                //here category is either rawPack or copack..it coming as a prop
-                const categoryValue = criteria?.evaluations?.[0]?.[category];
+        // Set initial percentage
+        //here category is either rawPack or copack..it coming as a prop
+        const categoryValue = criteria?.evaluations?.[0]?.[category];
 
-                console.log(categoryValue);
+        console.log(categoryValue);
 
-                initialPercentages[key] = categoryValue ?? 0;
-            });
-        });
+        initialPercentages[key] = categoryValue ?? 0;
+
+      });
+    });
 
         setSelectedEvaluations(initialEvals);
         setOriginalPercentages(initialPercentages);
@@ -167,20 +205,27 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
             }
         }
 
-        return newPercentages;
-    };
+    return newPercentages;
+  };
+
+
 
     const calculateTotalScore = (evaluations: any, percentages: any) => {
         let scoreSum = 0;
 
-        tableData?.sections?.forEach((section: any, sectionIndex: number) => {
-            section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
-                const key = `${sectionIndex}-${criteriaIndex}`;
-                const selectedEval = evaluations[key];
-                const currentPercentage = percentages[key];
+    tableData?.sections?.forEach((section: any, sectionIndex: number) => {
 
-                if (selectedEval && currentPercentage !== 'NA') {
-                    const evaluation = (criteria.evaluations as any[]).find((e) => e.criteriaEvaluation === selectedEval);
+      section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
+
+        const key = `${sectionIndex}-${criteriaIndex}`;
+        const selectedEval = evaluations[key];
+        const currentPercentage = percentages[key];
+
+        if (selectedEval && selectedEval !== "" && currentPercentage !== 'NA') { // add check for empty string
+
+          const evaluation = (criteria.evaluations as any[]).find(
+            (e) => e.criteriaEvaluation === selectedEval
+          );
 
                     if (evaluation && evaluation.score !== 'NA') {
                         const score = Number(evaluation.score);
@@ -191,8 +236,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
             });
         });
 
-        setTotalScore(Math.round(scoreSum * 100) / 100);
-    };
+    setTotalScore(Math.round(scoreSum * 100) / 100);
+  };
+
 
     const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
         const key = `${sectionIndex}-${criteriaIndex}`;
@@ -287,23 +333,29 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
     //update capaData when CapaRequiredTable changes
 
-    const handleCapaDataChange = (data: any[]) => {
-        setCapaData(data);
-    };
+  const handleCapaDataChange = (data: any[]) => {
+    setCapaData(data);
+  };
 
-    return (
-        // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
-        <div className=" w-full shadow-sm mt-5">
-            <table className="min-w-full bg-white border">
-                <thead>
-                    <tr style={{ backgroundColor: '#E9EFF6' }}>
-                        <th className="px-4 py-3 text-left text-md font-bold text-black">Section Name</th>
-                        <th className="px-4 py-3 text-left text-md font-bold text-black">Rated Criteria</th>
-                        <th className="px-4 py-3 text-left text-md font-bold text-black">Ratio (%)</th>
-                        <th className="px-4 py-3 text-left text-md font-bold text-black">Evaluation</th>
-                        <th className="px-4 py-3 text-left text-md font-bold text-black">Score</th>
-                    </tr>
-                </thead>
+
+  return (
+    // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
+
+    //changed
+    <div className=" w-full shadow-sm mt-3 overflow-x-auto"> 
+
+    <div className="min-w-[800px]">
+      <table className="min-w-full bg-white border">
+        <thead>
+          <tr style={{ backgroundColor: "#E9EFF6" }}>
+
+            <th className="px-4 py-3 text-left text-md font-bold text-black">Section Name</th>
+            <th className="px-4 py-3 text-left text-md font-bold text-black">Rated Criteria</th>
+            <th className="px-4 py-3 text-left text-md font-bold text-black">Ratio (100%)</th>
+            <th className="px-4 py-3 text-left text-md font-bold text-black">Evaluation</th>
+            <th className="px-4 py-3 text-left text-md font-bold text-black">Score</th>
+          </tr>
+        </thead>
 
                 <tbody>
                     {tableData?.sections?.map((section: any, sectionIndex: any) => (
@@ -324,9 +376,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                                 //if no evaluation is selected, 'NA' will be assigned to score by default
                                 const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
 
-                                return (
-                                    <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
-                                        {/* <td className="px-4 py-2 text-md text-gray-500">{section.sectionName}</td> */}
+                return (
+
+                  <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
 
                                         {criteriaIndex === 0 && (
                                             <td
@@ -340,76 +392,115 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
                                         <td className="px-4 py-2 text-md text-gray-500">{criteria.criteriaName}</td>
 
-                                        <td className="px-4 py-2">
-                                            <InputText type="text" value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'} size={1} readOnly className="m-auto" />
-                                        </td>
+                    <td className="px-4 py-2">
+                      <InputText
+                        type="text"
+                        value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
+                        size={1}
+                        readOnly
+                        className='m-auto text-center'
+                      />
+                    </td>
 
-                                        <td className="px-4 py-2">
-                                            <Dropdown
-                                                value={selectedEval}
-                                                onChange={(e) => handleEvaluationChange(sectionIndex, criteriaIndex, e.value)}
-                                                options={criteria.evaluations.map((evaluation: any) => ({
-                                                    label: evaluation.criteriaEvaluation,
-                                                    value: evaluation.criteriaEvaluation
-                                                }))}
-                                                placeholder="Select an Evaluation"
-                                                className="w-full md:w-14rem"
-                                            />
-                                        </td>
 
-                                        <td className="px-4 py-2">
-                                            {score === 'NA' ? (
-                                                <Button label={score} size="small" className="p-button-sm bg-gray-400 text-white border-none w-10 mx-1" />
-                                            ) : Number(score) >= 7 ? (
-                                                <Button label={score} size="small" className="p-button-sm bg-green-600 text-white border-none w-10 mx-1" />
-                                            ) : score >= 'empty' ? (
-                                                <Button size="small" className="p-button-sm bg-white text-white border-1 border-500 w-10 mx-1" />
-                                            ) : Number(score) >= 4 ? (
-                                                <Button label={score} size="small" className="p-button-sm bg-yellow-400 text-white border-none w-10 mx-1" />
-                                            ) : (
-                                                <Button label={score} size="small" className="p-button-sm bg-red-400 text-white border-none w-10 mx-1" />
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </>
-                    ))}
+                    <td className="px-4 py-2">
+                      <Dropdown
+                        value={selectedEval}
+                        onChange={(e) => handleEvaluationChange(sectionIndex, criteriaIndex, e.value)}
+                        options={[
+                          { label: "-- Select an Evaluation --", value: "" }, // for defaukt option, so user can select default again..
+                          ...criteria.evaluations.map((evaluation: any) => ({
+                            label: evaluation.criteriaEvaluation,
+                            value: evaluation.criteriaEvaluation,
+                          }))
+                        ]}
+                        placeholder="-- Select an Evaluation --"
+                        className="w-full md:w-14rem"
+                        showClear
+                        pt={{
+                          item: ({ selected} :any) => ({
+                            className: selected ? 'bg-primary-100' : undefined
+                          })
+                        }}
 
-                    <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
-                        <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
-                            Total Score:
-                        </td>
-                        <td className="px-4 py-3 font-bold text-lg">{totalScore.toFixed(2)}</td>
-                    </tr>
-                </tbody>
-            </table>
 
-            <div className="flex flex-col justify-content-end gap-3 mt-5 mr-2">
-                {totalScore > 50 && (
-                    <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
-                        <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
-                    </div>
-                )}
+                      />
+
+                    </td>
+
+                    <td className="px-4 py-2">
+
+                      {score === 'NA' ?
+
+                        <InputText
+                          type="text" size={1} value={score} readOnly className='m-auto bg-gray-400 font-bold border-none text-white text-center' />
+                        :
+
+                        Number(score) >= 7
+                          ? <InputText
+                            type="text" size={1} value={score} readOnly className='m-auto bg-green-400 font-bold border-none text-white text-center' /> :
+
+                          score >= "empty"
+                            ? <InputText
+                              type="text" size={1} value='' readOnly className='m-auto bg-white text-center text-transparent' /> :
+
+                            Number(score) >= 4
+                              ? <InputText
+                                type="text" size={1} value={score} readOnly className='m-auto bg-yellow-400 font-bold border-none text-white text-center' /> :
+
+                              <InputText
+                                type="text" size={1} value={score} readOnly className='m-auto bg-red-400 font-bold border-none text-white text-center' />
+                      }
+                    </td>
+                  </tr>
+                );
+              })}
+            </>
+          ))}
+
+
+          <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
+            <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
+              Total Score:
+            </td>
+            <td className="px-4 py-3 font-bold text-lg">{totalScore.toFixed(2)}</td>
+          </tr>
+
+        </tbody>
+
+      </table>
+      </div>
+
+      <div className='flex flex-col justify-content-end gap-3 mt-2 mr-2'>
+
+        {totalScore > 50 &&
+          <div className='m-3 max-w-sm text-ellipsis overflow-hidden' style={{ wordWrap: "normal", maxWidth: "300px", alignItems: "stretch" }}>
+            <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+          </div>}
 
                 {/* divider */}
                 <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
 
-                <div>
-                    <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
-                    <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} />
-                </div>
-            </div>
+        <div>
+          <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
+          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)}
+          />
+        </div>
 
-            {/* if CAPA is required */}
-            <div className=" right-0 bottom-0 flex justify-center gap-3 mt-4">{totalScore <= 50 && isCapaRulesVisibleOnInitialRender && <CapaRequiredTable onDataChange={handleCapaDataChange} />}</div>
+      </div>
 
-            {/* submission buttons */}
-            <div className="flex justify-content-end gap-3 mt-1 p-3">
-                {/* <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
+
+      {/* if CAPA is required */}
+      <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
+        {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentID}/>}
+      </div>
+
+      {/* <div className='flex justify-content-end gap-3 mt-1 p-3'>
+        <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
         <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} onClick={handleSubmit}
-        /> */}
-            </div>
+        />
+
+      </div> */}
 
             <SubmitResetButtons onSubmit={handleSubmit} onReset={handleReset} label="Save" />
         </div>

@@ -25,18 +25,12 @@ const Routes = () => {
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
-    const [selectedRoleId, setSelectedRoleId] = useState<any>();
-    const [permissions, setPermissions] = useState<any>([]); // Store fetched permissions
-    const [selectedPermissions, setSelectedPermissions] = useState<any>([]); // Store selected permissionIds
+    const [permissions, setPermissions] = useState<any>([]); //store fetched permissions
+    const [selectedPermissions, setSelectedPermissions] = useState<any>([]); // store selected permissionIds
     const [visible, setVisible] = useState(false);
-    const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
-    const [selectedRole, setSelectedRole] = useState<any>(null);
     const [selectedRoute, setSelectedRoute] = useState<any>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [module, setModule] = useState('');
-    const [permissionData, setPermissionData] = useState('');
-    const [description, setdescription] = useState('');
     const [specificRoutePermissions, setSpecificRoutePermissions] = useState<any>([])
 
     useEffect(() => {
@@ -101,35 +95,21 @@ const Routes = () => {
 
 
 
-    // const fetchPermissionsByRouteId = async (rId: Number) => {
-    //     try {
-    //         setIsDetailLoading(true);
-    //         const response = await GetCall(`settings/routes/${rId}`);
-    //         console.log('Fetched route permissions:', response.data);
-    //         setSpecificRoutePermissions(response.data);
-    //     } catch (error) {
-    //         console.error('Error fetching route permissions:', error);
-    //         setAlert('error', 'Failed to fetch route permissions');
-    //     } finally {
-    //         setIsDetailLoading(false);
-    //     }
-    // };
-
-
     const fetchPermissionsByRouteId = async (rId: Number) => {
         try {
+
             setIsDetailLoading(true);
             const response = await GetCall(`settings/routes/${rId}`);
             console.log('Fetched route permissions:', response.data);
             setSpecificRoutePermissions(response.data);
 
-            // Pre-select existing permissions in MultiSelect
+            // pre-select existing permissions in MultiSelect
             const existingPermissionIds = response.data.permissions.map(
                 (perm: any) => perm.permission.permissionId
             );
             setSelectedPermissions(existingPermissionIds);
+
         } catch (error) {
-            console.error('Error fetching route permissions:', error);
             setAlert('error', 'Failed to fetch route permissions');
         } finally {
             setIsDetailLoading(false);
@@ -154,15 +134,14 @@ const Routes = () => {
     const handleSubmit = async () => {
         setIsDetailLoading(true);
 
-        // Get the current permissions for comparison
+        // get the current permissions for comparison
         const currentPermissions = specificRoutePermissions?.permissions?.map(
             (perm: any) => perm.permission.permissionId
         ) || [];
 
-        // Create payload with add/remove actions
         const payloadToSend = [];
 
-        // Handle removed permissions
+        // this haandles removed permissions
         for (const permId of currentPermissions) {
             if (!selectedPermissions.includes(permId)) {
                 payloadToSend.push({
@@ -173,7 +152,7 @@ const Routes = () => {
             }
         }
 
-        // Handle added permissions
+        //this handles added permissions
         for (const permId of selectedPermissions) {
             if (!currentPermissions.includes(permId)) {
                 payloadToSend.push({
@@ -199,6 +178,7 @@ const Routes = () => {
             } else {
                 setAlert('error', response.message || 'Failed to update permissions.');
             }
+            
         } catch (error) {
             console.error('Error submitting permissions:', error);
             setAlert('error', 'An error occurred while updating permissions.');
@@ -233,7 +213,7 @@ const Routes = () => {
     const isSmallScreen = window.innerWidth <= 768;
 
     const DilogBoxstyle = {
-        maxWidth: isSmallScreen ? '80%' : '50vw',
+        width: isSmallScreen ? '80%' : '40vw',
         maxHeight: isSmallScreen ? '80%' : '50vh',
     };
 

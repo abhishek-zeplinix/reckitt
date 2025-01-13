@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import AddRoleControl from '@/components/control-tower/add-role-control';
 import DynamicInput from '@/components/control-tower/dynamic-inputs';
-import Permission from '@/components/control-tower/permissionAssignment';
+import Permission from '@/components/control-tower/assign-permissions-roles';
 import PermissionManagement from '@/components/control-tower/permissionManagement';
-import Routes from '@/components/control-tower/api-routes';
+import Routes from '@/components/control-tower/assign-permissions-routes';
 
 const Tabs = ['Location', 'Sub Location', 'Category', 'Sub Category', 'Department', 'Roles', 'Routes', 'Accessibility', 'Permissions'];
 

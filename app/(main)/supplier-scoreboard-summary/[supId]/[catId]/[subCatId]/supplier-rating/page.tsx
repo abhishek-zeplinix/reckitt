@@ -15,7 +15,7 @@ const SupplierRatingPage = () => {
     const [selectedPeriod, setSelectedPeriod] = useState();
     const [rules, setRules] = useState([]);
     // const [departments, setDepartments] = useState<any>();
-    const [selectedDepartment, setSelectedDepartment] = useState<number>(1);
+    const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
     const [supplierData, setSupplierData] = useState<any>();
     const [periodOptions, setPeriodOptions] = useState<any>([]);
 
@@ -137,7 +137,11 @@ const SupplierRatingPage = () => {
 
     useEffect(() => {
         if (departments) {
-            const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
+            const currentDepartment = (departments as any[])?.find(dep => dep.departmentId === selectedDepartment);
+            
+            console.log('current dep', currentDepartment);
+            
+
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
                 setPeriodOptions(options);
@@ -158,12 +162,13 @@ const SupplierRatingPage = () => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
 
-        if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
+        if (evolutionType.toLowerCase() === 'halfyearly') {
             return [
                 { label: `H1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
                 { label: `H2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` }
             ];
-        } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
+
+        } else if (evolutionType.toLowerCase() === 'quarterly') {
             return [
                 { label: `Q1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
                 { label: `Q2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` },
@@ -181,9 +186,11 @@ const SupplierRatingPage = () => {
         const currentMonth = currentDate.getMonth() + 1;
         const currentYear = currentDate.getFullYear();
 
-        if (evolutionType.toLowerCase() === 'Halfyearly'.toLowerCase()) {
+        if (evolutionType.toLowerCase() === 'halfyearly') {
             return currentMonth <= 6 ? `${evolutionType}-1-${currentYear}` : `${evolutionType}-2-${currentYear}`;
-        } else if (evolutionType.toLowerCase() === 'Quarterly'.toLowerCase()) {
+
+        } else if (evolutionType.toLowerCase() === 'quarterly') {
+
             if (currentMonth <= 3) return `${evolutionType}-1-${currentYear}`;
             if (currentMonth <= 6) return `${evolutionType}-2-${currentYear}`;
             if (currentMonth <= 9) return `${evolutionType}-3-${currentYear}`;
@@ -191,6 +198,8 @@ const SupplierRatingPage = () => {
         }
         return null;
     };
+
+
 
     const leftPanelData = [
         {
