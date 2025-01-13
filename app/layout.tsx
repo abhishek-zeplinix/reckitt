@@ -22,7 +22,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <body>
                 <PrimeReactProvider>
                     <LoaderProvider>
-                        <AppWrapper>
+                        <AppWrapper className="scrollbar-style">
                             <LayoutProvider>{children}</LayoutProvider>
                         </AppWrapper>
                     </LoaderProvider>
