@@ -50,14 +50,14 @@ const AppMenu = () => {
             originalEvent.preventDefault();
         }
 
-        // Show the loader
-        setLoader(true);
+        // Show the loade
 
         // Simulate a delay of 1 second before routing
-        setTimeout(() => {
+        // setTimeout(() => {
             router.push(item.url);
-            setLoader(false); // Hide the loader after 1 second
-        }, 500);
+            setLoader(true);
+        //     setLoader(false); // Hide the loader after 1 second
+        // }, 500);
     };
 
     console.log('63', loader);
@@ -773,8 +773,6 @@ const AppMenu = () => {
         'pi-angle-right text-lg text-white p-3': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
     });
     return (
-        <>
-            {loader && <Loader />}
             <MenuProvider>
                 <div className="min-h-screen flex relative lg:static">
                     <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
@@ -791,7 +789,7 @@ const AppMenu = () => {
                                     <a
                                         v-ripple
                                         className="flex mb-1 justify-content-center align-items-center  p-2 text-700 transition-duration-150 transition-colors p-ripple "
-                                        style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '20px' }}
+                                        style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '15px' }}
                                     ></a>
                                 </div>
                             )}
@@ -799,7 +797,6 @@ const AppMenu = () => {
                     </div>
                 </div>
             </MenuProvider>
-        </>
     );
 };
 

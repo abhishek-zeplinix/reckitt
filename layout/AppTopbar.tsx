@@ -6,14 +6,12 @@ import { classNames } from 'primereact/utils';
 import React, { forwardRef, useContext, useImperativeHandle, useRef, useState } from 'react';
 import { AppTopbarRef } from '@/types';
 import { LayoutContext } from './context/layoutcontext';
-import { InputText } from 'primereact/inputtext';
 import { Avatar } from 'primereact/avatar';
 import { Menu } from 'primereact/menu';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { useAppContext } from './AppWrapper';
 import { get } from 'lodash';
-// import { getCompanyLogo } from '@/utils/uitl';
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     const { setAlert, setLoading, signOut, user } = useAppContext();
@@ -31,10 +29,8 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                 return (
                     <div className="p-menuitem cursor-pointer" style={{ alignItems: 'center', padding: 10 }}>
                         <div style={{ marginLeft: 10 }}>
-                            {/* <span style={{ fontWeight: 'bold' }}>{get(user, 'displayName', 'U')}</span> */}
                             <span style={{ fontWeight: 'bold' }}>Admin</span>
                             <br></br>
-                            {/* <span style={{ color: 'gray' }}>{get(user, 'email')}</span> */}
                             <span style={{ color: 'gray' }}>abhi@gmail.com</span>
                         </div>
                     </div>
@@ -55,6 +51,17 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             command: () => setVisible(true)
         }
     ];
+    const menuToggleClass = classNames('menu-toggle-icon bg-pink-500', {
+            'toogle-overlay': layoutConfig.menuMode === 'overlay',
+            'toogle-static': layoutConfig.menuMode === 'static',
+            'toogle-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
+            'toogle-overlay-active': layoutState.overlayMenuActive,
+            'toogle-mobile-active': layoutState.staticMenuMobileActive
+        });
+    const iconClass = classNames('pi', {
+            'pi-angle-left': !layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
+            'pi-angle-right': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
+        });
     useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,
         topbarmenu: topbarmenuRef.current,
@@ -72,25 +79,25 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     };
 
     const onHide = () => setVisible(false);
+    console.log('82',iconClass)
 
     return (
         <div className="layout-topbar">
+            
             <Link href="/" className="layout-topbar-logo">
-                <img src="/images/reckitt.webp" width="100px" height={'35px'} alt="logo" />
+                <img src="/images/reckitt.webp" width="100px" height={'40px'} alt="logo" />
             </Link>
+            {!layoutState.isMobile && (
+                    <div className={menuToggleClass} onClick={onMenuToggle}>
+                        <i className={iconClass}></i>
+                    </div>
+                )}
 
             {layoutState.isMobile && (
                 <button ref={menubuttonRef} type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>
                     <i className="pi pi-bars" />
                 </button>
             )}
-            {
-                // layoutState.isMobile==false && (
-                //     <div className="welcome-message" style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
-                //         Welcome Back, {user.firstName}
-                //     </div>
-                // )
-            }
 
             <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={avatrClick}>
                 <Menu model={items} popup ref={menu} />
@@ -98,25 +105,12 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             </button>
 
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
-                <div className="col-12 mb-2 lg:col-7 lg:mb-1">
-                    <span className="p-input-icon-right">
-                        <InputText type="text" placeholder="Search" />
-                        <i className="pi pi-search" />
-                    </span>
-                </div>
-                <span style={{ marginLeft: '2rem' }}></span>
-                <span style={{ marginLeft: '2rem' }}></span>
-                {/* <button type="button" className="p-link layout-topbar-button">
-                    <i className="pi pi-cog"></i>
-                    <span>Setting</span>
-                </button> */}
                 <button type="button" className="p-link layout-topbar-button profile-icon-setting">
                     <Menu model={items} popup ref={menu} />
                     <Avatar label={get(user, 'displayName') ? get(user, 'displayName')[0] : 'U'} style={{ backgroundColor: '#9c27b0', color: '#ffffff' }} shape="circle" onClick={avatrClick} />
                 </button>
             </div>
 
-            {/* logout confim  */}
             <ConfirmDialog className="custom-dialog" visible={visible} onHide={onHide} message="Are you sure you want to logout?" header="Confirmation" icon="pi pi-exclamation-triangle" accept={accept} />
         </div>
     );

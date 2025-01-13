@@ -16,7 +16,7 @@ const Stepper: React.FC<StepperProps> = ({ currentStep, completedSteps }) => {
         return (
             <span
                 className="inline-flex align-items-center justify-content-center align-items-center border-circle border-primary border-1 h-3rem w-3rem z-1 cursor-pointer"
-                style={{ backgroundColor: backgroundColor, color: textColor, marginTop: '-25px' }}
+                style={{ backgroundColor: backgroundColor, color: textColor, marginTop: '-40px' }}
             >
                 <i className={`${item.icon} text-xl`} />
             </span>
