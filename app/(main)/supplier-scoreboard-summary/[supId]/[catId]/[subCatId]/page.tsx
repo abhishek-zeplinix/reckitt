@@ -278,7 +278,7 @@ const SupplierScoreboardSummoryPage = () => {
 
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 " style={{ marginLeft: 10 }} onClick={() => window.print()} />
+                    <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                 </div>
             </div>
         );

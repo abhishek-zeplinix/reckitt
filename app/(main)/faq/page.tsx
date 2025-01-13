@@ -217,8 +217,6 @@ const FaqPage = () => {
                                                             {faq.question}
                                                         </span>
                                                         <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                            <i className={options.expanded ? 'pi pi-chevron-up' : 'pi pi-plus'} style={{ color: '#64748B', padding: '5px' }} />
-
                                                             <i
                                                                 className="pi pi-file-edit"
                                                                 style={{

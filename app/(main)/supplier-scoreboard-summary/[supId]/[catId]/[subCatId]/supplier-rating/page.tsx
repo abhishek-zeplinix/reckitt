@@ -137,10 +137,9 @@ const SupplierRatingPage = () => {
 
     useEffect(() => {
         if (departments) {
-            const currentDepartment = (departments as any[])?.find(dep => dep.departmentId === selectedDepartment);
-            
+            const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
+
             console.log('current dep', currentDepartment);
-            
 
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
@@ -167,7 +166,6 @@ const SupplierRatingPage = () => {
                 { label: `H1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
                 { label: `H2-${currentYear}`, value: `${evolutionType}-2-${currentYear}` }
             ];
-
         } else if (evolutionType.toLowerCase() === 'quarterly') {
             return [
                 { label: `Q1-${currentYear}`, value: `${evolutionType}-1-${currentYear}` },
@@ -188,9 +186,7 @@ const SupplierRatingPage = () => {
 
         if (evolutionType.toLowerCase() === 'halfyearly') {
             return currentMonth <= 6 ? `${evolutionType}-1-${currentYear}` : `${evolutionType}-2-${currentYear}`;
-
         } else if (evolutionType.toLowerCase() === 'quarterly') {
-
             if (currentMonth <= 3) return `${evolutionType}-1-${currentYear}`;
             if (currentMonth <= 6) return `${evolutionType}-2-${currentYear}`;
             if (currentMonth <= 9) return `${evolutionType}-3-${currentYear}`;
@@ -198,8 +194,6 @@ const SupplierRatingPage = () => {
         }
         return null;
     };
-
-
 
     const leftPanelData = [
         {
@@ -331,7 +325,7 @@ const SupplierRatingPage = () => {
 
                         <div className="flex justify-content-end">
                             <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
-                            <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500" style={{ marginLeft: 10 }} onClick={() => window.print()} />
+                            <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div>
                     </div>
 
