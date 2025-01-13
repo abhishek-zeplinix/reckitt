@@ -9,7 +9,7 @@ import Routes from '@/components/control-tower/assign-permissions-routes';
 const Tabs = ['Roles', 'Routes', 'Accessibility', 'Permissions'];
 
 const ControlTower = () => {
-    const [activeTab, setActiveTab] = useState('Location');
+    const [activeTab, setActiveTab] = useState('Roles');
 
     const renderHeader = () => {
         return (
