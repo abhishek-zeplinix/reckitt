@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useAppContext } from './AppWrapper';
 import { LayoutContext } from './context/layoutcontext';
 import Link from 'next/link';
+import { useLoaderContext } from './context/LoaderContext';
 
 const AppMenuitem = (props: AppMenuItemProps) => {
     const { user } = useAppContext();
@@ -17,6 +18,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [height, setHeight] = useState<string>('0px');
     const contentRef = useRef<HTMLUListElement>(null);
+    const { setLoader } = useLoaderContext();
 
     useEffect(() => {
         // Keep dropdown open if the current path matches any child URL
@@ -44,6 +46,16 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const isSubItemActive = (subItemUrl: string) => {
         return pathname === subItemUrl;
     };
+    // Use useEffect to set loader when the page changes or the active state changes
+    useEffect(() => {
+
+        if (getTextColorClass()) {
+            setTimeout(() => {
+            setLoader(false); // Set loader to false when the item is active 
+        }, 500);
+        }
+    }, [pathname, item, setLoader]);
+   
 
     const itemClick = (event: React.MouseEvent, subItem?: any) => {
         if (item!.disabled) {
@@ -75,7 +87,6 @@ const AppMenuitem = (props: AppMenuItemProps) => {
             : 'p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
 
         const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive();
-
         // Adjust margins dynamically based on sidebar state
         const marginClass = layoutState.staticMenuDesktopInactive
             ? 'mx-collapsed' // Class for collapsed state
@@ -83,25 +94,22 @@ const AppMenuitem = (props: AppMenuItemProps) => {
 
         return `${baseClass} ${marginClass} ${isActive ? 'bg-pink-500' : ''}`;
     };
-
     const getTextColorClass = (isSubItem = false, subItemUrl?: string) => {
         const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive();
-
         return isActive ? 'text-white' : 'text-slate-400';
     };
 
     if (item?.check && !item.check(user)) {
         return null;
     }
-
     return (
         <li>
             {item && item.items && item.items.length > 0 ? (
                 <>
                     <div className={getItemClassName()} onClick={(e) => itemClick(e)}>
                         <div className="flex align-items-center">
-                            {item.icon && <i className={`${item.icon} mr-2 text-xl ${getTextColorClass()}`}></i>}
-                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className={`font-medium text-lg ${getTextColorClass()}`}>{item.label}</span>}
+                            {item.icon && <i className={`${item.icon} mr-2 text-base font-semibold ${getTextColorClass()}`}></i>}
+                            {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className={`font-semibold text-base ${getTextColorClass()}`}>{item.label}</span>}
                         </div>
                         {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <i className={`pi pi-chevron-down transition-transform transition-duration-200 ${isOpen ? 'rotate-180' : ''} ${getTextColorClass()}`}></i>}
                         <Ripple />
@@ -123,13 +131,13 @@ const AppMenuitem = (props: AppMenuItemProps) => {
                                                 onClick={(event) => itemClick(event, child)}
                                             >
                                                 {child.icon && <i className={`${child.icon} mr-2 ${getTextColorClass(true, child.url)}`}></i>}
-                                                <span className={`font-medium text-lg ${getTextColorClass(true, child.url)}`}>{child.label}</span>
+                                                <span className={`font-semibold text-base ${getTextColorClass(true, child.url)}`}>{child.label}</span>
                                                 <Ripple />
                                             </Link>
                                         ) : (
                                             <span className={getItemClassName(true)} onClick={(event) => itemClick(event, child)}>
                                                 {child.icon && <i className={`${child.icon} mr-2 ${getTextColorClass(true)}`}></i>}
-                                                <span className={`font-medium text-lg ${getTextColorClass(true)}`}>{child.label}</span>
+                                                <span className={`font-semibold text-base ${getTextColorClass(true)}`}>{child.label}</span>
                                                 <Ripple />
                                             </span>
                                         )}
@@ -142,8 +150,8 @@ const AppMenuitem = (props: AppMenuItemProps) => {
             ) : item?.url ? (
                 <Link href={item.url} className={getItemClassName()} onClick={itemClick}>
                     <div className="flex align-items-center">
-                        {item.icon && <i className={`${item.icon} mr-2 text-xl ${getTextColorClass()}`}></i>}
-                        <span className={`font-medium text-lg ${getTextColorClass()}`}>{item.label}</span>
+                        {item.icon && <i className={`${item.icon} mr-2 text-base ${getTextColorClass()}`}></i>}
+                        <span className={`font-semibold text-base ${getTextColorClass()}`}>{item.label}</span>
                     </div>
                     <Ripple />
                 </Link>

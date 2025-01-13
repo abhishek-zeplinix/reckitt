@@ -317,24 +317,24 @@ const ManageSupplierPage = () => {
                                         style: { minWidth: 120, maxWidth: 120 }
                                     },
                                     {
-                                        header: 'Procurement Category',
+                                        header: 'Proc. Category',
                                         field: 'category.categoryName',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        filterPlaceholder: 'Search Procurement Category'
+                                        filterPlaceholder: 'Proc Category'
                                     },
                                     {
                                         header: 'Category',
                                         field: 'subCategories.subCategoryName',
                                         filter: true,
-                                        filterPlaceholder: 'Search Supplier Category',
+                                        filterPlaceholder: 'Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
-                                        header: 'Supplier Manufacturing Name',
+                                        header: 'Manufacturing Name',
                                         field: 'supplierManufacturerName',
                                         filter: true,
-                                        filterPlaceholder: 'Search Supplier Manufacturing Name',
+                                        filterPlaceholder: 'Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
@@ -348,14 +348,14 @@ const ManageSupplierPage = () => {
                                         header: 'Factory Name',
                                         field: 'factoryName',
                                         filter: true,
-                                        filterPlaceholder: 'Search Factory Name',
+                                        filterPlaceholder: 'Factory Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Warehouse Location',
                                         field: 'warehouseLocation',
                                         filter: true,
-                                        filterPlaceholder: 'Search Warehouse Location',
+                                        filterPlaceholder: 'Warehouse Location',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     }
                                 ]}

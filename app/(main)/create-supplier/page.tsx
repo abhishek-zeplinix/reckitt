@@ -208,12 +208,12 @@ const CreateSupplierPage = () => {
             case 1:
                 return (
                     <div>
-                        <div className="flex flex-column gap-3 pt-2">
+                        <div className="flex flex-column gap-1 pt-1">
                             <h2 className="text-center font-bold ">Add Supplier Information</h2>
                             <div className="p-fluid grid md:mx-7 pt-2">
 
                                 <div className="field col-4">
-                                    <label htmlFor="supplierName" className="font-semibold">
+                                    <label htmlFor="supplierName" >
                                         Supplier Name
                                     </label>
                                     <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full " placeholder="Enter Supplier Name" required/>
@@ -307,7 +307,7 @@ const CreateSupplierPage = () => {
                 );
             case 2:
                 return (
-                    <div className="flex flex-column gap-3 pt-5">
+                    <div className="flex flex-column gap-1 pt-1">
                         <h2 className="text-center font-bold ">Add Manufacture Details</h2>
                         <div className="p-fluid grid md:mx-7 pt-5">
                             {/* GMP */}

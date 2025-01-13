@@ -6,7 +6,7 @@ import Permission from '@/components/control-tower/assign-permissions-roles';
 import PermissionManagement from '@/components/control-tower/permissionManagement';
 import Routes from '@/components/control-tower/assign-permissions-routes';
 
-const Tabs = ['Location', 'Sub Location', 'Category', 'Sub Category', 'Department', 'Roles', 'Routes', 'Accessibility', 'Permissions'];
+const Tabs = ['Roles', 'Routes', 'Accessibility', 'Permissions'];
 
 const ControlTower = () => {
     const [activeTab, setActiveTab] = useState('Location');
@@ -25,16 +25,6 @@ const ControlTower = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'Location':
-                return <DynamicInput />;
-            case 'Sub Location':
-                return null;
-            case 'Category':
-                return null;
-            case 'Sub Category':
-                return null;
-            case 'Department':
-                return null;
             case 'Roles':
                 return <AddRoleControl />;
             case 'Routes':

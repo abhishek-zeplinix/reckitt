@@ -157,6 +157,21 @@ interface PayloadItem {
     permissionId: string;
     action: string;
 };
+
+
+interface Task {
+    id: string;
+    title: string;
+    description: string;
+    status: 'todo' | 'in-progress' | 'done';
+};
+interface Column {
+    id: 'todo' | 'in-progress' | 'done';
+    title: string;
+    tasks: Task[];
+};
+
+
 // interface Company {
 //     companyId: number;
 //     subdomain: string;
@@ -751,5 +766,7 @@ export type {
     Supplier,
     Rules,
     CompanyUsers,
-    PayloadItem
+    PayloadItem,
+    Task,
+    Column
 };
