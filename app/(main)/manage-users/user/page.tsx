@@ -135,7 +135,7 @@ const ManageUserAddPage = () => {
             <div className="grid">
                 <div className="col-12">
                     <div className="flex flex-column gap-3">
-                        <div className="p-fluid grid md:mx-7 pt-2">
+                        <div className="p-fluid grid mx-1 pt-2">
                             <div className="field col-4">
                                 <label htmlFor="role">Role</label>
                                 <Dropdown id="role" value={createRole} options={roles} onChange={(e) => setCreateRole(e.value)} placeholder="Select Role" className="w-full" />
