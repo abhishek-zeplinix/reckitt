@@ -71,23 +71,20 @@ const { setLoading, setAlert } = useAppContext();
 //  }
 
 
-  const initializeData = (currentRules: any) => {
+    const initializeData = (currentRules: any) => {
+        const initialEvals: any = {};
+        const initialPercentages: any = {};
 
-    const initialEvals: any = {};
-    const initialPercentages: any = {};
+        currentRules?.sections?.forEach((section: any, sIndex: number) => {
+            section?.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+                const key = `${sIndex}-${cIndex}`;
 
-    currentRules?.sections?.forEach((section: any, sIndex: number) => {
+                // Set initial evaluation
 
-      section?.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
+                //uncomment if you want to initialized with first evaluation
+                // initialEvals[key] = criteria?.evaluations[0]?.criteriaEvaluation;
 
-        const key = `${sIndex}-${cIndex}`;
-
-        // Set initial evaluation
-
-        //uncomment if you want to initialized with first evaluation
-        // initialEvals[key] = criteria?.evaluations[0]?.criteriaEvaluation;
-
-        initialEvals[key] = criteria?.evaluations.criteriaEvaluation;
+                initialEvals[key] = criteria?.evaluations.criteriaEvaluation;
 
         // Set initial percentage
         //here category is either rawPack or copack..it coming as a prop
@@ -100,131 +97,121 @@ const { setLoading, setAlert } = useAppContext();
       });
     });
 
-    setSelectedEvaluations(initialEvals);
-    setOriginalPercentages(initialPercentages);
-    setCurrentPercentages(initialPercentages);
+        setSelectedEvaluations(initialEvals);
+        setOriginalPercentages(initialPercentages);
+        setCurrentPercentages(initialPercentages);
 
-    const roundedPercentages = distributeRoundedPercentages(initialPercentages);
-    setDisplayPercentages(roundedPercentages);
-    calculateTotalScore(initialEvals, initialPercentages);
-  };
+        const roundedPercentages = distributeRoundedPercentages(initialPercentages);
+        setDisplayPercentages(roundedPercentages);
+        calculateTotalScore(initialEvals, initialPercentages);
+    };
 
+    const distributeRoundedPercentages = (percentages: any) => {
+        const displayPercentages: any = {};
+        const nonNAEntries: string[] = [];
 
-  const distributeRoundedPercentages = (percentages: any) => {
-    const displayPercentages: any = {};
-    const nonNAEntries: string[] = [];
+        // first, handle NA values
+        Object.entries(percentages).forEach(([key, value]) => {
+            if (value === 'NA') {
+                displayPercentages[key] = 'NA';
+            } else {
+                nonNAEntries.push(key);
+            }
+        });
 
-    // first, handle NA values
-    Object.entries(percentages).forEach(([key, value]) => {
-      if (value === 'NA') {
-        displayPercentages[key] = 'NA';
-      } else {
-        nonNAEntries.push(key);
-      }
-    });
+        if (nonNAEntries.length === 0) return displayPercentages;
 
-    if (nonNAEntries.length === 0) return displayPercentages;
+        // sort entries by their decimal parts
+        const sortedEntries = nonNAEntries
+            .map((key) => ({
+                key,
+                originalValue: Number(percentages[key]),
+                roundedValue: Math.floor(Number(percentages[key])),
+                decimalPart: Number(percentages[key]) % 1
+            }))
+            .sort((a, b) => b.decimalPart - a.decimalPart);
 
-    // sort entries by their decimal parts
-    const sortedEntries = nonNAEntries.map(key => ({
-      key,
-      originalValue: Number(percentages[key]),
-      roundedValue: Math.floor(Number(percentages[key])),
-      decimalPart: Number(percentages[key]) % 1
-    }))
-      .sort((a, b) => b.decimalPart - a.decimalPart);
+        // first pass: assign floor values
+        let usedPercentage = 0;
+        sortedEntries.forEach((entry) => {
+            displayPercentages[entry.key] = entry.roundedValue;
+            usedPercentage += entry.roundedValue;
+        });
 
-    // first pass: assign floor values
-    let usedPercentage = 0;
-    sortedEntries.forEach(entry => {
-      displayPercentages[entry.key] = entry.roundedValue;
-      usedPercentage += entry.roundedValue;
-    });
+        // sssecond pass: distribute remaining percentage points
+        const remaining = 100 - usedPercentage;
+        for (let i = 0; i < remaining; i++) {
+            //cyclic distribution ...in case if remaining is larger than the sortedEntries ..it ensure that index loops back to the start of sortedEntries once it reaches the end...
+            displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
+        }
 
-    // sssecond pass: distribute remaining percentage points
-    const remaining = 100 - usedPercentage;
-    for (let i = 0; i < remaining; i++) {
+        return displayPercentages;
+    };
 
-      //cyclic distribution ...in case if remaining is larger than the sortedEntries ..it ensure that index loops back to the start of sortedEntries once it reaches the end...
-      displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
-    }
+    const recalculateAllPercentages = (evaluations: any) => {
+        // identify NA criteria and calculate total percentage to redistribute
+        const naKeys: string[] = [];
+        let totalToRedistribute = 0;
+        let remainingTotal = 0;
 
-    return displayPercentages;
-  };
+        Object.entries(evaluations).forEach(([key, evalValue]) => {
+            const [secIdx, critIdx] = key.split('-').map(Number);
 
+            const evaluation = (tableData?.sections[secIdx].ratedCriteria[critIdx].evaluations as any[]).find((e) => e.criteriaEvaluation === evalValue);
 
+            if (evaluation?.score === 'NA') {
+                naKeys.push(key);
+                totalToRedistribute += originalPercentages[key];
+            } else {
+                remainingTotal += originalPercentages[key];
+            }
+        });
 
-  const recalculateAllPercentages = (evaluations: any) => {
+        // if all criteria are NA or no NA selections, return original percentages
+        if (naKeys.length === 0 || naKeys.length === Object.keys(evaluations).length) {
+            return { ...originalPercentages };
+        }
 
-    // identify NA criteria and calculate total percentage to redistribute
-    const naKeys: string[] = [];
-    let totalToRedistribute = 0;
-    let remainingTotal = 0;
+        // cccalculate new percentages for non-NA criteria
+        const newPercentages = { ...originalPercentages };
 
-    Object.entries(evaluations).forEach(([key, evalValue]) => {
+        // mark NA values first..
+        naKeys.forEach((key) => {
+            newPercentages[key] = 'NA';
+        });
 
-      const [secIdx, critIdx] = key.split('-').map(Number);
+        // redistribute percentages to non-NA criteria proportionally
+        Object.keys(evaluations).forEach((key) => {
+            if (!naKeys.includes(key)) {
+                const originalPercentage = originalPercentages[key];
+                const proportion = originalPercentage / remainingTotal;
+                const redistributedAmount = totalToRedistribute * proportion;
+                const newPercentage = originalPercentage + redistributedAmount;
+                newPercentages[key] = Number(newPercentage.toFixed(2));
+            }
+        });
 
-      const evaluation = (tableData?.sections[secIdx].ratedCriteria[critIdx].evaluations as any[])
-        .find(e => e.criteriaEvaluation === evalValue);
+        // 3 - eensure total is exactly 100% by adjusting the highest non-NA percentage
 
-      if (evaluation?.score === 'NA') {
-        naKeys.push(key);
-        totalToRedistribute += originalPercentages[key];
-      } else {
-        remainingTotal += originalPercentages[key];
-      }
-    });
+        const nonNAKeys = Object.keys(newPercentages).filter((key) => newPercentages[key] !== 'NA');
+        if (nonNAKeys.length > 0) {
+            let currentTotal = nonNAKeys.reduce((sum, key) => sum + Number(newPercentages[key]), 0);
+            const highestKey = nonNAKeys.reduce((a, b) => (Number(newPercentages[a]) > Number(newPercentages[b]) ? a : b));
 
-
-
-    // if all criteria are NA or no NA selections, return original percentages
-    if (naKeys.length === 0 || naKeys.length === Object.keys(evaluations).length) {
-      return { ...originalPercentages };
-    }
-
-    // cccalculate new percentages for non-NA criteria
-    const newPercentages = { ...originalPercentages };
-
-    // mark NA values first..
-    naKeys.forEach(key => {
-      newPercentages[key] = 'NA';
-    });
-
-    // redistribute percentages to non-NA criteria proportionally
-    Object.keys(evaluations).forEach(key => {
-      if (!naKeys.includes(key)) {
-        const originalPercentage = originalPercentages[key];
-        const proportion = originalPercentage / remainingTotal;
-        const redistributedAmount = totalToRedistribute * proportion;
-        const newPercentage = originalPercentage + redistributedAmount;
-        newPercentages[key] = Number(newPercentage.toFixed(2));
-      }
-    });
-
-    // 3 - eensure total is exactly 100% by adjusting the highest non-NA percentage
-
-    const nonNAKeys = Object.keys(newPercentages).filter(key => newPercentages[key] !== 'NA');
-    if (nonNAKeys.length > 0) {
-      let currentTotal = nonNAKeys.reduce((sum, key) => sum + Number(newPercentages[key]), 0);
-      const highestKey = nonNAKeys.reduce((a, b) =>
-
-        (Number(newPercentages[a]) > Number(newPercentages[b]) ? a : b)
-      );
-
-      if (Math.abs(currentTotal - 100) > 0.01) {  // using small threshold for floating point comparison
-        const difference = 100 - currentTotal;
-        newPercentages[highestKey] = Number((Number(newPercentages[highestKey]) + difference).toFixed(2));
-      }
-    }
+            if (Math.abs(currentTotal - 100) > 0.01) {
+                // using small threshold for floating point comparison
+                const difference = 100 - currentTotal;
+                newPercentages[highestKey] = Number((Number(newPercentages[highestKey]) + difference).toFixed(2));
+            }
+        }
 
     return newPercentages;
   };
 
 
 
-  const calculateTotalScore = (evaluations: any, percentages: any) => {
-    let scoreSum = 0;
+    const calculateTotalScore = (evaluations: any, percentages: any) => {
+        let scoreSum = 0;
 
     tableData?.sections?.forEach((section: any, sectionIndex: number) => {
 
@@ -240,115 +227,111 @@ const { setLoading, setAlert } = useAppContext();
             (e) => e.criteriaEvaluation === selectedEval
           );
 
-          if (evaluation && evaluation.score !== 'NA') {
-            const score = Number(evaluation.score);
-            const percentage = Number(currentPercentage);
-            scoreSum += (score * percentage) / 10;
-          }
-        }
-      });
-    });
+                    if (evaluation && evaluation.score !== 'NA') {
+                        const score = Number(evaluation.score);
+                        const percentage = Number(currentPercentage);
+                        scoreSum += (score * percentage) / 10;
+                    }
+                }
+            });
+        });
 
     setTotalScore(Math.round(scoreSum * 100) / 100);
   };
 
 
-  const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
+    const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
+        const key = `${sectionIndex}-${criteriaIndex}`;
+        const updatedEvals = {
+            ...selectedEvaluations,
+            [key]: value
+        };
 
-    const key = `${sectionIndex}-${criteriaIndex}`;
-    const updatedEvals = {
-      ...selectedEvaluations,
-      [key]: value,
+        console.log(updatedEvals);
+
+        const updatedPercentages = recalculateAllPercentages(updatedEvals);
+        const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
+
+        setSelectedEvaluations(updatedEvals);
+        setCurrentPercentages(updatedPercentages);
+        setDisplayPercentages(roundedPercentages);
+        // calculateTotalScore(updatedEvals, updatedPercentages);
+        calculateTotalScore(updatedEvals, roundedPercentages);
     };
 
-    console.log(updatedEvals);
+    const prepareApiData = () => {
+        const sections = tableData?.sections?.map((section: any) => {
+            return {
+                sectionName: section.sectionName,
+                ratedCriteria: section.ratedCriteria
+                    .map((criteria: any, criteriaIndex: number) => {
+                        const sectionIndex = tableData.sections.indexOf(section);
+                        const key = `${sectionIndex}-${criteriaIndex}`;
+                        const selectedEval = selectedEvaluations[key];
 
-    const updatedPercentages = recalculateAllPercentages(updatedEvals);
-    const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
+                        const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
 
-    setSelectedEvaluations(updatedEvals);
-    setCurrentPercentages(updatedPercentages);
-    setDisplayPercentages(roundedPercentages);
-    // calculateTotalScore(updatedEvals, updatedPercentages);
-    calculateTotalScore(updatedEvals, roundedPercentages);
+                        if (!evaluation) return null;
 
+                        // get the current percentage for this criteria
+                        const currentPercentage = displayPercentages[key];
 
-  };
+                        // get the score
+                        const score = evaluation.score;
 
+                        // prepare the ratio key based on category
+                        const ratioKey = category === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
 
-  const prepareApiData = () => {
-    const sections = tableData?.sections?.map((section: any) => {
-      return {
-        sectionName: section.sectionName,
-        ratedCriteria: section.ratedCriteria.map((criteria: any, criteriaIndex: number) => {
-          const sectionIndex = tableData.sections.indexOf(section);
-          const key = `${sectionIndex}-${criteriaIndex}`;
-          const selectedEval = selectedEvaluations[key];
+                        return {
+                            criteriaName: criteria.criteriaName,
+                            evaluations: [
+                                {
+                                    criteriaEvaluation: evaluation.criteriaEvaluation,
+                                    // Keep score as string if it's 'NA', otherwise convert to number
+                                    // score: score === 'NA' ? 'NA' : Number(score),
+                                    score: score === 'NA' ? 'NA' : String(score),
+                                    // Keep ratio as string if it's 'NA', otherwise use the current percentage
+                                    [ratioKey]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
+                                }
+                            ]
+                        };
+                    })
+                    .filter(Boolean)
+            };
+        });
 
-          const evaluation = criteria.evaluations.find(
-            (e: any) => e.criteriaEvaluation === selectedEval
-          );
+        const subCategoryId = subCatId;
+        const categoryData = {
+            categoryId: catId,
+            categoryName: categoryName
+        };
 
-          if (!evaluation) return null;
+        const apiData = {
+            supId,
+            departmentID,
+            department,
+            category: categoryData,
+            subCategoryId,
+            evaluationPeriod,
+            sections,
+            totalScore,
+            comments,
+            ...(totalScore <= 50 && { capa: capaData })
+        };
 
-          // get the current percentage for this criteria
-          const currentPercentage = displayPercentages[key];
-
-          // get the score
-          const score = evaluation.score;
-
-          // prepare the ratio key based on category
-          const ratioKey = category === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
-
-          return {
-            criteriaName: criteria.criteriaName,
-            evaluations: [{
-              criteriaEvaluation: evaluation.criteriaEvaluation,
-              // Keep score as string if it's 'NA', otherwise convert to number
-              // score: score === 'NA' ? 'NA' : Number(score),
-              score: score === 'NA' ? 'NA' : String(score),
-              // Keep ratio as string if it's 'NA', otherwise use the current percentage
-              [ratioKey]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
-            }]
-          };
-        }).filter(Boolean)
-      };
-    });
-
-    const subCategoryId = subCatId
-    const categoryData = {
-      "categoryId": catId,
-      "categoryName": categoryName
-    }
-
-    const apiData = {
-      supId,
-      departmentID,
-      department,
-      category: categoryData,
-      subCategoryId,
-      evaluationPeriod,
-      sections,
-      totalScore,
-      comments,
-      ...(totalScore <= 50 && { capa: capaData })
+        return apiData;
     };
 
-    return apiData;
-  };
+    const handleSubmit = async () => {
+        const apiData = prepareApiData();
+        console.log(apiData);
+    };
 
-  const handleSubmit = async () => {
+    const handleReset = () => {
+        setComments('');
+    };
 
-    const apiData = prepareApiData();
-    console.log(apiData);
-
-  };
-
-  const handleReset = () => {
-    setComments('')
-  }
-
-  //update capaData when CapaRequiredTable changes
+    //update capaData when CapaRequiredTable changes
 
   const handleCapaDataChange = (data: any[]) => {
     setCapaData(data);
@@ -374,49 +357,40 @@ const { setLoading, setAlert } = useAppContext();
           </tr>
         </thead>
 
-        <tbody>
+                <tbody>
+                    {tableData?.sections?.map((section: any, sectionIndex: any) => (
+                        <>
+                            <tr key={`section-${sectionIndex}`}>
+                                {sectionIndex !== 0 && (
+                                    <td colSpan={5}>
+                                        <hr />
+                                    </td>
+                                )}
+                            </tr>
 
-          {tableData?.sections?.map((section: any, sectionIndex: any) => (
-            <>
-              <tr key={`section-${sectionIndex}`} >
-                {
-                  sectionIndex !== 0 &&
-                  <td
-                    colSpan={5}
-                  >
-                    <hr />
-                  </td>
-                }
+                            {section?.ratedCriteria?.map((criteria: any, criteriaIndex: any) => {
+                                const key = `${sectionIndex}-${criteriaIndex}`;
+                                const selectedEval = selectedEvaluations[key];
+                                const currentPercentage = currentPercentages[key];
 
-              </tr>
-
-              {section?.ratedCriteria?.map((criteria: any, criteriaIndex: any) => {
-
-                const key = `${sectionIndex}-${criteriaIndex}`;
-                const selectedEval = selectedEvaluations[key];
-                const currentPercentage = currentPercentages[key];
-
-                //if no evaluation is selected, 'NA' will be assigned to score by default
-                const score =
-                  criteria.evaluations.find(
-                    (evaluation: any) => evaluation.criteriaEvaluation === selectedEval
-                  )?.score || 'empty';
+                                //if no evaluation is selected, 'NA' will be assigned to score by default
+                                const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
 
                 return (
 
                   <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
 
-                    {criteriaIndex === 0 && (
-                      <td
-                        className="px-4 py-2 text-md text-black-800"
-                        rowSpan={section.ratedCriteria.length}
-                      // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
-                      >
-                        {section.sectionName}
-                      </td>
-                    )}
+                                        {criteriaIndex === 0 && (
+                                            <td
+                                                className="px-4 py-2 text-md text-black-800"
+                                                rowSpan={section.ratedCriteria.length}
+                                                // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
+                                            >
+                                                {section.sectionName}
+                                            </td>
+                                        )}
 
-                    <td className="px-4 py-2 text-md text-gray-500">{criteria.criteriaName}</td>
+                                        <td className="px-4 py-2 text-md text-gray-500">{criteria.criteriaName}</td>
 
                     <td className="px-4 py-2">
                       <InputText
@@ -504,9 +478,8 @@ const { setLoading, setAlert } = useAppContext();
             <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
           </div>}
 
-        {/* divider */}
-        <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
-
+                {/* divider */}
+                <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
 
         <div>
           <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
@@ -529,10 +502,9 @@ const { setLoading, setAlert } = useAppContext();
 
       </div> */}
 
-      <SubmitResetButtons onSubmit={handleSubmit} onReset={handleReset} label='Save' />
-
-    </div>
-  );
+            <SubmitResetButtons onSubmit={handleSubmit} onReset={handleReset} label="Save" />
+        </div>
+    );
 };
 
 export default SupplierEvaluationTable;

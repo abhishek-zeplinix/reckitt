@@ -1,23 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
-import { Menu } from 'primereact/menu';
-import { ChartData, ChartOptions } from 'chart.js';
+import { ChartData } from 'chart.js';
 import { Chart } from 'primereact/chart';
 import { Dropdown } from 'primereact/dropdown';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import Link from 'next/link';
-import { useAppContext } from '@/layout/AppWrapper';
 import { useAuth } from '@/layout/context/authContext';
 
 const SupplierScoreboardSummoryPage = () => {
     const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
-    const [products, setProducts] = useState([]);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
     const { isSuperAdmin } = useAuth();
@@ -142,7 +138,6 @@ const SupplierScoreboardSummoryPage = () => {
                 }
             }
         }
-        // Adding a custom label before the graph (left side)
     };
     const baroptions = {
         responsive: true,
@@ -178,7 +173,6 @@ const SupplierScoreboardSummoryPage = () => {
                 }
             }
         }
-        // Adding a custom label before the graph (left side)
     };
     const leftPanelData = [
         { label: 'Category :', value: 'Raw & Pack' },
@@ -290,7 +284,6 @@ const SupplierScoreboardSummoryPage = () => {
         );
     };
     const renderHeader = headerComp();
-    // Adjusted product data
     const intitialTable = [
         {
             id: 1,
@@ -356,7 +349,6 @@ const SupplierScoreboardSummoryPage = () => {
         }
     ];
 
-    // Body template for rendering status with severity
     const statusBodyTemplate = (product: any, statusKey: 'status1' | 'status2') => {
         const status = product[statusKey];
         return (

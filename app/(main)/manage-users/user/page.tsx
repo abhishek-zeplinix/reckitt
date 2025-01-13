@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { Card } from 'primereact/card';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
@@ -16,24 +15,16 @@ const ManageUserAddPage = () => {
     const isEditMode = searchParams.get('edit') === 'true'; // Check if in edit mode
 
     const [supplierId, setSupplierId] = useState('');
-    const [supplierName, setSupplierName] = useState('');
     const [supplierData, setSupplierData] = useState([]);
-    const [suppliers, setSuppliers] = useState([]);
     const [roleName, setRoleName] = useState('');
     const [roleEmail, setRoleEmail] = useState('');
     const [rolePhone, setRolePhone] = useState('');
     const [rolePassword, setRolePassword] = useState('');
-    const [manufacturerName, setManufacturerName] = useState('');
     const [createRole, setCreateRole] = useState('');
-    const [complianceStatus, setComplianceStatus] = useState(false);
-    const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    // const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
-    const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState(null);
-    const [selectedSupplierCategory, setSelectedSupplierCategory] = useState(null);
-    const { setAlert, setLoading, isLoading } = useAppContext();
+    const { setAlert, setLoading } = useAppContext();
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [roles, setRoles] = useState([]);
 
@@ -138,14 +129,6 @@ const ManageUserAddPage = () => {
     };
 
     const footerNewRules = renderNewRuleFooter();
-
-    const procurementOrder = [
-        { label: '1', value: 'raw-materials' },
-        { label: '2', value: 'packaging' },
-        { label: '3', value: 'machinery' },
-        { label: '4', value: 'services' }
-    ];
-    console.log('Selected role:', createRole);
 
     const renderContentbody = () => {
         return (

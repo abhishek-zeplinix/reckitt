@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-'use client'
-import React, { useContext, useRef } from 'react';
+'use client';
+import React, { useContext, useRef, useState } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { LayoutContext } from './context/layoutcontext';
 import { MenuProvider } from './context/menucontext';
@@ -36,19 +36,31 @@ import {
 } from '@/config/permissions';
 import { classNames } from 'primereact/utils';
 import { useRouter } from 'next/navigation';
+import Loader from '@/components/common/Loader';
+import { useLoaderContext } from './context/LoaderContext';
 
 const AppMenu = () => {
     const router = useRouter();
     const { user } = useAppContext();
     const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
+    const { loader, setLoader } = useLoaderContext();
 
     const handleMenuClick = ({ originalEvent, item }: any) => {
         if (originalEvent) {
             originalEvent.preventDefault();
         }
-        router.push(item.url);
+
+        // Show the loader
+        setLoader(true);
+
+        // Simulate a delay of 1 second before routing
+        setTimeout(() => {
+            router.push(item.url);
+            setLoader(false); // Hide the loader after 1 second
+        }, 500);
     };
 
+    console.log('63', loader);
     const model: AppMenuItem[] = [
         {
             label: '',
@@ -86,6 +98,43 @@ const AppMenu = () => {
                         {
                             label: 'Supply Glossary',
                             url: '/supply-glossary',
+                            // check: (user: any) => {
+                            //     const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
+                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // },
+                            command: handleMenuClick
+                        }
+                    ]
+                },
+                {
+                    label: 'Task Management',
+                    icon: 'pi pi-ticket',
+                    // check: (user: any) => {
+                    //     const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                    //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                    //         return true;
+                    //     }
+                    //     return false;
+                    // },
+                    items: [
+                        {
+                            label: 'Suppliers task',
+                            url: '/task-management/supplier-tasks',
+                            // check: (user: any) => {
+                            //     const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            //         return true;
+                            //     }
+                            //     return false;
+                            // },
+                            command: handleMenuClick
+                        },
+                        {
+                            label: 'Evaluator Tasks',
+                            url: '/task-management/evaluator-tasks',
                             // check: (user: any) => {
                             //     const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
                             //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
@@ -218,7 +267,7 @@ const AppMenu = () => {
                                 return false;
                             },
                             command: handleMenuClick
-                        },
+                        }
                         // {
                         //     label: 'Create New Rules',
                         //     url: '/create-new-rules',
@@ -247,6 +296,43 @@ const AppMenu = () => {
                         {
                             label: "Manage Api's",
                             url: '/manage-api',
+                            check: (user: any) => {
+                                const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                                if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                                    return true;
+                                }
+                                return false;
+                            },
+                            command: handleMenuClick
+                        }
+                    ]
+                },
+                {
+                    label: 'Market Metrics',
+                    icon: 'pi pi-chart-bar',
+                    check: (user: any) => {
+                        const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                        if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    items: [
+                        {
+                            label: 'Vendors',
+                            url: '/vendors',
+                            check: (user: any) => {
+                                const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                                if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                                    return true;
+                                }
+                                return false;
+                            },
+                            command: handleMenuClick
+                        },
+                        {
+                            label: 'User Groups',
+                            url: '/user-groups',
                             check: (user: any) => {
                                 const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
                                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
@@ -333,20 +419,8 @@ const AppMenu = () => {
                         return false;
                     },
                     command: handleMenuClick
-                },
-                {
-                    label: 'My Permissions',
-                    icon: 'pi pi-lock-open',
-                    url: '/permissions',
-                    check: (user: any) => {
-                        const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
-                        if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                            return true;
-                        }
-                        return false;
-                    },
-                    command: handleMenuClick
                 }
+
                 // {
                 //     label: 'Permissions',
                 //     icon: 'pi pi-lock',
@@ -699,46 +773,33 @@ const AppMenu = () => {
         'pi-angle-right text-lg text-white p-3': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
     });
     return (
-        <MenuProvider>
-            {layoutState.isMobile && (
-                <Link href="/" className="layout-topbar-logo">
-                    {/* <img src={getCompanyLogo(user?.company?.logo)} width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} /> */}
-                    <img src="/images/reckitt.webp" width="100px" height={'35px'} alt="logo" className={layoutState.isMobile ? 'mobile-sidebar-logo-img' : ''} style={{ marginTop: 15 }} />
-                </Link>
-            )}
-
-            <div className="min-h-screen flex relative lg:static">
-                <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
-                    <div className="flex flex-column" style={{ height: '92%' }}>
-                        <div
-                            className="overflow-y-auto "
-                            style={{
-                                scrollbarWidth: 'thin' ,
-                                scrollbarColor: 'transparent transparent'
-                            }}
-                        >
-                            <ul className="list-none p-3 m-0">
-                                {get(model, '0.items', []).map((item, i) => {
-                                    return !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>;
-                                })}
-                            </ul>
-                        </div>
-                        {/* {!layoutState.isMobile && (
-                            <div className="mt-auto">
-                                <a
-                                    v-ripple
-                                    onClick={onMenuToggle}
-                                    className="flex mb-1 justify-content-center align-items-center cursor-pointer p-2 text-700 transition-duration-150 transition-colors p-ripple bg-secondary"
-                                    style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250 }}
-                                >
-                                    <i className={iconClass}></i>
-                                </a>
+        <>
+            {loader && <Loader />}
+            <MenuProvider>
+                <div className="min-h-screen flex relative lg:static">
+                    <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
+                        <div className="flex flex-column" style={{ height: '92%' }}>
+                            <div className="overflow-y-auto " style={{ scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
+                                <ul className="list-none p-3 m-0">
+                                    {get(model, '0.items', []).map((item, i) =>
+                                        !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>
+                                    )}
+                                </ul>
                             </div>
-                        )} */}
+                            {!layoutState.isMobile && (
+                                <div className="mt-auto">
+                                    <a
+                                        v-ripple
+                                        className="flex mb-1 justify-content-center align-items-center  p-2 text-700 transition-duration-150 transition-colors p-ripple "
+                                        style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '20px' }}
+                                    ></a>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </MenuProvider>
+            </MenuProvider>
+        </>
     );
 };
 

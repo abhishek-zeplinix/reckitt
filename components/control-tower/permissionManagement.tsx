@@ -8,7 +8,6 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { MultiSelect } from 'primereact/multiselect';
 import { CustomResponse } from '@/types';
 import SubmitResetButtons from './submit-reset-buttons';
 const ACTIONS = {
@@ -150,8 +149,6 @@ const PermissionManagement = () => {
         setdescription('');
     };
     const onRowSelect = async (perm: any, action: any) => {
-        // setAction(action);
-
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
             setSelectedPermissionId(perm.permissionId);
@@ -185,7 +182,6 @@ const PermissionManagement = () => {
                 <div className="mt-4">
                     <CustomDataTable
                         ref={allPermissions}
-                        // filter
                         page={page}
                         limit={limit} // no of items per page
                         totalRecords={totalRecords} // total records from api response

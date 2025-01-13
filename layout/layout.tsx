@@ -19,12 +19,15 @@ import TopLinerLoader from '@/components/TopLineLoader';
 import MyFileUpload from '@/components/MyFileUpload';
 import { Menubar } from 'primereact/menubar';
 import router from 'next/router';
+import { useLoaderContext } from './context/LoaderContext';
+import Loader from '@/components/common/Loader'; 
 
 const Layout = React.memo(({ children }: ChildContainerProps) => {
     const { user, isScroll } = useAppContext();
     const { layoutConfig, layoutState, setLayoutState, onMenuToggle } = useContext(LayoutContext);
     const [pageTitle, setPageTitle] = useState('');
     const { setRipple } = useContext(PrimeReactContext);
+    const { loader } = useLoaderContext();
     const topbarRef = useRef<AppTopbarRef>(null);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [bindMenuOutsideClickListener, unbindMenuOutsideClickListener] = useEventListener({
@@ -42,7 +45,7 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
             }
         }
     });
-
+console.log('47',loader)
     const pathname = usePathname();
     const searchParams = useSearchParams();
     useEffect(() => {
@@ -178,6 +181,8 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
     const isDefaultPage = pathname === '/';
 
     return (
+        <>
+         {loader && <Loader />} 
         <React.Fragment>
             <TopLinerLoader />
             <div className={containerClass}>
@@ -201,6 +206,7 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
                 <div className="layout-mask"></div>
             </div>
         </React.Fragment>
+        </>
     );
 });
 

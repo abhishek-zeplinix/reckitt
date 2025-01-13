@@ -1,21 +1,19 @@
-'use client'
-import { GetCall } from "@/app/api-config/ApiKit";
-import SupplierEvaluationTable from "@/components/supplier-rating/SupplierRatingTable";
-import useFetchDepartments from "@/hooks/useFetchDepartments";
-import { useAppContext } from "@/layout/AppWrapper";
-import { buildQueryParams, getRowLimitWithScreenHeight } from "@/utils/utils";
-import { useParams } from "next/navigation";
-import { Button } from "primereact/button";
-import { Dropdown } from "primereact/dropdown";
-import { useEffect, useState } from "react";
-
+'use client';
+import { GetCall } from '@/app/api-config/ApiKit';
+import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
+import useFetchDepartments from '@/hooks/useFetchDepartments';
+import { useAppContext } from '@/layout/AppWrapper';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { useParams } from 'next/navigation';
+import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
+import { useEffect, useState } from 'react';
 
 const SupplierRatingPage = () => {
-
     const [isSmallScreen, setIsSmallScreen] = useState(false);
-    const [activeTab, setActiveTab] = useState("PROCUREMENT");
-    const [selectedPeriod, setSelectedPeriod] = useState()
-    const [rules, setRules] = useState([])
+    const [activeTab, setActiveTab] = useState('PROCUREMENT');
+    const [selectedPeriod, setSelectedPeriod] = useState();
+    const [rules, setRules] = useState([]);
     // const [departments, setDepartments] = useState<any>();
     const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
     const [supplierData, setSupplierData] = useState<any>();
@@ -30,19 +28,16 @@ const SupplierRatingPage = () => {
 
     // console.log(supplierData);
 
-
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
-        'copack': 'ratiosCopack',
+        copack: 'ratiosCopack'
     };
 
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
 
-
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
     console.log(category);
-
 
     //fetch department api
     // const fetchDepartments = async () => {
@@ -59,15 +54,12 @@ const SupplierRatingPage = () => {
 
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
-
         try {
-
             const params = { filters: { supId } };
             const queryString = buildQueryParams(params);
             const response = await GetCall(`/company/supplier?${queryString}`);
             setSupplierData(response.data[0]);
             return response.data[0];
-
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier data');
         }
@@ -78,27 +70,20 @@ const SupplierRatingPage = () => {
         if (!selectedPeriod || !selectedDepartment) return;
 
         try {
-
             const rulesParams = { effectiveFrom: selectedPeriod, pagination: false };
             const queryString = buildQueryParams(rulesParams);
             const response = await GetCall(`/company/rules/${catId}/${subCatId}/${selectedDepartment}?${queryString}`);
             setRules(response.data);
             return response.data;
-
         } catch (error) {
             setAlert('error', 'Failed to fetch rules');
         }
     };
 
-
-
     useEffect(() => {
         const initializeData = async () => {
             setLoading(true);
             try {
-                // if (!departments) {
-                //     await fetchDepartments();
-                // }
                 if (!supplierData) {
                     await fetchSupplierData();
                 }
@@ -112,18 +97,16 @@ const SupplierRatingPage = () => {
         initializeData();
     }, []);
 
-
-
     useEffect(() => {
         const fetchRulesData = async () => {
             if (!selectedPeriod) return;
 
             // verify if the selected period is valid for current department
-            const currentDepartment = (departments as any[])?.find(dep => dep.departmentId === selectedDepartment);
+            const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
             if (!currentDepartment) return;
 
             const validPeriods = getPeriodOptions(currentDepartment.evolutionType);
-            const isPeriodValid = validPeriods.some(option => option.value === selectedPeriod);
+            const isPeriodValid = validPeriods.some((option) => option.value === selectedPeriod);
 
             if (!isPeriodValid) return;
 
@@ -138,9 +121,7 @@ const SupplierRatingPage = () => {
         };
 
         fetchRulesData();
-
     }, [selectedDepartment, selectedPeriod]);
-
 
     // Screen size effect
     useEffect(() => {
@@ -153,7 +134,6 @@ const SupplierRatingPage = () => {
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
 
     useEffect(() => {
         if (departments) {
@@ -168,7 +148,7 @@ const SupplierRatingPage = () => {
 
                 // Instead of immediately setting the period, check if the current period is valid
                 const defaultPeriod: any = getDefaultPeriod(currentDepartment.evolutionType);
-                const isCurrentPeriodValid = options.some(option => option.value === selectedPeriod);
+                const isCurrentPeriodValid = options.some((option) => option.value === selectedPeriod);
 
                 if (!isCurrentPeriodValid) {
                     setSelectedPeriod(defaultPeriod);
@@ -177,13 +157,10 @@ const SupplierRatingPage = () => {
         }
     }, [selectedDepartment, departments]);
 
-
-
     //function to get periods based on evolution type...
     const getPeriodOptions = (evolutionType: string) => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
-        // const currentMonth = currentDate.getMonth() + 1;
 
         if (evolutionType.toLowerCase() === 'halfyearly') {
             return [
@@ -226,25 +203,21 @@ const SupplierRatingPage = () => {
 
     const leftPanelData = [
         {
-            label: 'Category :', value: `${supplierData?.category?.categoryName
-                }`
+            label: 'Category :',
+            value: `${supplierData?.category?.categoryName}`
         },
         {
-            label: 'Sub-Category :', value: `${supplierData?.subCategories?.subCategoryName
-
-                }`
+            label: 'Sub-Category :',
+            value: `${supplierData?.subCategories?.subCategoryName}`
         },
         {
-            label: 'Supplier Name :', value: `${supplierData?.supplierName
-
-                }`
-        },
-
+            label: 'Supplier Name :',
+            value: `${supplierData?.supplierName}`
+        }
     ];
     const RightPanelData = [
         { label: 'Supplier Id :', value: `${supplierData?.supId}` },
-        { label: 'Warehouse Location :', value: `${supplierData?.location?.name}` },
-
+        { label: 'Warehouse Location :', value: `${supplierData?.location?.name}` }
     ];
 
     const summoryCards = () => {
@@ -321,11 +294,9 @@ const SupplierRatingPage = () => {
 
     const renderSummoryInfo = summoryCards();
 
-
     // console.log(departments);
     console.log(selectedDepartment);
     console.log(selectedPeriod);
-
 
     const dataPanel = () => {
         return (
@@ -338,13 +309,10 @@ const SupplierRatingPage = () => {
                                 .map((department: any) => (
                                     <div
                                         key={department.name}
-                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name
-                                                ? 'text-pink-500 border border-pink-500 rounded-lg'
-                                                : 'text-gray-500 border-none'
-                                            }`}
+                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name ? 'text-pink-500 border border-pink-500 rounded-lg' : 'text-gray-500 border-none'}`}
                                         style={{
                                             border: activeTab === department.name ? '1px solid #ec4899' : 'none',
-                                            borderRadius: activeTab === department.name ? '12px' : '0',
+                                            borderRadius: activeTab === department.name ? '12px' : '0'
                                         }}
                                         onClick={() => {
                                             setActiveTab(department.name); // Set activeTab state
@@ -359,14 +327,7 @@ const SupplierRatingPage = () => {
                     <hr />
 
                     <div className="flex justify-content-between">
-                        <Dropdown
-                            value={selectedPeriod}
-                            onChange={(e) => setSelectedPeriod(e.value)}
-                            options={periodOptions}
-                            optionLabel="label"
-                            placeholder="Select Period"
-                            className="w-full md:w-14rem"
-                        />
+                        <Dropdown value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.value)} options={periodOptions} optionLabel="label" placeholder="Select Period" className="w-full md:w-14rem" />
 
                         <div className="flex justify-content-end">
                             <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
@@ -377,7 +338,6 @@ const SupplierRatingPage = () => {
                     {/* <div className="mt-4">{renderContent()}</div> */}
 
                     {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentID={selectedDepartment} department={activeTab} />}
-
                 </div>
             </>
         );
@@ -385,10 +345,7 @@ const SupplierRatingPage = () => {
 
     const renderDataPanel = dataPanel();
 
-
-
     return (
-
         <div className="grid" id="content-to-print">
             <div className="col-12">
                 <div>{renderSummoryInfo}</div>
@@ -396,11 +353,8 @@ const SupplierRatingPage = () => {
             <div className="col-12">
                 <div>{renderDataPanel}</div>
             </div>
-            {/*  <div className="col-12">
-                <div>{renderGraphsPanel}</div>
-            </div> */}
         </div>
-    )
-}
+    );
+};
 
 export default SupplierRatingPage;

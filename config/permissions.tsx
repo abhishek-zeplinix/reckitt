@@ -1,94 +1,132 @@
-export const AdminModule = "AdminModule"
-export const CompaniesList = "CompaniesList"
-export const CompaniesWrite = "CompaniesWrite"
-export const CompaniesDelete = "CompaniesDelete"
-export const RouteWrite = "RouteWrite"
-export const PermissionWrite = "PermissionWrite"
-export const PermissionDelete = "PermissionDelete"
-export const DashboardModule = "DashboardModule"
-export const CompanyModule = "CompanyModule"
-export const CompanyWrite = "CompanyWrite"
-export const RoleList = "RoleList"
-export const RoleWrite = "RoleWrite"
-export const RoleDelete = "RoleDelete"
-export const UserList = "UserList"
-export const UserWrite = "UserWrite"
-export const UserDelete = "UserDelete"
+export const AdminModule = 'AdminModule';
+export const CompaniesList = 'CompaniesList';
+export const CompaniesWrite = 'CompaniesWrite';
+export const CompaniesDelete = 'CompaniesDelete';
+export const RouteWrite = 'RouteWrite';
+export const PermissionWrite = 'PermissionWrite';
+export const PermissionDelete = 'PermissionDelete';
+export const DashboardModule = 'DashboardModule';
+export const CompanyModule = 'CompanyModule';
+export const CompanyWrite = 'CompanyWrite';
+export const RoleList = 'RoleList';
+export const RoleWrite = 'RoleWrite';
+export const RoleDelete = 'RoleDelete';
+export const UserList = 'UserList';
+export const UserWrite = 'UserWrite';
+export const UserDelete = 'UserDelete';
 export const MasterCodeList = 'MasterCodeList';
 export const MasterCodeWrite = 'MasterCodeWrite';
 export const MasterCodeDelete = 'MasterCodeDelete';
-export const InventoryList = "InventoryList"
-export const InventoryWrite = "InventoryWrite"
-export const InventoryDelete = "InventoryDelete"
-export const CategoryList = "CategoryList"
-export const CategoryWrite = "CategoryWrite"
-export const CategoryDelete = "CategoryDelete"
-export const StockList = "StockList"
-export const StockWrite = "StockWrite"
-export const StockDelete = "StockDelete"
-export const WarehouseList = "WarehouseList"
-export const WarehouseWrite = "WarehouseWrite"
-export const WarehouseDelete = "WarehouseDelete"
-export const RackList = "RackList"
-export const RackWrite = "RackWrite"
-export const RackDelete = "RackDelete"
-export const BinList = "BinList"
-export const BinWrite = "BinWrite"
-export const BinDelete = "BinDelete"
-export const SKUList = "SKUList"
-export const SKUWrite = "SKUWrite"
-export const SKUDelete = "SKUDelete"
-export const Productist = "Productist"
-export const ProductWrite = "ProductWrite"
-export const ProductDelete = "ProductDelete"
-export const VendorList = "VendorList"
-export const VendorWrite = "VendorWrite"
-export const VendorDelete = "VendorDelete"
-export const VendorWarehouseList = "VendorWarehouseList"
-export const VendorWarehouseWrite = "VendorWarehouseWrite"
-export const VendorWarehouseDelete = "VendorWarehouseDelete"
-export const SupllierScorecardList = "SupllierScorecardList"
-export const SupllierScorecardWrite = "SupllierScorecardWrite"
-export const SupllierScorecardDelete = "SupllierScorecardDelete"
-export const VendorCatalogueList = "VendorCatalogueList"
-export const VendorCatalogueWrite = "VendorCatalogueWrite"
-export const VendorCatalogueDelete = "VendorCatalogueDelete"
-export const VendorPaymentList = "VendorPaymentList"
-export const VendorPaymentWrite = "VendorPaymentWrite"
-export const VendorPaymentDelete = "VendorPaymentDelete"
-export const VendorCreditsList = "VendorCreditsList"
-export const VendorCreditsWrite = "VendorCreditsWrite"
-export const VendorCreditsDelete = "VendorCreditsDelete"
-export const SalesList = "SalesList"
-export const SalesWrite = "SalesWrite"
-export const SalesDelete = "SalesDelete"
-export const OrderList = "OrderList"
-export const OrderWrite = "OrderWrite"
-export const OrderDelete = "OrderDelete"
-export const CustomerList = "CustomerList"
-export const CustomerWrite = "CustomerWrite"
-export const CustomerDelete = "CustomerDelete"
-export const SettingWrite = 'SettingWrite'
+export const InventoryList = 'InventoryList';
+export const InventoryWrite = 'InventoryWrite';
+export const InventoryDelete = 'InventoryDelete';
+export const CategoryList = 'CategoryList';
+export const CategoryWrite = 'CategoryWrite';
+export const CategoryDelete = 'CategoryDelete';
+export const StockList = 'StockList';
+export const StockWrite = 'StockWrite';
+export const StockDelete = 'StockDelete';
+export const WarehouseList = 'WarehouseList';
+export const WarehouseWrite = 'WarehouseWrite';
+export const WarehouseDelete = 'WarehouseDelete';
+export const RackList = 'RackList';
+export const RackWrite = 'RackWrite';
+export const RackDelete = 'RackDelete';
+export const BinList = 'BinList';
+export const BinWrite = 'BinWrite';
+export const BinDelete = 'BinDelete';
+export const SKUList = 'SKUList';
+export const SKUWrite = 'SKUWrite';
+export const SKUDelete = 'SKUDelete';
+export const Productist = 'Productist';
+export const ProductWrite = 'ProductWrite';
+export const ProductDelete = 'ProductDelete';
+export const VendorList = 'VendorList';
+export const VendorWrite = 'VendorWrite';
+export const VendorDelete = 'VendorDelete';
+export const VendorWarehouseList = 'VendorWarehouseList';
+export const VendorWarehouseWrite = 'VendorWarehouseWrite';
+export const VendorWarehouseDelete = 'VendorWarehouseDelete';
+export const SupllierScorecardList = 'SupllierScorecardList';
+export const SupllierScorecardWrite = 'SupllierScorecardWrite';
+export const SupllierScorecardDelete = 'SupllierScorecardDelete';
+export const VendorCatalogueList = 'VendorCatalogueList';
+export const VendorCatalogueWrite = 'VendorCatalogueWrite';
+export const VendorCatalogueDelete = 'VendorCatalogueDelete';
+export const VendorPaymentList = 'VendorPaymentList';
+export const VendorPaymentWrite = 'VendorPaymentWrite';
+export const VendorPaymentDelete = 'VendorPaymentDelete';
+export const VendorCreditsList = 'VendorCreditsList';
+export const VendorCreditsWrite = 'VendorCreditsWrite';
+export const VendorCreditsDelete = 'VendorCreditsDelete';
+export const SalesList = 'SalesList';
+export const SalesWrite = 'SalesWrite';
+export const SalesDelete = 'SalesDelete';
+export const OrderList = 'OrderList';
+export const OrderWrite = 'OrderWrite';
+export const OrderDelete = 'OrderDelete';
+export const CustomerList = 'CustomerList';
+export const CustomerWrite = 'CustomerWrite';
+export const CustomerDelete = 'CustomerDelete';
+export const SettingWrite = 'SettingWrite';
 
+export const ROUTE_MENU = [AdminModule, RouteWrite];
+export const PERMISSION_MENU = [AdminModule, PermissionDelete, PermissionWrite];
 
-export const ROUTE_MENU = [AdminModule, RouteWrite]
-export const PERMISSION_MENU = [AdminModule, PermissionDelete, PermissionWrite]
+export const COMPANIES_MENU = [AdminModule, CompaniesList, CompaniesWrite];
 
-export const COMPANIES_MENU = [AdminModule, CompaniesList, CompaniesWrite]
+export const COMPANY_MENU = [AdminModule, UserDelete, UserList, UserDelete, RoleDelete, RoleList, RoleWrite, MasterCodeDelete, MasterCodeList, MasterCodeDelete];
+export const COMPANY_ROLE_MENU = [AdminModule, RoleDelete, RoleList, RoleWrite];
+export const COMPANY_USER_MENU = [AdminModule, UserDelete, UserList, UserDelete];
+export const COMPANY_MASTER_CODE_MENU = [AdminModule, MasterCodeDelete, MasterCodeList, MasterCodeDelete];
 
-export const COMPANY_MENU = [AdminModule, UserDelete, UserList, UserDelete, RoleDelete, RoleList, RoleWrite, MasterCodeDelete, MasterCodeList, MasterCodeDelete]
-export const COMPANY_ROLE_MENU = [AdminModule, RoleDelete, RoleList, RoleWrite]
-export const COMPANY_USER_MENU = [AdminModule, UserDelete, UserList, UserDelete]
-export const COMPANY_MASTER_CODE_MENU = [AdminModule, MasterCodeDelete, MasterCodeList, MasterCodeDelete]
-
-export const INVENTORY_MENU = [AdminModule, InventoryList, InventoryDelete, InventoryWrite, Productist, ProductWrite, ProductDelete, CategoryList, CategoryWrite, CategoryDelete, WarehouseList, WarehouseWrite, WarehouseDelete, RackList, RackWrite, RackDelete, BinList, BinWrite, BinDelete];
+export const INVENTORY_MENU = [
+    AdminModule,
+    InventoryList,
+    InventoryDelete,
+    InventoryWrite,
+    Productist,
+    ProductWrite,
+    ProductDelete,
+    CategoryList,
+    CategoryWrite,
+    CategoryDelete,
+    WarehouseList,
+    WarehouseWrite,
+    WarehouseDelete,
+    RackList,
+    RackWrite,
+    RackDelete,
+    BinList,
+    BinWrite,
+    BinDelete
+];
 export const INVENTORY_PRODUCT_MENU = [AdminModule, InventoryList, InventoryDelete, InventoryWrite, Productist, ProductWrite, ProductDelete];
 export const INVENTORY_CATEGORY_MENU = [AdminModule, InventoryList, InventoryDelete, InventoryWrite, CategoryList, CategoryWrite, CategoryDelete];
 export const INVENTORY_WAREHOUSE_MENU = [AdminModule, InventoryList, InventoryDelete, InventoryWrite, WarehouseList, WarehouseWrite, WarehouseDelete];
 export const INVENTORY_RACK_MENU = [AdminModule, InventoryList, InventoryDelete, InventoryWrite, RackList, RackWrite, RackDelete];
 export const INVENTORY_BIN_MENU = [AdminModule, InventoryList, InventoryDelete, InventoryWrite, BinList, BinWrite, BinDelete];
 
-export const SUPPLIER_MENU = [VendorList, VendorWrite, VendorDelete, VendorCatalogueList, VendorCatalogueWrite, VendorCatalogueDelete, VendorWarehouseList, VendorWarehouseWrite, VendorWarehouseDelete, SupllierScorecardList, SupllierScorecardWrite, SupllierScorecardDelete, VendorPaymentList, VendorPaymentWrite, VendorPaymentDelete, VendorCreditsList, VendorCreditsWrite, VendorCreditsDelete];
+export const SUPPLIER_MENU = [
+    VendorList,
+    VendorWrite,
+    VendorDelete,
+    VendorCatalogueList,
+    VendorCatalogueWrite,
+    VendorCatalogueDelete,
+    VendorWarehouseList,
+    VendorWarehouseWrite,
+    VendorWarehouseDelete,
+    SupllierScorecardList,
+    SupllierScorecardWrite,
+    SupllierScorecardDelete,
+    VendorPaymentList,
+    VendorPaymentWrite,
+    VendorPaymentDelete,
+    VendorCreditsList,
+    VendorCreditsWrite,
+    VendorCreditsDelete
+];
 export const SUPPLIER_CATELOGUE_MENU = [VendorList, VendorWrite, VendorDelete, VendorCatalogueList, VendorCatalogueWrite, VendorCatalogueDelete];
 export const SUPPLIER_WAREHOUSE_MENU = [VendorList, VendorWrite, VendorDelete, VendorWarehouseList, VendorWarehouseWrite, VendorWarehouseDelete];
 export const SUPPLIER_SCRORECARD_MENU = [VendorList, VendorWrite, VendorDelete, SupllierScorecardList, SupllierScorecardWrite, SupllierScorecardDelete];

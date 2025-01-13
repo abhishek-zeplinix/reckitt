@@ -24,18 +24,10 @@ const defaultForm: EmptyFeedback = {
 };
 
 const AddFeedBackPages = () => {
-    const totalSteps = 3;
-    const [currentStep, setCurrentStep] = useState(1);
-    const [completedSteps, setCompletedSteps] = useState<boolean[]>(Array(totalSteps).fill(false));
-    // Form fields state
-    const router = useRouter();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [supplier, setSupplier] = useState<any>([]);
-    const [locationDetails, setLocationDetails] = useState<any>([]);
-    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
-    const [selectedCompany, setSelectedCompany] = useState<Supplier | null>(null);
+    const { setLoading, setAlert } = useAppContext();
     const [form, setForm] = useState<EmptyFeedback>(defaultForm);
-    const dataTableRef = useRef<CustomDataTableRef>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
 
     useEffect(() => {

@@ -50,14 +50,6 @@ const CustomToast = ({ type, message, onClose }: { type: string; message: string
                         <p className="text-sm text-gray-500 m-0">{message}</p>
                     </div>
                 </div>
-
-                {/* <button
-          onClick={onClose}
-          className="p-1 mt-0 border-round cursor-pointer hover:surface-200 transition-colors transition-duration-150"
-          style={{ border: 'none', background: 'transparent' }}
-        >
-          <i className="pi pi-times text-pink-500" style={{ color: 'gray', fontSize: '1rem'}}></i>
-        </button> */}
             </div>
         </div>
     );

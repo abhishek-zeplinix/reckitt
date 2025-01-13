@@ -7,7 +7,6 @@ import _ from 'lodash';
 import { Dropdown } from 'primereact/dropdown';
 
 const CreateNewRulesPage = () => {
-    const router = useRouter();
     const [supplierId, setSupplierId] = useState('');
     const [supplierName, setSupplierName] = useState('');
     const [manufacturerName, setManufacturerName] = useState('');

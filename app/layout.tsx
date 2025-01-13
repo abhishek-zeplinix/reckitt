@@ -5,6 +5,7 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import '../styles/layout/layout.scss';
 import { AppWrapper } from '@/layout/AppWrapper';
+import { LoaderProvider, useLoaderContext } from '@/layout/context/LoaderContext';
 // import './globals.css'
 
 interface RootLayoutProps {
@@ -20,9 +21,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </head>
             <body>
                 <PrimeReactProvider>
-                    <AppWrapper>
-                        <LayoutProvider>{children}</LayoutProvider>
-                    </AppWrapper>
+                    <LoaderProvider>
+                        <AppWrapper>
+                            <LayoutProvider>{children}</LayoutProvider>
+                        </AppWrapper>
+                    </LoaderProvider>
                 </PrimeReactProvider>
             </body>
         </html>
