@@ -31,7 +31,7 @@ const Routes = () => {
     const { setAlert, setLoading, isLoading } = useAppContext();
     const [selectedRoute, setSelectedRoute] = useState<any>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [specificRoutePermissions, setSpecificRoutePermissions] = useState<any>([])
+    const [specificRoutePermissions, setSpecificRoutePermissions] = useState<any>([]);
 
     useEffect(() => {
         fetchRoutes();
@@ -39,11 +39,9 @@ const Routes = () => {
     }, []);
 
     const fetchRoutes = async (routesParams?: any) => {
-
         setLoading(true);
 
         try {
-
             if (!routesParams) {
                 routesParams = { limit: limit, page: page };
             }
@@ -58,17 +56,12 @@ const Routes = () => {
 
             setRoutesList(response.data);
             setTotalRecords(response.total);
-
         } catch (err: any) {
-
             setAlert('error', err.message);
-
         } finally {
-
             setLoading(false);
         }
     };
-
 
     const fetchPermissionData = async (params?: any) => {
         setLoading(true);
@@ -93,29 +86,22 @@ const Routes = () => {
         }
     };
 
-
-
     const fetchPermissionsByRouteId = async (rId: Number) => {
         try {
-
             setIsDetailLoading(true);
             const response = await GetCall(`settings/routes/${rId}`);
             console.log('Fetched route permissions:', response.data);
             setSpecificRoutePermissions(response.data);
 
             // pre-select existing permissions in MultiSelect
-            const existingPermissionIds = response.data.permissions.map(
-                (perm: any) => perm.permission.permissionId
-            );
+            const existingPermissionIds = response.data.permissions.map((perm: any) => perm.permission.permissionId);
             setSelectedPermissions(existingPermissionIds);
-
         } catch (error) {
             setAlert('error', 'Failed to fetch route permissions');
         } finally {
             setIsDetailLoading(false);
         }
     };
-
 
     const openViewDialog = async (items: any) => {
         setVisible(true);
@@ -130,14 +116,11 @@ const Routes = () => {
         }
     };
 
-
     const handleSubmit = async () => {
         setIsDetailLoading(true);
 
         // get the current permissions for comparison
-        const currentPermissions = specificRoutePermissions?.permissions?.map(
-            (perm: any) => perm.permission.permissionId
-        ) || [];
+        const currentPermissions = specificRoutePermissions?.permissions?.map((perm: any) => perm.permission.permissionId) || [];
 
         const payloadToSend = [];
 
@@ -178,7 +161,6 @@ const Routes = () => {
             } else {
                 setAlert('error', response.message || 'Failed to update permissions.');
             }
-            
         } catch (error) {
             console.error('Error submitting permissions:', error);
             setAlert('error', 'An error occurred while updating permissions.');
@@ -186,8 +168,6 @@ const Routes = () => {
             setIsDetailLoading(false);
         }
     };
-
-    
 
     const multiSelectFooter = () => {
         return (
@@ -209,15 +189,12 @@ const Routes = () => {
         );
     };
 
-
     const isSmallScreen = window.innerWidth <= 768;
 
     const DilogBoxstyle = {
         width: isSmallScreen ? '80%' : '40vw',
-        maxHeight: isSmallScreen ? '80%' : '50vh',
+        maxHeight: isSmallScreen ? '80%' : '50vh'
     };
-
-
 
     return (
         <>
@@ -237,13 +214,23 @@ const Routes = () => {
                         path: item?.path
                     }))}
                     columns={[
+                        // {
+                        //     header: 'Route ID',
+                        //     field: 'routeId',
+                        //     filter: true,
+                        //     sortable: true,
+                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                        //     filterPlaceholder: 'Route ID'
+                        // },
                         {
-                            header: 'Route ID',
-                            field: 'routeId',
-                            filter: true,
-                            sortable: true,
-                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Route ID'
+                            header: 'Sr. No.',
+                            body: (data: any, options: any) => {
+                                const normalizedRowIndex = options.rowIndex % limit;
+                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+
+                                return <span>{srNo}</span>;
+                            },
+                            bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
                             header: 'Method',
@@ -287,7 +274,7 @@ const Routes = () => {
                             panelFooterTemplate={multiSelectFooter}
                             // maxSelectedLabels={3}
                             className="w-full"
-                            display='chip'
+                            display="chip"
                         />
                     </div>
 
@@ -304,18 +291,11 @@ const Routes = () => {
 
                             <div className="grid grid-cols-2 gap-3">
                                 {specificRoutePermissions?.permissions?.map((permissionData: any) => (
-                                    <div
-                                        key={permissionData.routePermissionId}
-                                        className="flex align-items-center p-3 bg-gray-50 border-round border-1 surface-border hover:surface-100 transition-colors"
-                                    >
+                                    <div key={permissionData.routePermissionId} className="flex align-items-center p-3 bg-gray-50 border-round border-1 surface-border hover:surface-100 transition-colors">
                                         <div className="w-2 h-2 border-circle bg-green-500 mr-3"></div>
                                         <div className="flex flex-column">
-                                            <span className="text-700 font-medium">
-                                                {permissionData.permission.permission}
-                                            </span>
-                                            <span className="text-500 text-sm">
-                                                {permissionData.permission.module}
-                                            </span>
+                                            <span className="text-700 font-medium">{permissionData.permission.permission}</span>
+                                            <span className="text-500 text-sm">{permissionData.permission.module}</span>
                                         </div>
                                     </div>
                                 ))}
