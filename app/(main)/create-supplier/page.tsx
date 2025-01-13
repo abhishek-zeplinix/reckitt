@@ -13,6 +13,7 @@ import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { EmptySupplier } from '@/types/forms';
 import { get } from 'lodash';
 import { CustomDataTableRef } from '@/components/CustomDataTable';
+import { InputTextarea } from 'primereact/inputtextarea';
 
 const defaultForm: EmptySupplier = {
     supId: null,
@@ -22,13 +23,12 @@ const defaultForm: EmptySupplier = {
     procurementCategoryId: null,
     supplierCategoryId: null,
     warehouseLocation: '',
-    factoryId: null,
+    factoryName: '',
     gmpFile: '',
     gdpFile: '',
     reachFile: '',
     isoFile: '',
-    locationId: null,
-    sublocationId: null
+    location: '',
 };
 
 const CreateSupplierPage = () => {
@@ -63,17 +63,34 @@ const CreateSupplierPage = () => {
     }, []);
 
     const onNewAdd = async (companyForm: any) => {
+
         setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
-        setIsDetailLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSelectedCompany(response.data);
-            setAlert('success', 'Supplier Added Successfully');
-            dataTableRef.current?.updatePagination(1);
-            router.push('/manage-supplier');
-        } else {
-            setAlert('error', response.message);
+        setLoading(true);
+        try {
+
+            const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
+            setIsDetailLoading(false);
+
+            if (response.code == 'SUCCESS') {
+
+                setSelectedCompany(response.data);
+
+                setAlert('success', 'Supplier Added Successfully');
+
+                dataTableRef.current?.updatePagination(1);
+                router.push('/manage-supplier');
+
+            } else {
+
+                setAlert('error', response.message);
+            }
+        }catch(error){
+            setAlert('error', 'Something went wrong!')
+            
+        }finally{
+            setLoading(false);
         }
+        
     };
 
     // Navigation Handlers
@@ -174,7 +191,7 @@ const CreateSupplierPage = () => {
     };
 
     const handleSubmit = () => {
-        console;
+        console.log(form);
         onNewAdd(form);
     };
 
@@ -194,29 +211,15 @@ const CreateSupplierPage = () => {
                         <div className="flex flex-column gap-3 pt-2">
                             <h2 className="text-center font-bold ">Add Supplier Information</h2>
                             <div className="p-fluid grid md:mx-7 pt-2">
-                                <div className="field col-4">
-                                    <label htmlFor="supplierId" className="font-semibold">
-                                        Location
-                                    </label>
-                                    <Dropdown
-                                        id="name"
-                                        value={get(form, 'locationId')}
-                                        options={locationDetails}
-                                        optionLabel="name"
-                                        optionValue="locationId"
-                                        onChange={(e) => onInputChange('locationId', e.value)}
-                                        placeholder="Select Location Name"
-                                        className="w-full"
-                                    />
-                                </div>
+
                                 <div className="field col-4">
                                     <label htmlFor="supplierName" className="font-semibold">
                                         Supplier Name
                                     </label>
-                                    <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full " placeholder="Enter Supplier Name" />
+                                    <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full " placeholder="Enter Supplier Name" required/>
                                 </div>
                                 <div className="field col-4">
-                                    <label htmlFor="manufacturerName">Manufacturing Name</label>
+                                    <label htmlFor="manufacturerName" className="font-semibold">Manufacturing Name</label>
                                     <InputText
                                         id="manufacturerName"
                                         type="text"
@@ -227,20 +230,20 @@ const CreateSupplierPage = () => {
                                     />
                                 </div>
                                 <div className="field col-4">
-                                    <label htmlFor="manufacturerName">Factory Name</label>
-                                    <Dropdown
+                                    <label htmlFor="factoryName" className="font-semibold">
+                                        Factory Name
+                                    </label>
+                                    <InputText
                                         id="factoryName"
-                                        value={get(form, 'factoryId')}
-                                        options={factoryDetails}
-                                        optionLabel="factoryName"
-                                        optionValue="factoryId"
-                                        onChange={(e) => onInputChange('factoryId', e.value)}
-                                        placeholder="Select Factory Name"
-                                        className="w-full"
+                                        value={get(form, 'factoryName')}
+                                        type='text'
+                                        onChange={(e) => onInputChange('factoryName', e.target.value)}
+                                        placeholder="Enter Factory Name"
+                                        className="p-inputtext w-full"
                                     />
                                 </div>
                                 <div className="field col-4">
-                                    <label htmlFor="procurementCategory">Supplier Procurement Category</label>
+                                    <label htmlFor="procurementCategory" className="font-semibold">Supplier Procurement Category</label>
                                     <Dropdown
                                         id="procurementCategory"
                                         value={get(form, 'procurementCategoryId')}
@@ -253,7 +256,7 @@ const CreateSupplierPage = () => {
                                     />
                                 </div>
                                 <div className="field col-4">
-                                    <label htmlFor="manufacturerName">Supplier Category</label>
+                                    <label htmlFor="manufacturerName" className="font-semibold">Supplier Category</label>
                                     <Dropdown
                                         id="supplierCategory"
                                         value={get(form, 'supplierCategoryId')}
@@ -265,21 +268,37 @@ const CreateSupplierPage = () => {
                                         className="w-full"
                                     />
                                 </div>
+
                                 <div className="field col-4">
-                                    <label htmlFor="manufacturerName">Site Address</label>
-                                    <InputText id="manufacturerName" type="text" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
-                                </div>
-                                <div className="field col-4">
-                                    <label htmlFor="manufacturerName">Sub Location</label>
-                                    <Dropdown
+                                    <label htmlFor="location" className="font-semibold">
+                                        Location
+                                    </label>
+                                    <InputText
                                         id="name"
-                                        value={get(form, 'sublocationId')}
-                                        options={subLocationDetails}
-                                        optionLabel="name"
-                                        optionValue="sublocationId"
-                                        onChange={(e) => onInputChange('sublocationId', e.value)}
-                                        placeholder="Select Sub Location Name"
-                                        className="w-full"
+                                        value={get(form, 'location')}
+                                        type='text'
+                                        onChange={(e) => onInputChange('location', e.target.value)}
+                                        placeholder="Enter Location Name"
+                                        className="p-inputtext w-full"
+                                    />
+                                </div>
+
+
+                                <div className="field col-4">
+                                    <label htmlFor="manufacturerName" className="font-semibold">Site Address</label>
+                                    <InputTextarea id="manufacturerName" value={get(form, 'manufacturerName')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
+                                </div>
+
+                                
+                                <div className="field col-4">
+                                    <label htmlFor="warehouseLocation" className="font-semibold">Warehouse Location</label>
+                                    <InputTextarea
+                                        id="name"
+                                        // type='text'
+                                        value={get(form, 'warehouseLocation')}
+                                        onChange={(e) => onInputChange('warehouseLocation', e.target.value)}
+                                        placeholder="Enter Warehouse Location"
+                                        className="p-inputtext w-full"
                                     />
                                 </div>
                             </div>

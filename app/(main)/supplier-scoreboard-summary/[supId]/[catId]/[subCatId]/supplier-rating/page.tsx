@@ -80,6 +80,7 @@ const SupplierRatingPage = () => {
         }
     };
 
+
     useEffect(() => {
         const initializeData = async () => {
             setLoading(true);
@@ -217,7 +218,7 @@ const SupplierRatingPage = () => {
     ];
     const RightPanelData = [
         { label: 'Supplier Id :', value: `${supplierData?.supId}` },
-        { label: 'Warehouse Location :', value: `${supplierData?.location?.name}` }
+        { label: 'Warehouse Location :', value: `${supplierData?.warehouseLocation}` }
     ];
 
     const summoryCards = () => {
@@ -337,7 +338,7 @@ const SupplierRatingPage = () => {
 
                     {/* <div className="mt-4">{renderContent()}</div> */}
 
-                    {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentID={selectedDepartment} department={activeTab} />}
+                    {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentId={selectedDepartment} department={activeTab} />}
                 </div>
             </>
         );
