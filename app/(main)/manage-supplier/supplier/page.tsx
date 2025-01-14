@@ -50,14 +50,14 @@ const ManageSupplierAddEditPage = () => {
     const [category, setCategory] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
 
-    // Map API response to form structure
+    // map API response to form structure
     const mapToForm = (incomingData: any) => {
         if (!incomingData) return defaultForm;
         
         return {
             ...defaultForm,
             ...incomingData,
-            // Ensure correct mapping for dropdown values
+            // ensure correct mapping for dropdown values
             procurementCategoryId: incomingData.procurementCategoryId || get(incomingData, 'category.categoryId'),
             supplierCategoryId: incomingData.supplierCategoryId || get(incomingData, 'subCategories.subCategoryId'),
         };
@@ -106,7 +106,7 @@ const ManageSupplierAddEditPage = () => {
     const fetchCategory = async () => {
         const response: CustomResponse = await GetCall(`/company/category`);
         if (response.code === 'SUCCESS') {
-            setCategory(response.data);
+            setCategory(response.data);            
         }
     };
 

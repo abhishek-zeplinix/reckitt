@@ -27,6 +27,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
 const { setLoading, setAlert } = useAppContext();
 
+console.log(selectedEvaluations);
+
   // Reset initialization when category changes
   useEffect(() => {
     
@@ -44,6 +46,8 @@ const { setLoading, setAlert } = useAppContext();
   //capa rule visibility logic
   //it is based on selectedEvaluations
   const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
+  const isAnyEvaluationEmpty = Object.values(selectedEvaluations).some((value) => value === undefined || value === '');
+
 
   console.log('capa rule visibility logic', selectedEvaluations);
 
@@ -302,11 +306,7 @@ const { setLoading, setAlert } = useAppContext();
         });
 
         const subCategoryId = subCatId;
-        const categoryData = {
-            categoryId: catId,
-            categoryName: categoryName
-        };
-
+      
         const apiData = {
             supId,
             departmentId,
@@ -526,7 +526,7 @@ const { setLoading, setAlert } = useAppContext();
 
         <div>
           <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
-          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)}
+          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} required
           />
         </div>
 
@@ -538,14 +538,14 @@ const { setLoading, setAlert } = useAppContext();
         {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={existingSelections}/>}
       </div>
 
-      {/* <div className='flex justify-content-end gap-3 mt-1 p-3'>
+       <div className='flex justify-content-end gap-3 mt-1 p-3'>
         <Button label="Cancle" style={{ backgroundColor: "#ffff", color: "#DF177C", border: 'none' }} />
-        <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} onClick={handleSubmit}
+        <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} onClick={handleSubmit} disabled = {isAnyEvaluationEmpty}
         />
 
-      </div> */}
+      </div> 
 
-            <SubmitResetButtons onSubmit={handleSubmit} onReset={handleReset} label="Save" />
+            {/* <SubmitResetButtons onSubmit={handleSubmit} onReset={handleReset} label="Save" /> */}
         </div>
     );
 };
