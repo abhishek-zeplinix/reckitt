@@ -26,27 +26,25 @@ const ACTIONS = {
 };
 
 const ManageSupplierScorePage = () => {
-    const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    const [rules, setRules] = useState<Rules[]>([]);
-    const [scores, setScores] = useState<Scores[]>([]);
+    const [rules, setRules] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState();
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [visible, setVisible] = useState(false);
+    
+    const [filters, setFilters] = useState<any>();
+
+
+    const [category, setCategory] = useState<any>([]);
+    const [allSuppliers, setAllSuppliers] = useState<any[]>([]); 
+
+    
     const { departments } = useFetchDepartments();
-    const { suppliers } = useFetchSuppliers();
-
-    console.log('page and limit: ', page, limit);
-
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const renderHeader = () => {
@@ -69,6 +67,18 @@ const ManageSupplierScorePage = () => {
                 params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
             }
 
+             if (filters) {
+
+                params.filters = {
+                    // ...params,
+                    supId: filters.supplier,
+                    departmentId: filters.department,
+                    evalutionPeriod: filters.period,
+                    categoryId: filters.category
+                };
+            }
+
+
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
@@ -79,6 +89,11 @@ const ManageSupplierScorePage = () => {
 
             setTotalRecords(response.total);
             setRules(response.data);
+            
+            if(!filters){
+                setAllSuppliers(response.data);
+            }
+
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -86,11 +101,21 @@ const ManageSupplierScorePage = () => {
         }
     };
 
+
     const dataTableHeaderStyle = { fontSize: '14px' };
+
+
+    const fetchCategory = async () => {
+            const response: CustomResponse = await GetCall(`/company/category`);
+            if (response.code === 'SUCCESS') {
+                setCategory(response.data);
+            }
+    };
 
     useEffect(() => {
         fetchData();
-    }, []);
+       fetchCategory();
+    }, [filters]);
 
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
@@ -132,8 +157,12 @@ const ManageSupplierScorePage = () => {
     };
 
     const handleFilterChange = (filters: any) => {
-        console.log('Selected filters:', filters);
+        
+        console.log(filters);
+        
+        setFilters(filters)
     };
+
 
     return (
         <div className="grid">
@@ -146,7 +175,7 @@ const ManageSupplierScorePage = () => {
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
                             <div>
-                                <FilterDropdowns onFilterChange={handleFilterChange} suppliers={suppliers} departments={departments} />
+                                <FilterDropdowns onFilterChange={handleFilterChange} suppliers={allSuppliers} departments={departments} category={category} />
                             </div>
 
                             <div className="mt-3 ">
@@ -183,7 +212,7 @@ const ManageSupplierScorePage = () => {
                                     {
                                         header: 'Name',
                                         field: 'supplierName',
-                                        filter: true,
+                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
