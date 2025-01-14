@@ -12,7 +12,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules } from '@/types';
+import { CustomResponse, Rules, Scores } from '@/types';
 import ScoreTiles from '@/components/supplier-score/score-tiles';
 import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
@@ -26,26 +26,25 @@ const ACTIONS = {
 };
 
 const ManageSupplierScorePage = () => {
-    const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    const [rules, setRules] = useState<Rules[]>([]);
+    const [rules, setRules] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState();
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    
+    const [filters, setFilters] = useState<any>();
 
+
+    const [category, setCategory] = useState<any>([]);
+    const [allSuppliers, setAllSuppliers] = useState<any[]>([]); 
+
+    
     const { departments } = useFetchDepartments();
-    const { suppliers } = useFetchSuppliers();
-
-    console.log('page and limit: ', page, limit);
-
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const renderHeader = () => {
@@ -65,8 +64,20 @@ const ManageSupplierScorePage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
+                params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
             }
+
+             if (filters) {
+
+                params.filters = {
+                    // ...params,
+                    supId: filters.supplier,
+                    departmentId: filters.department,
+                    evalutionPeriod: filters.period,
+                    categoryId: filters.category
+                };
+            }
+
 
             setPage(params.page);
 
@@ -74,10 +85,15 @@ const ManageSupplierScorePage = () => {
 
             console.log('Fetching data with params:', queryString); // Debug log
 
-            const response = await GetCall(`company/rules?${queryString}`);
+            const response = await GetCall(`company/supplier-score?${queryString}`);
 
             setTotalRecords(response.total);
             setRules(response.data);
+            
+            if(!filters){
+                setAllSuppliers(response.data);
+            }
+
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -85,11 +101,21 @@ const ManageSupplierScorePage = () => {
         }
     };
 
+
     const dataTableHeaderStyle = { fontSize: '14px' };
+
+
+    const fetchCategory = async () => {
+            const response: CustomResponse = await GetCall(`/company/category`);
+            if (response.code === 'SUCCESS') {
+                setCategory(response.data);
+            }
+    };
 
     useEffect(() => {
         fetchData();
-    }, []);
+       fetchCategory();
+    }, [filters]);
 
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
@@ -131,8 +157,12 @@ const ManageSupplierScorePage = () => {
     };
 
     const handleFilterChange = (filters: any) => {
-        console.log('Selected filters:', filters);
+        
+        console.log(filters);
+        
+        setFilters(filters)
     };
+
 
     return (
         <div className="grid">
@@ -145,7 +175,7 @@ const ManageSupplierScorePage = () => {
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
                             <div>
-                                <FilterDropdowns onFilterChange={handleFilterChange} suppliers={suppliers} departments={departments} />
+                                <FilterDropdowns onFilterChange={handleFilterChange} suppliers={allSuppliers} departments={departments} category={category} />
                             </div>
 
                             <div className="mt-3 ">
@@ -159,13 +189,13 @@ const ManageSupplierScorePage = () => {
                                 totalRecords={totalRecords} // total records from api response
                                 data={rules?.map((item: any) => ({
                                     ruleId: item.ruleId,
-                                    subCategoryName: item.subCategories?.subCategoryName,
-                                    section: item.section,
-                                    ratedCriteria: item.ratedCriteria,
-                                    criteriaEvaluation: item.criteriaEvaluation,
-                                    score: item.score,
-                                    ratiosCopack: item.ratiosCopack,
-                                    ratiosRawpack: item.ratiosRawpack
+                                    supplierName: item.supplier?.supplierName,
+                                    depName: item.department?.name,
+                                    evalutionPeriod: item.evalutionPeriod,
+                                    totalScore: item.totalScore,
+                                    categoryName: item.category?.categoryName,
+                                    subCategoryName: item.subCategory?.subCategoryName,
+                                    status: item.status
                                 }))}
                                 columns={[
                                     {
@@ -181,15 +211,15 @@ const ManageSupplierScorePage = () => {
 
                                     {
                                         header: 'Name',
-                                        field: 'supplierid',
-                                        filter: true,
+                                        field: 'supplierName',
+                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
                                     },
                                     {
                                         header: 'Type',
-                                        field: 'subCategoryName',
+                                        field: 'depName',
                                         sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Supplier Name',
@@ -198,7 +228,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Quarter',
-                                        field: 'section',
+                                        field: 'evalutionPeriod',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
@@ -206,7 +236,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Supplier Score',
-                                        field: 'ratedCriteria',
+                                        field: 'totalScore',
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -214,7 +244,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Procurement Category',
-                                        field: 'criteriaEvaluation',
+                                        field: 'categoryName',
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -222,7 +252,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Supplier Category',
-                                        field: 'score',
+                                        field: 'subCategoryName',
                                         filter: true,
                                         filterPlaceholder: 'Search Site Address',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -230,7 +260,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Status',
-                                        field: 'ratiosCopack',
+                                        field: 'status',
                                         filter: true,
                                         filterPlaceholder: 'Search Factory Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },

@@ -84,13 +84,17 @@ const KanbanBoard = () => {
 
                 return (
                     <div key={column.id} className="column w-[5rem]  bg-gray-200 rounded-lg" onDrop={() => handleDrop(column.id)} onDragOver={(e) => e.preventDefault()}>
-                        <div className="flex">
-                            <div className="flex mb-4 gap-3 px-3" style={{ alignItems: 'center' }}>
+                        <div className="flex justify-content-between align-items-center px-2">
+                            <div className="flex mb-4 gap-3 px-3 align-items-center">
                                 <span style={{ width: '10px', height: '10px', borderRadius: '50%', marginTop: '0px', marginBottom: '0px' }} className={` ${getStatusDotColor(column.id as 'todo' | 'in-progress' | 'done')}`} />
-                                <h2 className="text-left text-xl font-bold mt-3">{column.title}</h2>
-                                <span className=" text-sm">{taskCount}</span>
+                                <h2 className="text-left text-xl font-bold mt-3 ">{column.title}</h2>
+                                <span className="text-sm">
+                                    <div className="w-12 h-3 bg-gray-400 border-circle flex items-center justify-center text-white text-xs p-2">{taskCount}</div>
+                                </span>
                             </div>
-                            <div></div>
+                            <div className="mb-4 ">
+                                <i className="pi pi-ellipsis-v cursor-pointer" onClick={() => {}}></i>
+                            </div>
                         </div>
                         <div className="tasks p-4">
                             {column.tasks.length === 0 ? (
