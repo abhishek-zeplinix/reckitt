@@ -136,7 +136,7 @@ const AddFeedBackPages = () => {
         return (
             <div className="flex flex-column gap-3 pt-2">
                 <h2 className="text-center font-bold ">Generate Feedback</h2>
-                <div className="p-fluid grid md:mx-7 pt-2">
+                <div className="p-fluid grid mx-1 pt-2">
                     <div className="field col-4">
                         <label htmlFor="supplierName" className="font-semibold">
                             Supplier ID

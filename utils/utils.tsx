@@ -35,16 +35,7 @@ export const validateName = (firstName: string, key?: string) => {
     }
     return true;
 };
-export const validatePhoneNumber = (phoneNumber: string) => {
-    const phonePattern = /^[0-9]{10}$/; // Pattern that allows only 10 digits
-    if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
-        return false;
-    }
-    if (!phonePattern.test(phoneNumber)) {
-        return false;
-    }
-    return true;
-};
+
 export const validateZipNumber = (phoneNumber: string) => {
     const phonePattern = /^[0-9]{5,6}$/; // Pattern that allows only 10 digits
     if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
@@ -228,14 +219,25 @@ export const validateString = (firstName: string, key?: string) => {
     return true;
 };
 
-
 //sort and map data based on specific property
 
-const sortAndMap = (array: any, sortKey:any, mapFn:any, order = 'asc') => {
-    return (array as any[])
-      .sort((a, b) =>
-        order === 'asc' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]
-      )
-      .map(mapFn);
-  };
-  
+const sortAndMap = (array: any, sortKey: any, mapFn: any, order = 'asc') => {
+    return (array as any[]).sort((a, b) => (order === 'asc' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey])).map(mapFn);
+};
+
+export const validateText = (text: string): boolean => {
+    if (typeof text !== 'string' || text.trim() === '') {
+        return false; // Text should not be empty
+    }
+    const wordCount = text.trim().split(/\s+/).length; // Split by whitespace and count words
+    if (wordCount >= 80) {
+        return false; // Text should have less than 80 words
+    }
+    return true;
+};
+export const validateSiteAddress = (address: string): boolean => {
+    if (typeof address !== 'string' || address.trim() === '') {
+        return false; // Address should not be empty
+    }
+    return true; // Any non-empty string is valid
+};

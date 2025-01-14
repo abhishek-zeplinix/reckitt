@@ -43,11 +43,8 @@ const defaultForm: EmptySupplier = {
     subCategories: {
         subCategoryId: null,
         subCategoryName: ''
-    }
-    // factoryName: {
-    //     factoryId: null,
-    //     factoryName: ''
-    // }
+    },
+    factoryName: ''
 };
 
 const ManageSupplierPage = () => {
