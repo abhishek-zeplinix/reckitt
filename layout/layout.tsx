@@ -20,7 +20,7 @@ import MyFileUpload from '@/components/MyFileUpload';
 import { Menubar } from 'primereact/menubar';
 import router from 'next/router';
 import { useLoaderContext } from './context/LoaderContext';
-import Loader from '@/components/common/Loader'; 
+import Loader from '@/components/common/Loader';
 
 const Layout = React.memo(({ children }: ChildContainerProps) => {
     const { user, isScroll } = useAppContext();
@@ -45,7 +45,7 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
             }
         }
     });
-console.log('47',loader)
+    console.log('47', loader);
     const pathname = usePathname();
     const searchParams = useSearchParams();
     useEffect(() => {
@@ -179,35 +179,34 @@ console.log('47',loader)
     ];
 
     const isDefaultPage = pathname === '/';
-    console.log('182',onMenuToggle)
+    console.log('182', onMenuToggle);
 
     return (
         <>
-         
-        <React.Fragment>
-            {/* <TopLinerLoader /> */}
-            {loader && <Loader />} 
-            <div className={containerClass}>
-                <MyFileUpload />
-                <AppTopbar ref={topbarRef} />
-                {/* {!layoutState.isMobile && (
+            <React.Fragment>
+                {/* <TopLinerLoader /> */}
+                {loader && <Loader />}
+                <div className={containerClass}>
+                    <MyFileUpload />
+                    <AppTopbar ref={topbarRef} />
+                    {/* {!layoutState.isMobile && (
                     <div className={menuToggleClass} onClick={onMenuToggle}>
                         <i className={iconClass}></i>
                     </div>
                 )} */}
-                <div ref={sidebarRef} className="layout-sidebar">
-                    <AppSidebar />
-                </div>
-                <div className={'layout-main-container'}>
-                    {/* {!isDefaultPage && <Menubar className="layout-upper-panel bg-white border-t  border-gray-300 rounded-none font-bold text-2xl" model={items} />} */}
+                    <div ref={sidebarRef} className="layout-sidebar">
+                        <AppSidebar />
+                    </div>
+                    <div className={'layout-main-container'}>
+                        {/* {!isDefaultPage && <Menubar className="layout-upper-panel bg-white border-t  border-gray-300 rounded-none font-bold text-2xl" model={items} />} */}
 
-                    <div className={`layout-main ${!isScroll ? 'layout-main-pad' : ''}`}>{children}</div>
-                    <AppFooter />
+                        <div className={`layout-main ${!isScroll ? 'layout-main-pad' : ''}`}>{children}</div>
+                        <AppFooter />
+                    </div>
+                    <AppConfig />
+                    <div className="layout-mask"></div>
                 </div>
-                <AppConfig />
-                <div className="layout-mask"></div>
-            </div>
-        </React.Fragment>
+            </React.Fragment>
         </>
     );
 });

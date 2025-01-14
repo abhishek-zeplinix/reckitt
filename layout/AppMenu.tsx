@@ -54,8 +54,8 @@ const AppMenu = () => {
 
         // Simulate a delay of 1 second before routing
         // setTimeout(() => {
-            router.push(item.url);
-            setLoader(true);
+        router.push(item.url);
+        setLoader(true);
         //     setLoader(false); // Hide the loader after 1 second
         // }, 500);
     };
@@ -162,18 +162,6 @@ const AppMenu = () => {
                             url: '/manage-supplier',
                             check: (user: any) => {
                                 const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
-                                if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                                    return true;
-                                }
-                                return false;
-                            },
-                            command: handleMenuClick
-                        },
-                        {
-                            label: 'Create Supplier',
-                            url: '/create-supplier',
-                            check: (user: any) => {
-                                const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
                                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
                                     return true;
                                 }
@@ -773,30 +761,30 @@ const AppMenu = () => {
         'pi-angle-right text-lg text-white p-3': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
     });
     return (
-            <MenuProvider>
-                <div className="min-h-screen flex relative lg:static">
-                    <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
-                        <div className="flex flex-column" style={{ height: '92%' }}>
-                            <div className="overflow-y-auto " style={{ scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
-                                <ul className="list-none p-3 m-0">
-                                    {get(model, '0.items', []).map((item, i) =>
-                                        !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>
-                                    )}
-                                </ul>
-                            </div>
-                            {!layoutState.isMobile && (
-                                <div className="mt-auto">
-                                    <a
-                                        v-ripple
-                                        className="flex mb-1 justify-content-center align-items-center  p-2 text-700 transition-duration-150 transition-colors p-ripple "
-                                        style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '15px' }}
-                                    ></a>
-                                </div>
-                            )}
+        <MenuProvider>
+            <div className="min-h-screen flex relative lg:static">
+                <div id="app-sidebar-2" className="h-screen block flex-shrink-0 absolute lg:static left-0 top-0 z-1 select-none" style={{ width: !layoutState.isMobile && layoutState.staticMenuDesktopInactive ? 60 : 265 }}>
+                    <div className="flex flex-column" style={{ height: '92%' }}>
+                        <div className="overflow-y-auto " style={{ scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
+                            <ul className="list-none p-3 m-0">
+                                {get(model, '0.items', []).map((item, i) =>
+                                    !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>
+                                )}
+                            </ul>
                         </div>
+                        {!layoutState.isMobile && (
+                            <div className="mt-auto">
+                                <a
+                                    v-ripple
+                                    className="flex mb-1 justify-content-center align-items-center  p-2 text-700 transition-duration-150 transition-colors p-ripple "
+                                    style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '15px' }}
+                                ></a>
+                            </div>
+                        )}
                     </div>
                 </div>
-            </MenuProvider>
+            </div>
+        </MenuProvider>
     );
 };
 

@@ -134,13 +134,23 @@ const AddRoleControl = () => {
                         role: item?.name
                     }))}
                     columns={[
+                        // {
+                        //     header: 'Role ID',
+                        //     field: 'roleId',
+                        //     filter: true,
+                        //     sortable: true,
+                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                        //     filterPlaceholder: 'Role ID'
+                        // },
                         {
-                            header: 'Role ID',
-                            field: 'roleId',
-                            filter: true,
-                            sortable: true,
-                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Role ID'
+                            header: 'Sr. No.',
+                            body: (data: any, options: any) => {
+                                const normalizedRowIndex = options.rowIndex % limit;
+                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+
+                                return <span>{srNo}</span>;
+                            },
+                            bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
                             header: 'Role',
