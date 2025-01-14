@@ -111,8 +111,8 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
     };
 
     const fixedDropdown = {
-        width: '230px' /* fixed width for the dropdown */,
-        minWidth: '150px' /*ensures dropdown is not smaller than this */,
+        width: '230px',
+        minWidth: '150px',
         padding: '4px',
         height: '45px'
     };

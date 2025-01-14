@@ -172,6 +172,18 @@ interface Column {
 };
 
 
+
+interface Scores {
+    supplierName: string;
+    department?: {
+        name: string
+    }
+    evalutionPeriod: string
+    totalScore: number
+    categoryName: string
+    subCategoryName: string
+}
+
 // interface Company {
 //     companyId: number;
 //     subdomain: string;
@@ -768,5 +780,6 @@ export type {
     CompanyUsers,
     PayloadItem,
     Task,
-    Column
+    Column,
+    Scores
 };
