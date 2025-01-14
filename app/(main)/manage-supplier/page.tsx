@@ -14,6 +14,7 @@ import { Supplier } from '@/types';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { EmptySupplier } from '@/types/forms';
+import { FileUpload } from 'primereact/fileupload';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -42,7 +43,7 @@ const defaultForm: EmptySupplier = {
     subCategories: {
         subCategoryId: null,
         subCategoryName: ''
-    },
+    }
     // factoryName: {
     //     factoryId: null,
     //     factoryName: ''
@@ -73,6 +74,7 @@ const ManageSupplierPage = () => {
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [selectedSupplierToDelete, setSelectedSupplierToDelete] = useState<Supplier | null>(null);
+    const [visible, setVisible] = useState(false);
     const [checked, setChecked] = useState({
         gmp: false,
         gdp: false,
@@ -210,6 +212,37 @@ const ManageSupplierPage = () => {
         }
     };
 
+    const handleFileUpload = async (event: { files: File[] }) => {
+        const file = event.files[0]; // Retrieve the uploaded file
+        if (!file) {
+            setAlert('error', 'Please select a file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setIsDetailLoading(true);
+        try {
+            // Use the existing PostCall function
+            const response: CustomResponse = await PostCall('/company/addbulksupplier', formData);
+
+            setIsDetailLoading(false);
+
+            if (response.code === 'SUCCESS') {
+                setAlert('success', 'Rules imported successfully');
+                setVisible(false);
+                fetchData();
+            } else {
+                setAlert('error', response.message || 'File upload failed');
+            }
+        } catch (error) {
+            setIsDetailLoading(false);
+            console.error('An error occurred during file upload:', error);
+            setAlert('error', 'An unexpected error occurred during file upload');
+        }
+    };
+
     const onRowSelect = async (perm: any, action: any) => {
         setAction(action);
         // setIsShowSplit(true);
@@ -220,18 +253,15 @@ const ManageSupplierPage = () => {
         if (action == ACTIONS.EDIT) {
             setForm(perm);
             setIsShowSplit(true);
-            handleEditSupplier(perm)
+            handleEditSupplier(perm);
         }
-
-        
     };
 
     const handleEditSupplier = (sup: any) => {
-        const supId = sup.supId
+        const supId = sup.supId;
         console.log(supId);
         router.push(`/manage-supplier/supplier?edit=true&supId=${supId}`);
     };
-
 
     const handleCreateNavigation = () => {
         router.push('/manage-supplier/supplier');
@@ -243,7 +273,15 @@ const ManageSupplierPage = () => {
                     <h3 className="mb-0">Manage Suppliers</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} onClick={() => setVisible(true)} />
+                    <Dialog
+                        header="Choose your file"
+                        visible={visible}
+                        style={{ width: '50vw' }}
+                        onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
+                    >
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                    </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
@@ -269,7 +307,6 @@ const ManageSupplierPage = () => {
             </div>
         );
     };
-    
 
     return (
         <div className="grid">
@@ -307,7 +344,6 @@ const ManageSupplierPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-
                                     {
                                         header: 'Name',
                                         field: 'supplierName',

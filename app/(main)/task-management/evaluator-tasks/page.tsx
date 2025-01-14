@@ -44,7 +44,7 @@ const ControlTower = () => {
             <div className="col-12">
                 <div className="header">{header}</div>
 
-                <div className="card mt-4">
+                <div className="card mt-4 ">
                     <div className="">
                         <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
                             {Tabs?.map((item: any) => (

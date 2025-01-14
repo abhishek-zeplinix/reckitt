@@ -12,7 +12,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules } from '@/types';
+import { CustomResponse, Rules, Scores } from '@/types';
 import ScoreTiles from '@/components/supplier-score/score-tiles';
 import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
@@ -37,10 +37,11 @@ const ManageSupplierScorePage = () => {
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [rules, setRules] = useState<Rules[]>([]);
+    const [scores, setScores] = useState<Scores[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-
+    const [visible, setVisible] = useState(false);
     const { departments } = useFetchDepartments();
     const { suppliers } = useFetchSuppliers();
 
@@ -65,7 +66,7 @@ const ManageSupplierScorePage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
+                params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
             }
 
             setPage(params.page);
@@ -74,7 +75,7 @@ const ManageSupplierScorePage = () => {
 
             console.log('Fetching data with params:', queryString); // Debug log
 
-            const response = await GetCall(`company/rules?${queryString}`);
+            const response = await GetCall(`company/supplier-score?${queryString}`);
 
             setTotalRecords(response.total);
             setRules(response.data);
@@ -159,13 +160,13 @@ const ManageSupplierScorePage = () => {
                                 totalRecords={totalRecords} // total records from api response
                                 data={rules?.map((item: any) => ({
                                     ruleId: item.ruleId,
-                                    subCategoryName: item.subCategories?.subCategoryName,
-                                    section: item.section,
-                                    ratedCriteria: item.ratedCriteria,
-                                    criteriaEvaluation: item.criteriaEvaluation,
-                                    score: item.score,
-                                    ratiosCopack: item.ratiosCopack,
-                                    ratiosRawpack: item.ratiosRawpack
+                                    supplierName: item.supplier?.supplierName,
+                                    depName: item.department?.name,
+                                    evalutionPeriod: item.evalutionPeriod,
+                                    totalScore: item.totalScore,
+                                    categoryName: item.category?.categoryName,
+                                    subCategoryName: item.subCategory?.subCategoryName,
+                                    status: item.status
                                 }))}
                                 columns={[
                                     {
@@ -181,7 +182,7 @@ const ManageSupplierScorePage = () => {
 
                                     {
                                         header: 'Name',
-                                        field: 'supplierid',
+                                        field: 'supplierName',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
@@ -189,7 +190,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Type',
-                                        field: 'subCategoryName',
+                                        field: 'depName',
                                         sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Supplier Name',
@@ -198,7 +199,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Quarter',
-                                        field: 'section',
+                                        field: 'evalutionPeriod',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
@@ -206,7 +207,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Supplier Score',
-                                        field: 'ratedCriteria',
+                                        field: 'totalScore',
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -214,7 +215,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Procurement Category',
-                                        field: 'criteriaEvaluation',
+                                        field: 'categoryName',
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -222,7 +223,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Supplier Category',
-                                        field: 'score',
+                                        field: 'subCategoryName',
                                         filter: true,
                                         filterPlaceholder: 'Search Site Address',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
@@ -230,7 +231,7 @@ const ManageSupplierScorePage = () => {
                                     },
                                     {
                                         header: 'Status',
-                                        field: 'ratiosCopack',
+                                        field: 'status',
                                         filter: true,
                                         filterPlaceholder: 'Search Factory Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },

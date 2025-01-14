@@ -43,7 +43,7 @@ const ManageRulesPage = () => {
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
-    const [checked, setChecked] = useState(false);
+    const [checked, setChecked] = useState(true);
     const [date, setDate] = useState<Date | null>(null);
     const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
@@ -72,6 +72,11 @@ const ManageRulesPage = () => {
         const file = event.files[0]; // Retrieve the uploaded file
         if (!file) {
             setAlert('error', 'Please select a file to upload.');
+            return;
+        }
+
+        if (!checked) {
+            setAlert('error', 'Select effective from date to implement rules');
             return;
         }
 
