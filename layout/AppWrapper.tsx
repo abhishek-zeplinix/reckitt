@@ -43,7 +43,8 @@ export const userRoles = {
     SUPER_ADMIN: 'Superadmin',
     SUPPLIER: 'Supplier',
     ADMIN: 'Admin',
-    USER: 'User'
+    APPROVER: 'Approver',
+    EVALUATOR:'Evaluator'
 } as const;
 
 

@@ -9,7 +9,7 @@ interface Department {
     evolutionType: string;
 }
 
-const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
+const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: any) => {
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -17,8 +17,11 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
     const [periodOptions, setPeriodOptions] = useState([]);
     const [suppliersToList, setSuppliersToList] = useState([]);
+    const [categoryOptions, setCategoryOptions] = useState([]);
+
 
     useEffect(() => {
+
         if (departments && selectedDepartment) {
             const currentDepartment = (departments as any[]).find((dep) => dep.departmentId === selectedDepartment?.departmentId);
 
@@ -28,26 +31,59 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
                 handleFilterChange({
                     supplier: selectedSupplier,
-                    department: selectedDepartment?.name,
+                    department: selectedDepartment?.departmentId,
                     period: selectedPeriod,
                     category: selectedCategory
                 });
             }
         }
 
-        if (suppliers) {
-            const suppliersListOnlyNames: any = (suppliers as any[])?.map((supplier) => ({
-                supId: supplier.supId,
-                supplierName: supplier.supplierName
-            }));
+        // if (suppliers) {
+        //     const suppliersListOnlyNames: any = (suppliers as any[])?.map((supplier) => ({
+        //         supId: supplier.supplier.supId,
+        //         supplierName: supplier.supplier.supplierName
+        //     }));
 
-            setSuppliersToList(suppliersListOnlyNames);
-        }
+        //     setSuppliersToList(suppliersListOnlyNames);
+        // }
+
+        // if (category) {
+        //     const mappedCategories = category?.map((cat: any) => ({
+        //         label: cat.categoryName,
+        //         value: cat.categoryId,
+        //     }));
+
+        //     console.log(mappedCategories);
+            
+        //     setCategoryOptions(mappedCategories);
+        // }
+
     }, [departments, selectedDepartment]);
 
+
+
+    useEffect(() => {
+
+        if (suppliers) {
+            const suppliersListOnlyNames: any = (suppliers as any[])?.map((supplier) => ({
+                supId: supplier.supplier.supId,
+                supplierName: supplier.supplier.supplierName,
+            }));
+            setSuppliersToList(suppliersListOnlyNames);
+        }
+
+        if (category) {
+            const mappedCategories = category.map((cat: any) => ({
+                label: cat.categoryName,
+                value: cat.categoryId,
+            }));
+            setCategoryOptions(mappedCategories);
+        }
+    }, [suppliers, category]);
+
     const categories = [
-        { label: 'Copack Material', value: 'copack' },
-        { label: 'Raw & Pack Material', value: 'raw_pack' }
+        { label: 'Copack', value: 'copack' },
+        { label: 'Raw & Pack', value: 'raw & pack' }
     ];
 
     const handleSupplierChange = (e: any) => {
@@ -55,7 +91,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
         onFilterChange({
             supplier: e.value,
-            department: selectedDepartment?.name || '',
+            department: selectedDepartment?.departmentId,
             period: selectedPeriod,
             category: selectedCategory
         });
@@ -66,7 +102,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
 
         onFilterChange({
             supplier: selectedSupplier,
-            department: e.target.value.name || '',
+            department: selectedDepartment?.departmentId,
             period: selectedPeriod,
             category: selectedCategory
         });
@@ -76,7 +112,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
         setSelectedPeriod(e.value);
         onFilterChange({
             supplier: selectedSupplier,
-            department: selectedDepartment?.name || '',
+            department: selectedDepartment?.departmentId,
             period: e.value,
             category: selectedCategory
         });
@@ -86,9 +122,9 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
         setSelectedCategory(e.value);
         onFilterChange({
             supplier: selectedSupplier,
-            department: selectedDepartment?.name || '',
+            department: selectedDepartment?.departmentId,
             period: selectedPeriod,
-            category: e.value
+            category: e.value,
         });
     };
 
@@ -129,7 +165,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments }: any) => {
                 <Dropdown value={selectedPeriod} onChange={handlePeriodChange} options={periodOptions} optionLabel="label" placeholder="-- Select Quarter --" style={fixedDropdown} />
             </div>
             <div style={itemStyle}>
-                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categories} optionLabel="label" placeholder="-- Select Category --" style={fixedDropdown} />
+                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions}  placeholder="-- Select Category --" style={fixedDropdown} />
             </div>
         </div>
     );
