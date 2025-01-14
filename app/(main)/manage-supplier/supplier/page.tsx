@@ -58,8 +58,8 @@ const ManageSupplierAddEditPage = () => {
             ...defaultForm,
             ...incomingData,
             // ensure correct mapping for dropdown values
-            procurementCategoryId: incomingData.procurementCategoryId || get(incomingData, 'category.categoryId'),
-            supplierCategoryId: incomingData.supplierCategoryId || get(incomingData, 'subCategories.subCategoryId')
+            procurementCategoryId: incomingData.procurementCategoryId || get(incomingData, 'subCategories.subCategoryId'),
+            supplierCategoryId: incomingData.supplierCategoryId || get(incomingData, 'category.categoryId'),
         };
     };
 
@@ -68,7 +68,11 @@ const ManageSupplierAddEditPage = () => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
-                await Promise.all([fetchCategory(), fetchSubCategory(), isEditMode && fetchSupplierData()]);
+                await Promise.all([
+                    fetchCategory(),
+                    // fetchSubCategory(),
+                    isEditMode && fetchSupplierData()
+                ]);
             } finally {
                 setLoading(false);
             }
@@ -86,6 +90,11 @@ const ManageSupplierAddEditPage = () => {
                 const mappedForm = mapToForm(response.data[0]);
                 setForm(mappedForm);
 
+                // Fetch subcategories dynamically based on the selected category
+                if (mappedForm.supplierCategoryId) {
+                    await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
+                }
+
                 // set checkbox states based on file existence
                 setChecked({
                     gmp: Boolean(mappedForm.gmpFile),
@@ -102,21 +111,23 @@ const ManageSupplierAddEditPage = () => {
     const fetchCategory = async () => {
         const response: CustomResponse = await GetCall(`/company/category`);
         if (response.code === 'SUCCESS') {
-            setCategory(response.data);            
-        }
-    };
-
-    const fetchSubCategory = async () => {
-        const response: CustomResponse = await GetCall(`/company/sub-category`);
-        if (response.code === 'SUCCESS') {
-            setSubCategory(response.data);
+            setCategory(response.data);
         }
     };
 
     const handleSubmit = async () => {
+
+        console.log(form);
+        console.log(isEditMode);
+
         setLoading(true);
         try {
-            const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
+            const response: CustomResponse = isEditMode
+                ? await PutCall(`/company/supplier/${supId}`, form)
+                : await PostCall(`/company/supplier`, form);
+
+            console.log(response);
+
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', `Supplier ${isEditMode ? 'Updated' : 'Added'} Successfully`);
@@ -131,12 +142,48 @@ const ManageSupplierAddEditPage = () => {
         }
     };
 
+
+
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        setForm((prevForm) => ({
-            ...prevForm,
-            ...(typeof name === 'string' ? { [name]: val } : name)
-        }));
+        setForm((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: val } : name),
+            };
+
+
+            if (name === 'supplierCategoryId') {
+                fetchSubCategoryByCategoryId(val);
+                updatedForm.procurementCategoryId = null;
+            }
+
+            return updatedForm;
+        });
     };
+
+    const fetchSubCategoryByCategoryId = async (categoryId: number | null) => {
+        if (!categoryId) {
+            setSubCategory([]); // Clear subcategories if no category is selected
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`);
+            if (response.code === 'SUCCESS') {
+                setSubCategory(response.data);
+            } else {
+                setSubCategory([]);
+                setAlert('error', 'Failed to fetch subcategories.');
+            }
+        } catch (error) {
+            setSubCategory([]);
+            setAlert('error', 'Something went wrong while fetching subcategories.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const handleCheckboxChange = (event: any) => {
         const { name, checked } = event.target;
@@ -166,6 +213,7 @@ const ManageSupplierAddEditPage = () => {
         }
     };
 
+
     // adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Supplier Information' : 'Add Supplier Information';
 
@@ -177,24 +225,15 @@ const ManageSupplierAddEditPage = () => {
                         <div className="flex flex-column gap-3 pt-2">
                             <h2 className="text-center font-bold ">{pageTitle}</h2>
                             <div className="p-fluid grid mx-1 pt-2">
+
                                 <div className="field col-4">
                                     <label htmlFor="supplierName" className="font-semibold">
                                         Supplier Name
                                     </label>
-                                    <InputText
-                                        id="supplierName"
-                                        type="text"
-                                        value={get(form, 'supplierName')}
-                                        onChange={(e) => onInputChange('supplierName', e.target.value)}
-                                        className="p-inputtext w-full "
-                                        placeholder="Enter Supplier Name"
-                                        required
-                                    />
+                                    <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full " placeholder="Enter Supplier Name" required />
                                 </div>
                                 <div className="field col-4">
-                                    <label htmlFor="manufacturerName" className="font-semibold">
-                                        Manufacturing Name
-                                    </label>
+                                    <label htmlFor="manufacturerName" className="font-semibold">Manufacturing Name</label>
                                     <InputText
                                         id="manufacturerName"
                                         type="text"
@@ -208,58 +247,80 @@ const ManageSupplierAddEditPage = () => {
                                     <label htmlFor="factoryName" className="font-semibold">
                                         Factory Name
                                     </label>
-                                    <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full" />
-                                </div>
-                                <div className="field col-4">
-                                    <label htmlFor="procurementCategory" className="font-semibold">
-                                        Supplier Procurement Category
-                                    </label>
-                                    <Dropdown
-                                        id="procurementCategory"
-                                        value={get(form, 'procurementCategoryId')}
-                                        options={category}
-                                        optionLabel="categoryName"
-                                        optionValue="categoryId"
-                                        onChange={(e) => onInputChange('procurementCategoryId', e.value)} // Map categoryId to procurementCategoryId
-                                        placeholder="Select Procurement Category"
-                                        className="w-full"
+                                    <InputText
+                                        id="factoryName"
+                                        value={get(form, 'factoryName')}
+                                        type='text'
+                                        onChange={(e) => onInputChange('factoryName', e.target.value)}
+                                        placeholder="Enter Factory Name"
+                                        className="p-inputtext w-full"
                                     />
                                 </div>
+
                                 <div className="field col-4">
-                                    <label htmlFor="manufacturerName" className="font-semibold">
-                                        Supplier Category
-                                    </label>
+                                    <label htmlFor="supplierCategory" className="font-semibold">Supplier Category</label>
                                     <Dropdown
                                         id="supplierCategory"
                                         value={get(form, 'supplierCategoryId')}
-                                        options={subCategory}
-                                        optionLabel="subCategoryName"
-                                        optionValue="subCategoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // Map subCategoryId to supplierCategoryId
+                                        options={category}
+                                        // optionLabel="subCategoryName"
+                                        // optionValue="subCategoryId"
+                                        optionLabel="categoryName"
+                                        optionValue="categoryId"
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
                                         placeholder="Select Supplier Category"
                                         className="w-full"
                                     />
+                                </div>
+
+
+
+                                <div className="field col-4">
+                                    <label htmlFor="procurementCategory" className="font-semibold">Supplier Procurement Category</label>
+                                    {form.supplierCategoryId ? (
+                                        <Dropdown
+                                            id="procurementCategory"
+                                            value={get(form, 'procurementCategoryId')}
+                                            options={subCategory}
+                                            optionLabel="subCategoryName"
+                                            optionValue="subCategoryId"
+                                            onChange={(e) => onInputChange('procurementCategoryId', e.value)}
+                                            placeholder="Select Supplier Procurement Category"
+                                            className="w-full"
+                                        />
+                                    ) : (
+                                        <Dropdown
+                                            id="supplierCategory"
+                                            placeholder="Please Select a Procurement Category"
+                                            className="w-full"
+                                        />
+                                    )}
                                 </div>
 
                                 <div className="field col-4">
                                     <label htmlFor="location" className="font-semibold">
                                         Location
                                     </label>
-                                    <InputText id="name" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Location Name" className="p-inputtext w-full" />
+                                    <InputText
+                                        id="name"
+                                        value={get(form, 'location')}
+                                        type='text'
+                                        onChange={(e) => onInputChange('location', e.target.value)}
+                                        placeholder="Enter Location Name"
+                                        className="p-inputtext w-full"
+                                    />
                                 </div>
 
+
                                 <div className="field col-4">
-                                    <label htmlFor="siteAddress" className="font-semibold">
-                                        Site Address
-                                    </label>
+                                    <label htmlFor="siteAddress" className="font-semibold">Site Address</label>
                                     <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
                                 </div>
 
+
                                 <div className="field col-4">
-                                    <label htmlFor="warehouseLocation" className="font-semibold">
-                                        Warehouse Location
-                                    </label>
-                                    <InputText
+                                    <label htmlFor="warehouseLocation" className="font-semibold">Warehouse Location</label>
+                                    <InputTextarea
                                         id="name"
                                         // type='text'
                                         value={get(form, 'warehouseLocation')}
@@ -375,22 +436,39 @@ const ManageSupplierAddEditPage = () => {
                 return null;
         }
     };
-    // Rest of your component code (renderStepContent, etc.) remains the same
-    // ... (keep your existing renderStepContent implementation)
 
     return (
         <div className="">
             <div className="p-card">
                 <Stepper currentStep={currentStep} completedSteps={completedSteps} />
                 <hr />
-                <div className="p-card-body">{renderStepContent()}</div>
+                <div className="p-card-body">
+                    {renderStepContent()}
+                </div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleNext} />}
+                    {currentStep === 1 && (
+                        <Button
+                            label="Next"
+                            icon="pi pi-arrow-right"
+                            className="bg-pink-500 border-pink-500 hover:text-white mb-3"
+                            onClick={handleNext}
+                        />
+                    )}
                     {currentStep === 2 && (
                         <>
-                            <Button label="Back" icon="pi pi-arrow-left" className="text-pink-500 bg-white border-pink-500 hover:text-pink-500 hover:bg-white transition-colors duration-150 mb-3" onClick={handlePrevious} />
-                            <Button label={isEditMode ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleSubmit} />
+                            <Button
+                                label="Back"
+                                icon="pi pi-arrow-left"
+                                className="text-pink-500 bg-white border-pink-500 hover:text-pink-500 hover:bg-white transition-colors duration-150 mb-3"
+                                onClick={handlePrevious}
+                            />
+                            <Button
+                                label={isEditMode ? 'Update' : 'Submit'}
+                                icon="pi pi-check"
+                                className="bg-pink-500 border-pink-500 hover:text-white mb-3"
+                                onClick={handleSubmit}
+                            />
                         </>
                     )}
                 </div>
