@@ -125,7 +125,7 @@ const Dashboard = () => {
             <div className="card col-12">
                 <SupplierDirectory />
             </div>
-            {/* <div className="col-12 lg:col-6 xl:col-3">
+            <div className="col-12 lg:col-6 xl:col-3">
                 <div className="card mb-0">
                     <div className="flex justify-content-between mb-3">
                         <div>
@@ -367,7 +367,7 @@ const Dashboard = () => {
                         </li>
                     </ul>
                 </div>
-            </div> */}
+            </div>
         </div>
     );
 };
