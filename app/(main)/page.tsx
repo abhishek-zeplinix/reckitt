@@ -1,372 +1,318 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
-import { Button } from 'primereact/button';
-import { Chart } from 'primereact/chart';
-import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
-import { Menu } from 'primereact/menu';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { LayoutContext } from '../../layout/context/layoutcontext';
-import { ChartData, ChartOptions } from 'chart.js';
-import { useAppContext } from '@/layout/AppWrapper';
-import SupplierDirectory from '@/components/SupplierDirectory';
 
-const lineData: ChartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
+import { useRef, useState } from 'react';
+import { Button } from 'primereact/button';
+import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
+import { getRowLimitWithScreenHeight } from '@/utils/utils';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import SupplierDirectory from '@/components/SupplierDirectory';
+const Dashboard = () => {
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const dataTableRef = useRef<CustomDataTableRef>(null);
+    const [page, setPage] = useState<number>(1);
+    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
+    const firstData = [
         {
-            label: 'First Dataset',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            fill: false,
-            backgroundColor: '#2f4860',
-            borderColor: '#2f4860',
-            tension: 0.01
+            title: 'Total Evaluators',
+            value: 167,
+            change: '+36%',
+            changeClass: 'text-green-600'
         },
         {
-            label: 'Second Dataset',
-            data: [28, 48, 40, 19, 86, 27, 90],
-            fill: false,
-            backgroundColor: '#00bb7e',
-            borderColor: '#00bb7e',
-            tension: 0.01
+            title: 'Total Suppliers',
+            value: 512,
+            change: '+36%',
+            changeClass: 'text-green-600'
+        },
+        {
+            title: 'Total Approver',
+            value: 324,
+            change: '+36%',
+            changeClass: 'text-green-600'
+        },
+        {
+            title: 'Total Assessment Expected',
+            value: 234,
+            change: '-12%',
+            changeClass: 'text-red-600'
         }
-    ]
-};
+    ];
+    const secondData = [
+        {
+            title: 'Completed Assessment',
+            value: 76,
+            change: '(+36%)',
+            changeClass: 'text-green-500'
+        },
+        {
+            title: 'In Progress Assessment',
+            value: 45,
+            change: '(-24%)',
+            changeClass: 'text-red-500'
+        }
+    ];
+    const thirdData = [
+        {
+            title: 'Pending Assessment',
+            value: 11,
+            change: '(+36%)',
+            changeClass: 'text-green-500'
+        }
+    ];
 
-const Dashboard = () => {
-    const menu1 = useRef<Menu>(null);
-    const menu2 = useRef<Menu>(null);
-    const [lineOptions, setLineOptions] = useState<ChartOptions>({});
-    const { layoutConfig } = useContext(LayoutContext);
+    const TopSuppliers = [
+        { id: 1, name: 'Ramesh Kumar', region: 'Delhi', score: '95%' },
+        { id: 2, name: 'Amit Sharma', region: 'Mumbai', score: '85%' },
+        { id: 3, name: 'Suresh Gupta', region: 'Bangalore', score: '75%' },
+        { id: 4, name: 'Rajesh Verma', region: 'Chennai', score: '72%' },
+        { id: 5, name: 'Priya Patel', region: 'Kolkata', score: '70%' }
+    ];
+    const BottomSupplier = [
+        { id: 6, name: 'Vikas Reddy', region: 'Hyderabad', score: '50%' },
+        { id: 7, name: 'Anil Joshi', region: 'Pune', score: '45%' },
+        { id: 8, name: 'Sunita Mehta', region: 'Ahmedabad', score: '35%' },
+        { id: 9, name: 'Vijay Singh', region: 'Surat', score: '25%' },
+        { id: 10, name: 'Neelam Sharma', region: 'Lucknow', score: '15%' }
+    ];
 
-    const applyLightTheme = () => {
-        const lineOptions: ChartOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#495057'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#495057'
-                    },
-                    grid: {
-                        color: '#ebedef'
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#495057'
-                    },
-                    grid: {
-                        color: '#ebedef'
-                    }
-                }
-            }
-        };
+    const dashes = Array(22).fill('-');
 
-        setLineOptions(lineOptions);
-    };
+    const getScoreColor = (score: any) => {
+        const scoreValue = parseInt(score); // Assuming score is a percentage string like '100%'
 
-    const applyDarkTheme = () => {
-        const lineOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#ebedef'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#ebedef'
-                    },
-                    grid: {
-                        color: 'rgba(160, 167, 181, .3)'
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#ebedef'
-                    },
-                    grid: {
-                        color: 'rgba(160, 167, 181, .3)'
-                    }
-                }
-            }
-        };
-
-        setLineOptions(lineOptions);
-    };
-
-    useEffect(() => {}, []);
-
-    useEffect(() => {
-        if (layoutConfig.colorScheme === 'light') {
-            applyLightTheme();
+        if (scoreValue >= 90) {
+            return 'blue';
+        } else if (scoreValue >= 70) {
+            return 'green';
+        } else if (scoreValue >= 50) {
+            return 'orange';
         } else {
-            applyDarkTheme();
+            return 'red';
         }
-    }, [layoutConfig.colorScheme]);
-
-    const formatCurrency = (value: number) => {
-        return value?.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        });
     };
+    const dataTiles = () => {
+        return (
+            <>
+                <div className="py-1">
+                    <div className="grid grid-nogutter">
+                        {firstData.map((tile, index) => (
+                            <div
+                                key={index}
+                                className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
+                            >
+                                <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+                                    <div className="flex justify-content-between gap-2 align-items-center">
+                                        <div>
+                                            <div>
+                                                <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                            </div>
+                                            <div className="mt-2">
+                                                <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
+                                                <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <i className="pi pi-angle-right text-pink-400"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="grid p-0">
+                    {/* First Column */}
+                    <div className="col-12 md:col-6">
+                        <div className="pt-3">
+                            <div className="grid grid-nogutter">
+                                {secondData.map((tile, index) => (
+                                    <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
+                                        <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+                                            <div className="flex justify-content-between gap-2 align-items-center">
+                                                <div>
+                                                    <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                    <div className="mt-2">
+                                                        <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
+                                                        <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <i className="pi pi-angle-right text-pink-400"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="py-3">
+                                <div className="grid grid-nogutter">
+                                    {thirdData.map((tile, index) => (
+                                        <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
+                                            <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+                                                <div className="flex justify-content-between gap-2 align-items-center">
+                                                    <div>
+                                                        <div>
+                                                            <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
+                                                            <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <i className="pi pi-angle-right text-pink-400"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Second Column */}
+                    <div className="col-12 md:col-6 p-0 pr-3">
+                        <div className="py-4">
+                            <div className="grid gap-3 pr-2">
+                                {/* Top 5 Suppliers */}
+                                <div className="col-12 px-2 p-0 py-2 ">
+                                    <div className="p-4 border-round-xl shadow-1 surface-card">
+                                        <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
+                                        <div className="">
+                                            <DataTable
+                                                className="mb-3 mt-3"
+                                                value={TopSuppliers}
+                                                paginator={false} // Enable pagination
+                                                rows={limit} // Items per page
+                                                totalRecords={totalRecords} // Total records from API response
+                                                responsiveLayout="scroll" // Makes the table responsive
+                                                showGridlines={false} // Optional: Adds gridlines for better readability
+                                            >
+                                                <Column
+                                                    header="Sr.No."
+                                                    body={(data: any, options: any) => {
+                                                        const normalizedRowIndex = options.rowIndex % limit;
+                                                        const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                        return <span>{srNo}</span>;
+                                                    }}
+                                                    style={{ minWidth: '50px', maxWidth: '50px' }}
+                                                />
+                                                <Column header="Name" field="name" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                <Column header="Region" field="region" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                <Column
+                                                    header="Score"
+                                                    field="score"
+                                                    style={{ minWidth: '40px', maxWidth: '40px' }}
+                                                    body={(rowData) => (
+                                                        <span className="font-bold" style={{ color: getScoreColor(rowData.score) }}>
+                                                            {rowData.score}
+                                                        </span>
+                                                    )}
+                                                />
+                                            </DataTable>
+                                        </div>
+                                        <button
+                                            onClick={() => {}}
+                                            className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300"
+                                        >
+                                            <span className="flex align-items-center gap-2">View All</span>
+                                            <span className="flex flex-row gap-2">
+                                                {dashes.map((dash, index) => (
+                                                    <span key={index}>{dash}</span>
+                                                ))}
+                                            </span>
+                                            <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                <i className="pi pi-arrow-right"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Bottom 5 Suppliers */}
+                                <div className="col-12 px-2 p-0 py-2 ">
+                                    <div className="p-4 border-round-xl shadow-1 surface-card">
+                                        <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
+                                        <div className="">
+                                            <DataTable
+                                                className="mb-3 mt-3"
+                                                value={BottomSupplier}
+                                                paginator={false} // Enable pagination
+                                                rows={limit} // Items per page
+                                                totalRecords={totalRecords} // Total records from API response
+                                                responsiveLayout="scroll" // Makes the table responsive
+                                                showGridlines={false} // Optional: Adds gridlines for better readability
+                                            >
+                                                <Column
+                                                    header="Sr.No."
+                                                    body={(data: any, options: any) => {
+                                                        const normalizedRowIndex = options.rowIndex % limit;
+                                                        const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                        return <span>{srNo}</span>;
+                                                    }}
+                                                    style={{ minWidth: '60px', maxWidth: '60px' }}
+                                                />
+                                                <Column header="Name" field="name" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                <Column header="Region" field="region" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                <Column
+                                                    header="Score"
+                                                    field="score"
+                                                    style={{ minWidth: '40px', maxWidth: '40px' }}
+                                                    body={(rowData) => (
+                                                        <span className="font-bold" style={{ color: getScoreColor(rowData.score) }}>
+                                                            {rowData.score}
+                                                        </span>
+                                                    )}
+                                                />
+                                            </DataTable>
+                                        </div>
+                                        <button
+                                            onClick={() => {}}
+                                            className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300"
+                                        >
+                                            <span className="flex align-items-center gap-2">View All</span>
+                                            <span className="flex flex-row gap-2">
+                                                {dashes.map((dash, index) => (
+                                                    <span key={index}>{dash}</span>
+                                                ))}
+                                            </span>
+                                            <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                <i className="pi pi-arrow-right"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    };
+
+    const DataTiles = dataTiles();
 
     return (
-        <div className="grid">
-            <div className="card col-12">
-                <SupplierDirectory />
-            </div>
-            <div className="col-12 lg:col-6 xl:col-3">
-                <div className="card mb-0">
-                    <div className="flex justify-content-between mb-3">
-                        <div>
-                            <span className="block text-500 font-medium mb-3">Orders</span>
-                            <div className="text-900 font-medium text-xl">152</div>
-                        </div>
-                        <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-shopping-cart text-blue-500 text-xl" />
-                        </div>
-                    </div>
-                    <span className="text-green-500 font-medium">24 new </span>
-                    <span className="text-500">since last visit</span>
-                </div>
-            </div>
-            <div className="col-12 lg:col-6 xl:col-3">
-                <div className="card mb-0">
-                    <div className="flex justify-content-between mb-3">
-                        <div>
-                            <span className="block text-500 font-medium mb-3">Revenue</span>
-                            <div className="text-900 font-medium text-xl">$2.100</div>
-                        </div>
-                        <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-map-marker text-orange-500 text-xl" />
-                        </div>
-                    </div>
-                    <span className="text-green-500 font-medium">%52+ </span>
-                    <span className="text-500">since last week</span>
-                </div>
-            </div>
-            <div className="col-12 lg:col-6 xl:col-3">
-                <div className="card mb-0">
-                    <div className="flex justify-content-between mb-3">
-                        <div>
-                            <span className="block text-500 font-medium mb-3">Customers</span>
-                            <div className="text-900 font-medium text-xl">28441</div>
-                        </div>
-                        <div className="flex align-items-center justify-content-center bg-cyan-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-inbox text-cyan-500 text-xl" />
-                        </div>
-                    </div>
-                    <span className="text-green-500 font-medium">520 </span>
-                    <span className="text-500">newly registered</span>
-                </div>
-            </div>
-            <div className="col-12 lg:col-6 xl:col-3">
-                <div className="card mb-0">
-                    <div className="flex justify-content-between mb-3">
-                        <div>
-                            <span className="block text-500 font-medium mb-3">Comments</span>
-                            <div className="text-900 font-medium text-xl">152 Unread</div>
-                        </div>
-                        <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-comment text-purple-500 text-xl" />
-                        </div>
-                    </div>
-                    <span className="text-green-500 font-medium">85 </span>
-                    <span className="text-500">responded</span>
-                </div>
+        <div className="p-1">
+            {/* Navigation Bar */}
+            <div className="inline-flex gap-2 p-2 border border-1 border-round-xl bg-white shadow-sm ">
+                <Button label="Dashboard" icon="pi pi-th-large" className={`p-button-text ${activeTab === 'dashboard' ? 'bg-gray-700 text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('dashboard')} />
+                <Button label="Supplier" icon="pi pi-box" className={`p-button-text ${activeTab === 'supplier' ? 'bg-gray-700 text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
             </div>
 
-            <div className="col-12 xl:col-6">
-                <div className="card">
-                    <h5>Recent Sales</h5>
-                    <DataTable value={[]} rows={5} paginator responsiveLayout="scroll">
-                        <Column header="Image" body={(data) => <img className="shadow-2" src={`/demo/images/product/${data.image}`} alt={data.image} width="50" />} />
-                        <Column field="name" header="Name" sortable style={{ width: '35%' }} />
-                        <Column field="price" header="Price" sortable style={{ width: '35%' }} body={(data) => formatCurrency(data.price)} />
-                        <Column
-                            header="View"
-                            style={{ width: '15%' }}
-                            body={() => (
-                                <>
-                                    <Button icon="pi pi-search" text />
-                                </>
-                            )}
-                        />
-                    </DataTable>
-                </div>
-                <div className="card">
-                    <div className="flex justify-content-between align-items-center mb-5">
-                        <h5>Best Selling Products</h5>
-                        <div>
-                            <Button type="button" icon="pi pi-ellipsis-v" rounded text className="p-button-plain" onClick={(event) => menu1.current?.toggle(event)} />
-                            <Menu
-                                ref={menu1}
-                                popup
-                                model={[
-                                    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-                                    { label: 'Remove', icon: 'pi pi-fw pi-minus' }
-                                ]}
-                            />
+            {/* Conditional Content */}
+            <div className="mt-3">
+                {activeTab === 'dashboard' ? (
+                    <div>{DataTiles}</div>
+                ) : (
+                    <div>
+                        <div className="mt-5">
+                            <SupplierDirectory />
                         </div>
                     </div>
-                    <ul className="list-none p-0 m-0">
-                        <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                            <div>
-                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Space T-Shirt</span>
-                                <div className="mt-1 text-600">Clothing</div>
-                            </div>
-                            <div className="mt-2 md:mt-0 flex align-items-center">
-                                <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-orange-500 h-full" style={{ width: '50%' }} />
-                                </div>
-                                <span className="text-orange-500 ml-3 font-medium">%50</span>
-                            </div>
-                        </li>
-                        <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                            <div>
-                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Portal Sticker</span>
-                                <div className="mt-1 text-600">Accessories</div>
-                            </div>
-                            <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-cyan-500 h-full" style={{ width: '16%' }} />
-                                </div>
-                                <span className="text-cyan-500 ml-3 font-medium">%16</span>
-                            </div>
-                        </li>
-                        <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                            <div>
-                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Supernova Sticker</span>
-                                <div className="mt-1 text-600">Accessories</div>
-                            </div>
-                            <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-pink-500 h-full" style={{ width: '67%' }} />
-                                </div>
-                                <span className="text-pink-500 ml-3 font-medium">%67</span>
-                            </div>
-                        </li>
-                        <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                            <div>
-                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Wonders Notebook</span>
-                                <div className="mt-1 text-600">Office</div>
-                            </div>
-                            <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-green-500 h-full" style={{ width: '35%' }} />
-                                </div>
-                                <span className="text-green-500 ml-3 font-medium">%35</span>
-                            </div>
-                        </li>
-                        <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                            <div>
-                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Mat Black Case</span>
-                                <div className="mt-1 text-600">Accessories</div>
-                            </div>
-                            <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-purple-500 h-full" style={{ width: '75%' }} />
-                                </div>
-                                <span className="text-purple-500 ml-3 font-medium">%75</span>
-                            </div>
-                        </li>
-                        <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                            <div>
-                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
-                                <div className="mt-1 text-600">Clothing</div>
-                            </div>
-                            <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-teal-500 h-full" style={{ width: '40%' }} />
-                                </div>
-                                <span className="text-teal-500 ml-3 font-medium">%40</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div className="col-12 xl:col-6">
-                <div className="card">
-                    <h5>Sales Overview</h5>
-                    <Chart type="line" data={lineData} options={lineOptions} />
-                </div>
-
-                <div className="card">
-                    <div className="flex align-items-center justify-content-between mb-4">
-                        <h5>Notifications</h5>
-                        <div>
-                            <Button type="button" icon="pi pi-ellipsis-v" rounded text className="p-button-plain" onClick={(event) => menu2.current?.toggle(event)} />
-                            <Menu
-                                ref={menu2}
-                                popup
-                                model={[
-                                    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-                                    { label: 'Remove', icon: 'pi pi-fw pi-minus' }
-                                ]}
-                            />
-                        </div>
-                    </div>
-
-                    <span className="block text-600 font-medium mb-3">TODAY</span>
-                    <ul className="p-0 mx-0 mt-0 mb-4 list-none">
-                        <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                                <i className="pi pi-dollar text-xl text-blue-500" />
-                            </div>
-                            <span className="text-900 line-height-3">
-                                Richard Jones
-                                <span className="text-700">
-                                    {' '}
-                                    has purchased a blue t-shirt for <span className="text-blue-500">79$</span>
-                                </span>
-                            </span>
-                        </li>
-                        <li className="flex align-items-center py-2">
-                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
-                                <i className="pi pi-download text-xl text-orange-500" />
-                            </div>
-                            <span className="text-700 line-height-3">
-                                Your request for withdrawal of <span className="text-blue-500 font-medium">2500$</span> has been initiated.
-                            </span>
-                        </li>
-                    </ul>
-
-                    <span className="block text-600 font-medium mb-3">YESTERDAY</span>
-                    <ul className="p-0 m-0 list-none">
-                        <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                                <i className="pi pi-dollar text-xl text-blue-500" />
-                            </div>
-                            <span className="text-900 line-height-3">
-                                Keyser Wick
-                                <span className="text-700">
-                                    {' '}
-                                    has purchased a black jacket for <span className="text-blue-500">59$</span>
-                                </span>
-                            </span>
-                        </li>
-                        <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
-                                <i className="pi pi-question text-xl text-pink-500" />
-                            </div>
-                            <span className="text-900 line-height-3">
-                                Jane Davis
-                                <span className="text-700"> has posted a new questions about your product.</span>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
+                )}
             </div>
         </div>
     );
