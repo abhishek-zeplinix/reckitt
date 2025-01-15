@@ -19,6 +19,7 @@ const ManageUsersPage = () => {
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const { setLoading } = useAppContext();
     const [companyUsers, setCompanyUsers] = useState<CompanyUsers[]>([]);
+    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
 
     useEffect(() => {
         fetchData();
@@ -67,11 +68,18 @@ const ManageUsersPage = () => {
     };
 
     const fetchData = async (params?: any) => {
+        if (!params) {
+            params = { limit: limit, page: page };
+        }
         setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/user`);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/user?${queryString}`);
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setCompanyUsers(response.data);
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
         } else {
             setCompanyUsers([]);
         }
@@ -94,6 +102,7 @@ const ManageUsersPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 isDelete={true} // show delete button
+                                totalRecords={totalRecords} 
                                 extraButtons={[
                                     {
                                         icon: 'pi pi-user-edit',
@@ -132,7 +141,7 @@ const ManageUsersPage = () => {
                                     {
                                         header: 'Email',
                                         field: 'email',
-                                        sortable: true,
+                                        // sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Search Name',
                                         style: { minWidth: 150, maxWidth: 150 }
