@@ -302,15 +302,15 @@ type EmptySupplier = {
     siteAddress: string;
     procurementCategoryId?: number | null;
     supplierCategoryId?: number | null;
-    warehouseLocation?: string;
+    warehouseLocation: string;
     factoryId?: number | null;
     gmpFile?: any;
     gdpFile?: any;
     reachFile: any;
     isoFile: any;
-    location?: string;
+    location?: any;
     sublocationId?: number | null;
-    factoryName?: string;
+    factoryName: string;
     // warehouseLocationName?: string;
     category?: {
         categoryId: number | null;

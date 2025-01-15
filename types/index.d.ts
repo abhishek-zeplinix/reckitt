@@ -29,10 +29,8 @@ type ChildContainerProps = {
     children: ReactNode;
 };
 type User = {
-    userId: number;
-    firstName: string;
-    lastName: string;
-    displayName: string;
+    id: number;
+    name: string;
     email: string;
     phone?: string;
     countryCode?: string;
@@ -42,13 +40,16 @@ type User = {
     isPhoneVerified?: boolean;
     isSuperAdmin?: boolean;
     isAdmin?: boolean;
+    userRole?:string
     company?: {
         domain: string;
         companyId: string;
         name: string;
     };
     userRole?: string;
+    permissions:{
     permissions: any[];
+    }
 };
 
 type CustomResponse = {

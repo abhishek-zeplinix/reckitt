@@ -32,7 +32,6 @@ const ManageCapaRulesPage = () => {
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
@@ -49,6 +48,21 @@ const ManageCapaRulesPage = () => {
         router.push('/create-new-capa-rules'); // Replace with the route you want to navigate to
     };
 
+    const limitOptions = [
+        { label: '10', value: 10 },
+        { label: '20', value: 20 },
+        { label: '50', value: 50 },
+        { label: '70', value: 70 },
+        { label: '100', value: 100 }
+    ];
+
+    const onLimitChange = (e: any) => {
+        setLimit(e.value); // Update limit
+        fetchData({ limit: e.value, page: 1 }); // Fetch data with new limit
+    };
+    useEffect(() => {
+        fetchData();
+    }, [limit, page]);
     const handleFileUpload = async (event: { files: File[] }) => {
         const file = event.files[0]; // Retrieve the uploaded file
         if (!file) {
@@ -171,7 +185,7 @@ const ManageCapaRulesPage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page };
+                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
             }
 
             setPage(params.page);
@@ -190,10 +204,6 @@ const ManageCapaRulesPage = () => {
     };
 
     const dataTableHeaderStyle = { fontSize: '12px' };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     const departments = [
         { label: 'Planning', value: 'Planning' },
@@ -271,9 +281,14 @@ const ManageCapaRulesPage = () => {
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
                             {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
-                            <div className="flex gap-4">
-                                <div className="mt-2">{dropdownFieldDeparment}</div>
-                                <div className="mt-2">{dropdownFieldSubCategory}</div>
+                            <div className="flex justify-content-between items-center border-b">
+                                <div>
+                                    <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '40px' }} />
+                                </div>
+                                <div className="flex  gap-4">
+                                    <div className="mt-2">{dropdownFieldDeparment}</div>
+                                    <div className="mt-2">{dropdownFieldSubCategory}</div>
+                                </div>
                             </div>
 
                             <CustomDataTable
@@ -302,7 +317,6 @@ const ManageCapaRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'name',
