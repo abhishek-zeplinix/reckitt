@@ -142,7 +142,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
 
     const renderActions = (item: any) => {
         return (
-            <div className="flex gap-3">
+            <div className="flex gap-1">
                 {props?.extraButtons &&
                     props?.extraButtons?.length > 0 &&
                     props.extraButtons.map((btn: ExtraButton, index: any) => (
