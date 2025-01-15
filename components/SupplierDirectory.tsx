@@ -94,7 +94,7 @@ const SupplierDirectory = () => {
                 <Column field="supId" header="#" />
                 <Column field="supplierName" header="Supplier Name" />
                 <Column field="status" header="Status" body={statusBodyTemplate} />
-                <Column field="location.name" header="Location" />
+                <Column field="warehouseLocation" header="Location" />
                 <Column field="category.categoryName" header="Category" />
 
                 <Column header="Evaluate" body={evaluateBodyTemplate} />

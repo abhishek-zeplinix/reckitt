@@ -5,11 +5,13 @@ import React, { useState } from 'react';
 import { Button } from 'primereact/button';
 import _ from 'lodash';
 import { Dropdown } from 'primereact/dropdown';
+import useFetchDepartments from '@/hooks/useFetchDepartments';
 
 const CreateNewRulesPage = () => {
     const [supplierId, setSupplierId] = useState('');
     const [supplierName, setSupplierName] = useState('');
     const [manufacturerName, setManufacturerName] = useState('');
+    const [procurementOrder, setProcurementOrder] = useState('');
     const [complianceStatus, setComplianceStatus] = useState(false);
     const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
     const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
@@ -30,18 +32,19 @@ const CreateNewRulesPage = () => {
 
     const footerNewRules = renderNewRuleFooter();
 
-    const procurementOrder = [
-        { label: '1', value: 'raw-materials' },
-        { label: '2', value: 'packaging' },
-        { label: '3', value: 'machinery' },
-        { label: '4', value: 'services' }
-    ];
+    // const procurementOrder = [
+    //     { label: '1', value: 'raw-materials' },
+    //     { label: '2', value: 'packaging' },
+    //     { label: '3', value: 'machinery' },
+    //     { label: '4', value: 'services' }
+    // ];
     const procurementDepartment = [
         { label: '1', value: 'raw-materials' },
         { label: '2', value: 'packaging' },
         { label: '3', value: 'machinery' },
         { label: '4', value: 'services' }
     ];
+    const { departments } = useFetchDepartments();
     const procurementCategories = [
         { label: '1', value: 'raw-materials' },
         { label: '2', value: 'packaging' },
@@ -63,7 +66,8 @@ const CreateNewRulesPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-2">
                             <div className="field col-4">
                                 <label htmlFor="procurementCategory">Order By</label>
-                                <Dropdown id="procurementCategory" value={selectedProcurementOrder} options={procurementOrder} onChange={(e) => setSelectedProcurementOrder(e.value)} placeholder="Select Order By" className="w-full" />
+
+                                <input id="manufacturerName" type="text" value={procurementOrder} onChange={(e) => setProcurementOrder(e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="procurementCategory">Department</label>
