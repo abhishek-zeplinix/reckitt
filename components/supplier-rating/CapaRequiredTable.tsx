@@ -37,15 +37,17 @@ interface CapaRequiredTableProps {
   onDataChange: (data: CapaRuleResponse[]) => void;
   depId: string;
   existingSelections?: CapaRuleResponse[];
+  isEvaluatedData: boolean;
 }
 
-const CapaRequiredTable = ({ onDataChange, depId, existingSelections }: CapaRequiredTableProps) => {
+const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluatedData }: CapaRequiredTableProps) => {
   const { setLoading, setAlert } = useAppContext();
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
   const [isInitialized, setIsInitialized] = useState(false);  // Add this flag
 
-
+  console.log(existingSelections);
+  
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
 
@@ -85,6 +87,9 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections }: CapaRequ
     }));
   };
 
+  console.log('grouped data' ,groupedData);
+  
+
   useEffect(() => {
     if (depId) {
       setIsInitialized(false);
@@ -97,8 +102,11 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections }: CapaRequ
   
   // Initialize with existing selections only once
   useEffect(() => {
+
     if (existingSelections && groupedData.length > 0 && !isInitialized) {
+
       const existingValues = existingSelections.reduce((acc, item) => {
+
         acc[item.capaRuleId] = item.selectedStatus;
         return acc;
       }, {} as Record<number, string>);
@@ -116,7 +124,7 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections }: CapaRequ
         filters: {
           categoryId: catId,
           subCategoryId: subCatId,
-          deparmentId: depId
+          departmentId: depId
         },
         pagination: false
       };
@@ -199,6 +207,7 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections }: CapaRequ
                   onChange={(e) => handleDropdownChange(item.id, item.capaRuleId, e.value)}
                   placeholder="Select Status"
                   className="w-full"
+                  disabled={isEvaluatedData}
                 />
 
               </td>
