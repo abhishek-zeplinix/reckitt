@@ -14,25 +14,24 @@ const SupplierRatingPage = () => {
     const [activeTab, setActiveTab] = useState('PROCUREMENT');
     const [selectedPeriod, setSelectedPeriod] = useState();
     const [rules, setRules] = useState([]);
-    // const [departments, setDepartments] = useState<any>();
     const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
     const [supplierData, setSupplierData] = useState<any>();
     const [periodOptions, setPeriodOptions] = useState<any>([]);
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
+    const [reload, setReload] = useState<boolean>(false);
 
 
     const urlParams = useParams();
     const { supId, catId, subCatId } = urlParams;
     const { setLoading, setAlert } = useAppContext();
 
-    //hooks
     const { departments } = useFetchDepartments();
 
     // console.log(supplierData);
 
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
-        copack: 'ratiosCopack'
+        'copack': 'ratiosCopack'
     };
 
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
@@ -163,7 +162,7 @@ const SupplierRatingPage = () => {
         };
 
         initializeData();
-    }, []);
+    }, [reload]);
 
 
     useEffect(() => {
@@ -197,7 +196,7 @@ const SupplierRatingPage = () => {
         };
 
         fetchRulesData();
-    }, [selectedDepartment, selectedPeriod]);
+    }, [selectedDepartment, selectedPeriod, reload]);
 
     // Screen size effect
     useEffect(() => {
@@ -447,6 +446,7 @@ const SupplierRatingPage = () => {
                                 departmentId={selectedDepartment}
                                 department={activeTab}
                                 isEvaluatedData={false}
+                                onSuccess={() => setReload(!reload)} 
                             />
                         )
                     )}
