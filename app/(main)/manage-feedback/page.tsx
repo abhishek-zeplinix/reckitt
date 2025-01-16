@@ -100,7 +100,7 @@ const ManageFeedbackPage = () => {
                 info: selectedFeedback.info,
                 status: action === FEEDBACK_ACTIONS.APPROVE ? 'Approved' : 'Rejected',
                 file: selectedFeedback.filepath,
-                ...(action === FEEDBACK_ACTIONS.REJECT && {rejectedreason:  rejectedReason })
+                ...(action === FEEDBACK_ACTIONS.REJECT && {rejectedReason:  rejectedReason })
             };
 
             const response = await PutCall(`/company/feedback-request/${selectedFeedback.id}`, payload);
@@ -207,7 +207,7 @@ const ManageFeedbackPage = () => {
                                     info: item.info,
                                     requesteddate: formatDate(item.requesteddate),
                                     status: item.status,
-                                    rejectedreason: item.rejectedreason
+                                    rejectedReason: item.rejectedReason
                                 }))}
                                 columns={[
                                     {
@@ -284,7 +284,7 @@ const ManageFeedbackPage = () => {
                                     },
                                     {
                                         header: 'Rejected Reason',
-                                        field: 'rejectedreason',
+                                        field: 'rejectedReason',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
