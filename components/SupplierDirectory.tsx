@@ -85,7 +85,7 @@ const SupplierDirectory = () => {
             <DataTable
                 value={suppliers}
                 scrollable
-                scrollHeight="250px"
+                // scrollHeight="250px"
                 responsiveLayout="scroll"
                 // onRowClick={(e) => navigateToSummary(e.data.supId)}
 

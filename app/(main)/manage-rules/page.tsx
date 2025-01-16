@@ -163,7 +163,7 @@ const ManageRulesPage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
+                params = { limit: limit, page: page, include: 'subCategories,categories,department', sortOrder: 'asc' };
             }
 
             setPage(params.page);
@@ -283,7 +283,9 @@ const ManageRulesPage = () => {
                                 isDelete={true} // show delete button
                                 data={rules.map((item: any) => ({
                                     ruleId: item.ruleId,
-                                    subCategoryName: item.subCategories?.subCategoryName,
+                                    department: item.department?.name,
+                                    category: item.categories?.categoryName,
+                                    subCategories: item.subCategories?.subCategoryName,
                                     section: item.section,
                                     ratedCriteria: item.ratedCriteria,
                                     criteriaEvaluation: item.criteriaEvaluation,
@@ -303,21 +305,29 @@ const ManageRulesPage = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'DEPARTMENT PROCU CATEGORY',
-                                        field: 'supplierid',
+                                        header: 'DEPARTMENT ',
+                                        field: 'department',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
                                     },
                                     {
-                                        header: 'SUB CATEGORY',
-                                        field: 'subCategoryName',
+                                        header: 'PROCUREMENT CATEGORY ',
+                                        field: 'category',
+                                        filter: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle,
+                                        filterPlaceholder: 'Supplier Id'
+                                    },
+                                    {
+                                        header: 'SUPPLIER CATEGORY',
+                                        field: 'subCategories',
                                         sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 120, maxWidth: 120 }
+                                        style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',
