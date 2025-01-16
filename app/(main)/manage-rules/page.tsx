@@ -45,9 +45,9 @@ const ManageRulesPage = () => {
     const [visible, setVisible] = useState(false);
     const [checked, setChecked] = useState(true);
     const [date, setDate] = useState<Date | null>(null);
-    const [isValid, setIsValid] = useState(true);
+    // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
-    const { loader, setLoader } = useLoaderContext();
+    // const { loader, setLoader } = useLoaderContext();
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -65,7 +65,7 @@ const ManageRulesPage = () => {
         fetchData();
     }, [limit, page]);
     const handleCreateNavigation = () => {
-        router.push('/create-new-rules');
+        router.push('/manage-rules/create-new-rules');
     };
 
     const handleFileUpload = async (event: { files: File[] }) => {
@@ -119,6 +119,9 @@ const ManageRulesPage = () => {
             console.error('An error occurred during file upload:', error);
             setAlert('error', 'An unexpected error occurred during file upload');
         }
+    };
+    const handleEditRules = (ruleId: any) => {
+        router.push(`/manage-rules/create-new-rules?edit=true&ruleId=${ruleId}`);
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -216,7 +219,7 @@ const ManageRulesPage = () => {
     ];
 
     const dropdownMenuDepartment = () => {
-        return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label" placeholder="-- Select Department --" className="w-full md:w-20rem" />;
+        return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} placeholder="-- Select Department --" className="w-full md:w-20rem" />;
     };
 
     const dropdownFieldDeparment = dropdownMenuDepartment();
@@ -292,8 +295,16 @@ const ManageRulesPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                isEdit={true} // show edit button
+                                // isEdit={true} // show edit button
                                 isDelete={true} // show delete button
+                                extraButtons={[
+                                    {
+                                        icon: 'pi pi-user-edit',
+                                        onClick: (e) => {
+                                            handleEditRules(e.ruleId); // Pass the userId from the row data
+                                        }
+                                    }
+                                ]}
                                 data={rules.map((item: any) => ({
                                     ruleId: item.ruleId,
                                     subCategoryName: item.subCategories?.subCategoryName,
