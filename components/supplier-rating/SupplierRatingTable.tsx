@@ -5,8 +5,9 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { useState, useEffect } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
-import {  PostCall } from '@/app/api-config/ApiKit';
+import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
+import { Badge } from 'primereact/badge';
 
 const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department, isEvaluatedData, totalScoreEvaluated }: any) => {
 
@@ -23,12 +24,6 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   const { supId, catId, subCatId } = urlParams;
 
   const { setLoading, setAlert } = useAppContext();
-
-  console.log(rules);
-  console.log(totalScoreEvaluated);
-  console.log(isEvaluatedData);
-
-
 
   // Reset initialization when category changes
   useEffect(() => {
@@ -302,7 +297,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   };
 
   const handleSubmit = async () => {
-
+    
     const apiData = prepareApiData();
 
     try {
@@ -323,39 +318,14 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
     }
 
-
   };
 
-  // const handleReset = () => {
-  //   setComments('');
-  // };
-
-  //update capaData when CapaRequiredTable changes
 
   const handleCapaDataChange = (data: any[]) => {
     setCapaData(data);
     console.log(data);
 
   };
-
-  // const existingSelections = [
-  //   {
-  //     "capaRuleId": 5456,
-  //     "selectedStatus": "No"
-  //   },
-  //   {
-  //     "capaRuleId": 5459,
-  //     "selectedStatus": "No"
-  //   },
-  //   {
-  //     "capaRuleId": 5461,
-  //     "selectedStatus": "CAPA Open"
-  //   },
-  //   {
-  //     "capaRuleId": 5464,
-  //     "selectedStatus": "End of Q3"
-  //   }
-  // ]
 
 
   return (
@@ -365,7 +335,11 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
     <div className=" w-full shadow-sm mt-3 overflow-x-auto">
 
       <div className="min-w-[800px]">
-        <h2 className='text-green-600 font-bold text-center'>{isEvaluatedData ? "Already Evaluated" : "Not Evaluated"}</h2>
+        <div className='flex justify-content-start'>
+
+          {isEvaluatedData ? <Badge value="Evaluated" severity="success"></Badge> : '' }
+        </div>
+
         <table className="min-w-full bg-white border">
           <thead>
             <tr style={{ backgroundColor: "#E9EFF6" }}>
@@ -480,7 +454,6 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
             ))}
 
             {isEvaluatedData ?
-
               <tr style={{ backgroundColor: totalScoreEvaluated <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
                 <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
                   Total Score:
@@ -494,7 +467,6 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                 </td>
                 <td className="px-4 py-3 font-bold text-lg">{totalScore.toFixed(2)}</td>
               </tr>
-
             }
 
 
@@ -515,8 +487,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
         <div>
           <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
-          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)}
-          />
+
+          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={isEvaluatedData ? rules?.comments : ''}
+            disabled={isEvaluatedData} />
         </div>
 
       </div>
@@ -525,28 +498,22 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       {/* if CAPA is required */}
 
       {
-
         isEvaluatedData ?
-
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-
-            {(totalScoreEvaluated <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={rules?.capa} isEvaluatedData/>}
-         
+            {(totalScoreEvaluated <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={rules?.capa} isEvaluatedData />}
           </div>
-           :
+          :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId}  isEvaluatedData={false}/>}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} isEvaluatedData={false} />}
           </div>
 
       }
 
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
-
         {
           !isEvaluatedData &&
           <>
-            <Button label="Save" style={{ backgroundColor: "#DF177C", border: 'none' }} onClick={handleSubmit} disabled={isAnyEvaluationEmpty}
+            <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isAnyEvaluationEmpty}
             />
           </>
         }

@@ -12,8 +12,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
-import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
+import { DeleteCall, GetCall, PutCall } from '@/app/api-config/ApiKit';
 import { Rules } from '@/types';
+import { error } from 'console';
+import { get } from 'lodash';
 
 const ACTIONS = {
     ADD: 'add',
@@ -37,7 +39,7 @@ const ManageFeedbackPage = () => {
     const [totalRecords, setTotalRecords] = useState();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    const { isLoading, setLoading, setAlert } = useAppContext();
+    const { isLoading, setLoading, setAlert, user} = useAppContext();
 
     const renderHeader = () => {
         return (
@@ -51,24 +53,6 @@ const ManageFeedbackPage = () => {
 
     const header = renderHeader();
 
-    const renderInputBox = () => {
-        return (
-            <div style={{ position: 'relative' }}>
-                <InputText placeholder="Search" style={{ paddingLeft: '40px', width: '40%' }} />
-                <span
-                    className="pi pi-search"
-                    style={{
-                        position: 'absolute',
-                        left: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'gray',
-                        fontSize: '1.5rem'
-                    }}
-                ></span>
-            </div>
-        );
-    };
 
     const fetchData = async (params?: any) => {
         try {
@@ -132,6 +116,36 @@ const ManageFeedbackPage = () => {
             setLoading(false);
         }
     };
+    // {feedbackRequestId, suppliername, quarter, info, status, file}    
+
+    const handleApproveFeedback = async (e: any) =>{
+
+        const payload = {
+
+            suppliername: get(user, 'name'),
+            quarter: e.quarter,
+            info: e.info,
+            status: e.status,
+            file: e.filepath
+        };
+
+        console.log(payload);
+        
+        try{
+
+            const response = await PutCall(`/company/feedback-request/${e.id}`, payload);
+            if(response.data === 'SUCCESS'){
+                setAlert('success', '')
+            }
+
+        }catch(error){
+
+
+        }finally{
+
+
+        }
+    }
 
     return (
         <div className="grid">
@@ -149,19 +163,27 @@ const ManageFeedbackPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
+                                isDelete={true}
                                 extraButtons={[
+                                    // {
+                                    //     icon: 'pi pi-check'
+                                    // },
+                                    // {
+                                    //     icon: 'pi pi-times'
+                                    // }
+
                                     {
-                                        icon: 'pi pi-check'
-                                    },
-                                    {
-                                        icon: 'pi pi-times'
+                                        icon: 'pi pi-check',
+                                        onClick: (e) => {
+                                            handleApproveFeedback(e);
+                                        }
                                     }
                                 ]}
                                 data={feedback.map((item: any) => ({
                                     id: item.id,
-                                    supplierName: item.supplierName,
+                                    suppliername: item.suppliername,
                                     quarter: item.quarter,
-                                    filePath: item.filePath,
+                                    filepath: item.filepath,
                                     info: item.info,
                                     requestedDate: item.requestedDate,
                                     status: item.status,
@@ -181,7 +203,7 @@ const ManageFeedbackPage = () => {
 
                                     {
                                         header: 'Supplier Name',
-                                        field: 'supplierName',
+                                        field: 'suppliername',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
@@ -198,7 +220,7 @@ const ManageFeedbackPage = () => {
                                     },
                                     {
                                         header: 'File',
-                                        field: 'filePath',
+                                        field: 'filepath',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,

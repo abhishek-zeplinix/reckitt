@@ -26,7 +26,7 @@ const defaultForm: EmptyFeedback = {
 const AddFeedBackPages = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [supplier, setSupplier] = useState<any>([]);
-    const { setLoading, setAlert } = useAppContext();
+    const { setLoading, setAlert, user } = useAppContext();
     const [form, setForm] = useState<EmptyFeedback>(defaultForm);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
 
@@ -94,7 +94,7 @@ const AddFeedBackPages = () => {
         const { file, suppliername, year, quarter, info } = form;
 
         // Ensure all required fields are filled
-        if (!file || !suppliername || !year || !quarter || !info) {
+        if (!file || !year || !quarter || !info) {
             console.error('Missing required fields or file');
             return;
         }
@@ -102,7 +102,7 @@ const AddFeedBackPages = () => {
         // Create FormData
         const formData = new FormData();
         formData.append('file', file); // Add the file
-        formData.append('suppliername', suppliername.toString());
+        formData.append('suppliername', get(user, 'name'));
         formData.append('year', year?.toString() || '');
         formData.append('quarter', quarter || '');
         formData.append('info', info || '');
@@ -139,9 +139,9 @@ const AddFeedBackPages = () => {
                 <div className="p-fluid grid mx-1 pt-2">
                     <div className="field col-4">
                         <label htmlFor="supplierName" className="font-semibold">
-                            Supplier ID
+                            Supplier Name
                         </label>
-                        <Dropdown
+                        {/* <Dropdown
                             id="supplierId"
                             value={form.suppliername}
                             options={supplier}
@@ -150,6 +150,12 @@ const AddFeedBackPages = () => {
                             onChange={(e) => onInputChange('suppliername', e.value)}
                             placeholder="Select Supplier Name"
                             className="w-full bg-white"
+                        /> */}
+
+                        <InputText
+                            type="text"
+                            value={get(user, 'name')}
+                            disabled
                         />
                     </div>
                     <div className="field col-4">
