@@ -45,7 +45,7 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
             }
         }
     });
-    console.log('47', loader);
+
     const pathname = usePathname();
     const searchParams = useSearchParams();
     useEffect(() => {
@@ -179,7 +179,6 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
     ];
 
     const isDefaultPage = pathname === '/';
-    console.log('182', onMenuToggle);
 
     return (
         <>

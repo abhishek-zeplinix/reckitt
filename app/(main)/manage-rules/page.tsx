@@ -43,7 +43,6 @@ const ManageRulesPage = () => {
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
-    const [checked, setChecked] = useState(true);
     const [date, setDate] = useState<Date | null>(null);
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
@@ -75,12 +74,7 @@ const ManageRulesPage = () => {
             return;
         }
 
-        if (!checked) {
-            setAlert('error', 'Select effective from date to implement rules');
-            return;
-        }
-
-        if (checked && !date) {
+        if (!date) {
             setAlert('error', 'Please enter a valid date.');
             return;
         }
@@ -92,11 +86,11 @@ const ManageRulesPage = () => {
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
             const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
+            return `${year}-${month}-${day}`;
         };
 
         // In the handleFileUpload function
-        if (checked && date) {
+        if (date) {
             formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
         }
 
@@ -151,21 +145,13 @@ const ManageRulesPage = () => {
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
 
                         <div className="mt-3">
-                            <div className="flex justify-center items-center gap-4 w-full">
-                                <div className="flex justify-center items-center gap-3 mt-1">
-                                    <Checkbox onChange={(e: any) => setChecked(e.checked)} checked={checked}></Checkbox>
-                                    <span className="text-md font-medium mt-1">Enable Effective From</span>
-                                </div>
-                            </div>
                             <div>
-                                {checked && (
-                                    <div className="flex justify-center items-center gap-4 mt-2">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Select Effective Date:
-                                        </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                    </div>
-                                )}
+                                <div className="flex justify-center items-center gap-4 mt-2">
+                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                        Select Effective Date:
+                                    </label>
+                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                </div>
                             </div>
                         </div>
                     </Dialog>
@@ -180,7 +166,7 @@ const ManageRulesPage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
+                params = { limit: limit, page: page, include: 'subCategories,categories,department', sortOrder: 'asc' };
             }
 
             setPage(params.page);
@@ -191,6 +177,7 @@ const ManageRulesPage = () => {
 
             setTotalRecords(response.total);
             setRules(response.data);
+            console.log(response.data, 'Abhishek');
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -307,7 +294,9 @@ const ManageRulesPage = () => {
                                 ]}
                                 data={rules.map((item: any) => ({
                                     ruleId: item.ruleId,
-                                    subCategoryName: item.subCategories?.subCategoryName,
+                                    department: item.department?.name,
+                                    category: item.categories?.categoryName,
+                                    subCategories: item.subCategories?.subCategoryName,
                                     section: item.section,
                                     ratedCriteria: item.ratedCriteria,
                                     criteriaEvaluation: item.criteriaEvaluation,
@@ -326,23 +315,30 @@ const ManageRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-
                                     {
-                                        header: 'DEPARTMENT PROCU CATEGORY',
-                                        field: 'supplierid',
+                                        header: 'DEPARTMENT ',
+                                        field: 'department',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
                                     },
                                     {
-                                        header: 'SUB CATEGORY',
-                                        field: 'subCategoryName',
+                                        header: 'PROCUREMENT CATEGORY ',
+                                        field: 'category',
+                                        filter: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle,
+                                        filterPlaceholder: 'Supplier Id'
+                                    },
+                                    {
+                                        header: 'SUPPLIER CATEGORY',
+                                        field: 'subCategories',
                                         sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 120, maxWidth: 120 }
+                                        style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',

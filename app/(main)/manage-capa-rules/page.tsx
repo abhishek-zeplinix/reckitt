@@ -42,7 +42,6 @@ const ManageCapaRulesPage = () => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
-    const [checked, setChecked] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
     const handleCreateNavigation = () => {
         router.push('/manage-capa-rules/create-new-capa-rules'); // Replace with the route you want to navigate to
@@ -70,7 +69,7 @@ const ManageCapaRulesPage = () => {
             return;
         }
 
-        if (checked && !date) {
+        if (!date) {
             setAlert('error', 'Please enter a valid date.');
             return;
         }
@@ -82,11 +81,11 @@ const ManageCapaRulesPage = () => {
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
             const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
+            return `${year}-${month}-${day}`;
         };
 
         // In the handleFileUpload function
-        if (checked && date) {
+        if (date) {
             formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
         }
 
@@ -140,21 +139,13 @@ const ManageCapaRulesPage = () => {
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
 
                         <div className="mt-3">
-                            <div className="flex justify-center items-center gap-4 w-full">
-                                <div className="flex justify-center items-center gap-3 mt-1">
-                                    <Checkbox onChange={(e: any) => setChecked(e.checked)} checked={checked}></Checkbox>
-                                    <span className="text-md font-medium mt-1">Enable Effective From</span>
-                                </div>
-                            </div>
                             <div>
-                                {checked && (
-                                    <div className="flex justify-center items-center gap-4 mt-2">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Select Effective Date:
-                                        </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                    </div>
-                                )}
+                                <div className="flex justify-center items-center gap-4 mt-2">
+                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                        Select Effective Date:
+                                    </label>
+                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                </div>
                             </div>
                         </div>
                     </Dialog>
@@ -313,8 +304,9 @@ const ManageCapaRulesPage = () => {
                                 data={rules.map((item: any) => ({
                                     capaRuleId: item.capaRuleId,
                                     name: item.department?.name,
-                                    subCategoryName: item.subCategory?.subCategoryName,
                                     categoryName: item.category?.categoryName,
+                                    subCategoryName: item.subCategory?.subCategoryName,
+                                    capaRulesName: item.capaRulesName,
                                     status: item.status
                                 }))}
                                 columns={[
@@ -329,12 +321,21 @@ const ManageCapaRulesPage = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'DEPARTMENT PROCU CATEGORY',
+                                        header: 'DEPARTMENT ',
                                         field: 'name',
                                         filter: true,
-                                        bodyStyle: { minWidth: 200, maxWidth: 200 },
+                                        bodyStyle: { minWidth: 100, maxWidth: 100 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
+                                    },
+                                    {
+                                        header: 'Procurement Category',
+                                        field: 'categoryName',
+                                        sortable: true,
+                                        filter: true,
+                                        filterPlaceholder: 'Supplier Name',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 100, maxWidth: 100 }
                                     },
                                     {
                                         header: 'SUB CATEGORY',
@@ -347,9 +348,9 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',
-                                        field: 'categoryName',
+                                        field: 'capaRulesName',
                                         filter: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 300, maxWidth: 300 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Search Procurement Category'
                                     },

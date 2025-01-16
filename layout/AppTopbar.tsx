@@ -79,7 +79,6 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     };
 
     const onHide = () => setVisible(false);
-    console.log('82',iconClass)
 
     return (
         <div className="layout-topbar">

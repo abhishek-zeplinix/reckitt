@@ -11,11 +11,20 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import Link from 'next/link';
 import { useAuth } from '@/layout/context/authContext';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { CustomResponse, MappedSupplierScore, SupplierEvaluatedScore } from '@/types';
+import { GetCall } from '@/app/api-config/ApiKit';
+import { useAppContext } from '@/layout/AppWrapper';
 
 const SupplierScoreboardSummoryPage = () => {
     const [selectedProcurementOrder, setSelectedProcurementOrder] = useState(null);
+    const { isLoading, setLoading } = useAppContext();
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
+    const [supplierScore, setSupplierScore] = useState<any>();
+    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const [page, setPage] = useState<number>(1);
+    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const { isSuperAdmin } = useAuth();
 
     const params = useParams();
@@ -23,6 +32,7 @@ const SupplierScoreboardSummoryPage = () => {
     const { supId, catId, subCatId } = params;
 
     useEffect(() => {
+        fetchData();
         const storedData = sessionStorage.getItem('supplier-data');
         if (storedData) {
             setSupplierData(JSON.parse(storedData));
@@ -37,6 +47,35 @@ const SupplierScoreboardSummoryPage = () => {
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+    const fetchData = async (params?: any) => {
+        setLoading(false);
+        if (!params) {
+            params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setSupplierScore(response.data);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setSupplierScore([]);
+        }
+    };
+
+    const mapScoresToTable = (data: SupplierEvaluatedScore[]): MappedSupplierScore[] => {
+        const mappedData = data.map((item) => ({
+            id: item.supplierScoreId,
+            name: item.department.name,
+            [`H1 2024`]: `${item.totalScore}%`,
+            [`H2 2024`]: `${item.totalScore}%` // Adjust based on actual data for H2
+        }));
+        return mappedData;
+    };
     const procurementOrder = [
         { label: '2024', value: 'raw-materials' },
         { label: '2023', value: 'packaging' },
@@ -348,9 +387,12 @@ const SupplierScoreboardSummoryPage = () => {
             action: 'Feedback to the supplier with encouragements to continue'
         }
     ];
-
-    const statusBodyTemplate = (product: any, statusKey: 'status1' | 'status2') => {
-        const status = product[statusKey];
+    interface RowData {
+        status1: string; // Assuming status1 and status2 are strings like "60%", "80%", etc.
+        status2: string;
+    }
+    const statusBodyTemplate = (rowData: RowData, statusKey: 'status1' | 'status2'): JSX.Element => {
+        const status = rowData[statusKey];
         return (
             <Tag
                 value={status}
@@ -401,7 +443,7 @@ const SupplierScoreboardSummoryPage = () => {
                 <DataTable value={intitialTable} tableStyle={{ minWidth: '60rem' }}>
                     <Column className="text-pink-500 font-bold" field="name" style={{ width: '20%' }}></Column>
                     <Column style={{ width: '20%' }}></Column>
-                    <Column header="H1 2024" body={(product) => statusBodyTemplate(product, 'status1')} style={{ width: '20%' }}></Column>
+                    <Column header="H1 2024" body={(rowData) => statusBodyTemplate(rowData, 'status1')} style={{ width: '20%' }}></Column>
                     <Column> </Column>
                     <Column header="H2 2024" body={(product) => statusBodyTemplatesecond(product, 'status2')} style={{ width: '20%' }}></Column>
                 </DataTable>

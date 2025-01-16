@@ -18,7 +18,7 @@ const CustomToast = ({ type, message, onClose }: { type: string; message: string
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose?.();
-        }, 900);
+        }, 2000);
 
         return () => clearTimeout(timer);
     }, [onClose]);

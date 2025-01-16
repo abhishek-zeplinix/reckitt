@@ -18,6 +18,8 @@ const SupplierRatingPage = () => {
     const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
     const [supplierData, setSupplierData] = useState<any>();
     const [periodOptions, setPeriodOptions] = useState<any>([]);
+    const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
+
 
     const urlParams = useParams();
     const { supId, catId, subCatId } = urlParams;
@@ -37,7 +39,7 @@ const SupplierRatingPage = () => {
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-    console.log(category);
+    console.log('category', category);
 
     //fetch department api
     // const fetchDepartments = async () => {
@@ -55,15 +57,66 @@ const SupplierRatingPage = () => {
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
-            const params = { filters: { supId } };
+
+            const params = {
+
+                filters: {
+                    supplierCategoryId: catId,
+                    procurementCategoryId: subCatId,
+                    supId
+                },
+                pagination: false
+            };
+
+
             const queryString = buildQueryParams(params);
+
             const response = await GetCall(`/company/supplier?${queryString}`);
+            console.log('fetch indivisual supplier data', response.data[0]);
+
             setSupplierData(response.data[0]);
+
             return response.data[0];
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier data');
         }
     };
+
+    // Fetch supplier score data
+    const fetchSupplierScore = async () => {
+
+
+        try {
+
+            const params = {
+
+                filters: {
+                    supplierCategoryId: catId,
+                    procurementCategoryId: subCatId,
+                    supId,
+                    departmentId: selectedDepartment,
+                    evalutionPeriod: selectedPeriod
+                },
+                pagination: false
+            };
+
+            const queryString = buildQueryParams(params);
+
+            const response = await GetCall(`/company/supplier-score?${queryString}`);
+
+            // setSupplierScoreData(response.data[0]);
+
+            setSupplierScoreData(response.data);
+
+            console.log(response.data);
+            
+            return response.data;
+
+        } catch (error) {
+            setAlert('error', 'Failed to fetch supplier score data');
+        }
+    };
+
 
     //fetch rules
     const fetchRules = async () => {
@@ -81,13 +134,27 @@ const SupplierRatingPage = () => {
     };
 
 
+    // Initial data fetch
     useEffect(() => {
         const initializeData = async () => {
             setLoading(true);
             try {
-                if (!supplierData) {
-                    await fetchSupplierData();
+
+                const supplierDetails = await fetchSupplierData();
+
+
+                console.log('sdetails', supplierDetails);
+
+
+                // Check if supplier has been evaluated for the selected department
+                const isDepartmentEvaluated = supplierDetails?.supplierScores?.some(
+                    (score: any) => score.departmentId === selectedDepartment
+                );
+
+                if (supplierDetails?.isEvaluated && isDepartmentEvaluated) {
+                    await fetchSupplierScore();
                 }
+
             } catch (error) {
                 setAlert('error', 'Something went wrong during initialization');
             } finally {
@@ -98,11 +165,11 @@ const SupplierRatingPage = () => {
         initializeData();
     }, []);
 
+
     useEffect(() => {
         const fetchRulesData = async () => {
             if (!selectedPeriod) return;
 
-            // verify if the selected period is valid for current department
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
             if (!currentDepartment) return;
 
@@ -112,10 +179,18 @@ const SupplierRatingPage = () => {
             if (!isPeriodValid) return;
 
             setLoading(true);
+
             try {
-                await fetchRules();
+
+                const scoreData = await fetchSupplierScore();
+
+                // If no score data exists for this period, fetch default rules
+                if (!scoreData || scoreData.length === 0) {
+                    await fetchRules();
+                }
+
             } catch (error) {
-                // Error already handled in fetchRules
+                // Error handled in respective fetch functions
             } finally {
                 setLoading(false);
             }
@@ -136,6 +211,8 @@ const SupplierRatingPage = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+
+
     useEffect(() => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
@@ -146,7 +223,7 @@ const SupplierRatingPage = () => {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
                 setPeriodOptions(options);
 
-                // Instead of immediately setting the period, check if the current period is valid
+                // instead of immediately setting the period, check if the current period is valid
                 const defaultPeriod: any = getDefaultPeriod(currentDepartment.evolutionType);
                 const isCurrentPeriodValid = options.some((option) => option.value === selectedPeriod);
 
@@ -156,6 +233,7 @@ const SupplierRatingPage = () => {
             }
         }
     }, [selectedDepartment, departments]);
+
 
     //function to get periods based on evolution type...
     const getPeriodOptions = (evolutionType: string) => {
@@ -332,7 +410,47 @@ const SupplierRatingPage = () => {
 
                     {/* <div className="mt-4">{renderContent()}</div> */}
 
-                    {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentId={selectedDepartment} department={activeTab} />}
+                    {/* {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentId={selectedDepartment} department={activeTab} />} */}
+
+
+                    { supplierData?.supplierScores?.some(
+                            (score: any) =>
+                                score.departmentId === selectedDepartment &&
+                                score.evalutionPeriod === selectedPeriod
+                        ) ? (
+                        <SupplierEvaluationTable
+                            rules={supplierScoreData?.find(
+                                (score: any) =>
+                                    score.department?.departmentId === selectedDepartment &&
+                                    score.evalutionPeriod === selectedPeriod
+                            ) || []}
+                            // rules={supplierScoreData}
+                            category={category}
+                            evaluationPeriod={selectedPeriod}
+                            categoryName={categoryName}
+                            departmentId={selectedDepartment}
+                            department={activeTab}
+                            isEvaluatedData={true}
+                            totalScoreEvaluated={supplierData.supplierScores.find(
+                                (score: any) =>
+                                    score.departmentId === selectedDepartment &&
+                                    score.evalutionPeriod === selectedPeriod
+                            )?.totalScore}
+                        />
+                    ) : (
+                        rules && (
+                            <SupplierEvaluationTable
+                                rules={rules}
+                                category={category}
+                                evaluationPeriod={selectedPeriod}
+                                categoryName={categoryName}
+                                departmentId={selectedDepartment}
+                                department={activeTab}
+                                isEvaluatedData={false}
+                            />
+                        )
+                    )}
+
                 </div>
             </>
         );
