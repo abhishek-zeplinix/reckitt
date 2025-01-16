@@ -43,7 +43,6 @@ const ManageRulesPage = () => {
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
-    const [checked, setChecked] = useState(true);
     const [date, setDate] = useState<Date | null>(null);
     const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
@@ -75,12 +74,7 @@ const ManageRulesPage = () => {
             return;
         }
 
-        if (!checked) {
-            setAlert('error', 'Select effective from date to implement rules');
-            return;
-        }
-
-        if (checked && !date) {
+        if (!date) {
             setAlert('error', 'Please enter a valid date.');
             return;
         }
@@ -96,7 +90,7 @@ const ManageRulesPage = () => {
         };
 
         // In the handleFileUpload function
-        if (checked && date) {
+        if (date) {
             formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
         }
 
@@ -148,21 +142,13 @@ const ManageRulesPage = () => {
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
 
                         <div className="mt-3">
-                            <div className="flex justify-center items-center gap-4 w-full">
-                                <div className="flex justify-center items-center gap-3 mt-1">
-                                    <Checkbox onChange={(e: any) => setChecked(e.checked)} checked={checked}></Checkbox>
-                                    <span className="text-md font-medium mt-1">Enable Effective From</span>
-                                </div>
-                            </div>
                             <div>
-                                {checked && (
-                                    <div className="flex justify-center items-center gap-4 mt-2">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Select Effective Date:
-                                        </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                    </div>
-                                )}
+                                <div className="flex justify-center items-center gap-4 mt-2">
+                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                        Select Effective Date:
+                                    </label>
+                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                </div>
                             </div>
                         </div>
                     </Dialog>
@@ -188,6 +174,7 @@ const ManageRulesPage = () => {
 
             setTotalRecords(response.total);
             setRules(response.data);
+            console.log(response.data, 'Abhishek');
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -315,7 +302,6 @@ const ManageRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
-
                                     {
                                         header: 'DEPARTMENT PROCU CATEGORY',
                                         field: 'supplierid',

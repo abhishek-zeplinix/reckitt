@@ -40,15 +40,15 @@ type User = {
     isPhoneVerified?: boolean;
     isSuperAdmin?: boolean;
     isAdmin?: boolean;
-    userRole?:string
+    userRole?: string
     company?: {
         domain: string;
         companyId: string;
         name: string;
     };
     userRole?: string;
-    permissions:{
-    permissions: any[];
+    permissions: {
+        permissions: any[];
     }
 };
 
@@ -185,6 +185,24 @@ interface Scores {
     subCategoryName: string
 }
 
+
+
+interface SupplierEvaluatedScore {
+    supplierScoreId: number;
+    departmentId: number;
+    totalScore: number;
+    evalutionPeriod: string;
+    department: {
+        name: string;
+    };
+}
+
+// Define the structure of the mapped data
+interface MappedSupplierScore {
+    id: number;
+    name: string;
+    [key: string]: string | number; // This allows dynamic keys like 'H1 2024', 'H2 2024'
+}
 // interface Company {
 //     companyId: number;
 //     subdomain: string;
@@ -782,5 +800,7 @@ export type {
     PayloadItem,
     Task,
     Column,
-    Scores
+    Scores,
+    SupplierEvaluatedScore,
+    MappedSupplierScore
 };
