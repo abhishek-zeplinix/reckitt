@@ -63,7 +63,7 @@ const AppMenu = () => {
         //     setLoader(false); // Hide the loader after 1 second
         // }, 500);
     };
-    console.log('27', user);
+
     const model: AppMenuItem[] = [
         {
             label: '',
