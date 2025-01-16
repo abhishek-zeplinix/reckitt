@@ -14,6 +14,7 @@ import { EmptyFeedback } from '@/types/forms';
 import { get } from 'lodash';
 import { CustomDataTableRef } from '@/components/CustomDataTable';
 import { buildQueryParams } from '@/utils/utils';
+import { InputTextarea } from 'primereact/inputtextarea';
 
 const defaultForm: EmptyFeedback = {
     suppliername: '',
@@ -25,14 +26,14 @@ const defaultForm: EmptyFeedback = {
 
 const AddFeedBackPages = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [supplier, setSupplier] = useState<any>([]);
+    // const [supplier, setSupplier] = useState<any>([]);
     const { setLoading, setAlert, user } = useAppContext();
     const [form, setForm] = useState<EmptyFeedback>(defaultForm);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    // useEffect(() => {
+    //     fetchData();
+    // }, []);
 
     const onNewAdd = async (payload: EmptyFeedback | FormData) => {
         setIsDetailLoading(true);
@@ -58,20 +59,20 @@ const AddFeedBackPages = () => {
         }
     };
 
-    const fetchData = async (params?: any) => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/supplier`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            const formattedData = response.data.map((item: any) => ({
-                name: item.supplierName, // Display in dropdown
-                value: item.supId // Dropdown value
-            }));
-            setSupplier(formattedData);
-        } else {
-            setSupplier([]);
-        }
-    };
+    // const fetchData = async (params?: any) => {
+    //     setLoading(true);
+    //     const response: CustomResponse = await GetCall(`/company/supplier`);
+    //     setLoading(false);
+    //     if (response.code == 'SUCCESS') {
+    //         const formattedData = response.data.map((item: any) => ({
+    //             name: item.supplierName, // Display in dropdown
+    //             value: item.supId // Dropdown value
+    //         }));
+    //         setSupplier(formattedData);
+    //     } else {
+    //         setSupplier([]);
+    //     }
+    // };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
         setForm((Form: any) => {
@@ -91,12 +92,13 @@ const AddFeedBackPages = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const { file, suppliername, year, quarter, info } = form;
+        const { file, year, quarter, info } = form;
 
         // Ensure all required fields are filled
         if (!file || !year || !quarter || !info) {
-            console.error('Missing required fields or file');
-            return;
+
+            setAlert('info', "Missing required fields or file")
+            return
         }
 
         // Create FormData
@@ -126,10 +128,10 @@ const AddFeedBackPages = () => {
     };
 
     const quarterOptions = [
-        { label: 'Q1 2024', value: 'Q1 2024' },
-        { label: 'Q2/H1 2024', value: 'Q2/H1 2024' },
-        { label: 'Q3 2024', value: 'Q3 2024' },
-        { label: 'Q4/H2 2024', value: 'Q4/H2 2024' }
+        { label: `Q1 ${form?.year}`, value: `Q1 ${form?.year}` },
+        { label: `Q2/H1 ${form?.year}`, value: `Q2/H1 ${form?.year}` },
+        { label: `Q3 ${form?.year}`, value: `Q3 ${form?.year}` },
+        { label: `Q4/H2 ${form?.year}`, value: `Q4/H2 ${form?.year}` }
     ];
 
     const feedbackForm = () => {
@@ -178,40 +180,27 @@ const AddFeedBackPages = () => {
                     </div>
                     <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
-                            Quarter
+                            Period
                         </label>
 
                         <Dropdown
                             id="quarter"
-                            value={form.quarter} // Ensure form has a 'quarter' property
+                            value={form.quarter} 
                             options={quarterOptions}
                             optionLabel="label"
                             optionValue="value"
                             onChange={(e) => onInputChange('quarter', e.value)}
-                            placeholder="Select Quarter"
+                            placeholder="Select Period"
                             className="w-full"
+                            disabled={form?.year == null}
                         />
                     </div>
                     <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
                             Browse a file
                         </label>
-                        {/* <div className="flex items-center justify-between border-1 border-gray-300 rounded-r-md " style={{ alignItems: 'center', borderRadius: '6px' }}>
-                            <label className="flex-grow px-4 w-full  text-gray-500 cursor-pointer">
-                                Browse a file
-                                <InputText
-                                    type="file"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                        onInputChange('file', e.target.files);
-                                        console.log(e.target.files, 'Abhishek');
-                                    }}
-                                />
-                            </label>
-                            <button type="button" className="w-6 cursor-pointer text-black font-medium rounded-r-md border-l border-gray-300  p-inputtext" style={{ background: '#CBD5E1' }}>
-                                Choose
-                            </button>
-                        </div> */}
+                  
+
                         <InputText
                             type="file"
                             onChange={(e) => {
@@ -227,7 +216,7 @@ const AddFeedBackPages = () => {
                         <label htmlFor="info" className="font-semibold">
                             More Info
                         </label>
-                        <InputText id="info" type="text" value={get(form, 'info')} onChange={(e) => onInputChange('info', e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Info" />
+                        <InputTextarea id="info" value={get(form, 'info')} onChange={(e) => onInputChange('info', e.target.value)} className="p-inputtext w-full mt-1" placeholder="Enter Info" />
                     </div>
                 </div>
             </div>
