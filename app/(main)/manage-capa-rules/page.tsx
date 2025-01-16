@@ -82,7 +82,7 @@ const ManageCapaRulesPage = () => {
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
             const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
+            return `${year}-${month}-${day}`;
         };
 
         // In the handleFileUpload function
@@ -149,7 +149,7 @@ const ManageCapaRulesPage = () => {
                                         <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
                                             Select Effective Date:
                                         </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
                                     </div>
                                 )}
                             </div>

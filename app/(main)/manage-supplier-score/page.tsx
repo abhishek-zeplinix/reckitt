@@ -36,14 +36,12 @@ const ManageSupplierScorePage = () => {
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [rules, setRules] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState();
-    
+
     const [filters, setFilters] = useState<any>();
 
-
     const [category, setCategory] = useState<any>([]);
-    const [allSuppliers, setAllSuppliers] = useState<any[]>([]); 
+    const [allSuppliers, setAllSuppliers] = useState<any[]>([]);
 
-    
     const { departments } = useFetchDepartments();
     const { isLoading, setLoading, setAlert } = useAppContext();
 
@@ -67,8 +65,7 @@ const ManageSupplierScorePage = () => {
                 params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
             }
 
-             if (filters) {
-
+            if (filters) {
                 params.filters = {
                     // ...params,
                     supId: filters.supplier,
@@ -77,7 +74,6 @@ const ManageSupplierScorePage = () => {
                     categoryId: filters.category
                 };
             }
-
 
             setPage(params.page);
 
@@ -89,11 +85,10 @@ const ManageSupplierScorePage = () => {
 
             setTotalRecords(response.total);
             setRules(response.data);
-            
-            if(!filters){
+
+            if (!filters) {
                 setAllSuppliers(response.data);
             }
-
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -101,20 +96,18 @@ const ManageSupplierScorePage = () => {
         }
     };
 
-
     const dataTableHeaderStyle = { fontSize: '14px' };
 
-
     const fetchCategory = async () => {
-            const response: CustomResponse = await GetCall(`/company/category`);
-            if (response.code === 'SUCCESS') {
-                setCategory(response.data);
-            }
+        const response: CustomResponse = await GetCall(`/company/category`);
+        if (response.code === 'SUCCESS') {
+            setCategory(response.data);
+        }
     };
 
     useEffect(() => {
         fetchData();
-       fetchCategory();
+        fetchCategory();
     }, [filters]);
 
     const onRowSelect = async (perm: Rules, action: any) => {
@@ -157,12 +150,10 @@ const ManageSupplierScorePage = () => {
     };
 
     const handleFilterChange = (filters: any) => {
-        
         console.log(filters);
-        
-        setFilters(filters)
-    };
 
+        setFilters(filters);
+    };
 
     return (
         <div className="grid">
@@ -237,9 +228,25 @@ const ManageSupplierScorePage = () => {
                                     {
                                         header: 'Supplier Score',
                                         field: 'totalScore',
+                                        body: (rowData) => {
+                                            const score = rowData.totalScore;
+                                            let color = '';
+
+                                            if (score >= 0 && score <= 50) {
+                                                color = '#F44336';
+                                            } else if (score >= 51 && score <= 70) {
+                                                color = '#FF9800';
+                                            } else if (score >= 71 && score <= 90) {
+                                                color = '#4CAF50';
+                                            } else if (score >= 91 && score <= 100) {
+                                                color = '#2196F3';
+                                            }
+
+                                            return <div style={{ color: color, fontWeight: 'bold' }}>{score}</div>;
+                                        },
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
@@ -262,6 +269,12 @@ const ManageSupplierScorePage = () => {
                                         header: 'Status',
                                         field: 'status',
                                         filter: true,
+                                        body: (rowData) => {
+                                            const status = rowData.status;
+                                            const color = status === 'completed' ? 'green' : 'red';
+
+                                            return <div style={{ color: color, fontWeight: 'bold' }}>{status}</div>;
+                                        },
                                         filterPlaceholder: 'Search Factory Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle

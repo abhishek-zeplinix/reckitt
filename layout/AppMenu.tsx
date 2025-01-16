@@ -63,7 +63,7 @@ const AppMenu = () => {
         //     setLoader(false); // Hide the loader after 1 second
         // }, 500);
     };
-    console.log('27',user)
+    console.log('27', user);
     const model: AppMenuItem[] = [
         {
             label: '',
@@ -83,11 +83,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -100,11 +100,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -118,11 +118,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -175,11 +175,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -192,11 +192,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -212,11 +212,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY_ROLE_MENU, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -229,11 +229,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY_ROLE_MENU, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -249,11 +249,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -266,11 +266,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -284,11 +284,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -304,11 +304,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -321,11 +321,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -353,11 +353,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -370,11 +370,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -390,11 +390,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -407,11 +407,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -425,11 +425,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -445,11 +445,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -462,11 +462,29 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
+                                // Grant access based on permissions
+                                return hasPermission;
+                            },
+                            command: handleMenuClick
+                        },
+                        {
+                            label: 'Generate Request',
+                            url: '/generate-requests',
+                            check: (user: any) => {
+                                // Check if the user is a super admin
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+
+                                // Check if the user has the required permissions
+                                const userPermissions = get(user, 'permissions.permissions', []);
+                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -482,11 +500,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
@@ -499,11 +517,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -517,11 +535,11 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                        
+
                                 // Check if the user has the required permissions
                                 const userPermissions = get(user, 'permissions.permissions', []);
                                 const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                        
+
                                 // Grant access based on permissions
                                 return hasPermission;
                             },
@@ -539,11 +557,11 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                
+
                         // Check if the user has the required permissions
                         const userPermissions = get(user, 'permissions.permissions', []);
                         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                
+
                         // Grant access based on permissions
                         return hasPermission;
                     },
