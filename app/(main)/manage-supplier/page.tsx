@@ -286,25 +286,7 @@ const ManageSupplierPage = () => {
     };
     const header = renderHeader();
 
-    const renderInputBox = () => {
-        return (
-            <div style={{ position: 'relative' }}>
-                <InputText placeholder="Search" style={{ paddingLeft: '40px', width: '40%' }} />
-                <span
-                    className="pi pi-search"
-                    style={{
-                        position: 'absolute',
-                        left: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'gray',
-                        fontSize: '1.5rem'
-                    }}
-                ></span>
-            </div>
-        );
-    };
-
+   
     return (
         <div className="grid">
             <div className="col-12">
