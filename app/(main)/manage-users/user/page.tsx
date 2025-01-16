@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
-import { GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 
@@ -13,7 +13,7 @@ const ManageUserAddPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isEditMode = searchParams.get('edit') === 'true'; // Check if in edit mode
-
+    const userId = searchParams.get('userId');
     const [supplierId, setSupplierId] = useState('');
     const [supplierData, setSupplierData] = useState([]);
     const [roleName, setRoleName] = useState('');
@@ -28,10 +28,42 @@ const ManageUserAddPage = () => {
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [roles, setRoles] = useState([]);
 
+    // useEffect(() => {
+    //     fetchData();
+    //     fetchSupplierData();
+    // }, []);
+
     useEffect(() => {
         fetchData();
         fetchSupplierData();
+        if (isEditMode && userId) {
+            fetchUserDetails(); // Fetch and pre-fill data in edit mode
+        }
     }, []);
+    
+    const fetchUserDetails = async () => {
+        setLoading(true);
+        try {
+            const response: CustomResponse = await GetCall(`/company/user?filters.id=${userId}&sortBy=id`);
+            if (response.code === 'SUCCESS' && response.data.length > 0) {
+                console.log('49',response.data)
+                const userDetails = response.data[0]; // Assuming the API returns an array of users
+                setRoleName(userDetails.name || '');
+                setRoleEmail(userDetails.email || '');
+                setRolePhone(userDetails.phone || '');
+                setRolePassword(userDetails.password || '');
+                setCreateRole(userDetails.roleId || '');
+            } else {
+                setAlert('error', 'User details not found.');
+            }
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            setAlert('error', 'Failed to fetch user details.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
 
     const fetchData = async () => {
         setLoading(true);
@@ -78,25 +110,37 @@ const ManageUserAddPage = () => {
     };
 
     const handleSubmit = async () => {
-        if (!roleName || !roleEmail || !rolePhone || !rolePassword || !roles) {
-            setAlert('Error', 'Please fill all required feilds');
-            return;
-        }
-
+        // Validate required fields
+       
+    
         setIsDetailLoading(true);
-
+    
         const payload = {
             roleId: createRole,
             name: roleName,
             email: roleEmail,
             password: rolePassword,
-            phone: rolePhone
+            phone: rolePhone,
         };
-
+    
         try {
-            const endpoint = isEditMode ? `/company/user/edit` : `/company/user`;
-            const response: CustomResponse = await PostCall(endpoint, payload); // Using PostCall for POST/PUT API
-
+            let endpoint: string;
+            let response: CustomResponse;
+    
+            // Determine API call based on isEditMode
+            if (isEditMode) {
+                endpoint = `/company/user/${userId}`;
+                response = await PutCall(endpoint, payload); // Call PUT API
+            } else {
+                if (!roleName || !roleEmail || !rolePhone || !rolePassword || !roles) {
+                    setAlert('Error', 'Please fill all required fields');
+                    return;
+                }
+                endpoint = `/company/user`;
+                response = await PostCall(endpoint, payload); // Call POST API
+            }
+    
+            // Handle API response
             if (response.code === 'SUCCESS') {
                 setAlert('success', isEditMode ? 'User updated successfully!' : 'User added successfully!');
                 router.push('/manage-users');
@@ -107,9 +151,10 @@ const ManageUserAddPage = () => {
             console.error('Error submitting user data:', error);
             setAlert('error', 'An error occurred while submitting user data.');
         } finally {
-            setLoading(false);
+            setIsDetailLoading(false);
         }
     };
+    
 
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit User' : 'Add User';
@@ -147,21 +192,32 @@ const ManageUserAddPage = () => {
                                 </div>
                             )}
                             <div className="field col-4">
-                                <label htmlFor="manufacturerName">Role Name</label>
-                                <input id="manufacturerName" type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Name" />
+                                <label htmlFor="name">Role Name</label>
+                                <input id="name" type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Name" />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="manufacturerName">Role Email</label>
-                                <input id="manufacturerName" type="text" value={roleEmail} onChange={(e) => setRoleEmail(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Email" />
+                                <label htmlFor="email">Role Email</label>
+                                <input id="email" type="text" value={roleEmail} onChange={(e) => setRoleEmail(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Email"  disabled={isEditMode === true}/>
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="manufacturerName">Role Phone Number</label>
-                                <input id="manufacturerName" type="text" value={rolePhone} onChange={(e) => setRolePhone(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Phone Number" />
+                                <label htmlFor="phone">Role Phone Number</label>
+                                <input id="phone" type="text" value={rolePhone} onChange={(e) => setRolePhone(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Phone Number" disabled={isEditMode === true} />
                             </div>
-                            <div className="field col-4">
-                                <label htmlFor="manufacturerName">Password</label>
-                                <input id="manufacturerName" type="text" value={rolePassword} onChange={(e) => setRolePassword(e.target.value)} className="p-inputtext w-full" placeholder="Enter Password" />
-                            </div>
+                            
+                            {!isEditMode && (
+                                <div className="field col-4">
+                                    <label htmlFor="manufacturerName">Password</label>
+                                    <input
+                                        id="manufacturerName"
+                                        type="text"
+                                        value={rolePassword}
+                                        onChange={(e) => setRolePassword(e.target.value)}
+                                        className="p-inputtext w-full"
+                                        placeholder="Enter Password"
+                                    />
+                                </div>
+                            )}
+
                         </div>
                     </div>
                 </div>
