@@ -6,6 +6,7 @@ import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTabl
 import { getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { Chart } from 'primereact/chart';
 import SupplierDirectory from '@/components/SupplierDirectory';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -79,6 +80,30 @@ const Dashboard = () => {
 
     const dashes = Array(22).fill('-');
 
+    const data = {
+        labels: ['Pending ', 'In-progress', 'Completed '],
+        datasets: [
+            {
+                data: [50, 80, 54], // Values for the donut chart
+                backgroundColor: ['#FFE434', '#3A60F8', '#78C47B'], // Corresponding colors
+                hoverBackgroundColor: ['#FFE434', '#3A60F8', '#78C47B']
+            }
+        ]
+    };
+
+    const options = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: (tooltipItem: any) => `${tooltipItem.label}: ${tooltipItem.raw}` // Show label with value
+                }
+            }
+        },
+        cutout: '70%', // Inner cutout for the donut chart
+        responsive: true,
+        maintainAspectRatio: false
+    };
+
     const getScoreColor = (score: any) => {
         const scoreValue = parseInt(score); // Assuming score is a percentage string like '100%'
 
@@ -92,6 +117,66 @@ const Dashboard = () => {
             return 'red';
         }
     };
+    const donutGraph = () => {
+        return (
+            <div className="surface-0 p-4 border-round shadow-2">
+                <h3 className="text-left mb-2">Total Assessment Summary</h3>
+                <p className="text-left text-sm mb-4">Lorem ipsum dummy text In Progress Assessment Lorem ipsum</p>
+
+                <div className="grid align-items-center">
+                    {/* Donut Chart Section */}
+                    <div className="col-7 flex justify-content-center">
+                        <div className="relative">
+                            <Chart type="doughnut" data={data} options={options} />
+                            <div
+                                className="flex justify-content-center align-items-center "
+                                style={{
+                                    position: 'absolute',
+                                    top: '60%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    fontSize: '1.5rem',
+                                    fontWeight: 'bold',
+                                    color: '#6C757D'
+                                }}
+                            >
+                                184
+                                <p className="text-sm m-0">Total</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Legend Section */}
+                    <div className="col-5">
+                        <div className=" justify-content-center score-bg ">
+                            <div style={{ height: '130px', width: '100%' }} className="flex flex-column gap-3 p-5 border-round-2xl">
+                                <div className="flex align-items-center gap-2">
+                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#FFE434' }}></div>
+                                    <span className="ml-2 text-md">
+                                        Pending <br /> Assessment
+                                    </span>
+                                </div>
+                                <div className="flex align-items-center gap-2">
+                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#3A60F8' }}></div>
+                                    <span className="ml-2 text-md">
+                                        In Progress <br /> Assessment
+                                    </span>
+                                </div>
+                                <div className="flex align-items-center gap-2">
+                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#78C47B' }}></div>
+                                    <span className="ml-2 text-md">
+                                        Completed <br /> Assessment
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const DonutGraph = donutGraph();
     const dataTiles = () => {
         return (
             <>
@@ -179,7 +264,7 @@ const Dashboard = () => {
                             <div className="grid gap-3 pr-2">
                                 {/* Top 5 Suppliers */}
                                 <div className="col-12 px-2 p-0 py-2 ">
-                                    <div className="p-4 border-round-xl shadow-1 surface-card">
+                                    <div className="p-4 border-round-xl shadow-2 surface-card">
                                         <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
                                         <div className="">
                                             <DataTable
@@ -233,7 +318,7 @@ const Dashboard = () => {
 
                                 {/* Bottom 5 Suppliers */}
                                 <div className="col-12 px-2 p-0 py-2 ">
-                                    <div className="p-4 border-round-xl shadow-1 surface-card">
+                                    <div className="p-4 border-round-xl shadow-2 surface-card">
                                         <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
                                         <div className="">
                                             <DataTable
@@ -284,6 +369,8 @@ const Dashboard = () => {
                                         </button>
                                     </div>
                                 </div>
+
+                                <div className="col-12 px-2 p-0 py-2  ">{DonutGraph}</div>
                             </div>
                         </div>
                     </div>

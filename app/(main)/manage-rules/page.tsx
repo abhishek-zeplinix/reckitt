@@ -44,9 +44,9 @@ const ManageRulesPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
-    const [isValid, setIsValid] = useState(true);
+    // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
-    const { loader, setLoader } = useLoaderContext();
+    // const { loader, setLoader } = useLoaderContext();
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -64,7 +64,7 @@ const ManageRulesPage = () => {
         fetchData();
     }, [limit, page]);
     const handleCreateNavigation = () => {
-        router.push('/create-new-rules');
+        router.push('/manage-rules/create-new-rules');
     };
 
     const handleFileUpload = async (event: { files: File[] }) => {
@@ -113,6 +113,9 @@ const ManageRulesPage = () => {
             console.error('An error occurred during file upload:', error);
             setAlert('error', 'An unexpected error occurred during file upload');
         }
+    };
+    const handleEditRules = (ruleId: any) => {
+        router.push(`/manage-rules/create-new-rules?edit=true&ruleId=${ruleId}`);
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -163,7 +166,7 @@ const ManageRulesPage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
+                params = { limit: limit, page: page, include: 'subCategories,categories,department', sortOrder: 'asc' };
             }
 
             setPage(params.page);
@@ -203,7 +206,7 @@ const ManageRulesPage = () => {
     ];
 
     const dropdownMenuDepartment = () => {
-        return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} optionLabel="label" placeholder="-- Select Department --" className="w-full md:w-20rem" />;
+        return <Dropdown value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.value)} options={departments} placeholder="-- Select Department --" className="w-full md:w-20rem" />;
     };
 
     const dropdownFieldDeparment = dropdownMenuDepartment();
@@ -279,11 +282,21 @@ const ManageRulesPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                isEdit={true} // show edit button
+                                // isEdit={true} // show edit button
                                 isDelete={true} // show delete button
+                                extraButtons={[
+                                    {
+                                        icon: 'pi pi-user-edit',
+                                        onClick: (e) => {
+                                            handleEditRules(e.ruleId); // Pass the userId from the row data
+                                        }
+                                    }
+                                ]}
                                 data={rules.map((item: any) => ({
                                     ruleId: item.ruleId,
-                                    subCategoryName: item.subCategories?.subCategoryName,
+                                    department: item.department?.name,
+                                    category: item.categories?.categoryName,
+                                    subCategories: item.subCategories?.subCategoryName,
                                     section: item.section,
                                     ratedCriteria: item.ratedCriteria,
                                     criteriaEvaluation: item.criteriaEvaluation,
@@ -303,21 +316,29 @@ const ManageRulesPage = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'DEPARTMENT PROCU CATEGORY',
-                                        field: 'supplierid',
+                                        header: 'DEPARTMENT ',
+                                        field: 'department',
                                         filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
                                     },
                                     {
-                                        header: 'SUB CATEGORY',
-                                        field: 'subCategoryName',
+                                        header: 'PROCUREMENT CATEGORY ',
+                                        field: 'category',
+                                        filter: true,
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle,
+                                        filterPlaceholder: 'Supplier Id'
+                                    },
+                                    {
+                                        header: 'SUPPLIER CATEGORY',
+                                        field: 'subCategories',
                                         sortable: true,
                                         filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 120, maxWidth: 120 }
+                                        style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',

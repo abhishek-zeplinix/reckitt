@@ -44,7 +44,7 @@ const ManageCapaRulesPage = () => {
     const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
     const handleCreateNavigation = () => {
-        router.push('/create-new-capa-rules'); // Replace with the route you want to navigate to
+        router.push('/manage-capa-rules/create-new-capa-rules'); // Replace with the route you want to navigate to
     };
 
     const limitOptions = [
@@ -110,6 +110,9 @@ const ManageCapaRulesPage = () => {
         }
     };
     const { isLoading, setLoading, setAlert } = useAppContext();
+    const handleEditRules = (capaRuleId: any) => {
+        router.push(`/manage-capa-rules/create-new-capa-rules?edit=true&capaRuleId=${capaRuleId}`);
+    };
 
     const renderHeader = () => {
         return (
@@ -288,8 +291,16 @@ const ManageCapaRulesPage = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                isEdit={true} // show edit button
+                                // isEdit={true} // show edit button
                                 isDelete={true} // show delete button
+                                extraButtons={[
+                                    {
+                                        icon: 'pi pi-user-edit',
+                                        onClick: (e) => {
+                                            handleEditRules(e.capaRuleId); // Pass the userId from the row data
+                                        }
+                                    }
+                                ]}
                                 data={rules.map((item: any) => ({
                                     capaRuleId: item.capaRuleId,
                                     name: item.department?.name,

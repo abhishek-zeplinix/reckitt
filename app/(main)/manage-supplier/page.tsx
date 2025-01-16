@@ -286,7 +286,6 @@ const ManageSupplierPage = () => {
     };
     const header = renderHeader();
 
-   
     return (
         <div className="grid">
             <div className="col-12">
@@ -297,7 +296,6 @@ const ManageSupplierPage = () => {
                             <CustomDataTable
                                 className="mb-3"
                                 ref={dataTableRef}
-                                filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
@@ -326,50 +324,42 @@ const ManageSupplierPage = () => {
                                     {
                                         header: 'Name',
                                         field: 'supplierName',
-                                        sortable: true,
-                                        filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         style: { minWidth: 120, maxWidth: 120 }
                                     },
                                     {
                                         header: 'Proc. Category',
                                         field: 'category.categoryName',
-                                        filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         filterPlaceholder: 'Proc Category'
                                     },
                                     {
                                         header: 'Category',
                                         field: 'subCategories.subCategoryName',
-                                        filter: true,
                                         filterPlaceholder: 'Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Manufacturing Name',
                                         field: 'supplierManufacturerName',
-                                        filter: true,
                                         filterPlaceholder: 'Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Site Address',
                                         field: 'siteAddress',
-                                        filter: true,
                                         filterPlaceholder: 'Search Site Address',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Factory Name',
                                         field: 'factoryName',
-                                        filter: true,
                                         filterPlaceholder: 'Factory Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Warehouse Location',
                                         field: 'warehouseLocation',
-                                        filter: true,
                                         filterPlaceholder: 'Warehouse Location',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     }

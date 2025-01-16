@@ -246,7 +246,7 @@ const ManageSupplierScorePage = () => {
                                         },
                                         filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
+                                        bodyStyle: { minWidth: 100, maxWidth: 100, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
