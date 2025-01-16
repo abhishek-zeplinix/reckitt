@@ -58,7 +58,15 @@ const SupplierScoreboardSummoryPage = () => {
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setSupplierScore(response.data);
+            const filteredData = response.data.supScore.filter((item: any) => item.department.name === 'SUSTAINABILITY' || item.department.name === 'PROCUREMENT');
 
+            // Map filtered data to match initial table structure
+            const mappedData = filteredData.map((item: any) => ({
+                id: item.supplierScoreId,
+                name: item.department.name,
+                status1: `${item.totalScore}%`,
+                status2: `${item.totalScore}%` // You can adjust this logic based on your needs
+            }));
             if (response.total) {
                 setTotalRecords(response?.total);
             }
