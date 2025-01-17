@@ -504,6 +504,7 @@ const Dashboard = () => {
                         <i className="pi pi-times text-md"></i>
                     </span>
                 </div>
+                <div></div>
             </div>
         );
     };
