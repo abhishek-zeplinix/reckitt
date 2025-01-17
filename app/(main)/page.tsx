@@ -10,6 +10,7 @@ import { Chart } from 'primereact/chart';
 import SupplierDirectory from '@/components/SupplierDirectory';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
+import Image from 'next/image';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [filtersVisible, setfiltersVisible] = useState(false);
@@ -347,7 +348,32 @@ const Dashboard = () => {
     };
 
     const BarGraphSupplierTiers = barGraphSupplierTiers();
+    const sections = [
+        { label: 'Sustainability', image: '/images/waves/blue.svg' },
+        { label: 'Development', image: '/images/waves/yellow.svg' },
+        { label: 'Procurement', image: '/images/waves/green.svg' },
+        { label: 'Planning', image: '/images/waves/red.svg' },
+        { label: 'Quality', image: '/images/waves/purple.svg' }
+    ];
 
+    const waveSideGraphs = () => {
+        return (
+            <div className="p-4 border-round-md shadow-1 w-2xl">
+                {sections.map((section, index) => (
+                    <div key={index} className="p-flex p-ai-center p-jc-between py-1 border-bottom-1 border-gray-300 last:border-none">
+                        {/* Icon */}
+                        <div className="flex items-center pt-2">
+                            <Image src={section.image} alt={section.label} width={30} height={30} className="pb-2" />
+                            {/* Label */}
+                            <span className="text-gray-700 text-lg ml-3">{section.label}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const WaveSideGraphs = waveSideGraphs();
     const dataWaveGraphs = {
         labels: ['Q1/2025', 'Q2/H1 2025', 'Q3 2025', 'Q4/H2 2025', 'Q1 2025', 'Q2/H1 2025'],
         datasets: [
@@ -433,8 +459,11 @@ const Dashboard = () => {
                         <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" placeholder="All Supplier" className="w-full md:w-14rem bgActiveBtn bgActiveBtnText px-2 py-1 " />
                     </div>
                 </div>
-                <div style={{ width: '70%', height: 'auto' }}>
-                    <Chart type="line" data={dataWaveGraphs} options={waveOptions} />
+                <div className="flex justify-content-between">
+                    <div style={{ width: '70%', height: 'auto' }} className="">
+                        <Chart type="line" data={dataWaveGraphs} options={waveOptions} />
+                    </div>
+                    <div style={{ background: '#F8FAFC' }}>{WaveSideGraphs}</div>
                 </div>
                 <div>
                     <div className="grid mt-3 score-bg p-4">
@@ -476,6 +505,7 @@ const Dashboard = () => {
     };
 
     const DataFilters = dataFilters();
+
     const dataTiles = () => {
         return (
             <>
@@ -695,8 +725,8 @@ const Dashboard = () => {
                         <Button label="Dashboard" icon="pi pi-th-large" className={`p-button-text ${activeTab === 'dashboard' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('dashboard')} />
                         <Button label="Supplier" icon="pi pi-box" className={`p-button-text ${activeTab === 'supplier' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
                     </div>
-                    <div>
-                        <Button label="Supplier" icon="pi pi-filter" className="p-button-text bgActiveBtn text-whitebg-transparent text-white" onClick={() => setfiltersVisible(!filtersVisible)} />
+                    <div className={`${activeTab === 'supplier' ? ' opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <Button label="Supplier" icon="pi pi-filter" className={`p-button-text bgActiveBtn text-whitebg-transparent text-white `} onClick={() => setfiltersVisible(!filtersVisible)} />
                     </div>
                 </div>
             </div>
