@@ -62,7 +62,7 @@ const ManageSupplierPage = () => {
     const [subLocationDetails, setSubLocationDetails] = useState<any>([]);
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
-    const [companies, setCompanies] = useState<Supplier[]>([]);
+    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
@@ -144,13 +144,13 @@ const ManageSupplierPage = () => {
         const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setCompanies(response.data);
+            setSuppliers(response.data);
 
             if (response.total) {
                 setTotalRecords(response?.total);
             }
         } else {
-            setCompanies([]);
+            setSuppliers([]);
         }
     };
     const confirmDelete = async () => {
@@ -395,7 +395,7 @@ const ManageSupplierPage = () => {
                                     totalRecords={totalRecords} // total records from api response
                                     isEdit={true} // show edit button
                                     isDelete={true} // show delete button
-                                    data={companies}
+                                    data={suppliers}
                                     // extraButtons={[
                                     //     {
                                     //         icon: 'pi pi-user-edit',
