@@ -656,3 +656,23 @@ $spacing-sizes: (
 .score-bg{
   background-color: #F8FAFC;
 }
+.bgActiveBtn{
+  background: linear-gradient(89.58deg, #333333 0.36%, #666666 104.39%);
+
+}
+
+.graphColorRed{
+background-color: #FD837A;
+}
+.graphColorGreen{
+background-color: #78C47B;
+}
+.graphColorYelloow{
+background-color: #FFE434;
+}
+.graphColorBlue{
+background-color: #3A60F8;
+}
+.bgActiveBtnText{
+  color:white !important;
+}
