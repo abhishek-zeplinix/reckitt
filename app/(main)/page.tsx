@@ -11,6 +11,7 @@ import SupplierDirectory from '@/components/SupplierDirectory';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import Image from 'next/image';
+import Link from 'next/link';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [filtersVisible, setfiltersVisible] = useState(false);
@@ -38,7 +39,8 @@ const Dashboard = () => {
             title: 'Total Suppliers',
             value: 512,
             change: '+36%',
-            changeClass: 'text-green-600'
+            changeClass: 'text-green-600',
+            link: '/manage-supplier'
         },
         {
             title: 'Total Approver',
@@ -495,11 +497,13 @@ const Dashboard = () => {
 
     const dataFilters = () => {
         return (
-            <div className={`p-card p-shadow-4 p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                <p>This is a toggled panel!</p>
-                <button onClick={() => setfiltersVisible(false)} className="p-button p-button-text">
-                    Close
-                </button>
+            <div className={`px-4 py-4  p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} `}>
+                <div className="relative">
+                    <h3>Filters</h3>
+                    <span onClick={() => setfiltersVisible(false)} className="absolute top-0 right-0 border-0 bg-transparent">
+                        <i className="pi pi-times text-md"></i>
+                    </span>
+                </div>
             </div>
         );
     };
@@ -510,7 +514,7 @@ const Dashboard = () => {
         return (
             <>
                 <div>
-                    <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden`}>{DataFilters}</div>
+                    <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden shadow-2 surface-card border-round-2xl mr-3 mb-3`}>{DataFilters}</div>
                     <div className="py-1 ">
                         <div className="grid grid-nogutter">
                             {firstData.map((tile, index) => (
@@ -518,22 +522,24 @@ const Dashboard = () => {
                                     key={index}
                                     className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
                                 >
-                                    <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
-                                        <div className="flex justify-content-between gap-2 align-items-center">
-                                            <div>
+                                    <Link href={tile.link || ''}>
+                                        <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
+                                            <div className="flex justify-content-between gap-2 align-items-center">
                                                 <div>
-                                                    <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                    <div>
+                                                        <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
+                                                        <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="mt-2">
-                                                    <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
-                                                    <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                <div>
+                                                    <i className="pi pi-angle-right text-pink-400"></i>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <i className="pi pi-angle-right text-pink-400"></i>
                                             </div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 </div>
                             ))}
                         </div>
@@ -632,20 +638,19 @@ const Dashboard = () => {
                                                     />
                                                 </DataTable>
                                             </div>
-                                            <button
-                                                onClick={() => {}}
-                                                className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300"
-                                            >
-                                                <span className="flex align-items-center gap-2">View All</span>
-                                                <span className="flex flex-row gap-2">
-                                                    {dashes.map((dash, index) => (
-                                                        <span key={index}>{dash}</span>
-                                                    ))}
-                                                </span>
-                                                <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
-                                                    <i className="pi pi-arrow-right"></i>
-                                                </span>
-                                            </button>
+                                            <Link href="/manage-supplier">
+                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
+                                                    <span className="flex align-items-center gap-2">View All</span>
+                                                    <span className="flex flex-row gap-2">
+                                                        {dashes.map((dash, index) => (
+                                                            <span key={index}>{dash}</span>
+                                                        ))}
+                                                    </span>
+                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                        <i className="pi pi-arrow-right"></i>
+                                                    </span>
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
 
@@ -686,20 +691,19 @@ const Dashboard = () => {
                                                     />
                                                 </DataTable>
                                             </div>
-                                            <button
-                                                onClick={() => {}}
-                                                className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300"
-                                            >
-                                                <span className="flex align-items-center gap-2">View All</span>
-                                                <span className="flex flex-row gap-2">
-                                                    {dashes.map((dash, index) => (
-                                                        <span key={index}>{dash}</span>
-                                                    ))}
-                                                </span>
-                                                <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
-                                                    <i className="pi pi-arrow-right"></i>
-                                                </span>
-                                            </button>
+                                            <Link href="/manage-suppliers">
+                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
+                                                    <span className="flex align-items-center gap-2">View All</span>
+                                                    <span className="flex flex-row gap-2">
+                                                        {dashes.map((dash, index) => (
+                                                            <span key={index}>{dash}</span>
+                                                        ))}
+                                                    </span>
+                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                        <i className="pi pi-arrow-right"></i>
+                                                    </span>
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
 

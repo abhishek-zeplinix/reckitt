@@ -18,13 +18,22 @@ const LoginPage = () => {
     const [password, setPassword] = useState('reckitt@123');
     const [checked, setChecked] = useState(false);
     const { layoutConfig, layoutState } = useContext(LayoutContext);
-
+    const [otpSent, setOtpSent] = useState(false);
+    const [role, setRole] = useState('admin');
     const router = useRouter();
 
     const handleEmail = (event: any) => {
         setEmail(event.target.value);
     };
+    const handleRoleChange = (e: any) => {
+        setRole(e.target.value); // Update role based on selected radio button
+        setOtpSent(false); // Reset OTP state when switching roles
+    };
 
+    const handleSendOtp = () => {
+        // Logic to send OTP (e.g., API call) can be added here
+        setOtpSent(true); // Mark OTP as sent
+    };
     const handlePassword = (event: any) => {
         setPassword(event.target.value);
     };
@@ -85,56 +94,63 @@ const LoginPage = () => {
                         <div className="logo-login-panel text-center mb-5">
                             <img src="/images/reckitt.webp" alt="Logo" width="120px" height={'50px'} />
                         </div>
-                        <div className="text-center mb-5">
+
+                        <div className="text-center mb-3">
                             <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
                             <span className="text-600 font-medium line-height-3">Enter your credentials to access your account</span>
                         </div>
 
+                        <div className="mb-3 text-center flex justify-content-center gap-5">
+                            <label className="flex items-center cursor-pointer">
+                                <input type="radio" value="admin" checked={role === 'admin'} onChange={handleRoleChange} className="m-0 mr-2 " />
+                                <p>Reckitt</p>
+                            </label>
+                            <label className="flex items-center cursor-pointer">
+                                <input type="radio" value="user" checked={role === 'user'} onChange={handleRoleChange} className="m-0 mr-2 " />
+                                <p>Supplier</p>
+                            </label>
+                        </div>
                         <div>
                             <label htmlFor="email" className="block text-900 font-medium mb-2">
                                 Email Address
                             </label>
                             <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmail} />
 
-                            <div className="flex align-items-center justify-content-between mb-2">
-                                <div className="flex align-items-center">
-                                    <label htmlFor="password" className="block text-900 font-medium ">
-                                        Password
-                                    </label>
-                                </div>
-                                <Link href="/forgot-password" className="font-bold no-underline ml-2 text-pink-500 text-right cursor-pointer">
-                                    Forgot your password?
-                                </Link>
+                            <div className=" align-items-center justify-content-between mb-2">
+                                {role === 'admin' && (
+                                    <div>
+                                        <div className="flex align-items-center justify-content-between mb-2">
+                                            <div className="flex align-items-center">
+                                                <label htmlFor="password" className="block text-900 font-medium ">
+                                                    Password
+                                                </label>
+                                            </div>
+                                            <Link href="/forgot-password" className="font-bold no-underline ml-2 text-pink-500 text-right cursor-pointer">
+                                                Forgot your password?
+                                            </Link>
+                                        </div>
+                                        <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} />
+                                        <div className="flex flex-wrap justify-content-left gap-3 mb-2">
+                                            <div className="flex align-items-center mb-2">
+                                                <Checkbox
+                                                    inputId="rememberme"
+                                                    name="rememberme"
+                                                    value="rememberme"
+                                                    onChange={handleCheckboxChange}
+                                                    checked={checked} // Make sure `checked` is a boolean
+                                                    className="p-checkbox-checked:bg-pink-500"
+                                                    style={{ width: '25px', height: '20px' }}
+                                                />
+                                                <label htmlFor="ingredient1" className="ml-2">
+                                                    Remember Me
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} />
 
-                            <div className="flex flex-wrap justify-content-left gap-3 mb-2">
-                                <div className="flex align-items-center mb-2">
-                                    <Checkbox
-                                        inputId="rememberme"
-                                        name="rememberme"
-                                        value="rememberme"
-                                        onChange={handleCheckboxChange}
-                                        checked={checked} // Make sure `checked` is a boolean
-                                        className="p-checkbox-checked:bg-pink-500"
-                                        style={{ width: '25px', height: '20px' }}
-                                    />
-                                    <label htmlFor="ingredient1" className="ml-2">
-                                        Remember Me
-                                    </label>
-                                </div>
-                            </div>
-
-                            <Button label="Login" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2 hover:text-white" onClick={loginClick} />
-
-                            <div className="flex align-items-center justify-content-center mb-6 mt-3 ">
-                                <Link href="/forgot-password" className="font-medium no-underline ml-2  text-center cursor-pointer">
-                                    <label className="" htmlFor="">
-                                        Dont have an Account?
-                                    </label>
-                                    <span className="text-pink-500 font-bold"> Sign Up Here</span>
-                                </Link>
-                            </div>
+                            <Button label={role === 'admin' ? 'Login' : 'Get otp'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2 hover:text-white" onClick={loginClick} />
                         </div>
                     </div>
                 </div>
