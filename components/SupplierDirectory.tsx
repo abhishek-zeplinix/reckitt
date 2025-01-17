@@ -77,10 +77,11 @@ const SupplierDirectory = () => {
         </span>
     );
 
-    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-danger" onClick={() => navigateToSummary(rowData.supId, rowData.category.categoryId, rowData.subCategories.subCategoryId)} />;
+    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData.supId, rowData.category.categoryId, rowData.subCategories.subCategoryId)} />;
+    const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData.supId, rowData.category.categoryId, rowData.subCategories.subCategoryId)} />;
 
     return (
-        <div className="p-m-4">
+        <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
             <h3>Supplier Directory</h3>
             <DataTable
                 value={suppliers}
@@ -96,7 +97,7 @@ const SupplierDirectory = () => {
                 <Column field="status" header="Status" body={statusBodyTemplate} />
                 <Column field="warehouseLocation" header="Location" />
                 <Column field="category.categoryName" header="Category" />
-
+                <Column header="History" body={HistoryBodyTemplate} />
                 <Column header="Evaluate" body={evaluateBodyTemplate} />
             </DataTable>
         </div>

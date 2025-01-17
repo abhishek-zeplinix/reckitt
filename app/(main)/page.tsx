@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
-import { getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Chart } from 'primereact/chart';
@@ -12,15 +12,142 @@ import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAppContext } from '@/layout/AppWrapper';
+import { CustomResponse, Tile } from '@/types';
+import { GetCall } from '../api-config/ApiKit';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [filtersVisible, setfiltersVisible] = useState(false);
+    const [filtersVisible, setfiltersVisible] = useState(true);
     const [position, setPosition] = useState('center');
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [selectedCity, setSelectedCity] = useState(null);
+    const { isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [tilesData, setTilesData] = useState<Tile[]>([]);
+    const [topSupplierData, setTopSupplierData] = useState([]);
+    const [bottomSupplierData, setBottomSupplierData] = useState([]);
+
+    useEffect(() => {
+        fetchData();
+        fetchTopData();
+        fetchBottomData();
+    }, []);
+    const fetchData = async (params?: any) => {
+        if (!params) {
+            params = { limit: limit, page: page };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/dashboard-data?${queryString}`);
+        setLoading(false);
+
+        if (response.code === 'SUCCESS') {
+            const apiData = response.data.evasupa;
+            const mappedData = mapApiDataToTiles(apiData); // Use the mapping function
+            setTilesData(mappedData);
+
+            setTilesData(mappedData);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setTilesData([]);
+        }
+    };
+    const fetchTopData = async (params?: any) => {
+        if (!params) {
+            params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'desc' };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+
+        const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setTopSupplierData(response.data);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setTopSupplierData([]);
+        }
+    };
+    const fetchBottomData = async (params?: any) => {
+        if (!params) {
+            params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'asc' };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setBottomSupplierData(response.data);
+            console.log(response.data, '83');
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setBottomSupplierData([]);
+        }
+    };
+
+    // Map API data to tile structure
+    const mapApiDataToTiles = (apiData: any): Tile[] => [
+        {
+            title: 'Total Evaluators',
+            value: apiData.evaluatorCount || 0,
+            change: `+ ${apiData.evaluatorCount}`,
+            changeClass: 'text-green-600'
+        },
+        {
+            title: 'Total Suppliers',
+            value: apiData.supplierCount || 0,
+            change: `+ ${apiData.supplierCount}`,
+            changeClass: 'text-green-600',
+            link: '/manage-supplier'
+        },
+        {
+            title: 'Total Approver',
+            value: apiData.approverCount || 0,
+            change: `+ ${apiData.approverCount}`,
+            changeClass: 'text-green-600'
+        },
+        {
+            title: 'Total Assessment Expected',
+            value: 0, // Placeholder or calculate dynamically
+            change: `+ 0`,
+            changeClass: 'text-red-600'
+        }
+    ];
+
+    const secondData = [
+        {
+            title: 'Completed Assessment',
+            value: 0,
+            change: `+ 0`,
+            changeClass: 'text-green-500'
+        },
+        {
+            title: 'In Progress Assessment',
+            value: 0,
+            change: `+ 0`,
+            changeClass: 'text-red-500'
+        }
+    ];
+    const thirdData = [
+        {
+            title: 'Pending Assessment',
+            value: 0,
+            change: `+ 0`,
+            changeClass: 'text-green-500'
+        }
+    ];
+
     const cities = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -28,54 +155,14 @@ const Dashboard = () => {
         { name: 'Istanbul', code: 'IST' },
         { name: 'Paris', code: 'PRS' }
     ];
-    const firstData = [
-        {
-            title: 'Total Evaluators',
-            value: 167,
-            change: '+36%',
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Suppliers',
-            value: 512,
-            change: '+36%',
-            changeClass: 'text-green-600',
-            link: '/manage-supplier'
-        },
-        {
-            title: 'Total Approver',
-            value: 324,
-            change: '+36%',
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Assessment Expected',
-            value: 234,
-            change: '-12%',
-            changeClass: 'text-red-600'
-        }
-    ];
-    const secondData = [
-        {
-            title: 'Completed Assessment',
-            value: 76,
-            change: '(+36%)',
-            changeClass: 'text-green-500'
-        },
-        {
-            title: 'In Progress Assessment',
-            value: 45,
-            change: '(-24%)',
-            changeClass: 'text-red-500'
-        }
-    ];
-    const thirdData = [
-        {
-            title: 'Pending Assessment',
-            value: 11,
-            change: '(+36%)',
-            changeClass: 'text-green-500'
-        }
+    const dropdownConfigs = [
+        { label: "Period's", placeholder: 'Select a Period' },
+        { label: 'Action', placeholder: 'Select Action' },
+        { label: 'Supplier Category', placeholder: 'Select Supplier Category' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' }
     ];
 
     const TopSuppliers = [
@@ -501,10 +588,17 @@ const Dashboard = () => {
                 <div className="relative border-bottom-1 border-300">
                     <h3>Filters</h3>
                     <span onClick={() => setfiltersVisible(false)} className="absolute top-0 right-0 border-0 bg-transparent">
-                        <i className="pi pi-times text-md"></i>
+                        <i className="pi pi-times text-sm"></i>
                     </span>
                 </div>
-                <div></div>
+                <div className="grid mt-4 gap-4 px-2">
+                    {dropdownConfigs.map((config, index) => (
+                        <div key={index} className="flex flex-column">
+                            <label className="mb-1">{config.label}</label>
+                            <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" showClear placeholder={config.placeholder} className="w-full md:w-14rem" />
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     };
@@ -518,7 +612,7 @@ const Dashboard = () => {
                     <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden shadow-2 surface-card border-round-2xl mr-3 mb-3`}>{DataFilters}</div>
                     <div className="py-1 ">
                         <div className="grid grid-nogutter">
-                            {firstData.map((tile, index) => (
+                            {tilesData.map((tile, index) => (
                                 <div
                                     key={index}
                                     className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
@@ -609,7 +703,7 @@ const Dashboard = () => {
                                             <div className="">
                                                 <DataTable
                                                     className="mb-3 mt-3"
-                                                    value={TopSuppliers}
+                                                    value={topSupplierData}
                                                     paginator={false} // Enable pagination
                                                     rows={limit} // Items per page
                                                     totalRecords={totalRecords} // Total records from API response
@@ -625,17 +719,21 @@ const Dashboard = () => {
                                                         }}
                                                         style={{ minWidth: '50px', maxWidth: '50px' }}
                                                     />
-                                                    <Column header="Name" field="name" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="region" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
                                                     <Column
                                                         header="Score"
-                                                        field="score"
+                                                        field="Score"
                                                         style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => (
-                                                            <span className="font-bold" style={{ color: getScoreColor(rowData.score) }}>
-                                                                {rowData.score}
-                                                            </span>
-                                                        )}
+                                                        body={(rowData) => {
+                                                            const roundedScore = Math.round(rowData.Score);
+                                                            return (
+                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
+                                                                    {roundedScore}%
+                                                                </span>
+                                                            );
+                                                        }}
+                                                        className="text-center"
                                                     />
                                                 </DataTable>
                                             </div>
@@ -662,7 +760,7 @@ const Dashboard = () => {
                                             <div className="">
                                                 <DataTable
                                                     className="mb-3 mt-3"
-                                                    value={BottomSupplier}
+                                                    value={bottomSupplierData}
                                                     paginator={false} // Enable pagination
                                                     rows={limit} // Items per page
                                                     totalRecords={totalRecords} // Total records from API response
@@ -678,17 +776,21 @@ const Dashboard = () => {
                                                         }}
                                                         style={{ minWidth: '60px', maxWidth: '60px' }}
                                                     />
-                                                    <Column header="Name" field="name" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="region" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
                                                     <Column
                                                         header="Score"
-                                                        field="score"
+                                                        field="Score"
                                                         style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => (
-                                                            <span className="font-bold" style={{ color: getScoreColor(rowData.score) }}>
-                                                                {rowData.score}
-                                                            </span>
-                                                        )}
+                                                        body={(rowData) => {
+                                                            const roundedScore = Math.round(rowData.Score);
+                                                            return (
+                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
+                                                                    {roundedScore}%
+                                                                </span>
+                                                            );
+                                                        }}
+                                                        className="text-center"
                                                     />
                                                 </DataTable>
                                             </div>
@@ -731,7 +833,7 @@ const Dashboard = () => {
                         <Button label="Supplier" icon="pi pi-box" className={`p-button-text ${activeTab === 'supplier' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
                     </div>
                     <div className={`${activeTab === 'supplier' ? ' opacity-0 invisible' : 'opacity-100 visible'}`}>
-                        <Button label="Supplier" icon="pi pi-filter" className={`p-button-text bgActiveBtn text-whitebg-transparent text-white `} onClick={() => setfiltersVisible(!filtersVisible)} />
+                        <Button label="Filters" icon="pi pi-filter" className={`p-button-text bgActiveBtn text-whitebg-transparent text-white `} onClick={() => setfiltersVisible(!filtersVisible)} />
                     </div>
                 </div>
             </div>
