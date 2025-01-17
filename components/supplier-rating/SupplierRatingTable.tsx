@@ -9,7 +9,7 @@ import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { Badge } from 'primereact/badge';
 
-const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department, isEvaluatedData, totalScoreEvaluated }: any) => {
+const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department, isEvaluatedData, totalScoreEvaluated, onSuccess }: any) => {
 
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
@@ -307,6 +307,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       if (response.code === 'SUCCESS') {
 
         setAlert('success', "Supplier Score Successfully Submitted!")
+        onSuccess();
       } else {
         setAlert('error', response.message)
       }

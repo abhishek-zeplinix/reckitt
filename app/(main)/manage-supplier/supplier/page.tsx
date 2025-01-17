@@ -275,7 +275,7 @@ const ManageSupplierAddEditPage = () => {
 
                                 <div className="field col-4">
                                     <label htmlFor="supplierCategory" className="font-semibold">
-                                        Supplier Category
+                                    Category
                                     </label>
                                     <Dropdown
                                         id="supplierCategory"
@@ -293,7 +293,7 @@ const ManageSupplierAddEditPage = () => {
 
                                 <div className="field col-4">
                                     <label htmlFor="procurementCategory" className="font-semibold">
-                                        Supplier Procurement Category
+                                       Procurement Category
                                     </label>
                                     {form.supplierCategoryId ? (
                                         <Dropdown

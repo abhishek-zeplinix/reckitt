@@ -15,6 +15,7 @@ import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { EmptySupplier } from '@/types/forms';
 import { FileUpload } from 'primereact/fileupload';
+import { Dropdown } from 'primereact/dropdown';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -72,6 +73,11 @@ const ManageSupplierPage = () => {
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [selectedSupplierToDelete, setSelectedSupplierToDelete] = useState<Supplier | null>(null);
     const [visible, setVisible] = useState(false);
+    const [procurementCategories,setprocurementCategories]=useState([]);
+    const [supplierCategories,setsupplierCategories]=useState([]);
+    const [selectedCategory,setSelectedCategory]=useState('');
+    const [selectedglobalSearch,setGlobalSearch]=useState('');
+    const [SelectedSubCategory,setSelectedSubCategory]=useState('');
     const [checked, setChecked] = useState({
         gmp: false,
         gdp: false,
@@ -90,7 +96,40 @@ const ManageSupplierPage = () => {
         fetchSubCategory();
         fetchLocation();
         fetchSubLocation();
+        fetchsupplierCategories();
     }, []);
+    const limitOptions = [
+        { label: '10', value: 10 },
+        { label: '20', value: 20 },
+        { label: '50', value: 50 },
+        { label: '70', value: 70 },
+        { label: '100', value: 100 }
+    ];
+    // Handle limit change
+    const onLimitChange = (e: any) => {
+        setLimit(e.value); // Update limit
+        fetchData({ limit: e.value, page: 1 }); // Fetch data with new limit
+    };
+
+    // Handle limit change
+    const onCategorychange = (e: any) => {
+        setSelectedCategory(e.value); // Update limit
+        fetchprocurementCategories(e.value);
+        fetchData({ filters: {
+            supplierCategoryId: e.value
+        } }); 
+    };
+    // Handle limit change
+    const onSubCategorychange = (e: any) => {
+        setSelectedSubCategory(e.value); // Update limit
+        fetchData({ filters: {
+            procurementCategoryId: e.value
+        } });
+    };
+    const onGlobalSearch = (e: any) => {
+        setGlobalSearch(e.target?.value); // Update limit
+        fetchData({ search: e.target?.value}); 
+    };
 
     const fetchData = async (params?: any) => {
         if (!params) {
@@ -235,7 +274,6 @@ const ManageSupplierPage = () => {
             }
         } catch (error) {
             setIsDetailLoading(false);
-            console.error('An error occurred during file upload:', error);
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
@@ -253,10 +291,48 @@ const ManageSupplierPage = () => {
             handleEditSupplier(perm);
         }
     };
+     const fetchprocurementCategories = async (categoryId: number | null) => {
+        if (!categoryId) {
+            setsupplierCategories([]); // Clear subcategories if no category is selected
+            return;
+        }
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setsupplierCategories(response.data)
+            } else {
+                setsupplierCategories([])
+            }
+        };
+        const fetchsupplierCategories = async () => {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data)
+            } else {
+                setprocurementCategories([])
+            }
+        };
+
+        const dropdownCategory = () => {
+                return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Department" optionLabel="categoryName"className="w-full md:w-10rem" />;
+            };
+        
+            const dropdownFieldCategory = dropdownCategory();
+        
+        const dropdownMenuSubCategory = () => {
+                return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
+            };
+        const dropdownFieldSubCategory = dropdownMenuSubCategory();
+        const globalSearch= () => {
+            return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
+        };
+        const FieldGlobalSearch = globalSearch();
 
     const handleEditSupplier = (sup: any) => {
         const supId = sup.supId;
-        console.log(supId);
         router.push(`/manage-supplier/supplier?edit=true&supId=${supId}`);
     };
 
@@ -285,6 +361,7 @@ const ManageSupplierPage = () => {
         );
     };
     const header = renderHeader();
+    
 
     return (
         <div className="grid">
@@ -293,6 +370,20 @@ const ManageSupplierPage = () => {
                     <div className="left-panel  bg-[#F8FAFC]">
                         <div className="header">{header}</div>
                         <div>
+                        <div
+                        className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
+                        style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
+                    >
+                        <div className="flex justify-content-between items-center border-b">
+                            <div>
+                                <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
+                            </div>
+                            <div className="flex  gap-2">
+                                <div className="mt-2">{dropdownFieldCategory}</div>
+                                <div className="mt-2">{dropdownFieldSubCategory}</div>
+                                <div className="mt-2">{FieldGlobalSearch}</div>
+                            </div>
+                        </div>
                             <CustomDataTable
                                 className="mb-3"
                                 ref={dataTableRef}
@@ -312,7 +403,7 @@ const ManageSupplierPage = () => {
                                 // ]}
                                 columns={[
                                     {
-                                        header: 'Sr. No.',
+                                        header: 'Sr. No',
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
@@ -368,6 +459,7 @@ const ManageSupplierPage = () => {
                                 onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
+                        </div>
                         </div>
                     </div>
                 </div>
