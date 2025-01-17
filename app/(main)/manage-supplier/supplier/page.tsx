@@ -275,7 +275,7 @@ const ManageSupplierAddEditPage = () => {
 
                                 <div className="field col-4">
                                     <label htmlFor="supplierCategory" className="font-semibold">
-                                    Category
+                                        Procurement Category
                                     </label>
                                     <Dropdown
                                         id="supplierCategory"
@@ -286,14 +286,14 @@ const ManageSupplierAddEditPage = () => {
                                         optionLabel="categoryName"
                                         optionValue="categoryId"
                                         onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
-                                        placeholder="Select Supplier Category"
+                                        placeholder="Select Procurement Category"
                                         className="w-full"
                                     />
                                 </div>
 
                                 <div className="field col-4">
                                     <label htmlFor="procurementCategory" className="font-semibold">
-                                       Procurement Category
+                                        Supplier Category
                                     </label>
                                     {form.supplierCategoryId ? (
                                         <Dropdown
@@ -303,11 +303,11 @@ const ManageSupplierAddEditPage = () => {
                                             optionLabel="subCategoryName"
                                             optionValue="subCategoryId"
                                             onChange={(e) => onInputChange('procurementCategoryId', e.value)}
-                                            placeholder="Select Supplier Procurement Category"
+                                            placeholder="Select Supplier Category"
                                             className="w-full"
                                         />
                                     ) : (
-                                        <Dropdown id="supplierCategory" placeholder="Please Select a Procurement Category" className="w-full" />
+                                        <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
                                     )}
                                 </div>
 

@@ -73,11 +73,11 @@ const ManageSupplierPage = () => {
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [selectedSupplierToDelete, setSelectedSupplierToDelete] = useState<Supplier | null>(null);
     const [visible, setVisible] = useState(false);
-    const [procurementCategories,setprocurementCategories]=useState([]);
-    const [supplierCategories,setsupplierCategories]=useState([]);
-    const [selectedCategory,setSelectedCategory]=useState('');
-    const [selectedglobalSearch,setGlobalSearch]=useState('');
-    const [SelectedSubCategory,setSelectedSubCategory]=useState('');
+    const [procurementCategories, setprocurementCategories] = useState([]);
+    const [supplierCategories, setsupplierCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedglobalSearch, setGlobalSearch] = useState('');
+    const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [checked, setChecked] = useState({
         gmp: false,
         gdp: false,
@@ -115,20 +115,24 @@ const ManageSupplierPage = () => {
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit
         fetchprocurementCategories(e.value);
-        fetchData({ filters: {
-            supplierCategoryId: e.value
-        } }); 
+        fetchData({
+            filters: {
+                supplierCategoryId: e.value
+            }
+        });
     };
     // Handle limit change
     const onSubCategorychange = (e: any) => {
         setSelectedSubCategory(e.value); // Update limit
-        fetchData({ filters: {
-            procurementCategoryId: e.value
-        } });
+        fetchData({
+            filters: {
+                procurementCategoryId: e.value
+            }
+        });
     };
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
-        fetchData({ search: e.target?.value}); 
+        fetchData({ search: e.target?.value });
     };
 
     const fetchData = async (params?: any) => {
@@ -291,45 +295,45 @@ const ManageSupplierPage = () => {
             handleEditSupplier(perm);
         }
     };
-     const fetchprocurementCategories = async (categoryId: number | null) => {
+    const fetchprocurementCategories = async (categoryId: number | null) => {
         if (!categoryId) {
             setsupplierCategories([]); // Clear subcategories if no category is selected
             return;
         }
-            setLoading(true);
-            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-            setLoading(false);
-            if (response.code == 'SUCCESS') {
-                setsupplierCategories(response.data)
-            } else {
-                setsupplierCategories([])
-            }
-        };
-        const fetchsupplierCategories = async () => {
-            setLoading(true);
-            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-            setLoading(false);
-            if (response.code == 'SUCCESS') {
-                setprocurementCategories(response.data)
-            } else {
-                setprocurementCategories([])
-            }
-        };
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setsupplierCategories(response.data);
+        } else {
+            setsupplierCategories([]);
+        }
+    };
+    const fetchsupplierCategories = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setprocurementCategories(response.data);
+        } else {
+            setprocurementCategories([]);
+        }
+    };
 
-        const dropdownCategory = () => {
-                return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Department" optionLabel="categoryName"className="w-full md:w-10rem" />;
-            };
-        
-            const dropdownFieldCategory = dropdownCategory();
-        
-        const dropdownMenuSubCategory = () => {
-                return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
-            };
-        const dropdownFieldSubCategory = dropdownMenuSubCategory();
-        const globalSearch= () => {
-            return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
-        };
-        const FieldGlobalSearch = globalSearch();
+    const dropdownCategory = () => {
+        return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Department" optionLabel="categoryName" className="w-full md:w-10rem" />;
+    };
+
+    const dropdownFieldCategory = dropdownCategory();
+
+    const dropdownMenuSubCategory = () => {
+        return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    const globalSearch = () => {
+        return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
+    };
+    const FieldGlobalSearch = globalSearch();
 
     const handleEditSupplier = (sup: any) => {
         const supId = sup.supId;
@@ -361,7 +365,6 @@ const ManageSupplierPage = () => {
         );
     };
     const header = renderHeader();
-    
 
     return (
         <div className="grid">
@@ -370,96 +373,96 @@ const ManageSupplierPage = () => {
                     <div className="left-panel  bg-[#F8FAFC]">
                         <div className="header">{header}</div>
                         <div>
-                        <div
-                        className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
-                        style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
-                    >
-                        <div className="flex justify-content-between items-center border-b">
-                            <div>
-                                <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
-                            </div>
-                            <div className="flex  gap-2">
-                                <div className="mt-2">{dropdownFieldCategory}</div>
-                                <div className="mt-2">{dropdownFieldSubCategory}</div>
-                                <div className="mt-2">{FieldGlobalSearch}</div>
-                            </div>
-                        </div>
-                            <CustomDataTable
-                                className="mb-3"
-                                ref={dataTableRef}
-                                page={page}
-                                limit={limit} // no of items per page
-                                totalRecords={totalRecords} // total records from api response
-                                isEdit={true} // show edit button
-                                isDelete={true} // show delete button
-                                data={companies}
-                                // extraButtons={[
-                                //     {
-                                //         icon: 'pi pi-user-edit',
-                                //         onClick: (e) => {
-                                //             handleEditUser(e.id); // Pass the userId from the row data
-                                //         }
-                                //     }
-                                // ]}
-                                columns={[
-                                    {
-                                        header: 'Sr. No',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                            <div
+                                className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
+                                style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
+                            >
+                                <div className="flex justify-content-between items-center border-b">
+                                    <div>
+                                        <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
+                                    </div>
+                                    <div className="flex  gap-2">
+                                        <div className="mt-2">{dropdownFieldCategory}</div>
+                                        <div className="mt-2">{dropdownFieldSubCategory}</div>
+                                        <div className="mt-2">{FieldGlobalSearch}</div>
+                                    </div>
+                                </div>
+                                <CustomDataTable
+                                    className="mb-3"
+                                    ref={dataTableRef}
+                                    page={page}
+                                    limit={limit} // no of items per page
+                                    totalRecords={totalRecords} // total records from api response
+                                    isEdit={true} // show edit button
+                                    isDelete={true} // show delete button
+                                    data={companies}
+                                    // extraButtons={[
+                                    //     {
+                                    //         icon: 'pi pi-user-edit',
+                                    //         onClick: (e) => {
+                                    //             handleEditUser(e.id); // Pass the userId from the row data
+                                    //         }
+                                    //     }
+                                    // ]}
+                                    columns={[
+                                        {
+                                            header: 'Sr. No',
+                                            body: (data: any, options: any) => {
+                                                const normalizedRowIndex = options.rowIndex % limit;
+                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                            return <span>{srNo}</span>;
+                                                return <span>{srNo}</span>;
+                                            },
+                                            bodyStyle: { minWidth: 50, maxWidth: 50 }
                                         },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                    },
-                                    {
-                                        header: 'Name',
-                                        field: 'supplierName',
-                                        filterPlaceholder: 'Supplier Name',
-                                        style: { minWidth: 120, maxWidth: 120 }
-                                    },
-                                    {
-                                        header: 'Proc. Category',
-                                        field: 'category.categoryName',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        filterPlaceholder: 'Proc Category'
-                                    },
-                                    {
-                                        header: 'Category',
-                                        field: 'subCategories.subCategoryName',
-                                        filterPlaceholder: 'Category',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    },
-                                    {
-                                        header: 'Manufacturing Name',
-                                        field: 'supplierManufacturerName',
-                                        filterPlaceholder: 'Manufacturing Name',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    },
-                                    {
-                                        header: 'Site Address',
-                                        field: 'siteAddress',
-                                        filterPlaceholder: 'Search Site Address',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    },
-                                    {
-                                        header: 'Factory Name',
-                                        field: 'factoryName',
-                                        filterPlaceholder: 'Factory Name',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    },
-                                    {
-                                        header: 'Warehouse Location',
-                                        field: 'warehouseLocation',
-                                        filterPlaceholder: 'Warehouse Location',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    }
-                                ]}
-                                onLoad={(params: any) => fetchData(params)}
-                                onEdit={(item: any) => onRowSelect(item, 'edit')}
-                                onDelete={(item: any) => onRowSelect(item, 'delete')}
-                            />
-                        </div>
+                                        {
+                                            header: 'Name',
+                                            field: 'supplierName',
+                                            filterPlaceholder: 'Supplier Name',
+                                            style: { minWidth: 120, maxWidth: 120 }
+                                        },
+                                        {
+                                            header: 'Procurement Category',
+                                            field: 'category.categoryName',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            filterPlaceholder: 'Proc Category'
+                                        },
+                                        {
+                                            header: 'Supplier Category',
+                                            field: 'subCategories.subCategoryName',
+                                            filterPlaceholder: 'Supplier Category',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'Manufacturing Name',
+                                            field: 'supplierManufacturerName',
+                                            filterPlaceholder: 'Manufacturing Name',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'Site Address',
+                                            field: 'siteAddress',
+                                            filterPlaceholder: 'Search Site Address',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'Factory Name',
+                                            field: 'factoryName',
+                                            filterPlaceholder: 'Factory Name',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'Warehouse Location',
+                                            field: 'warehouseLocation',
+                                            filterPlaceholder: 'Warehouse Location',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        }
+                                    ]}
+                                    onLoad={(params: any) => fetchData(params)}
+                                    onEdit={(item: any) => onRowSelect(item, 'edit')}
+                                    onDelete={(item: any) => onRowSelect(item, 'delete')}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
