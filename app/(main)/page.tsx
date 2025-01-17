@@ -96,7 +96,6 @@ const Dashboard = () => {
         }
     };
 
-    // Map API data to tile structure
     const mapApiDataToTiles = (apiData: any): Tile[] => [
         {
             title: 'Total Evaluators',
