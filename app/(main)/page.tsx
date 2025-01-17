@@ -373,8 +373,8 @@ const Dashboard = () => {
             <div className="pt-4 px-4 border-round-xl shadow-2 surface-card mb-4">
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
-                <div style={{ height: '310px' }}>
-                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '330px' }} />
+                <div style={{ height: '350px' }}>
+                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '360px' }} />
                 </div>
                 <div className="grid mt-3 score-bg p-4">
                     <div className="col-6">
@@ -405,11 +405,11 @@ const Dashboard = () => {
     const BarGraph = barGraph();
     const barGraphSupplierTiers = () => {
         return (
-            <div className="pt-4 px-4 border-round-xl shadow-2 surface-card mb-4">
+            <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 ">
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
-                <div style={{ height: '310px' }}>
-                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '330px' }} />
+                <div style={{ height: '350px' }}>
+                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '360px' }} />
                 </div>
                 <div className="grid mt-3 score-bg p-4">
                     <div className="flex gap-2  px-2">
@@ -815,6 +815,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
+
                 <div>{WaveGraphs}</div>
             </>
         );

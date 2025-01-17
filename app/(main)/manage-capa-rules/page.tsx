@@ -150,6 +150,17 @@ const ManageCapaRulesPage = () => {
                         </div>
                     </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button
+                        icon="pi pi-plus"
+                        size="small"
+                        label="Delete Rules"
+                        aria-label="Delete Rule"
+                        className="bg-pink-500 border-pink-500 hover:text-white"
+                        onClick={() => {
+                            BulkDelete();
+                        }}
+                        style={{ marginLeft: 10 }}
+                    />
                 </div>
             </div>
         );
@@ -253,6 +264,26 @@ const ManageCapaRulesPage = () => {
             if (response.code === 'SUCCESS') {
                 setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
                 closeDeleteDialog();
+                setAlert('success', 'Rule successfully deleted!');
+            } else {
+                setAlert('error', 'Something went wrong!');
+                closeDeleteDialog();
+            }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
+    };
+    const BulkDelete = async () => {
+        setLoading(true);
+
+        try {
+            const response = await DeleteCall(`/company/caparule/`);
+
+            if (response.code === 'SUCCESS') {
+                closeDeleteDialog();
+                fetchData();
                 setAlert('success', 'Rule successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
