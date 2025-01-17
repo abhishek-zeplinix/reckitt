@@ -498,7 +498,7 @@ const Dashboard = () => {
     const dataFilters = () => {
         return (
             <div className={`px-4 py-4  p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} `}>
-                <div className="relative">
+                <div className="relative border-bottom-1 border-300">
                     <h3>Filters</h3>
                     <span onClick={() => setfiltersVisible(false)} className="absolute top-0 right-0 border-0 bg-transparent">
                         <i className="pi pi-times text-md"></i>

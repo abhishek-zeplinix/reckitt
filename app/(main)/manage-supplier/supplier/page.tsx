@@ -215,6 +215,30 @@ const ManageSupplierAddEditPage = () => {
             });
             setCurrentStep((prev) => prev + 1);
         }
+        if (!validateText(form.supplierName)) {
+            setAlert('error', 'Supplier name cannot be empty');
+            return;
+        }
+        if (!validateText(form.supplierManufacturerName)) {
+            setAlert('error', 'Supplier manufacturer name cannot be empty');
+            return;
+        }
+        if (!validateText(form.location)) {
+            setAlert('error', 'Location cannot be empty');
+            return;
+        }
+        if (!validateText(form.factoryName)) {
+            setAlert('error', 'Factory name cannot be empty');
+            return;
+        }
+        if (!validateSiteAddress(form.siteAddress)) {
+            setAlert('error', 'Site address cannot be empty');
+            return;
+        }
+        if (!validateText(form.warehouseLocation)) {
+            setAlert('error', 'Warehouse location cannot be empty');
+            return;
+        }
     };
 
     const handlePrevious = () => {
@@ -340,12 +364,15 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="px-3">
+                            <i className="text-red-400 text-sm">All feilds required *</i>
+                        </div>
                     </div>
                 );
             case 2:
                 return (
                     <div className="flex flex-column gap-3 pt-5">
-                        <h2 className="text-center font-bold ">Add Manufacture Details</h2>
+                        <h2 className="text-center font-bold ">Compliance requirement</h2>
                         <div className="p-fluid grid mx-1 pt-5">
                             {/* GMP */}
                             <div className="field col-6">
