@@ -77,6 +77,12 @@ const CreateNewRulesPage = () => {
                 }
             endpoint = `/company/caparule/${capaRuleId}`;
             response = await PutCall(endpoint, userForm); 
+            if(response.code === 'SUCCESS'){
+                setAlert('success', 'CAPA Rules updated.');
+                router.push('/manage-capa-rules');
+            }else{
+                setAlert('error',response.message);
+            }
         } else {
             // Submit data to API
         onNewAdd(userForm);
@@ -99,17 +105,20 @@ const CreateNewRulesPage = () => {
                 const fetchUserDetails = async () => {
                     setLoading(true);
                     try {
-                        const response: CustomResponse = await GetCall(`/company/caparule?filters.ruleId=${capaRuleId}&sortBy=ruleId`);
+                        const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
                         if (response.code === 'SUCCESS' && response.data.length > 0) {
                             console.log('49',response.data)
                             const userDetails = response.data[0]; // Assuming the API returns an array of users
+                            console.log('112',response.data[0])
                             setorderBy(userDetails.orderBy || '');
                             setSelectedProcurementDepartment(userDetails.departmentId || null);
                             setSelectedProcurementCategory(userDetails.categoryId || '');
                             setSelectedSupplierCategory(userDetails.subCategoryId || '');
                             setcapaRulesName(userDetails.capaRulesName || '');
                             setstatus(userDetails.status || '');
-                            setDate(userDetails.effectiveFrom || null);
+                            // Parse the date string into a Date object
+                            const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
+                            setDate(parsedDate);
                         } else {
                             setAlert('error', 'User details not found.');
                         }
