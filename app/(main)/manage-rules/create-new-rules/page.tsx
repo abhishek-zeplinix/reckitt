@@ -50,6 +50,52 @@ const CreateNewRulesPage = () => {
         let endpoint: string;
         let response: CustomResponse;
         if (isEditMode) {
+            if (!validateField(userForm.orderBy)) {
+                
+                setAlert('error', 'OrderBy cannot be empty');
+                return;
+                }
+            if (!validateField(userForm.departmentId)) {
+                    setAlert('error', 'Department cannot be empty');
+                    return;
+                }
+                if (!validateField(userForm.categoryId)) {
+                    
+                    setAlert('error', 'Supplier Category cannot be empty');
+                    return;
+                    }
+                    if (!validateField(userForm.subCategoryId)) {
+                        setAlert('error', 'Procurement Category cannot be empty');
+                        return;
+                    }
+                if (!validateField(userForm.section)) {
+                    setAlert('error', 'Section cannot be empty');
+                    return;
+                }
+            
+            if (!validateField(userForm.ratedCriteria)) {
+                    
+                setAlert('error', 'Criteria cannot be empty');
+                return;
+                }
+                if (!validateField(userForm.criteriaEvaluation)) {
+                    setAlert('error', 'Criteria evaluation cannot be empty');
+                    return;
+                }
+            if (!validateField(userForm.score)) {
+                    
+                setAlert('error', 'Score name cannot be empty');
+                return;
+                }
+               
+            if (!validateField(userForm.ratiosCopack)) {  
+                setAlert('error', 'Ratios copack name cannot be empty');
+                return;
+                }
+                if (!validateField(userForm.ratiosRawpack)) {
+                    setAlert('error', 'Ratios rawpack cannot be empty');
+                    return;
+                }
             endpoint = `/company/rules/${ruleId}`;
             response = await PutCall(endpoint, userForm); // Call PUT API
         } else {

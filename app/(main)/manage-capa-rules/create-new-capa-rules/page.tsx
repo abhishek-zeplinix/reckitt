@@ -43,6 +43,38 @@ const CreateNewRulesPage = () => {
         let endpoint: string;
         let response: CustomResponse;
         if (isEditMode) {
+            if (!validateField(userForm.orderBy)) {    
+                setAlert('error', 'OrderBy cannot be empty');
+                return;
+                }
+            if (!validateField(userForm.departmentId)) {
+                    setAlert('error', 'Department cannot be empty');
+                    return;
+                }
+                
+                    if (!validateField(userForm.subCategoryId)) {
+                        setAlert('error', 'Procurement Category cannot be empty');
+                        return;
+                    }
+                    if (!validateField(userForm.categoryId)) {
+                    
+                        setAlert('error', 'Supplier Category cannot be empty');
+                        return;
+                        }
+                if (!validateField(userForm.capaRulesName)) {
+                    setAlert('error', 'Capa Rules Name cannot be empty');
+                    return;
+                }
+            
+            if (!validateField(userForm.status)) {
+                    
+                setAlert('error', 'Status cannot be empty');
+                return;
+                }
+                if (!validateField(userForm.effectiveFrom)) {
+                    setAlert('error', 'Effective From cannot be empty');
+                    return;
+                }
             endpoint = `/company/caparule/${capaRuleId}`;
             response = await PutCall(endpoint, userForm); 
         } else {
