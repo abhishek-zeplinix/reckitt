@@ -99,8 +99,8 @@ const CreateNewRulesPage = () => {
             endpoint = `/company/rules/${ruleId}`;
             response = await PutCall(endpoint, userForm); // Call PUT API
             if(response.code === 'SUCCESS'){
-                setAlert('success', 'Rules updated.');
                 router.push('/manage-rules');
+                setAlert('success', 'Rules updated.');
             }else{
                 setAlert('error',response.message);
             }

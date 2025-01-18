@@ -78,8 +78,9 @@ const CreateNewRulesPage = () => {
             endpoint = `/company/caparule/${capaRuleId}`;
             response = await PutCall(endpoint, userForm); 
             if(response.code === 'SUCCESS'){
-                setAlert('success', 'CAPA Rules updated.');
                 router.push('/manage-capa-rules');
+                setAlert('success', 'CAPA Rules updated.');
+                
             }else{
                 setAlert('error',response.message);
             }
