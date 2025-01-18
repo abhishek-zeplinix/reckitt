@@ -9,6 +9,7 @@ import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse } from '@/types';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
+import { validateField } from '@/utils/utils';
 
 const CreateNewRulesPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert} = useAppContext();
@@ -142,6 +143,52 @@ const CreateNewRulesPage = () => {
     };
 
     const onNewAdd = async (userForm: any) => {
+        if (!validateField(userForm.orderBy)) {
+                
+            setAlert('error', 'OrderBy cannot be empty');
+            return;
+            }
+        if (!validateField(userForm.departmentId)) {
+                setAlert('error', 'Department cannot be empty');
+                return;
+            }
+            if (!validateField(userForm.categoryId)) {
+                
+                setAlert('error', 'Supplier Category cannot be empty');
+                return;
+                }
+                if (!validateField(userForm.subCategoryId)) {
+                    setAlert('error', 'Procurement Category cannot be empty');
+                    return;
+                }
+            if (!validateField(userForm.section)) {
+                setAlert('error', 'Section cannot be empty');
+                return;
+            }
+        
+        if (!validateField(userForm.ratedCriteria)) {
+                
+            setAlert('error', 'Criteria cannot be empty');
+            return;
+            }
+            if (!validateField(userForm.criteriaEvaluation)) {
+                setAlert('error', 'Criteria evaluation cannot be empty');
+                return;
+            }
+        if (!validateField(userForm.score)) {
+                
+            setAlert('error', 'Score name cannot be empty');
+            return;
+            }
+           
+        if (!validateField(userForm.ratiosCopack)) {  
+            setAlert('error', 'Ratios copack name cannot be empty');
+            return;
+            }
+            if (!validateField(userForm.ratiosRawpack)) {
+                setAlert('error', 'Ratios rawpack cannot be empty');
+                return;
+            }
         setIsDetailLoading(true);
         const response: CustomResponse = await PostCall(`/company/rules`, userForm);
         setIsDetailLoading(false);
@@ -163,7 +210,6 @@ const CreateNewRulesPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-2">
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
-
                                 <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
                             </div>
                             <div className="field col-4">

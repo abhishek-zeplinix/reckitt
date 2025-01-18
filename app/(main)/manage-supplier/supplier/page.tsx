@@ -116,32 +116,6 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const handleSubmit = async () => {
-        console.log('Form data:', form);
-        if (!validateText(form.supplierName)) {
-            setAlert('error', 'Supplier name cannot be empty');
-            return;
-        }
-        if (!validateText(form.supplierManufacturerName)) {
-            setAlert('error', 'Supplier manufacturer name cannot be empty');
-            return;
-        }
-        if (!validateText(form.location)) {
-            setAlert('error', 'Location cannot be empty');
-            return;
-        }
-        if (!validateText(form.factoryName)) {
-            setAlert('error', 'Factory name cannot be empty');
-            return;
-        }
-        if (!validateSiteAddress(form.siteAddress)) {
-            setAlert('error', 'Site address cannot be empty');
-            return;
-        }
-        if (!validateText(form.warehouseLocation)) {
-            setAlert('error', 'Warehouse location cannot be empty');
-            return;
-        }
-
         setLoading(true);
         try {
             const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
@@ -162,6 +136,17 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
+        if (val) {
+            // Trim the value and calculate the word count
+            const trimmedValue = val.trim();
+            const wordCount = trimmedValue.length; 
+            if (name !== 'siteAddress' && name !== 'warehouseLocation') {
+                if (wordCount > 25) {
+                    setAlert('error', 'Word limit exceeded!');
+                    return; 
+                }
+            }
+        }
         setForm((prevForm) => {
             const updatedForm = {
                 ...prevForm,
@@ -207,6 +192,35 @@ const ManageSupplierAddEditPage = () => {
 
     // navigation Handlers
     const handleNext = () => {
+        // if (!validateEachFiledExceed(form)) {
+        //     setAlert('error', 'value too long for type character varying(70)');
+        //     return;
+        // }
+        if (!validateText(form.supplierName)) {
+            setAlert('error', 'Supplier name cannot be empty');
+            return;
+        }
+        if (!validateText(form.supplierManufacturerName)) {
+            setAlert('error', 'Supplier manufacturer name cannot be empty');
+            return;
+        }
+        if (!validateText(form.location)) {
+            setAlert('error', 'Location cannot be empty');
+            return;
+        }
+        if (!validateText(form.factoryName)) {
+            setAlert('error', 'Factory name cannot be empty');
+            return;
+        }
+        if (!validateSiteAddress(form.siteAddress)) {
+            setAlert('error', 'Site address cannot be empty');
+            return;
+        }
+        if (!validateText(form.warehouseLocation)) {
+            setAlert('error', 'Warehouse location cannot be empty');
+            return;
+        }
+        
         if (currentStep < totalSteps) {
             setCompletedSteps((prev) => {
                 const newSteps = [...prev];

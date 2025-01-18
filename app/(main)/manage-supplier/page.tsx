@@ -78,12 +78,6 @@ const ManageSupplierPage = () => {
     const [selectedCategory,setSelectedCategory]=useState('');
     const [selectedglobalSearch,setGlobalSearch]=useState('');
     const [SelectedSubCategory,setSelectedSubCategory]=useState('');
-    const [checked, setChecked] = useState({
-        gmp: false,
-        gdp: false,
-        reach: false,
-        iso: false
-    });
 
     useEffect(() => {
         setScroll(true);
@@ -317,13 +311,13 @@ const ManageSupplierPage = () => {
         };
 
         const dropdownCategory = () => {
-                return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Department" optionLabel="categoryName"className="w-full md:w-10rem" />;
+                return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear/>;
             };
         
             const dropdownFieldCategory = dropdownCategory();
         
         const dropdownMenuSubCategory = () => {
-                return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
+                return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear/>;
             };
         const dropdownFieldSubCategory = dropdownMenuSubCategory();
         const globalSearch= () => {
