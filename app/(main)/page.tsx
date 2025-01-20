@@ -697,7 +697,7 @@ const Dashboard = () => {
                                 <div className="grid gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
                                     <div className="col-12 px-2 p-0 py-2 ">
-                                        <div className="p-4 border-round-xl shadow-2 surface-card">
+                                        <div className="p-4 border-round-xl shadow-2 surface-card ">
                                             <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
                                             <div className="">
                                                 <DataTable
@@ -754,7 +754,7 @@ const Dashboard = () => {
 
                                     {/* Bottom 5 Suppliers */}
                                     <div className="col-12 px-2 p-0 py-2 ">
-                                        <div className="p-4 border-round-xl shadow-2 surface-card">
+                                        <div className="p-4 border-round-xl shadow-2 surface-card ">
                                             <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
                                             <div className="">
                                                 <DataTable
