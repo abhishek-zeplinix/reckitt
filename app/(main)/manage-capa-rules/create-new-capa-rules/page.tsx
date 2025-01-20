@@ -91,7 +91,6 @@ const CreateNewRulesPage = () => {
     };
     useEffect(() => {
             fetchprocurementDepartment();
-            fetchprocurementCategories();
             fetchsupplierCategories();
             return () => {
                 setScroll(true);
@@ -114,6 +113,7 @@ const CreateNewRulesPage = () => {
                             setorderBy(userDetails.orderBy || '');
                             setSelectedProcurementDepartment(userDetails.departmentId || null);
                             setSelectedProcurementCategory(userDetails.categoryId || '');
+                            fetchprocurementCategories(userDetails.categoryId),
                             setSelectedSupplierCategory(userDetails.subCategoryId || '');
                             setcapaRulesName(userDetails.capaRulesName || '');
                             setstatus(userDetails.status || '');
@@ -152,9 +152,9 @@ const CreateNewRulesPage = () => {
             setProcurementDepartment([])
         }
     };
-    const fetchprocurementCategories = async () => {
+    const fetchprocurementCategories = async (categoryId:any) => {
         setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category`); // get all the roles
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setprocurementCategories(response.data)
@@ -213,6 +213,10 @@ const CreateNewRulesPage = () => {
             setAlert('error', response.message);
         }
     };
+    const handleCategoryChange = (value: any) => {
+        setSelectedSupplierCategory(value); // Update the selected value
+        fetchprocurementCategories(value); // Call the API with the selected value
+    };
     const renderContentbody = () => {
         return (
             <div className="grid">
@@ -229,7 +233,11 @@ const CreateNewRulesPage = () => {
                                 <Dropdown id="departmentId" value={selectedProcurementDepartment} options={procurementDepartment} onChange={(e) => setSelectedProcurementDepartment(e.value)} placeholder="Select Department" optionLabel="name" optionValue="departmentId" className="w-full" />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="subCategoryId">Procurement Category</label>
+                                    <label htmlFor="categoryId">Procurement Category</label>
+                                    <Dropdown id="categoryId" value={selectedSupplierCategory} options={supplierCategories} onChange={(e) =>  handleCategoryChange(e.value)} placeholder="Select Procurement Category" optionLabel="categoryName" optionValue="categoryId" className="w-full" />
+                                </div>
+                            <div className="field col-4">
+                                <label htmlFor="subCategoryId">Supplier Category</label>
                                     <Dropdown
                                     id="subCategoryId"
                                     value={selectedProcurementCategory}
@@ -237,14 +245,11 @@ const CreateNewRulesPage = () => {
                                     onChange={(e) => setSelectedProcurementCategory(e.value)}
                                     optionLabel="subCategoryName"
                                     optionValue="subCategoryId"
-                                    placeholder="Select Procurement Category"
+                                    placeholder="Select Supplier Category"
                                     className="w-full"
                                     />
                                 </div>
-                                <div className="field col-4">
-                                    <label htmlFor="categoryId">Supplier Category</label>
-                                    <Dropdown id="categoryId" value={selectedSupplierCategory} options={supplierCategories} onChange={(e) => setSelectedSupplierCategory(e.value)} placeholder="Select Supplier Category" optionLabel="categoryName" optionValue="categoryId" className="w-full" />
-                                </div>
+                               
                                 <div className="field col-4">
                                 <label htmlFor="capaRulesName">Capa Rules Name</label>
                                 <input id="capaRulesName" type="text" value={capaRulesName} onChange={(e) => setcapaRulesName(e.target.value)} className="p-inputtext w-full" placeholder="Enter if capa is required" />
