@@ -82,7 +82,7 @@ const ManageSupplierPage = () => {
     useEffect(() => {
         setScroll(true);
         fetchData();
-        return () => {};
+        return () => { };
     }, []);
     useEffect(() => {
         fetchFactory();

@@ -65,7 +65,7 @@ export const AppWrapper = React.memo(({ children }: any) => {
     const [toasts, setToasts] = useState<Array<{ id: number; type: string; message: string }>>([]);
 
 
-    console.log(toasts);
+    // console.log(user);
 
     useEffect(() => {
         const isValid = isTokenValid(authToken);

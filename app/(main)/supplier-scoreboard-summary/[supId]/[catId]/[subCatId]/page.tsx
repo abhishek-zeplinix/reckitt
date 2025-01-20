@@ -327,7 +327,7 @@ const rightPanelData = [
 
 
                 <div className="flex-1 ml-5">
-                    <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/supplier-rating`}>
+                    <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
                         <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
                     </Link>
                 </div>
