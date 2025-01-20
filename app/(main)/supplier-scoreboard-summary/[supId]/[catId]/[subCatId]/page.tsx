@@ -30,7 +30,7 @@ const SupplierScoreboardTables = () => {
     useEffect(() => {
         fetchData();
         fetchSupplierData();
-    }, [])
+    }, [selectedYear])
 
 
      //fetch indivisual supplier data
@@ -64,22 +64,31 @@ const SupplierScoreboardTables = () => {
     const fetchData = async (params?: any) => {
         setLoading(false);
 
-        if (!params) {
-            params = { sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
+        try{
+
+            if (!params) {
+                params = { sortBy: 'supplierScoreId', sortOrder: 'asc/desc', filters: {date: selectedYear} };
+            }
+            setLoading(true);
+    
+            const queryString = buildQueryParams(params);
+    
+            const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}?${queryString}`);
+            setLoading(false);
+    
+            if (response.code == 'SUCCESS') {
+                setSupplierScore(response.data);
+    
+            } else {
+                setSupplierScore([]);
+            }
+        }catch(error){
+            setAlert('error', 'Something went wrong!')
+
+        }finally{
+            setLoading(false);
         }
-        setLoading(true);
-
-        const queryString = buildQueryParams(params);
-
-        const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}?${queryString}`);
-        setLoading(false);
-
-        if (response.code == 'SUCCESS') {
-            setSupplierScore(response.data);
-
-        } else {
-            setSupplierScore([]);
-        }
+      
     };
 
 

@@ -17,7 +17,7 @@ interface SupplierForm {
     supplierName: string;
     supplierEmail: string;
     supplierContact: string;
-    manufacturingName: string;
+    supplierManufacturerName: string;
     factoryName: string;
     warehouseLocation: string;
     siteAddress: string;
@@ -33,7 +33,7 @@ const defaultForm: SupplierForm = {
     supplierName: '',
     supplierEmail: '',
     supplierContact: '',
-    manufacturingName: '',
+    supplierManufacturerName: '',
     factoryName: '',
     warehouseLocation: '',
     siteAddress: '',
@@ -83,7 +83,7 @@ const GenerateRequestPage = () => {
                     supplierName: data.supplierName || '',
                     supplierEmail: data.supplierEmail || '',
                     supplierContact: data.supplierContact || '',
-                    manufacturingName: data.supplierManufacturerName || '',
+                    supplierManufacturerName: data.supplierManufacturerName || '',
                     factoryName: data.factoryName || '',
                     warehouseLocation: data.warehouseLocation || '',
                     siteAddress: data.siteAddress || '',
@@ -150,7 +150,7 @@ const GenerateRequestPage = () => {
             // supplierName: form.supplierName,
             // supplierEmail: form.supplierEmail,
             // supplierContact: form.supplierContact,
-            // manufacturingName: form.manufacturingName,
+            // supplierManufacturerName: form.supplierManufacturerName,
             // factoryName: form.factoryName,
             // warehouseLocation: form.warehouseLocation,
             // siteAddress: form.siteAddress,
@@ -272,11 +272,11 @@ const GenerateRequestPage = () => {
                         )}
 
                         {renderField(
-                            'manufacturingName',
+                            'supplierManufacturerName',
                             'Manufacturing Name',
                             <InputText
-                                value={form.manufacturingName}
-                                onChange={(e) => onInputChange('manufacturingName', e.target.value)}
+                                value={form.supplierManufacturerName}
+                                onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
                                 className="p-inputtext w-full"
                                 placeholder="Enter Manufacturing Name"
                             />
