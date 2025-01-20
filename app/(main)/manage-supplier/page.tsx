@@ -73,16 +73,16 @@ const ManageSupplierPage = () => {
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [selectedSupplierToDelete, setSelectedSupplierToDelete] = useState<Supplier | null>(null);
     const [visible, setVisible] = useState(false);
-    const [procurementCategories,setprocurementCategories]=useState([]);
-    const [supplierCategories,setsupplierCategories]=useState([]);
-    const [selectedCategory,setSelectedCategory]=useState('');
-    const [selectedglobalSearch,setGlobalSearch]=useState('');
-    const [SelectedSubCategory,setSelectedSubCategory]=useState('');
+    const [procurementCategories, setprocurementCategories] = useState([]);
+    const [supplierCategories, setsupplierCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedglobalSearch, setGlobalSearch] = useState('');
+    const [SelectedSubCategory, setSelectedSubCategory] = useState('');
 
     useEffect(() => {
         setScroll(true);
         fetchData();
-        return () => { };
+        return () => {};
     }, []);
     useEffect(() => {
         fetchFactory();
