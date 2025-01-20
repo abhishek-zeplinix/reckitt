@@ -98,11 +98,10 @@ const ManageUsersPage = () => {
                         >
                             <CustomDataTable
                                 ref={dataTableRef}
-                                filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 isDelete={true} // show delete button
-                                totalRecords={totalRecords} 
+                                totalRecords={totalRecords}
                                 extraButtons={[
                                     {
                                         icon: 'pi pi-user-edit',
@@ -127,46 +126,34 @@ const ManageUsersPage = () => {
                                     {
                                         header: 'Name',
                                         field: 'name',
-                                        filter: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        filterPlaceholder: 'Search Role'
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Role Name',
                                         field: 'roleName',
-                                        filter: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        filterPlaceholder: 'Search Role'
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Email',
                                         field: 'email',
-                                        // sortable: true,
-                                        filter: true,
-                                        filterPlaceholder: 'Search Name',
                                         style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Phone Number',
                                         field: 'phone',
-                                        filter: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        filterPlaceholder: 'Search User Name'
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Role Id ',
                                         field: 'roleId',
                                         filter: true,
-                                        filterPlaceholder: 'Search Mobile ',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' }
                                     },
-
                                     {
                                         header: 'Status ',
                                         field: 'isActive',
-                                        filter: true,
-                                        filterPlaceholder: 'Search Mobile ',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        bodyStyle: { minWidth: 150, maxWidth: 150, fontWeight: 'bold' },
+                                        body: (rowData) => <span style={{ color: rowData.isActive ? 'green' : 'red' }}>{rowData.isActive ? 'Active' : 'Inactive'}</span>
                                     }
                                 ]}
                             />

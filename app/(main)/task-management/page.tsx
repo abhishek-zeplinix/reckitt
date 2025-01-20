@@ -14,8 +14,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, Tile } from '@/types';
-import { GetCall } from '../api-config/ApiKit';
-const Dashboard = () => {
+import { GetCall } from '../../api-config/ApiKit';
+import { InputText } from 'primereact/inputtext';
+const TaskManagement = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [filtersVisible, setfiltersVisible] = useState(true);
     const [position, setPosition] = useState('center');
@@ -146,15 +147,6 @@ const Dashboard = () => {
             changeClass: 'text-green-500'
         }
     ];
-    const fourthData = [
-        {
-            title: 'Task Management',
-            value: 'Click here to view tasks',
-            change: `+ 0`,
-            changeClass: 'text-green-500',
-            link: '/manage-supplier'
-        }
-    ];
 
     const cities = [
         { name: 'New York', code: 'NY' },
@@ -227,66 +219,6 @@ const Dashboard = () => {
             return 'red';
         }
     };
-    const donutGraph = () => {
-        return (
-            <div className="surface-0 p-4 border-round shadow-2">
-                <h3 className="text-left mb-2">Total Assessment Summary</h3>
-                <p className="text-left text-sm mb-4">Lorem ipsum dummy text In Progress Assessment Lorem ipsum</p>
-
-                <div className="grid align-items-center">
-                    {/* Donut Chart Section */}
-                    <div className="col-7 flex justify-content-center">
-                        <div className="relative">
-                            <Chart type="doughnut" data={data} options={options} />
-                            <div
-                                className="flex justify-content-center align-items-center "
-                                style={{
-                                    position: 'absolute',
-                                    top: '60%',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    fontSize: '1.5rem',
-                                    fontWeight: 'bold',
-                                    color: '#6C757D'
-                                }}
-                            >
-                                184
-                                <p className="text-sm m-0">Total</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Legend Section */}
-                    <div className="col-5">
-                        <div className=" justify-content-center score-bg ">
-                            <div style={{ height: '130px', width: '100%' }} className="flex flex-column gap-3 p-5 border-round-2xl">
-                                <div className="flex align-items-center gap-2">
-                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#FFE434' }}></div>
-                                    <span className="ml-2 text-md">
-                                        Pending <br /> Assessment
-                                    </span>
-                                </div>
-                                <div className="flex align-items-center gap-2">
-                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#3A60F8' }}></div>
-                                    <span className="ml-2 text-md">
-                                        In Progress <br /> Assessment
-                                    </span>
-                                </div>
-                                <div className="flex align-items-center gap-2">
-                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#78C47B' }}></div>
-                                    <span className="ml-2 text-md">
-                                        Completed <br /> Assessment
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const DonutGraph = donutGraph();
 
     const Bardata = {
         labels: ['Q1/2025', 'Q2/2025', 'Q3/2025', 'Q4/2025'],
@@ -414,7 +346,7 @@ const Dashboard = () => {
     const BarGraph = barGraph();
     const barGraphSupplierTiers = () => {
         return (
-            <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 relative">
+            <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 ">
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
                 <div style={{ height: '350px' }}>
@@ -440,11 +372,6 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
-                {/* <div className="custom-div p-3">
-                    <div className="content">
-                        <p>This is a custom-shaped div.</p>
-                    </div>
-                </div> */}
             </div>
         );
     };
@@ -558,7 +485,7 @@ const Dashboard = () => {
                         <p>Lorem ipsum dummy text in progress assessment</p>
                     </div>
                     <div>
-                        <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" placeholder="All Supplier" className="w-full md:w-14rem bgActiveBtn bgActiveBtnText custom-dropdown px-2 py-1 " />
+                        <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" placeholder="All Supplier" className="w-full md:w-14rem bgActiveBtn bgActiveBtnText px-2 py-1 " />
                     </div>
                 </div>
                 <div className="flex justify-content-between">
@@ -595,34 +522,10 @@ const Dashboard = () => {
 
     const WaveGraphs = waveGraphs();
 
-    const dataFilters = () => {
-        return (
-            <div className={`px-4 py-4  p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} `}>
-                <div className="relative border-bottom-1 border-300">
-                    <h3>Filters</h3>
-                    <span onClick={() => setfiltersVisible(false)} className="absolute top-0 right-0 border-0 bg-transparent">
-                        <i className="pi pi-times text-sm"></i>
-                    </span>
-                </div>
-                <div className="grid mt-4 gap-4 px-2">
-                    {dropdownConfigs.map((config, index) => (
-                        <div key={index} className="flex flex-column">
-                            <label className="mb-1">{config.label}</label>
-                            <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" showClear placeholder={config.placeholder} className="w-full md:w-14rem" />
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const DataFilters = dataFilters();
-
     const dataTiles = () => {
         return (
             <>
                 <div>
-                    <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden shadow-2 surface-card border-round-2xl mr-3 mb-3`}>{DataFilters}</div>
                     <div className="py-1 ">
                         <div className="grid grid-nogutter">
                             {tilesData.map((tile, index) => (
@@ -653,76 +556,38 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="grid p-0">
-                        {/* First Column */}
-                        <div className="col-12 md:col-6">
-                            <div className="pt-3">
-                                <div className="grid grid-nogutter">
-                                    {secondData.map((tile, index) => (
-                                        <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
-                                            <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
-                                                <div className="flex justify-content-between gap-2 align-items-center">
-                                                    <div>
-                                                        <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
-                                                        <div className="mt-2">
-                                                            <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
-                                                            <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <i className="pi pi-angle-right text-pink-400"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="py-3">
-                                    <div className="grid grid-nogutter">
-                                        {thirdData.map((tile, index) => (
-                                            <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
-                                                <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
-                                                    <div className="flex justify-content-between gap-2 align-items-center">
-                                                        <div>
-                                                            <div>
-                                                                <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
-                                                            </div>
-                                                            <div className="mt-2">
-                                                                <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
-                                                                <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <i className="pi pi-angle-right text-pink-400"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="pr-3 ">{BarGraphSupplierTiers}</div>
-                                <div className="pr-3 ">{BarGraph}</div>
-                            </div>
-                        </div>
-
                         {/* Second Column */}
-                        <div className="col-12 md:col-6 p-0 pr-3">
-                            <div className="py-3">
+                        <div className="col-12 md:col-12 p-0 pr-3">
+                            <div className="py-4">
                                 <div className="grid gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
                                     <div className="col-12 px-2 p-0 py-2 ">
                                         <div className="p-4 border-round-xl shadow-2 surface-card ">
-                                            <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
+                                            <div className="flex justify-content-between items-center">
+                                                <div>
+                                                    <h3 className="text-900 font-bold mb-0">Supplier Directory</h3>
+                                                    <p>Loreum ipsum dummy text In Progress Assessment</p>
+                                                </div>
+                                                <div className="flex gap-3">
+                                                    <div>
+                                                        <Dropdown value={''} onChange={() => {}} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear />
+                                                    </div>
+                                                    <div>
+                                                        <InputText value={''} onChange={() => {}} placeholder="Search" className="w-full md:w-10rem" />
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className="">
-                                                <DataTable
+                                                <CustomDataTable
                                                     className="mb-3 mt-3"
-                                                    value={topSupplierData}
-                                                    paginator={false} // Enable pagination
-                                                    rows={limit} // Items per page
-                                                    totalRecords={totalRecords} // Total records from API response
-                                                    responsiveLayout="scroll" // Makes the table responsive
-                                                    showGridlines={false} // Optional: Adds gridlines for better readability
-                                                    style={{ fontSize: '12px' }}
+                                                    ref={dataTableRef}
+                                                    page={page}
+                                                    limit={limit} // no of items per page
+                                                    totalRecords={totalRecords} // total records from api response
+                                                    // isEdit={true} // show edit button
+                                                    isDelete={true} // show delete button
+                                                    data={topSupplierData.map((item: any) => ({}))}
+                                                    columns={[]}
                                                 >
                                                     <Column
                                                         header="Sr.No."
@@ -749,90 +614,15 @@ const Dashboard = () => {
                                                         }}
                                                         className="text-center"
                                                     />
-                                                </DataTable>
+                                                </CustomDataTable>
                                             </div>
-                                            <Link href="/manage-supplier">
-                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
-                                                    <span className="flex align-items-center gap-2">View All</span>
-                                                    <span className="flex flex-row gap-2">
-                                                        {dashes.map((dash, index) => (
-                                                            <span key={index}>{dash}</span>
-                                                        ))}
-                                                    </span>
-                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
-                                                        <i className="pi pi-arrow-right"></i>
-                                                    </span>
-                                                </button>
-                                            </Link>
                                         </div>
                                     </div>
-
-                                    {/* Bottom 5 Suppliers */}
-                                    <div className="col-12 px-2 p-0 py-2 ">
-                                        <div className="p-4 border-round-xl shadow-2 surface-card ">
-                                            <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
-                                            <div className="">
-                                                <DataTable
-                                                    className="mb-3 mt-3"
-                                                    value={bottomSupplierData}
-                                                    paginator={false} // Enable pagination
-                                                    rows={limit} // Items per page
-                                                    totalRecords={totalRecords} // Total records from API response
-                                                    responsiveLayout="scroll" // Makes the table responsive
-                                                    showGridlines={false} // Optional: Adds gridlines for better readability
-                                                    style={{ fontSize: '12px' }}
-                                                >
-                                                    <Column
-                                                        header="Sr.No."
-                                                        body={(data: any, options: any) => {
-                                                            const normalizedRowIndex = options.rowIndex % limit;
-                                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                                            return <span>{srNo}</span>;
-                                                        }}
-                                                        style={{ minWidth: '60px', maxWidth: '60px' }}
-                                                    />
-                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
-                                                    <Column
-                                                        header="Score"
-                                                        field="Score"
-                                                        style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => {
-                                                            const roundedScore = Math.round(rowData.Score);
-                                                            return (
-                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
-                                                                    {roundedScore}%
-                                                                </span>
-                                                            );
-                                                        }}
-                                                        className="text-center"
-                                                    />
-                                                </DataTable>
-                                            </div>
-                                            <Link href="/manage-suppliers">
-                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
-                                                    <span className="flex align-items-center gap-2">View All</span>
-                                                    <span className="flex flex-row gap-2">
-                                                        {dashes.map((dash, index) => (
-                                                            <span key={index}>{dash}</span>
-                                                        ))}
-                                                    </span>
-                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
-                                                        <i className="pi pi-arrow-right"></i>
-                                                    </span>
-                                                </button>
-                                            </Link>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-12 px-2 p-0 py-2  ">{DonutGraph}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div>{WaveGraphs}</div>
             </>
         );
     };
@@ -841,33 +631,11 @@ const Dashboard = () => {
 
     return (
         <div className="p-1">
-            {/* Navigation Bar */}
-            <div>
-                <div className="flex align-items-center justify-content-between">
-                    <div className="inline-flex gap-2 p-2 border border-1 border-round-xl bg-white shadow-sm ">
-                        <Button label="Dashboard" icon="pi pi-th-large" className={`p-button-text ${activeTab === 'dashboard' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('dashboard')} />
-                        <Button label="Supplier" icon="pi pi-box" className={`p-button-text ${activeTab === 'supplier' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
-                    </div>
-                    <div className={`${activeTab === 'supplier' ? ' opacity-0 invisible' : 'opacity-100 visible'}`}>
-                        <Button label="Filters" icon="pi pi-filter" className={`p-button-text bgActiveBtn text-whitebg-transparent text-white `} onClick={() => setfiltersVisible(!filtersVisible)} />
-                    </div>
-                </div>
-            </div>
-
-            {/* Conditional Content */}
             <div className="mt-3">
-                {activeTab === 'dashboard' ? (
-                    <div>{DataTiles}</div>
-                ) : (
-                    <div>
-                        <div className="mt-5">
-                            <SupplierDirectory />
-                        </div>
-                    </div>
-                )}
+                <div>{DataTiles}</div>
             </div>
         </div>
     );
 };
 
-export default Dashboard;
+export default TaskManagement;

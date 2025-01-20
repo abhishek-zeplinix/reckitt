@@ -47,21 +47,18 @@ const defaultForm: SupplierForm = {
 const GenerateRequestPage = () => {
     const router = useRouter();
     const { setAlert, setLoading, user } = useAppContext();
-    
+
     const [form, setForm] = useState<SupplierForm>(defaultForm);
     const [originalForm, setOriginalForm] = useState<SupplierForm>(defaultForm);
     const [category, setCategory] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
-    const [editableFields, setEditableFields] = useState<{[key: string]: boolean}>({});
+    const [editableFields, setEditableFields] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
-                await Promise.all([
-                    fetchCategory(),
-                    fetchSupplierData()
-                ]);
+                await Promise.all([fetchCategory(), fetchSupplierData()]);
             } finally {
                 setLoading(false);
             }
@@ -93,7 +90,7 @@ const GenerateRequestPage = () => {
                     supplierCategoryId: get(data, 'category.categoryId', null),
                     procurementCategoryId: get(data, 'subCategories.subCategoryId', null)
                 };
-                
+
                 setForm(mappedData);
                 setOriginalForm(mappedData);
 
@@ -133,7 +130,7 @@ const GenerateRequestPage = () => {
     const handleSubmit = async () => {
         // Get requested data based on checked fields
         const requestedData: { [key: string]: any } = {};
-        Object.keys(editableFields).forEach(key => {
+        Object.keys(editableFields).forEach((key) => {
             if (editableFields[key] && form[key as keyof SupplierForm] !== originalForm[key as keyof SupplierForm]) {
                 requestedData[key] = form[key as keyof SupplierForm];
             }
@@ -163,9 +160,9 @@ const GenerateRequestPage = () => {
         setLoading(true);
         try {
             console.log(apiData);
-            
+
             console.log(apiData);
-            
+
             const response: CustomResponse = await PostCall('/company/manageRequest', apiData);
 
             if (response.code === 'SUCCESS') {
@@ -182,7 +179,7 @@ const GenerateRequestPage = () => {
     };
 
     const onInputChange = (name: string, value: any) => {
-        setForm(prev => {
+        setForm((prev) => {
             const updatedForm = {
                 ...prev,
                 [name]: value
@@ -206,7 +203,7 @@ const GenerateRequestPage = () => {
     };
 
     const toggleFieldEdit = (fieldName: string) => {
-        setEditableFields(prev => ({
+        setEditableFields((prev) => ({
             ...prev,
             [fieldName]: !prev[fieldName]
         }));
@@ -216,18 +213,14 @@ const GenerateRequestPage = () => {
         return (
             <div className="flexfield col-4">
                 <div className="flex align-items-center gap-2 mb-1">
-                    <Checkbox
-                        checked={editableFields[fieldName] || false}
-                        onChange={() => toggleFieldEdit(fieldName)}
-                    />
+                    <Checkbox checked={editableFields[fieldName] || false} onChange={() => toggleFieldEdit(fieldName)} />
                     <label className="font-semibold">{label}</label>
                 </div>
                 <div>
-                {React.cloneElement(component as React.ReactElement, {
-                    disabled: !editableFields[fieldName]
-                })}
+                    {React.cloneElement(component as React.ReactElement, {
+                        disabled: !editableFields[fieldName]
+                    })}
                 </div>
-
             </div>
         );
     };
@@ -238,60 +231,23 @@ const GenerateRequestPage = () => {
                 <div className="flex flex-column gap-3 pt-2">
                     <h2 className="text-center font-bold">Generate request to change information</h2>
                     <div className="p-fluid grid mx-1 pt-2">
-                        {renderField(
-                            'supplierName',
-                            'Supplier Name',
-                            <InputText
-                                value={form.supplierName}
-                                onChange={(e) => onInputChange('supplierName', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Supplier Name"
-                            />
-                        )}
+                        {renderField('supplierName', 'Supplier Name', <InputText value={form.supplierName} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full" placeholder="Enter Supplier Name" />)}
 
-                        {renderField(
-                            'supplierEmail',
-                            'Supplier Email',
-                            <InputText
-                                value={form.supplierEmail}
-                                onChange={(e) => onInputChange('supplierEmail', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Supplier Email"
-                            />
-                        )}
+                        {renderField('supplierEmail', 'Supplier Email', <InputText value={form.supplierEmail} onChange={(e) => onInputChange('supplierEmail', e.target.value)} className="p-inputtext w-full" placeholder="Enter Supplier Email" />)}
 
                         {renderField(
                             'supplierContact',
                             'Supplier Contact',
-                            <InputText
-                                value={form.supplierContact}
-                                onChange={(e) => onInputChange('supplierContact', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Supplier Contact"
-                            />
+                            <InputText value={form.supplierContact} onChange={(e) => onInputChange('supplierContact', e.target.value)} className="p-inputtext w-full" placeholder="Enter Supplier Contact" />
                         )}
 
                         {renderField(
                             'supplierManufacturerName',
-                            'Manufacturing Name',
-                            <InputText
-                                value={form.supplierManufacturerName}
-                                onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Manufacturing Name"
-                            />
+                            'Manufacturer Name',
+                            <InputText value={form.supplierManufacturerName} onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturer Name" />
                         )}
 
-                        {renderField(
-                            'factoryName',
-                            'Factory Name',
-                            <InputText
-                                value={form.factoryName}
-                                onChange={(e) => onInputChange('factoryName', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Factory Name"
-                            />
-                        )}
+                        {renderField('factoryName', 'Factory Name', <InputText value={form.factoryName} onChange={(e) => onInputChange('factoryName', e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />)}
 
                         {renderField(
                             'supplierCategoryId',
@@ -324,24 +280,10 @@ const GenerateRequestPage = () => {
                         {renderField(
                             'warehouseLocation',
                             'Warehouse Location',
-                            <InputTextarea
-                                value={form.warehouseLocation}
-                                onChange={(e) => onInputChange('warehouseLocation', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Warehouse Location"
-                            />
+                            <InputTextarea value={form.warehouseLocation} onChange={(e) => onInputChange('warehouseLocation', e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
                         )}
 
-                        {renderField(
-                            'siteAddress',
-                            'Site Address',
-                            <InputTextarea
-                                value={form.siteAddress}
-                                onChange={(e) => onInputChange('siteAddress', e.target.value)}
-                                className="p-inputtext w-full"
-                                placeholder="Enter Site Address"
-                            />
-                        )}
+                        {renderField('siteAddress', 'Site Address', <InputTextarea value={form.siteAddress} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />)}
                     </div>
                 </div>
             </div>
@@ -355,13 +297,7 @@ const GenerateRequestPage = () => {
                 <div className="p-card-body">{renderRequestChangeContent()}</div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    <Button 
-                        label='Update' 
-                        icon="pi pi-check" 
-                        className="bg-pink-500 border-pink-500 hover:text-white mb-3" 
-                        onClick={handleSubmit}
-                        disabled={Object.keys(editableFields).length === 0}
-                    />
+                    <Button label="Update" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleSubmit} disabled={Object.keys(editableFields).length === 0} />
                 </div>
             </div>
         </div>
