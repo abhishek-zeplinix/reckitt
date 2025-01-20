@@ -149,7 +149,6 @@ const ManageUsersPage = () => {
                                         filter: true,
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' }
                                     },
-
                                     {
                                         header: 'Status ',
                                         field: 'isActive',

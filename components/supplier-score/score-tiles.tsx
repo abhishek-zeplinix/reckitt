@@ -19,8 +19,8 @@ const ScoreTiles = () => {
     };
 
     const squareStyle = {
-        width: '32px',
-        height: '32px',
+        width: '22px',
+        height: '22px',
         borderRadius: '6px',
         flexShrink: 0
     };
