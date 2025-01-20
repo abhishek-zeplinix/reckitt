@@ -96,9 +96,8 @@ const AddFeedBackPages = () => {
 
         // Ensure all required fields are filled
         if (!file || !year || !quarter || !info) {
-
-            setAlert('info', "Missing required fields or file")
-            return
+            setAlert('info', 'Missing required fields or file');
+            return;
         }
 
         // Create FormData
@@ -154,11 +153,7 @@ const AddFeedBackPages = () => {
                             className="w-full bg-white"
                         /> */}
 
-                        <InputText
-                            type="text"
-                            value={get(user, 'name')}
-                            disabled
-                        />
+                        <InputText type="text" value={get(user, 'name')} disabled />
                     </div>
                     <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
@@ -185,7 +180,7 @@ const AddFeedBackPages = () => {
 
                         <Dropdown
                             id="quarter"
-                            value={form.quarter} 
+                            value={form.quarter}
                             options={quarterOptions}
                             optionLabel="label"
                             optionValue="value"
@@ -197,9 +192,8 @@ const AddFeedBackPages = () => {
                     </div>
                     <div className="field col-4">
                         <label htmlFor="suppliername" className="font-semibold">
-                            Browse a file
+                            Browse a file <i className="text-sm">(only pdf`s and image supported)</i>
                         </label>
-                  
 
                         <InputText
                             type="file"
