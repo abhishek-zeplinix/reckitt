@@ -19,6 +19,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   const [totalScore, setTotalScore] = useState<any>(0);
   const [comments, setComments] = useState('');
   const [capaData, setCapaData] = useState<any[]>([]);
+  // const [isAnyCapaEmpty, setIsAnyCapaEmpty] = useState<boolean>(false);
 
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
@@ -43,6 +44,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   //it is based on selectedEvaluations
   const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
   const isAnyEvaluationEmpty = Object.values(selectedEvaluations).some((value) => value === undefined || value === '');
+
 
 
   const initializeData = (currentRules: any) => {
@@ -224,7 +226,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       [key]: value
     };
 
-    console.log(updatedEvals);
+    // console.log(updatedEvals);
 
     const updatedPercentages = recalculateAllPercentages(updatedEvals);
     const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
@@ -298,6 +300,16 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
   const handleSubmit = async () => {
     
+    const hasInvalidCapa = capaData.some(item => 
+      !item.selectedStatus || item.selectedStatus.trim() === ''
+    );
+  
+    if (hasInvalidCapa) {
+      setAlert('error', 'must add capa rules');
+      return;
+    }
+
+    
     const apiData = prepareApiData();
 
     try {
@@ -321,7 +333,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
   };
 
-
+  
   const handleCapaDataChange = (data: any[]) => {
     setCapaData(data);
     console.log(data);
@@ -520,7 +532,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
         {
           !isEvaluatedData &&
-          <>
+            <>
             <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isAnyEvaluationEmpty}
             />
           </>
