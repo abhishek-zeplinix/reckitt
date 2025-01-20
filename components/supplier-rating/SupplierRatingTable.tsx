@@ -489,8 +489,15 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
         <div>
           <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
 
-          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={isEvaluatedData ? rules?.comments : ''}
+          {
+            isEvaluatedData ? 
+            <InputTextarea rows={5} cols={30} value={rules?.comments}
+            disabled={isEvaluatedData} /> :
+            <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={comments}
             disabled={isEvaluatedData} />
+          }
+
+         
         </div>
 
       </div>

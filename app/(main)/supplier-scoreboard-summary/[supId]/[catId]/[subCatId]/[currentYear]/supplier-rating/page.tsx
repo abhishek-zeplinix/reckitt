@@ -20,13 +20,14 @@ const SupplierRatingPage = () => {
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [reload, setReload] = useState<boolean>(false);
 
-
+    console.log(selectedPeriod);
+    
     const urlParams = useParams();
-    const { supId, catId, subCatId } = urlParams;
+    const { supId, catId, subCatId, currentYear } = urlParams;
     const { setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
-
+    // const currentYear = 2024;
     // console.log(supplierData);
 
     const categoriesMap: any = {
@@ -237,7 +238,7 @@ const SupplierRatingPage = () => {
     //function to get periods based on evolution type...
     const getPeriodOptions = (evolutionType: string) => {
         const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
+        // const currentYear = currentDate.getFullYear();
 
         if (evolutionType.toLowerCase() === 'halfyearly') {
             return [
@@ -260,7 +261,7 @@ const SupplierRatingPage = () => {
     const getDefaultPeriod = (evolutionType: string) => {
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth() + 1;
-        const currentYear = currentDate.getFullYear();
+        // const currentYear = currentDate.getFullYear();
 
         if (evolutionType.toLowerCase() === 'halfyearly') {
             return currentMonth <= 6 ? `${evolutionType}-1-${currentYear}` : `${evolutionType}-2-${currentYear}`;

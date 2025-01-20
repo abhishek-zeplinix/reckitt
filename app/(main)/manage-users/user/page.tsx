@@ -33,6 +33,9 @@ const ManageUserAddPage = () => {
     //     fetchSupplierData();
     // }, []);
 
+    // console.log('sup id selected on dropdown', supplierId);
+    
+
     useEffect(() => {
         fetchData();
         fetchSupplierData();
@@ -117,6 +120,7 @@ const ManageUserAddPage = () => {
     
         const payload = {
             roleId: createRole,
+            supplierId: supplierId,
             name: roleName,
             email: roleEmail,
             password: rolePassword,
