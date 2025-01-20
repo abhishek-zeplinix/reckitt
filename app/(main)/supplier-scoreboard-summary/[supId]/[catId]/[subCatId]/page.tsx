@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -18,7 +18,7 @@ const SupplierScoreboardTables = () => {
     const [quarterlyData, setQuarterlyData] = useState([]);
     const [ratingsData, setRatingsData] = useState([]);
     const [supplierScore, setSupplierScore] = useState<any>([]);
-    const [selectedYear, setSelectedYear] = useState<any>('2025')
+    const [selectedYear, setSelectedYear] = useState<any>('2025');
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
     const { departments } = useFetchDepartments();
@@ -26,19 +26,16 @@ const SupplierScoreboardTables = () => {
     const params = useParams();
     const { supId, catId, subCatId } = params;
 
-
     useEffect(() => {
         fetchData();
         fetchSupplierData();
     }, [selectedYear])
 
 
-     //fetch indivisual supplier data
-     const fetchSupplierData = async () => {
+    //fetch indivisual supplier data
+    const fetchSupplierData = async () => {
         try {
-
             const params = {
-
                 filters: {
                     supplierCategoryId: catId,
                     procurementCategoryId: subCatId,
@@ -47,19 +44,16 @@ const SupplierScoreboardTables = () => {
                 pagination: false
             };
 
-
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/company/supplier?${queryString}`);
             console.log('fetch indivisual supplier data', response.data[0]);
 
             setSupplierData(response.data[0]);
-
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier data');
         }
     };
-
 
     const fetchData = async (params?: any) => {
         setLoading(false);
@@ -91,62 +85,45 @@ const SupplierScoreboardTables = () => {
       
     };
 
-
     useEffect(() => {
         if (supplierScore && departments) {
             processData();
         }
     }, [supplierScore, departments]);
 
-
     const processData = () => {
-
         // sort departments by orderBy
         const sortedDepartments = (departments as Department[]).sort((a, b) => a.orderBy - b.orderBy);
 
         // Separate half-yearly and quarterly departments
-        const halfYearlyDepts = sortedDepartments.filter(dept => dept.evolutionType === "Halfyearly");
-        const quarterlyDepts = sortedDepartments.filter(dept => dept.evolutionType === "Quarterly");
+        const halfYearlyDepts = sortedDepartments.filter((dept) => dept.evolutionType === 'Halfyearly');
+        const quarterlyDepts = sortedDepartments.filter((dept) => dept.evolutionType === 'Quarterly');
 
         // process half-yearly data
         const h1Data: any = {};
         const h2Data: any = {};
 
-        halfYearlyDepts.forEach(dept => {
+        halfYearlyDepts.forEach((dept) => {
+            const h1Score = (supplierScore?.supScore as any[])?.find((score) => score.departmentId === dept.departmentId && score.evalutionPeriod === `Halfyearly-1-${selectedYear}`)?.totalScore || 0;
 
-            const h1Score = (supplierScore?.supScore as any[])?.find(score =>
-                score.departmentId === dept.departmentId &&
-                score.evalutionPeriod === `Halfyearly-1-${selectedYear}`
-            )?.totalScore || 0;
-
-
-            const h2Score = (supplierScore?.supScore as any[])?.find(score =>
-                score.departmentId === dept.departmentId &&
-                score.evalutionPeriod === `Halfyearly-2-${selectedYear}`
-            )?.totalScore || 0;
+            const h2Score = (supplierScore?.supScore as any[])?.find((score) => score.departmentId === dept.departmentId && score.evalutionPeriod === `Halfyearly-2-${selectedYear}`)?.totalScore || 0;
 
             h1Data[dept.name.toLowerCase()] = h1Score;
             h2Data[dept.name.toLowerCase()] = h2Score;
-
         });
 
-        const halfYearlyTableData: any = halfYearlyDepts.map(dept => ({
+        const halfYearlyTableData: any = halfYearlyDepts.map((dept) => ({
             name: dept.name,
             status1: `${Math.round(h1Data[dept.name.toLowerCase()])}%`,
             status2: `${Math.round(h2Data[dept.name.toLowerCase()])}%`
         }));
 
-
         // process quarterly data
-        const quarterlyTableData: any = quarterlyDepts.map(dept => {
+        const quarterlyTableData: any = quarterlyDepts.map((dept) => {
             const quarters = ['1', '2', '3', '4'];
 
-            const scores = quarters.map(q => {
-
-                const score = (supplierScore?.supScore as any[])?.find(score =>
-                    score.departmentId === dept.departmentId &&
-                    score.evalutionPeriod === `Quarterly-${q}-${selectedYear}`
-                )?.totalScore || 0;
+            const scores = quarters.map((q) => {
+                const score = (supplierScore?.supScore as any[])?.find((score) => score.departmentId === dept.departmentId && score.evalutionPeriod === `Quarterly-${q}-${selectedYear}`)?.totalScore || 0;
                 return `${Math.round(score)}%`;
             });
 
@@ -159,14 +136,11 @@ const SupplierScoreboardTables = () => {
             };
         });
 
-   
-        
         // process ratings data
-
 
         //use this if any issue with current year in rating table
 
-        // const yearRatings = supplierScore?.ratings?.filter(rating => 
+        // const yearRatings = supplierScore?.ratings?.filter(rating =>
         //     rating.period.includes(selectedYear)
         // ) || [];
 
@@ -184,13 +158,12 @@ const SupplierScoreboardTables = () => {
 
     const formatDate = (timestamp: any) => {
         const date = new Date(timestamp);
-    
+
         //YYYY-MM-DD
-        const formattedDate = date.toISOString().split("T")[0];
-    
+        const formattedDate = date.toISOString().split('T')[0];
+
         return formattedDate;
     };
-
 
     const statusBodyTemplate = (rowData: any, field: any) => {
         const status = rowData[field];
@@ -223,35 +196,30 @@ const SupplierScoreboardTables = () => {
     const nameBodyTemplate = (rowData: any) => {
         return <span className="text-pink-500 font-bold">{rowData.name}</span>;
     };
-    
 
     const years = [
         { label: '2025', value: '2025' },
         { label: '2024', value: '2024' },
         { label: '2023', value: '2023' },
         { label: '2022', value: '2022' }
+    ];
 
-    ]
+    const safeSupplierData = supplierData || {}; // Ensure it's never undefined
 
+    const leftPanelData = [
+        { label: 'Category :', value: safeSupplierData.category?.categoryName ?? 'N/A' },
+        { label: 'Sub-Category :', value: safeSupplierData.subCategories?.subCategoryName ?? 'N/A' },
+        { label: 'Supplier Name :', value: safeSupplierData.supplierName ?? 'N/A' },
+        { label: 'Supplier Id :', value: safeSupplierData.supId ?? 'N/A' },
+        { label: 'Supplier Manufacturing Name :', value: safeSupplierData.supplierManufacturerName ?? 'N/A' }
+    ];
 
-
-const safeSupplierData = supplierData || {}; // Ensure it's never undefined
-    
-
-const leftPanelData = [
-   { label: 'Category :', value: safeSupplierData.category?.categoryName ?? 'N/A' },
-    { label: 'Sub-Category :', value: safeSupplierData.subCategories?.subCategoryName ?? 'N/A' },
-    { label: 'Supplier Name :', value: safeSupplierData.supplierName ?? 'N/A' },
-    { label: 'Supplier Id :', value: safeSupplierData.supId ?? 'N/A' },
-    { label: 'Supplier Manufacturing Name :', value: safeSupplierData.supplierManufacturerName ?? 'N/A' }
-];
-
-const rightPanelData = [
-    { label: 'Warehouse Location :', value: supplierData?.warehouseLocation ?? 'N/A' },
-    { label: 'Assessment Pending :', value: 'No Info' },
-    { label: 'On Boarding Date :', value: supplierData?.createdAt ? formatDate(supplierData.createdAt) : 'N/A' },
-    { label: 'Supplier Tier :', value: 'No Tier' }
-];
+    const rightPanelData = [
+        { label: 'Warehouse Location :', value: supplierData?.warehouseLocation ?? 'N/A' },
+        { label: 'Assessment Pending :', value: 'No Info' },
+        { label: 'On Boarding Date :', value: supplierData?.createdAt ? formatDate(supplierData.createdAt) : 'N/A' },
+        { label: 'Supplier Tier :', value: 'No Tier' }
+    ];
 
     const summoryCards = () => {
         return (
@@ -326,14 +294,12 @@ const rightPanelData = [
     };
     const renderSummoryInfo = summoryCards();
 
-
     const headerComp = () => {
         return (
             <div className="flex justify-content-between ">
                 <div className="flex justify-content-start">
                     <Dropdown id="role" value={selectedYear} options={years} onChange={(e) => setSelectedYear(e.value)} placeholder="Select Year" className="w-full" />
                 </div>
-
 
                 <div className="flex-1 ml-5">
                     <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
@@ -350,10 +316,10 @@ const rightPanelData = [
     };
     const renderHeader = headerComp();
 
-    const dataPanel = () =>{
+    const dataPanel = () => {
         return (
             <div className="card">
-                <div className='mb-4'>{renderHeader}</div>
+                <div className="mb-4">{renderHeader}</div>
                 <div>
                     {/* Half-yearly Table */}
                     <div className="card custom-box-shadow p-0">
@@ -365,7 +331,7 @@ const rightPanelData = [
                             <Column header={`H2 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'status2')} style={{ width: '20%' }} />
                         </DataTable>
                     </div>
-    
+
                     {/* Quarterly Table */}
                     <div className="card custom-box-shadow p-0">
                         <DataTable value={quarterlyData} tableStyle={{ minWidth: '60rem' }}>
@@ -376,7 +342,7 @@ const rightPanelData = [
                             <Column header={`Q4 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q4')} style={{ width: '20%' }} />
                         </DataTable>
                     </div>
-    
+
                     {/* Ratings Table */}
                     <div className="card custom-box-shadow p-0">
                         <DataTable value={ratingsData} tableStyle={{ minWidth: '60rem' }}>
@@ -389,10 +355,9 @@ const rightPanelData = [
                 </div>
             </div>
         );
-    }
-    
-    const renderDataPanel = dataPanel();
+    };
 
+    const renderDataPanel = dataPanel();
 
     // const GraphsPanel = () => {
     //     return (
@@ -417,7 +382,6 @@ const rightPanelData = [
     // const renderGraphsPanel = GraphsPanel();
 
     return (
-
         <div className="grid" id="content-to-print">
             <div className="col-12">
                 <div>{renderSummoryInfo}</div>
@@ -425,12 +389,9 @@ const rightPanelData = [
             <div className="col-12">
                 <div>{renderDataPanel}</div>
             </div>
-            <div className="col-12">
-                {/* <div>{renderGraphsPanel}</div> */}
-            </div>
+            <div className="col-12">{/* <div>{renderGraphsPanel}</div> */}</div>
         </div>
-
-    )
+    );
 };
 
 export default SupplierScoreboardTables;

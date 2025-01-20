@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter,useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import _ from 'lodash';
@@ -12,7 +12,7 @@ import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { validateField } from '@/utils/utils';
 
 const CreateNewRulesPage = () => {
-    const { user, isLoading, setLoading, setScroll, setAlert} = useAppContext();
+    const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const searchParams = useSearchParams();
     const isEditMode = searchParams.get('edit') === 'true'; // Check if in edit mode
     const ruleId = searchParams.get('ruleId');
@@ -26,90 +26,86 @@ const CreateNewRulesPage = () => {
     const [selectedratiosCopack, setratiosCopack] = useState('');
     const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState(null);
     const [selectedSupplierCategory, setSelectedSupplierCategory] = useState(null);
-    const [procurementDepartment,setProcurementDepartment]=useState([]);
-    const [procurementCategories,setprocurementCategories]=useState([]);
-    const [supplierCategories,setsupplierCategories]=useState([]);
+    const [procurementDepartment, setProcurementDepartment] = useState([]);
+    const [procurementCategories, setprocurementCategories] = useState([]);
+    const [supplierCategories, setsupplierCategories] = useState([]);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const router = useRouter();
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Rules' : 'Add Rules';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add Rules';
-    const handleSubmit = async() => {
+    const handleSubmit = async () => {
         const userForm = {
             departmentId: selectedProcurementDepartment || null,
             orderBy: parseInt(orderBy) || null,
             section: selectedsection || '',
-            categoryId:  selectedProcurementCategory || null,
+            categoryId: selectedProcurementCategory || null,
             subCategoryId: selectedSupplierCategory || null,
             ratedCriteria: selectedCriteria || '',
             criteriaEvaluation: selectedcriteriaEvaluation || '',
             score: selectedScore || null,
             ratiosRawpack: parseInt(selectedratiosRawpack) || 0,
-            ratiosCopack: parseInt(selectedratiosCopack) || 0,
+            ratiosCopack: parseInt(selectedratiosCopack) || 0
         };
         let endpoint: string;
         let response: CustomResponse;
         if (isEditMode) {
             if (!validateField(userForm.orderBy)) {
-                
                 setAlert('error', 'OrderBy cannot be empty');
                 return;
-                }
+            }
             if (!validateField(userForm.departmentId)) {
-                    setAlert('error', 'Department cannot be empty');
-                    return;
-                }
-                if (!validateField(userForm.categoryId)) {
-                    
-                    setAlert('error', 'Supplier Category cannot be empty');
-                    return;
-                    }
-                    if (!validateField(userForm.subCategoryId)) {
-                        setAlert('error', 'Procurement Category cannot be empty');
-                        return;
-                    }
-                if (!validateField(userForm.section)) {
-                    setAlert('error', 'Section cannot be empty');
-                    return;
-                }
-            
+                setAlert('error', 'Department cannot be empty');
+                return;
+            }
+            if (!validateField(userForm.categoryId)) {
+                setAlert('error', 'Supplier Category cannot be empty');
+                return;
+            }
+            if (!validateField(userForm.subCategoryId)) {
+                setAlert('error', 'Procurement Category cannot be empty');
+                return;
+            }
+            if (!validateField(userForm.section)) {
+                setAlert('error', 'Section cannot be empty');
+                return;
+            }
+
             if (!validateField(userForm.ratedCriteria)) {
-                    
                 setAlert('error', 'Criteria cannot be empty');
                 return;
-                }
-                if (!validateField(userForm.criteriaEvaluation)) {
-                    setAlert('error', 'Criteria evaluation cannot be empty');
-                    return;
-                }
+            }
+            if (!validateField(userForm.criteriaEvaluation)) {
+                setAlert('error', 'Criteria evaluation cannot be empty');
+                return;
+            }
             if (!validateField(userForm.score)) {
-                    
                 setAlert('error', 'Score name cannot be empty');
                 return;
-                }
-               
-            if (!validateField(userForm.ratiosCopack)) {  
+            }
+
+            if (!validateField(userForm.ratiosCopack)) {
                 setAlert('error', 'Ratios copack name cannot be empty');
                 return;
-                }
-                if (!validateField(userForm.ratiosRawpack)) {
-                    setAlert('error', 'Ratios rawpack cannot be empty');
-                    return;
-                }
+            }
+            if (!validateField(userForm.ratiosRawpack)) {
+                setAlert('error', 'Ratios rawpack cannot be empty');
+                return;
+            }
             endpoint = `/company/rules/${ruleId}`;
             response = await PutCall(endpoint, userForm); // Call PUT API
-            if(response.code === 'SUCCESS'){
+            if (response.code === 'SUCCESS') {
                 router.push('/manage-rules');
                 setAlert('success', 'Rules updated.');
-            }else{
-                setAlert('error',response.message);
+            } else {
+                setAlert('error', response.message);
             }
         } else {
             // Submit data to API
-        onNewAdd(userForm);
+            onNewAdd(userForm);
         }
     };
-    
+
     useEffect(() => {
         fetchprocurementDepartment();
         fetchprocurementCategories();
@@ -118,44 +114,44 @@ const CreateNewRulesPage = () => {
             setScroll(true);
         };
     }, []);
-    
+
     useEffect(() => {
-            if (isEditMode && ruleId) {
-                fetchUserDetails(); // Fetch and pre-fill data in edit mode
+        if (isEditMode && ruleId) {
+            fetchUserDetails(); // Fetch and pre-fill data in edit mode
+        }
+    }, []);
+
+    const fetchUserDetails = async () => {
+        setLoading(true);
+        try {
+            const response: CustomResponse = await GetCall(`/company/rules?filters.ruleId=${ruleId}&sortBy=ruleId`);
+            if (response.code === 'SUCCESS' && response.data.length > 0) {
+                const userDetails = response.data[0]; // Assuming the API returns an array of users
+                setorderBy(userDetails.orderBy || '');
+                setSelectedProcurementDepartment(userDetails.departmentId || null);
+                setSelectedProcurementCategory(userDetails.categoryId || '');
+                setSelectedSupplierCategory(userDetails.subCategoryId || '');
+                setSelectedsection(userDetails.section || '');
+                setCriteria(userDetails.ratedCriteria || '');
+                setcriteriaEvaluation(userDetails.criteriaEvaluation || null);
+                setScore(userDetails.score || null);
+                setratiosRawpack(userDetails.ratiosRawpack || null);
+                setratiosCopack(userDetails.ratiosCopack || null);
+            } else {
+                setAlert('error', 'User details not found.');
             }
-        }, []);
-        
-        const fetchUserDetails = async () => {
-            setLoading(true);
-            try {
-                const response: CustomResponse = await GetCall(`/company/rules?filters.ruleId=${ruleId}&sortBy=ruleId`);
-                if (response.code === 'SUCCESS' && response.data.length > 0) {
-                    const userDetails = response.data[0]; // Assuming the API returns an array of users
-                    setorderBy(userDetails.orderBy || '');
-                    setSelectedProcurementDepartment(userDetails.departmentId || null);
-                    setSelectedProcurementCategory(userDetails.categoryId || '');
-                    setSelectedSupplierCategory(userDetails.subCategoryId || '');
-                    setSelectedsection(userDetails.section || '');
-                    setCriteria(userDetails.ratedCriteria || '');
-                    setcriteriaEvaluation(userDetails.criteriaEvaluation || null);
-                    setScore(userDetails.score || null);
-                    setratiosRawpack(userDetails.ratiosRawpack ||null);
-                    setratiosCopack(userDetails.ratiosCopack || null);
-                } else {
-                    setAlert('error', 'User details not found.');
-                }
-            } catch (error) {
-                console.error('Error fetching user details:', error);
-                setAlert('error', 'Failed to fetch user details.');
-            } finally {
-                setLoading(false);
-            }
-        };
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            setAlert('error', 'Failed to fetch user details.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const renderNewRuleFooter = () => {
         return (
             <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
-                <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3"  onClick={() => router.push('/manage-rules')}  />
+                <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3" onClick={() => router.push('/manage-rules')} />
                 <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleSubmit} />
             </div>
         );
@@ -168,9 +164,9 @@ const CreateNewRulesPage = () => {
         const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setProcurementDepartment(response.data)
+            setProcurementDepartment(response.data);
         } else {
-            setProcurementDepartment([])
+            setProcurementDepartment([]);
         }
     };
     const fetchprocurementCategories = async () => {
@@ -178,9 +174,9 @@ const CreateNewRulesPage = () => {
         const response: CustomResponse = await GetCall(`/company/sub-category`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data)
+            setprocurementCategories(response.data);
         } else {
-            setprocurementCategories([])
+            setprocurementCategories([]);
         }
     };
     const fetchsupplierCategories = async () => {
@@ -188,59 +184,55 @@ const CreateNewRulesPage = () => {
         const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setsupplierCategories(response.data)
+            setsupplierCategories(response.data);
         } else {
-            setsupplierCategories([])
+            setsupplierCategories([]);
         }
     };
 
     const onNewAdd = async (userForm: any) => {
         if (!validateField(userForm.orderBy)) {
-                
             setAlert('error', 'OrderBy cannot be empty');
             return;
-            }
+        }
         if (!validateField(userForm.departmentId)) {
-                setAlert('error', 'Department cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.categoryId)) {
-                
-                setAlert('error', 'Supplier Category cannot be empty');
-                return;
-                }
-                if (!validateField(userForm.subCategoryId)) {
-                    setAlert('error', 'Procurement Category cannot be empty');
-                    return;
-                }
-            if (!validateField(userForm.section)) {
-                setAlert('error', 'Section cannot be empty');
-                return;
-            }
-        
+            setAlert('error', 'Department cannot be empty');
+            return;
+        }
+        if (!validateField(userForm.categoryId)) {
+            setAlert('error', 'Supplier Category cannot be empty');
+            return;
+        }
+        if (!validateField(userForm.subCategoryId)) {
+            setAlert('error', 'Procurement Category cannot be empty');
+            return;
+        }
+        if (!validateField(userForm.section)) {
+            setAlert('error', 'Section cannot be empty');
+            return;
+        }
+
         if (!validateField(userForm.ratedCriteria)) {
-                
             setAlert('error', 'Criteria cannot be empty');
             return;
-            }
-            if (!validateField(userForm.criteriaEvaluation)) {
-                setAlert('error', 'Criteria evaluation cannot be empty');
-                return;
-            }
+        }
+        if (!validateField(userForm.criteriaEvaluation)) {
+            setAlert('error', 'Criteria evaluation cannot be empty');
+            return;
+        }
         if (!validateField(userForm.score)) {
-                
             setAlert('error', 'Score name cannot be empty');
             return;
-            }
-           
-        if (!validateField(userForm.ratiosCopack)) {  
+        }
+
+        if (!validateField(userForm.ratiosCopack)) {
             setAlert('error', 'Ratios copack name cannot be empty');
             return;
-            }
-            if (!validateField(userForm.ratiosRawpack)) {
-                setAlert('error', 'Ratios rawpack cannot be empty');
-                return;
-            }
+        }
+        if (!validateField(userForm.ratiosRawpack)) {
+            setAlert('error', 'Ratios rawpack cannot be empty');
+            return;
+        }
         setIsDetailLoading(true);
         const response: CustomResponse = await PostCall(`/company/rules`, userForm);
         setIsDetailLoading(false);
@@ -251,7 +243,7 @@ const CreateNewRulesPage = () => {
             setAlert('error', response.message);
         }
     };
-     
+
     const { departments } = useFetchDepartments();
     const renderContentbody = () => {
         return (
@@ -266,14 +258,32 @@ const CreateNewRulesPage = () => {
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="departmentId">Department</label>
-                                <Dropdown id="departmentId" value={selectedProcurementDepartment} options={procurementDepartment} onChange={(e) => setSelectedProcurementDepartment(e.value)} placeholder="Select Department" optionLabel="name" optionValue="departmentId" className="w-full" />
+                                <Dropdown
+                                    id="departmentId"
+                                    value={selectedProcurementDepartment}
+                                    options={procurementDepartment}
+                                    onChange={(e) => setSelectedProcurementDepartment(e.value)}
+                                    placeholder="Select Department"
+                                    optionLabel="name"
+                                    optionValue="departmentId"
+                                    className="w-full"
+                                />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="categoryId">Supplier Category</label>
-                                <Dropdown id="categoryId" value={selectedSupplierCategory} options={supplierCategories} onChange={(e) => setSelectedSupplierCategory(e.value)} placeholder="Select Supplier Category" optionLabel="categoryName" optionValue="categoryId" className="w-full" />
+                                <label htmlFor="categoryId">Procurement Category</label>
+                                <Dropdown
+                                    id="categoryId"
+                                    value={selectedSupplierCategory}
+                                    options={supplierCategories}
+                                    onChange={(e) => setSelectedSupplierCategory(e.value)}
+                                    placeholder="Select Supplier Category"
+                                    optionLabel="categoryName"
+                                    optionValue="categoryId"
+                                    className="w-full"
+                                />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="subCategoryId">Procurement Category</label>
+                                <label htmlFor="subCategoryId">Supplier Category</label>
                                 <Dropdown
                                     id="subCategoryId"
                                     value={selectedProcurementCategory}
@@ -285,7 +295,7 @@ const CreateNewRulesPage = () => {
                                     className="w-full"
                                 />
                             </div>
-                            
+
                             {/* <div className="field col-4">
                                 <label htmlFor="manufacturerName">Criteria Category</label>
                                 <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
