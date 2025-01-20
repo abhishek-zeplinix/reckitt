@@ -161,6 +161,9 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category }: a
             <div style={itemStyle}>
                 <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="-- Select Category --" style={fixedDropdown} />
             </div>
+            <div style={itemStyle}>
+                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="-- Select Status --" style={fixedDropdown} />
+            </div>
         </div>
     );
 };
