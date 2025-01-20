@@ -284,18 +284,18 @@ const ManageCapaRulesPage = () => {
                 };
     
             const dropdownMenuDepartment = () => {
-                return <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={supplierDepartment} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear/>;
+                return <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={supplierDepartment} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear={!!selectedDepartment}/>;
             };
     
             const dropdownFieldDeparment = dropdownMenuDepartment();
     
             const dropdownCategory = () => {
-                        return <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear/>;
+                        return <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear={!!selectedCategory}/>;
                     };
                     const dropdownFieldCategory = dropdownCategory();
                 
                 const dropdownMenuSubCategory = () => {
-                        return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={procurementCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear/>;
+                        return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={procurementCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear={!!SelectedSubCategory}/>;
                     };
                 const dropdownFieldSubCategory = dropdownMenuSubCategory();
                 const globalSearch= () => {
@@ -423,7 +423,7 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'DEPARTMENT ',
                                         field: 'name',
-                                        filter: true,
+                                        // filter: true,
                                         bodyStyle: { minWidth: 100, maxWidth: 100 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Supplier Id'
@@ -431,8 +431,8 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'Procurement Category',
                                         field: 'categoryName',
-                                        sortable: true,
-                                        filter: true,
+                                        // sortable: true,
+                                        // filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 100, maxWidth: 100 }
@@ -440,8 +440,8 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'SUB CATEGORY',
                                         field: 'subCategoryName',
-                                        sortable: true,
-                                        filter: true,
+                                        // sortable: true,
+                                        // filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 180, maxWidth: 180 }
@@ -449,7 +449,7 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'capaRulesName',
-                                        filter: true,
+                                        // filter: true,
                                         bodyStyle: { minWidth: 300, maxWidth: 300 },
                                         headerStyle: dataTableHeaderStyle,
                                         filterPlaceholder: 'Search Procurement Category'
@@ -457,7 +457,7 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'CRITERIA',
                                         field: 'status',
-                                        filter: true,
+                                        // filter: true,
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle

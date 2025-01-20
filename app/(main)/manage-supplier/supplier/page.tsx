@@ -136,8 +136,8 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (val) {
-            // Trim the value and calculate the word count
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId') {
+        if (val) { 
             const trimmedValue = val.trim();
             const wordCount = trimmedValue.length; 
             if (name !== 'siteAddress' && name !== 'warehouseLocation') {
@@ -146,6 +146,7 @@ const ManageSupplierAddEditPage = () => {
                     return; 
                 }
             }
+        }
         }
         setForm((prevForm) => {
             const updatedForm = {

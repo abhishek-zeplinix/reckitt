@@ -108,7 +108,7 @@ const CreateNewRulesPage = () => {
 
     useEffect(() => {
         fetchprocurementDepartment();
-        fetchprocurementCategories();
+        // fetchprocurementCategories();
         fetchsupplierCategories();
         return () => {
             setScroll(true);
@@ -130,6 +130,7 @@ const CreateNewRulesPage = () => {
                 setorderBy(userDetails.orderBy || '');
                 setSelectedProcurementDepartment(userDetails.departmentId || null);
                 setSelectedProcurementCategory(userDetails.categoryId || '');
+                fetchprocurementCategories(userDetails.categoryId);
                 setSelectedSupplierCategory(userDetails.subCategoryId || '');
                 setSelectedsection(userDetails.section || '');
                 setCriteria(userDetails.ratedCriteria || '');
@@ -169,9 +170,9 @@ const CreateNewRulesPage = () => {
             setProcurementDepartment([]);
         }
     };
-    const fetchprocurementCategories = async () => {
+    const fetchprocurementCategories = async (categoryId:any) => {
         setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category`); // get all the roles
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setprocurementCategories(response.data);
@@ -243,6 +244,10 @@ const CreateNewRulesPage = () => {
             setAlert('error', response.message);
         }
     };
+    const handleCategoryChange = (value: any) => {
+        setSelectedSupplierCategory(value); // Update the selected value
+        fetchprocurementCategories(value); // Call the API with the selected value
+    };
 
     const { departments } = useFetchDepartments();
     const renderContentbody = () => {
@@ -275,8 +280,8 @@ const CreateNewRulesPage = () => {
                                     id="categoryId"
                                     value={selectedSupplierCategory}
                                     options={supplierCategories}
-                                    onChange={(e) => setSelectedSupplierCategory(e.value)}
-                                    placeholder="Select Supplier Category"
+                                    onChange={(e) => handleCategoryChange(e.value)}
+                                    placeholder="Select Procurement Category"
                                     optionLabel="categoryName"
                                     optionValue="categoryId"
                                     className="w-full"
@@ -291,7 +296,7 @@ const CreateNewRulesPage = () => {
                                     onChange={(e) => setSelectedProcurementCategory(e.value)}
                                     optionLabel="subCategoryName"
                                     optionValue="subCategoryId"
-                                    placeholder="Select Procurement Category"
+                                    placeholder="Select Supplier Category"
                                     className="w-full"
                                 />
                             </div>

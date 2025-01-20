@@ -271,18 +271,18 @@ const ManageRulesPage = () => {
             };
 
         const dropdownMenuDepartment = () => {
-            return <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={supplierDepartment} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear/>;
+            return <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={supplierDepartment} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear={!!selectedDepartment}/>;
         };
 
         const dropdownFieldDeparment = dropdownMenuDepartment();
 
         const dropdownCategory = () => {
-                    return <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear/>;
+                    return <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear={!!selectedCategory}/>;
                 };
                 const dropdownFieldCategory = dropdownCategory();
             
             const dropdownMenuSubCategory = () => {
-                    return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={procurementCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear/>;
+                    return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={procurementCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear={!!SelectedSubCategory}/>;
                 };
             const dropdownFieldSubCategory = dropdownMenuSubCategory();
             const globalSearch= () => {
