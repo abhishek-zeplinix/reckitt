@@ -10,6 +10,8 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PutCall } from '@/app/api-config/ApiKit';
 import { Rules } from '@/types';
+import { Dropdown } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
 
 const FEEDBACK_ACTIONS: any = {
     APPROVE: 'approve',
@@ -29,9 +31,13 @@ const ManageFeedbackPage = () => {
     const [rejectedReason, setRejectedReason] = useState('');
     const [feedback, setFeedback] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
+    const [selectedStatus, setSelectedStatus] = useState<any>()
+    const [selectedglobalSearch, setSelectedGlobalSearch] = useState<any>()
 
     const { isLoading, setLoading, setAlert } = useAppContext();
 
+    console.log(feedback);
+    
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -56,7 +62,7 @@ const ManageFeedbackPage = () => {
             const response = await GetCall(`company/feedback-request?${queryString}`);
             setFeedback(response.data);
             setTotalRecords(response.total);
-            
+
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -100,7 +106,7 @@ const ManageFeedbackPage = () => {
                 info: selectedFeedback.info,
                 status: action === FEEDBACK_ACTIONS.APPROVE ? 'Approved' : 'Rejected',
                 file: selectedFeedback.filepath,
-                ...(action === FEEDBACK_ACTIONS.REJECT && {rejectedReason:  rejectedReason })
+                ...(action === FEEDBACK_ACTIONS.REJECT && { rejectedReason: rejectedReason })
             };
 
             const response = await PutCall(`/company/feedback-request/${selectedFeedback.id}`, payload);
@@ -149,15 +155,15 @@ const ManageFeedbackPage = () => {
         if (rowData.status === 'Pending') {
             return (
                 <>
-                    <Button 
-                        icon="pi pi-check" 
+                    <Button
+                        icon="pi pi-check"
                         className="p-button-success p-button-md p-button-text hover:bg-pink-50"
-                        onClick={() => handleApproveClick(rowData)} 
+                        onClick={() => handleApproveClick(rowData)}
                     />
-                    <Button 
-                        icon="pi pi-times" 
+                    <Button
+                        icon="pi pi-times"
                         className="p-button-danger p-button-md p-button-text hover:bg-pink-50"
-                        onClick={() => handleRejectClick(rowData)} 
+                        onClick={() => handleRejectClick(rowData)}
                     />
                 </>
             );
@@ -176,7 +182,7 @@ const ManageFeedbackPage = () => {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
-            hour12: true, 
+            hour12: true,
         }).replace(",", "");
 
         return formattedDate;
@@ -185,6 +191,65 @@ const ManageFeedbackPage = () => {
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
+    const statusOptions = [
+        { label: "Pending", value: "Pending" },
+        { label: "Approved", value: "Approved" },
+        { label: "Rejected", value: "Rejected" }
+    ]
+
+    const onStatusChange = (e: any) => {
+        setSelectedStatus(e.value)
+        fetchData({
+            filters: {
+                status: e.value
+            }
+        });
+    }
+
+    const onGlobalSearch = (e: any) => {
+        setSelectedGlobalSearch(e.target?.value); // Update limit
+        fetchData({ search: e.target?.value });
+    };
+
+    // const onCategorychange = (e: any) => {
+    //     setSelectedCategory(e.value); // Update limit
+    //     fetchprocurementCategories(e.value);
+    //     fetchData({ filters: {
+    //         supplierCategoryId: e.value
+    //     } }); 
+    // };
+
+
+    const dropdownStatus = () => {
+        return <Dropdown value={selectedStatus} onChange={onStatusChange} options={statusOptions} optionValue="value" placeholder="Select Status" optionLabel="label" className="w-full md:w-10rem" />;
+    };
+
+    const dropdownFeedbackStatus = dropdownStatus();
+
+    // const dropdownMenuSubCategory = () => {
+    //         return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
+    //     };
+    // const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    
+    const globalSearch = () => {
+        return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
+    };
+
+    const FieldGlobalSearch = globalSearch();
+
+    const limitOptions = [
+        { label: '10', value: 10 },
+        { label: '20', value: 20 },
+        { label: '50', value: 50 },
+        { label: '70', value: 70 },
+        { label: '100', value: 100 }
+    ];
+
+    const onLimitChange = (e: any) => {
+        setLimit(e.value); // Update limit
+        fetchData({ limit: e.value, page: 1 }); // Fetch data with new limit
+    };
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -192,6 +257,17 @@ const ManageFeedbackPage = () => {
                     <div className="left-panel mb-0">
                         <div className="header">{header}</div>
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
+
+                            <div className="flex justify-content-between items-center border-b">
+                                <div>
+                                    <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
+                                </div>
+                                <div className="flex  gap-2">
+                                    <div className="mt-2">{dropdownFeedbackStatus}</div>
+                                    {/* <div className="mt-2">{dropdownFieldSubCategory}</div> */}
+                                    <div className="mt-2">{FieldGlobalSearch}</div>
+                                </div>
+                            </div>
                             <CustomDataTable
                                 ref={dataTableRef}
                                 filter
@@ -215,6 +291,7 @@ const ManageFeedbackPage = () => {
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+
                                             return <span>{srNo}</span>;
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }

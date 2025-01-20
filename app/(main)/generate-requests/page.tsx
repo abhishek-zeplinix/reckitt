@@ -1,77 +1,66 @@
 'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
-import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
+import { GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
-import { buildQueryParams, validateName, validateSiteAddress, validateText } from '@/utils/utils';
+import { buildQueryParams } from '@/utils/utils';
 import { InputText } from 'primereact/inputtext';
 import { get } from 'lodash';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
-import { EmptySupplier } from '@/types/forms';
-import Stepper from '@/components/Stepper';
 
-const defaultForm: EmptySupplier = {
-    supId: null,
+interface SupplierForm {
+    supplierId: number | null;
+    supplierName: string;
+    supplierEmail: string;
+    supplierContact: string;
+    manufacturingName: string;
+    factoryName: string;
+    warehouseLocation: string;
+    siteAddress: string;
+    procurementCategory: string;
+    supplierCategory: string;
+    status: string;
+    supplierCategoryId: number | null;
+    procurementCategoryId: number | null;
+}
+
+const defaultForm: SupplierForm = {
+    supplierId: null,
     supplierName: '',
-    supplierManufacturerName: '',
-    siteAddress: '',
-    procurementCategoryId: null,
-    supplierCategoryId: null,
-    warehouseLocation: '',
+    supplierEmail: '',
+    supplierContact: '',
+    manufacturingName: '',
     factoryName: '',
-    gmpFile: '',
-    gdpFile: '',
-    reachFile: '',
-    isoFile: '',
-    location: ''
+    warehouseLocation: '',
+    siteAddress: '',
+    procurementCategory: '',
+    supplierCategory: '',
+    status: 'Pending',
+    supplierCategoryId: null,
+    procurementCategoryId: null
 };
 
 const GenerateRequestPage = () => {
-    const totalSteps = 2;
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const supId = searchParams.get('supId');
-    const isEditMode = searchParams.get('edit') === 'true';
-    const { setAlert, setLoading } = useAppContext();
-
-    const [currentStep, setCurrentStep] = useState(1);
-    const [completedSteps, setCompletedSteps] = useState<boolean[]>(Array(totalSteps).fill(false));
-    const [checked, setChecked] = useState({
-        gmp: false,
-        gdp: false,
-        reach: false,
-        iso: false
-    });
-    const [form, setForm] = useState<EmptySupplier>(defaultForm);
+    const { setAlert, setLoading, user } = useAppContext();
+    
+    const [form, setForm] = useState<SupplierForm>(defaultForm);
+    const [originalForm, setOriginalForm] = useState<SupplierForm>(defaultForm);
     const [category, setCategory] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
+    const [editableFields, setEditableFields] = useState<{[key: string]: boolean}>({});
 
-    // map API response to form structure
-    const mapToForm = (incomingData: any) => {
-        if (!incomingData) return defaultForm;
-
-        return {
-            ...defaultForm,
-            ...incomingData,
-            // ensure correct mapping for dropdown values
-            procurementCategoryId: incomingData.procurementCategoryId || get(incomingData, 'subCategories.subCategoryId'),
-            supplierCategoryId: incomingData.supplierCategoryId || get(incomingData, 'category.categoryId')
-        };
-    };
-
-    // Fetch initial data
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
                 await Promise.all([
                     fetchCategory(),
-                    // fetchSubCategory(),
-                    isEditMode && fetchSupplierData()
+                    fetchSupplierData()
                 ]);
             } finally {
                 setLoading(false);
@@ -82,26 +71,35 @@ const GenerateRequestPage = () => {
 
     const fetchSupplierData = async () => {
         try {
+            const supId = get(user, 'supplierId');
             const params = { filters: { supId }, pagination: false };
             const queryString = buildQueryParams(params);
             const response = await GetCall(`/company/supplier?${queryString}`);
 
             if (response.data && response.data[0]) {
-                const mappedForm = mapToForm(response.data[0]);
-                setForm(mappedForm);
+                const data = response.data[0];
+                const mappedData = {
+                    supplierId: data.supId,
+                    supplierName: data.supplierName || '',
+                    supplierEmail: data.supplierEmail || '',
+                    supplierContact: data.supplierContact || '',
+                    manufacturingName: data.supplierManufacturerName || '',
+                    factoryName: data.factoryName || '',
+                    warehouseLocation: data.warehouseLocation || '',
+                    siteAddress: data.siteAddress || '',
+                    procurementCategory: data.procurementCategoryId || '',
+                    supplierCategory: data.supplierCategoryId || '',
+                    status: 'Pending',
+                    supplierCategoryId: get(data, 'category.categoryId', null),
+                    procurementCategoryId: get(data, 'subCategories.subCategoryId', null)
+                };
+                
+                setForm(mappedData);
+                setOriginalForm(mappedData);
 
-                // Fetch subcategories dynamically based on the selected category
-                if (mappedForm.supplierCategoryId) {
-                    await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
+                if (mappedData.supplierCategoryId) {
+                    await fetchSubCategoryByCategoryId(mappedData.supplierCategoryId);
                 }
-
-                // set checkbox states based on file existence
-                setChecked({
-                    gmp: Boolean(mappedForm.gmpFile),
-                    gdp: Boolean(mappedForm.gdpFile),
-                    reach: Boolean(mappedForm.reachFile),
-                    iso: Boolean(mappedForm.isoFile)
-                });
             }
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier data');
@@ -115,42 +113,64 @@ const GenerateRequestPage = () => {
         }
     };
 
+    const fetchSubCategoryByCategoryId = async (categoryId: number) => {
+        if (!categoryId) {
+            setSubCategory([]);
+            return;
+        }
+
+        try {
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`);
+            if (response.code === 'SUCCESS') {
+                setSubCategory(response.data);
+            }
+        } catch (error) {
+            setSubCategory([]);
+            setAlert('error', 'Failed to fetch subcategories');
+        }
+    };
+
     const handleSubmit = async () => {
-        console.log('Form data:', form);
-        if (!validateText(form.supplierName)) {
-            setAlert('error', 'Supplier name cannot be empty');
+        // Get requested data based on checked fields
+        const requestedData: { [key: string]: any } = {};
+        Object.keys(editableFields).forEach(key => {
+            if (editableFields[key] && form[key as keyof SupplierForm] !== originalForm[key as keyof SupplierForm]) {
+                requestedData[key] = form[key as keyof SupplierForm];
+            }
+        });
+
+        if (Object.keys(requestedData).length === 0) {
+            setAlert('info', 'No changes detected');
             return;
         }
-        if (!validateText(form.supplierManufacturerName)) {
-            setAlert('error', 'Supplier manufacturer name cannot be empty');
-            return;
-        }
-        if (!validateText(form.location)) {
-            setAlert('error', 'Location cannot be empty');
-            return;
-        }
-        if (!validateText(form.factoryName)) {
-            setAlert('error', 'Factory name cannot be empty');
-            return;
-        }
-        if (!validateSiteAddress(form.siteAddress)) {
-            setAlert('error', 'Site address cannot be empty');
-            return;
-        }
-        if (!validateText(form.warehouseLocation)) {
-            setAlert('error', 'Warehouse location cannot be empty');
-            return;
-        }
+
+        // Format data for API
+        const apiData = {
+            supplierId: form.supplierId,
+            // supplierName: form.supplierName,
+            // supplierEmail: form.supplierEmail,
+            // supplierContact: form.supplierContact,
+            // manufacturingName: form.manufacturingName,
+            // factoryName: form.factoryName,
+            // warehouseLocation: form.warehouseLocation,
+            // siteAddress: form.siteAddress,
+            procurementCategory: form.procurementCategoryId?.toString() || '',
+            supplierCategory: form.supplierCategoryId?.toString() || '',
+            status: 'Pending',
+            requestedData
+        };
 
         setLoading(true);
         try {
-            const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
-
-            console.log(response);
+            console.log(apiData);
+            
+            console.log(apiData);
+            
+            const response: CustomResponse = await PostCall('/company/manageRequest', apiData);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', `Supplier ${isEditMode ? 'Updated' : 'Added'} Successfully`);
-                router.push('/manage-supplier');
+                setAlert('success', 'Information change request raised successfully');
+                router.push('/manage-requests');
             } else {
                 setAlert('error', response.message);
             }
@@ -161,152 +181,167 @@ const GenerateRequestPage = () => {
         }
     };
 
-    const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        setForm((prevForm) => {
+    const onInputChange = (name: string, value: any) => {
+        setForm(prev => {
             const updatedForm = {
-                ...prevForm,
-                ...(typeof name === 'string' ? { [name]: val } : name)
+                ...prev,
+                [name]: value
             };
 
+            // Handle category selection
             if (name === 'supplierCategoryId') {
-                fetchSubCategoryByCategoryId(val);
+                updatedForm.supplierCategory = value?.toString() || '';
                 updatedForm.procurementCategoryId = null;
+                updatedForm.procurementCategory = '';
+                fetchSubCategoryByCategoryId(value);
+            }
+
+            // Handle subcategory selection
+            if (name === 'procurementCategoryId') {
+                updatedForm.procurementCategory = value?.toString() || '';
             }
 
             return updatedForm;
         });
     };
 
-    const fetchSubCategoryByCategoryId = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setSubCategory([]); // Clear subcategories if no category is selected
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`);
-            if (response.code === 'SUCCESS') {
-                setSubCategory(response.data);
-            } else {
-                setSubCategory([]);
-                setAlert('error', 'Failed to fetch subcategories.');
-            }
-        } catch (error) {
-            setSubCategory([]);
-            setAlert('error', 'Something went wrong while fetching subcategories.');
-        } finally {
-            setLoading(false);
-        }
+    const toggleFieldEdit = (fieldName: string) => {
+        setEditableFields(prev => ({
+            ...prev,
+            [fieldName]: !prev[fieldName]
+        }));
     };
 
-    const handleCheckboxChange = (event: any) => {
-        const { name, checked } = event.target;
-        setChecked((prev) => ({ ...prev, [name]: checked }));
+    const renderField = (fieldName: string, label: string, component: React.ReactNode) => {
+        return (
+            <div className="flexfield col-4">
+                <div className="flex align-items-center gap-2 mb-1">
+                    <Checkbox
+                        checked={editableFields[fieldName] || false}
+                        onChange={() => toggleFieldEdit(fieldName)}
+                    />
+                    <label className="font-semibold">{label}</label>
+                </div>
+                <div>
+                {React.cloneElement(component as React.ReactElement, {
+                    disabled: !editableFields[fieldName]
+                })}
+                </div>
+
+            </div>
+        );
     };
 
-    // navigation Handlers
-    const handleNext = () => {
-        if (currentStep < totalSteps) {
-            setCompletedSteps((prev) => {
-                const newSteps = [...prev];
-                newSteps[currentStep - 1] = true;
-                return newSteps;
-            });
-            setCurrentStep((prev) => prev + 1);
-        }
-    };
-
-    const handlePrevious = () => {
-        if (currentStep > 1) {
-            setCompletedSteps((prev) => {
-                const newSteps = [...prev];
-                newSteps[currentStep - 2] = false;
-                return newSteps;
-            });
-            setCurrentStep((prev) => prev - 1);
-        }
-    };
-
-    // adjust title based on edit mode
-    const pageTitle = 'Generate request for change information';
-
-    const renderStepContent = () => {
+    const renderRequestChangeContent = () => {
         return (
             <div>
                 <div className="flex flex-column gap-3 pt-2">
-                    <h2 className="text-center font-bold ">{pageTitle}</h2>
+                    <h2 className="text-center font-bold">Generate request to change information</h2>
                     <div className="p-fluid grid mx-1 pt-2">
-                        <div className="field col-4">
-                            <label htmlFor="supplierName" className="font-semibold">
-                                Supplier Name
-                            </label>
-                            <InputText id="supplierName" type="text" value={get(form, 'supplierName')} onChange={(e) => onInputChange('supplierName', e.target.value)} className="p-inputtext w-full " placeholder="Enter Supplier Name" required />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="manufacturerName" className="font-semibold">
-                                Supplier Email
-                            </label>
+                        {renderField(
+                            'supplierName',
+                            'Supplier Name',
                             <InputText
-                                id="manufacturerName"
-                                type="text"
-                                value={get(form, 'supplierManufacturerName')}
-                                onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
+                                value={form.supplierName}
+                                onChange={(e) => onInputChange('supplierName', e.target.value)}
+                                className="p-inputtext w-full"
+                                placeholder="Enter Supplier Name"
+                            />
+                        )}
+
+                        {renderField(
+                            'supplierEmail',
+                            'Supplier Email',
+                            <InputText
+                                value={form.supplierEmail}
+                                onChange={(e) => onInputChange('supplierEmail', e.target.value)}
                                 className="p-inputtext w-full"
                                 placeholder="Enter Supplier Email"
                             />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="factoryName" className="font-semibold">
-                                Supplier Contact
-                            </label>
-                            <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Contact" className="p-inputtext w-full" />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="factoryName" className="font-semibold">
-                                Manufacturing Name
-                            </label>
-                            <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Manufacturing Name" className="p-inputtext w-full" />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="factoryName" className="font-semibold">
-                                Factory Name
-                            </label>
-                            <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full" />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="factoryName" className="font-semibold">
-                                Procurement Category
-                            </label>
-                            <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Procurement Category" className="p-inputtext w-full" />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="factoryName" className="font-semibold">
-                                Supplier Category
-                            </label>
-                            <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Supplier Category" className="p-inputtext w-full" />
-                        </div>
+                        )}
 
-                        <div className="field col-4">
-                            <label htmlFor="siteAddress" className="font-semibold">
-                                Site Address
-                            </label>
-                            <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
-                        </div>
-
-                        <div className="field col-4">
-                            <label htmlFor="warehouseLocation" className="font-semibold">
-                                Warehouse Location
-                            </label>
-                            <InputTextarea
-                                id="name"
-                                // type='text'
-                                value={get(form, 'warehouseLocation')}
-                                onChange={(e) => onInputChange('warehouseLocation', e.target.value)}
-                                placeholder="Enter Warehouse Location"
+                        {renderField(
+                            'supplierContact',
+                            'Supplier Contact',
+                            <InputText
+                                value={form.supplierContact}
+                                onChange={(e) => onInputChange('supplierContact', e.target.value)}
                                 className="p-inputtext w-full"
+                                placeholder="Enter Supplier Contact"
                             />
-                        </div>
+                        )}
+
+                        {renderField(
+                            'manufacturingName',
+                            'Manufacturing Name',
+                            <InputText
+                                value={form.manufacturingName}
+                                onChange={(e) => onInputChange('manufacturingName', e.target.value)}
+                                className="p-inputtext w-full"
+                                placeholder="Enter Manufacturing Name"
+                            />
+                        )}
+
+                        {renderField(
+                            'factoryName',
+                            'Factory Name',
+                            <InputText
+                                value={form.factoryName}
+                                onChange={(e) => onInputChange('factoryName', e.target.value)}
+                                className="p-inputtext w-full"
+                                placeholder="Enter Factory Name"
+                            />
+                        )}
+
+                        {renderField(
+                            'supplierCategoryId',
+                            'Supplier Category',
+                            <Dropdown
+                                value={form.supplierCategoryId}
+                                options={category}
+                                optionLabel="categoryName"
+                                optionValue="categoryId"
+                                onChange={(e) => onInputChange('supplierCategoryId', e.value)}
+                                placeholder="Select Supplier Category"
+                                className="w-full"
+                            />
+                        )}
+
+                        {renderField(
+                            'procurementCategoryId',
+                            'Procurement Category',
+                            <Dropdown
+                                value={form.procurementCategoryId}
+                                options={subCategory}
+                                optionLabel="subCategoryName"
+                                optionValue="subCategoryId"
+                                onChange={(e) => onInputChange('procurementCategoryId', e.value)}
+                                placeholder="Select Procurement Category"
+                                className="w-full"
+                            />
+                        )}
+
+                        {renderField(
+                            'warehouseLocation',
+                            'Warehouse Location',
+                            <InputTextarea
+                                value={form.warehouseLocation}
+                                onChange={(e) => onInputChange('warehouseLocation', e.target.value)}
+                                className="p-inputtext w-full"
+                                placeholder="Enter Warehouse Location"
+                            />
+                        )}
+
+                        {renderField(
+                            'siteAddress',
+                            'Site Address',
+                            <InputTextarea
+                                value={form.siteAddress}
+                                onChange={(e) => onInputChange('siteAddress', e.target.value)}
+                                className="p-inputtext w-full"
+                                placeholder="Enter Site Address"
+                            />
+                        )}
                     </div>
                 </div>
             </div>
@@ -316,10 +351,17 @@ const GenerateRequestPage = () => {
     return (
         <div className="">
             <div className="p-card">
-                <div className="p-card-body">{renderStepContent()}</div>
+                <hr />
+                <div className="p-card-body">{renderRequestChangeContent()}</div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    <Button label="Submit" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleSubmit} />
+                    <Button 
+                        label='Update' 
+                        icon="pi pi-check" 
+                        className="bg-pink-500 border-pink-500 hover:text-white mb-3" 
+                        onClick={handleSubmit}
+                        disabled={Object.keys(editableFields).length === 0}
+                    />
                 </div>
             </div>
         </div>

@@ -9,6 +9,7 @@ import { CustomResponse } from '@/types';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { Calendar } from 'primereact/calendar';
+import { validateField } from '@/utils/utils';
 
 const CreateNewRulesPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert} = useAppContext();
@@ -42,8 +43,47 @@ const CreateNewRulesPage = () => {
         let endpoint: string;
         let response: CustomResponse;
         if (isEditMode) {
+            if (!validateField(userForm.orderBy)) {    
+                setAlert('error', 'OrderBy cannot be empty');
+                return;
+                }
+            if (!validateField(userForm.departmentId)) {
+                    setAlert('error', 'Department cannot be empty');
+                    return;
+                }
+                
+                    if (!validateField(userForm.subCategoryId)) {
+                        setAlert('error', 'Procurement Category cannot be empty');
+                        return;
+                    }
+                    if (!validateField(userForm.categoryId)) {
+                    
+                        setAlert('error', 'Supplier Category cannot be empty');
+                        return;
+                        }
+                if (!validateField(userForm.capaRulesName)) {
+                    setAlert('error', 'Capa Rules Name cannot be empty');
+                    return;
+                }
+            
+            if (!validateField(userForm.status)) {
+                    
+                setAlert('error', 'Status cannot be empty');
+                return;
+                }
+                if (!validateField(userForm.effectiveFrom)) {
+                    setAlert('error', 'Effective From cannot be empty');
+                    return;
+                }
             endpoint = `/company/caparule/${capaRuleId}`;
             response = await PutCall(endpoint, userForm); 
+            if(response.code === 'SUCCESS'){
+                router.push('/manage-capa-rules');
+                setAlert('success', 'CAPA Rules updated.');
+                
+            }else{
+                setAlert('error',response.message);
+            }
         } else {
             // Submit data to API
         onNewAdd(userForm);
@@ -66,17 +106,20 @@ const CreateNewRulesPage = () => {
                 const fetchUserDetails = async () => {
                     setLoading(true);
                     try {
-                        const response: CustomResponse = await GetCall(`/company/caparule?filters.ruleId=${capaRuleId}&sortBy=ruleId`);
+                        const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
                         if (response.code === 'SUCCESS' && response.data.length > 0) {
                             console.log('49',response.data)
                             const userDetails = response.data[0]; // Assuming the API returns an array of users
+                            console.log('112',response.data[0])
                             setorderBy(userDetails.orderBy || '');
                             setSelectedProcurementDepartment(userDetails.departmentId || null);
                             setSelectedProcurementCategory(userDetails.categoryId || '');
                             setSelectedSupplierCategory(userDetails.subCategoryId || '');
                             setcapaRulesName(userDetails.capaRulesName || '');
                             setstatus(userDetails.status || '');
-                            setDate(userDetails.effectiveFrom || null);
+                            // Parse the date string into a Date object
+                            const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
+                            setDate(parsedDate);
                         } else {
                             setAlert('error', 'User details not found.');
                         }
@@ -130,6 +173,38 @@ const CreateNewRulesPage = () => {
         }
     };
     const onNewAdd = async (userForm: any) => {
+        if (!validateField(userForm.orderBy)) {    
+                    setAlert('error', 'OrderBy cannot be empty');
+                    return;
+                    }
+                if (!validateField(userForm.departmentId)) {
+                        setAlert('error', 'Department cannot be empty');
+                        return;
+                    }
+                    
+                        if (!validateField(userForm.subCategoryId)) {
+                            setAlert('error', 'Procurement Category cannot be empty');
+                            return;
+                        }
+                        if (!validateField(userForm.categoryId)) {
+                        
+                            setAlert('error', 'Supplier Category cannot be empty');
+                            return;
+                            }
+                    if (!validateField(userForm.capaRulesName)) {
+                        setAlert('error', 'Capa Rules Name cannot be empty');
+                        return;
+                    }
+                
+                if (!validateField(userForm.status)) {
+                        
+                    setAlert('error', 'Status cannot be empty');
+                    return;
+                    }
+                    if (!validateField(userForm.effectiveFrom)) {
+                        setAlert('error', 'Effective From cannot be empty');
+                        return;
+                    }
         const response: CustomResponse = await PostCall(`/company/caparule`, userForm);
         if (response.code == 'SUCCESS') {
             router.push('/manage-capa-rules');
@@ -147,7 +222,7 @@ const CreateNewRulesPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-2">
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
-                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter if capa is required" />
+                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="departmentId">Department</label>
@@ -180,7 +255,7 @@ const CreateNewRulesPage = () => {
                             </div> */}
                             <div className="field col-4">
                                 <label htmlFor="status">Status</label>
-                                <input id="status" type="text" value={status} onChange={(e) => setstatus(e.target.value)} className="p-inputtext w-full" placeholder="Enter Lower Range" />
+                                <input id="status" type="text" value={status} onChange={(e) => setstatus(e.target.value)} className="p-inputtext w-full" placeholder="Enter status" />
                             </div>
                             <div className="field col-4">
                             <label htmlFor="effectiveFrom">
