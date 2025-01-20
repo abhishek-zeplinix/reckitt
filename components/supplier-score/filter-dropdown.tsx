@@ -9,7 +9,7 @@ interface Department {
     evolutionType: string;
 }
 
-const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: any) => {
+const FilterDropdowns = ({ onFilterChange, suppliers, departments, category }: any) => {
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -19,9 +19,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: an
     const [suppliersToList, setSuppliersToList] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
 
-
     useEffect(() => {
-
         if (departments && selectedDepartment) {
             const currentDepartment = (departments as any[]).find((dep) => dep.departmentId === selectedDepartment?.departmentId);
 
@@ -54,20 +52,16 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: an
         //     }));
 
         //     console.log(mappedCategories);
-            
+
         //     setCategoryOptions(mappedCategories);
         // }
-
     }, [departments, selectedDepartment]);
 
-
-
     useEffect(() => {
-
         if (suppliers) {
             const suppliersListOnlyNames: any = (suppliers as any[])?.map((supplier) => ({
                 supId: supplier.supplier.supId,
-                supplierName: supplier.supplier.supplierName,
+                supplierName: supplier.supplier.supplierName
             }));
             setSuppliersToList(suppliersListOnlyNames);
         }
@@ -75,7 +69,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: an
         if (category) {
             const mappedCategories = category.map((cat: any) => ({
                 label: cat.categoryName,
-                value: cat.categoryId,
+                value: cat.categoryId
             }));
             setCategoryOptions(mappedCategories);
         }
@@ -124,7 +118,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: an
             supplier: selectedSupplier,
             department: selectedDepartment?.departmentId,
             period: selectedPeriod,
-            category: e.value,
+            category: e.value
         });
     };
 
@@ -134,7 +128,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: an
 
     const containerStyle: any = {
         display: 'flex',
-        // justifyContent: 'space-between',
+        justifyContent: 'right',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: '12px'
@@ -165,7 +159,7 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category}: an
                 <Dropdown value={selectedPeriod} onChange={handlePeriodChange} options={periodOptions} optionLabel="label" placeholder="-- Select Quarter --" style={fixedDropdown} />
             </div>
             <div style={itemStyle}>
-                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions}  placeholder="-- Select Category --" style={fixedDropdown} />
+                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="-- Select Category --" style={fixedDropdown} />
             </div>
         </div>
     );
