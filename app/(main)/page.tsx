@@ -415,7 +415,6 @@ const Dashboard = () => {
     const barGraphSupplierTiers = () => {
         return (
             <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 relative">
-                <div className="absolute top-0">abhishek</div>
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
                 <div style={{ height: '350px' }}>
