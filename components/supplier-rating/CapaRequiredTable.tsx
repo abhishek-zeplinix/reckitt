@@ -45,8 +45,6 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
   const [isInitialized, setIsInitialized] = useState(false);  // Add this flag
-
-  console.log(existingSelections);
   
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
@@ -87,7 +85,7 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
     }));
   };
 
-  console.log('grouped data' ,groupedData);
+  // console.log('grouped data' ,groupedData);
   
 
   useEffect(() => {

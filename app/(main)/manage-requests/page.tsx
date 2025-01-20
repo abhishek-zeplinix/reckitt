@@ -115,7 +115,7 @@ const ManageRequestsPage = () => {
             const payload = {
                 // supId: selectedRequest?.supplierId,
                 id: selectedRequest?.manageRequestId,
-                // requestedData: selectedRequest?.requestedData,
+                requestedData: selectedRequest?.requestedData,
                 status: action === REQUEST_ACTIONS.APPROVE ? 'Approved' : 'Rejected',
                 ...(action === REQUEST_ACTIONS.REJECT && { rejectedReason: rejectedReason })
             };
