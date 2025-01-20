@@ -428,9 +428,9 @@ const ManageSupplierPage = () => {
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
-                                            header: 'Manufacturing Name',
+                                            header: 'Manufacturer Name',
                                             field: 'supplierManufacturerName',
-                                            filterPlaceholder: 'Manufacturing Name',
+                                            filterPlaceholder: 'Manufacturer Name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {

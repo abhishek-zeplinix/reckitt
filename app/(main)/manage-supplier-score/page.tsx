@@ -205,25 +205,20 @@ const ManageSupplierScorePage = () => {
                                         field: 'supplierName',
                                         // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Supplier Id'
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'Type',
                                         field: 'depName',
                                         sortable: true,
-                                        filter: true,
-                                        filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'Quarter',
                                         field: 'evalutionPeriod',
-                                        filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Search Procurement Category'
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'Supplier Score',
@@ -244,24 +239,18 @@ const ManageSupplierScorePage = () => {
 
                                             return <div style={{ color: color, fontWeight: 'bold' }}>{score}</div>;
                                         },
-                                        filter: true,
-                                        filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 100, maxWidth: 100, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'Procurement Category',
                                         field: 'categoryName',
-                                        filter: true,
-                                        filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'Supplier Category',
                                         field: 'subCategoryName',
-                                        filter: true,
-                                        filterPlaceholder: 'Search Site Address',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },

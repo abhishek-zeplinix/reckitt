@@ -298,7 +298,7 @@ const CreateNewRulesPage = () => {
 
                             {/* <div className="field col-4">
                                 <label htmlFor="manufacturerName">Criteria Category</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter Manufacturing Name" />
+                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter  Name" />
                             </div> */}
                             <div className="field col-4">
                                 <label htmlFor="section">Section</label>

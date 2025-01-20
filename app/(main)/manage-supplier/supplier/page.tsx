@@ -139,11 +139,11 @@ const ManageSupplierAddEditPage = () => {
         if (val) {
             // Trim the value and calculate the word count
             const trimmedValue = val.trim();
-            const wordCount = trimmedValue.length; 
+            const wordCount = trimmedValue.length;
             if (name !== 'siteAddress' && name !== 'warehouseLocation') {
                 if (wordCount > 25) {
                     setAlert('error', 'Word limit exceeded!');
-                    return; 
+                    return;
                 }
             }
         }
@@ -220,7 +220,7 @@ const ManageSupplierAddEditPage = () => {
             setAlert('error', 'Warehouse location cannot be empty');
             return;
         }
-        
+
         if (currentStep < totalSteps) {
             setCompletedSteps((prev) => {
                 const newSteps = [...prev];
@@ -293,7 +293,7 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
                                 <div className="field col-4">
                                     <label htmlFor="manufacturerName" className="font-semibold">
-                                        Manufacturing Name
+                                        Manufacturer Name
                                     </label>
                                     <InputText
                                         id="manufacturerName"
@@ -301,7 +301,7 @@ const ManageSupplierAddEditPage = () => {
                                         value={get(form, 'supplierManufacturerName')}
                                         onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
                                         className="p-inputtext w-full"
-                                        placeholder="Enter Manufacturing Name"
+                                        placeholder="Enter Manufacturer Name"
                                     />
                                 </div>
                                 <div className="field col-4">

@@ -146,6 +146,15 @@ const Dashboard = () => {
             changeClass: 'text-green-500'
         }
     ];
+    const fourthData = [
+        {
+            title: 'Task Management',
+            value: 'Click here to view tasks',
+            change: `+ 0`,
+            changeClass: 'text-green-500',
+            link: '/manage-supplier'
+        }
+    ];
 
     const cities = [
         { name: 'New York', code: 'NY' },
@@ -405,7 +414,8 @@ const Dashboard = () => {
     const BarGraph = barGraph();
     const barGraphSupplierTiers = () => {
         return (
-            <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 ">
+            <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 relative">
+                <div className="absolute top-0">abhishek</div>
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
                 <div style={{ height: '350px' }}>
@@ -693,7 +703,7 @@ const Dashboard = () => {
 
                         {/* Second Column */}
                         <div className="col-12 md:col-6 p-0 pr-3">
-                            <div className="py-4">
+                            <div className="py-3">
                                 <div className="grid gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
                                     <div className="col-12 px-2 p-0 py-2 ">
@@ -708,6 +718,7 @@ const Dashboard = () => {
                                                     totalRecords={totalRecords} // Total records from API response
                                                     responsiveLayout="scroll" // Makes the table responsive
                                                     showGridlines={false} // Optional: Adds gridlines for better readability
+                                                    style={{ fontSize: '12px' }}
                                                 >
                                                     <Column
                                                         header="Sr.No."
@@ -765,6 +776,7 @@ const Dashboard = () => {
                                                     totalRecords={totalRecords} // Total records from API response
                                                     responsiveLayout="scroll" // Makes the table responsive
                                                     showGridlines={false} // Optional: Adds gridlines for better readability
+                                                    style={{ fontSize: '12px' }}
                                                 >
                                                     <Column
                                                         header="Sr.No."

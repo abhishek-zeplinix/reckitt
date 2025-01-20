@@ -42,12 +42,12 @@ const ManageRulesPage = () => {
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState('');
-    const [procurementCategories,setprocurementCategories]=useState([]);
-    const [filterCategories,setCategories]=useState([]);
-    const [supplierDepartment,setSupplierDepartment]=useState([]);
-    const [selectedCategory,setSelectedCategory]=useState('');
-    const [selectedglobalSearch,setGlobalSearch]=useState('');
-    const [SelectedSubCategory,setSelectedSubCategory]=useState('');
+    const [procurementCategories, setprocurementCategories] = useState([]);
+    const [filterCategories, setCategories] = useState([]);
+    const [supplierDepartment, setSupplierDepartment] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedglobalSearch, setGlobalSearch] = useState('');
+    const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -64,33 +64,48 @@ const ManageRulesPage = () => {
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit
         fetchprocurementCategories(e.value);
-        fetchData({limit: limit, page: page, include: 'subCategories,categories,department',filters: {
-            categoryId: e.value
-        } }); 
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                categoryId: e.value
+            }
+        });
     };
-     // Handle limit change
-     const onDepartmentChange = (e: any) => {
+    // Handle limit change
+    const onDepartmentChange = (e: any) => {
         setSelectedDepartment(e.value);
-        fetchData({limit: limit, page: page, include: 'subCategories,categories,department',filters: {
-            departmentId: e.value
-        } }); 
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                departmentId: e.value
+            }
+        });
     };
     // Handle limit change
     const onSubCategorychange = (e: any) => {
         setSelectedSubCategory(e.value); // Update limit
-        fetchData({limit: limit, page: page, include: 'subCategories,categories,department',filters: {
-            subCategoryId: e.value
-        } });
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                subCategoryId: e.value
+            }
+        });
     };
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
-        fetchData({limit: limit, page: page, include: 'subCategories,categories,department',search: e.target?.value}); 
+        fetchData({ limit: limit, page: page, include: 'subCategories,categories,department', search: e.target?.value });
     };
 
     // Handle limit change
     const onLimitChange = (e: any) => {
         setLimit(e.value); // Update limit
-        fetchData({ limit: e.value, page: 1 ,include: 'subCategories,categories,department'}); // Fetch data with new limit
+        fetchData({ limit: e.value, page: 1, include: 'subCategories,categories,department' }); // Fetch data with new limit
     };
     useEffect(() => {
         fetchData();
@@ -236,59 +251,61 @@ const ManageRulesPage = () => {
         fetchData();
     }, []);
     const fetchprocurementCategories = async (categoryId: number | null) => {
-            if (!categoryId) {
-                setprocurementCategories([]); // Clear subcategories if no category is selected
-                return;
-            }
-                setLoading(true);
-                const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-                setLoading(false);
-                if (response.code == 'SUCCESS') {
-                    setprocurementCategories(response.data)
-                } else {
-                    setprocurementCategories([])
-                }
-            };
-            const fetchsupplierCategories = async () => {
-                setLoading(true);
-                const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-                setLoading(false);
-                if (response.code == 'SUCCESS') {
-                    setCategories(response.data)
-                } else {
-                    setCategories([])
-                }
-            };
-            const fetchsupplierDepartment = async () => {
-                setLoading(true);
-                const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-                setLoading(false);
-                if (response.code == 'SUCCESS') {
-                    setSupplierDepartment(response.data)
-                } else {
-                    setSupplierDepartment([])
-                }
-            };
+        if (!categoryId) {
+            setprocurementCategories([]); // Clear subcategories if no category is selected
+            return;
+        }
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setprocurementCategories(response.data);
+        } else {
+            setprocurementCategories([]);
+        }
+    };
+    const fetchsupplierCategories = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setCategories(response.data);
+        } else {
+            setCategories([]);
+        }
+    };
+    const fetchsupplierDepartment = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setSupplierDepartment(response.data);
+        } else {
+            setSupplierDepartment([]);
+        }
+    };
 
-        const dropdownMenuDepartment = () => {
-            return <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={supplierDepartment} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear/>;
-        };
+    const dropdownMenuDepartment = () => {
+        return <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={supplierDepartment} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear />;
+    };
 
-        const dropdownFieldDeparment = dropdownMenuDepartment();
+    const dropdownFieldDeparment = dropdownMenuDepartment();
 
-        const dropdownCategory = () => {
-                    return <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear/>;
-                };
-                const dropdownFieldCategory = dropdownCategory();
-            
-            const dropdownMenuSubCategory = () => {
-                    return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={procurementCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear/>;
-                };
-            const dropdownFieldSubCategory = dropdownMenuSubCategory();
-            const globalSearch= () => {
-                return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
-            };
-            const FieldGlobalSearch = globalSearch();
+    const dropdownCategory = () => {
+        return <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear />;
+    };
+    const dropdownFieldCategory = dropdownCategory();
+
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={procurementCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear />
+        );
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    const globalSearch = () => {
+        return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
+    };
+    const FieldGlobalSearch = globalSearch();
 
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
@@ -373,7 +390,6 @@ const ManageRulesPage = () => {
 
                             <CustomDataTable
                                 ref={dataTableRef}
-                                filter
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
@@ -415,23 +431,21 @@ const ManageRulesPage = () => {
                                         field: 'department',
                                         // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Supplier Id'
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'PROCUREMENT CATEGORY ',
                                         field: 'category',
                                         // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Supplier Id'
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'SUPPLIER CATEGORY',
                                         field: 'subCategories',
                                         sortable: true,
                                         // filter: true,
-                                        filterPlaceholder: 'Supplier Name',
+
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 150, maxWidth: 150 }
                                     },
@@ -440,14 +454,12 @@ const ManageRulesPage = () => {
                                         field: 'section',
                                         // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Search Procurement Category'
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'CRITERIA',
                                         field: 'ratedCriteria',
                                         // filter: true,
-                                        filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
@@ -455,7 +467,6 @@ const ManageRulesPage = () => {
                                         header: 'CRITERIA EVALUATION LIST',
                                         field: 'criteriaEvaluation',
                                         // filter: true,
-                                        filterPlaceholder: 'Search Supplier Manufacturing Name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
@@ -463,7 +474,6 @@ const ManageRulesPage = () => {
                                         header: 'CRITERIA SCORE',
                                         field: 'score',
                                         // filter: true,
-                                        filterPlaceholder: 'Search Site Address',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
@@ -471,7 +481,6 @@ const ManageRulesPage = () => {
                                         header: 'RATIOS COPACK',
                                         field: 'ratiosCopack',
                                         // filter: true,
-                                        filterPlaceholder: 'Search Factory Name',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
@@ -479,7 +488,6 @@ const ManageRulesPage = () => {
                                         header: 'RATIOS RAW&PACK',
                                         field: 'ratiosRawpack',
                                         // filter: true,
-                                        filterPlaceholder: 'Search Warehouse Location',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     }
