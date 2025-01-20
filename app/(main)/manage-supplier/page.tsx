@@ -62,7 +62,7 @@ const ManageSupplierPage = () => {
     const [subLocationDetails, setSubLocationDetails] = useState<any>([]);
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
-    const [companies, setCompanies] = useState<Supplier[]>([]);
+    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
@@ -73,17 +73,11 @@ const ManageSupplierPage = () => {
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [selectedSupplierToDelete, setSelectedSupplierToDelete] = useState<Supplier | null>(null);
     const [visible, setVisible] = useState(false);
-    const [procurementCategories, setprocurementCategories] = useState([]);
-    const [supplierCategories, setsupplierCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [selectedglobalSearch, setGlobalSearch] = useState('');
-    const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-    const [checked, setChecked] = useState({
-        gmp: false,
-        gdp: false,
-        reach: false,
-        iso: false
-    });
+    const [procurementCategories,setprocurementCategories]=useState([]);
+    const [supplierCategories,setsupplierCategories]=useState([]);
+    const [selectedCategory,setSelectedCategory]=useState('');
+    const [selectedglobalSearch,setGlobalSearch]=useState('');
+    const [SelectedSubCategory,setSelectedSubCategory]=useState('');
 
     useEffect(() => {
         setScroll(true);
@@ -144,13 +138,13 @@ const ManageSupplierPage = () => {
         const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setCompanies(response.data);
+            setSuppliers(response.data);
 
             if (response.total) {
                 setTotalRecords(response?.total);
             }
         } else {
-            setCompanies([]);
+            setSuppliers([]);
         }
     };
     const confirmDelete = async () => {
@@ -304,9 +298,9 @@ const ManageSupplierPage = () => {
         const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setsupplierCategories(response.data)
+            setsupplierCategories(response.data);
         } else {
-            setsupplierCategories([])
+            setsupplierCategories([]);
         }
     };
     const fetchsupplierCategories = async () => {
@@ -314,26 +308,26 @@ const ManageSupplierPage = () => {
         const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data)
+            setprocurementCategories(response.data);
         } else {
-            setprocurementCategories([])
+            setprocurementCategories([]);
         }
     };
 
-    const dropdownCategory = () => {
-        return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Department" optionLabel="categoryName" className="w-full md:w-10rem" />;
-    };
-
-    const dropdownFieldCategory = dropdownCategory();
-
-    const dropdownMenuSubCategory = () => {
-        return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
-    };
-    const dropdownFieldSubCategory = dropdownMenuSubCategory();
-    const globalSearch = () => {
-        return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
-    };
-    const FieldGlobalSearch = globalSearch();
+        const dropdownCategory = () => {
+                return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear/>;
+            };
+        
+            const dropdownFieldCategory = dropdownCategory();
+        
+        const dropdownMenuSubCategory = () => {
+                return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear/>;
+            };
+        const dropdownFieldSubCategory = dropdownMenuSubCategory();
+        const globalSearch= () => {
+            return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
+        };
+        const FieldGlobalSearch = globalSearch();
 
     const handleEditSupplier = (sup: any) => {
         const supId = sup.supId;
@@ -366,7 +360,6 @@ const ManageSupplierPage = () => {
     };
     const header = renderHeader();
 
-
     return (
         <div className="grid">
             <div className="col-12">
@@ -396,7 +389,7 @@ const ManageSupplierPage = () => {
                                     totalRecords={totalRecords} // total records from api response
                                     isEdit={true} // show edit button
                                     isDelete={true} // show delete button
-                                    data={companies}
+                                    data={suppliers}
                                     // extraButtons={[
                                     //     {
                                     //         icon: 'pi pi-user-edit',
@@ -423,15 +416,15 @@ const ManageSupplierPage = () => {
                                             style: { minWidth: 120, maxWidth: 120 }
                                         },
                                         {
-                                            header: 'Proc. Category',
+                                            header: 'Procurement Category',
                                             field: 'category.categoryName',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                                             filterPlaceholder: 'Proc Category'
                                         },
                                         {
-                                            header: 'Category',
+                                            header: 'Supplier Category',
                                             field: 'subCategories.subCategoryName',
-                                            filterPlaceholder: 'Category',
+                                            filterPlaceholder: 'Supplier Category',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {

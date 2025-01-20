@@ -209,31 +209,37 @@ interface Department {
     orderBy: number;
     name: string;
     evolutionType: "Quarterly" | "Halfyearly"; // Restricting to specific values
-  }
+}
 
 
-  interface SupplierScoreboardSummary {
+interface SupplierScoreboardSummary {
     ratings: {
-      period: string;
-      rating: number;
-      value: string; 
-      action: string;
-      rateMasterId: number;
+        period: string;
+        rating: number;
+        value: string;
+        action: string;
+        rateMasterId: number;
     }[];
     supScore: {
-      supplierScoreId: number;
-      departmentId: number;
-      totalScore: number;
-      evalutionPeriod: string;
-      allPeriods: string[];
-      department: {
+        supplierScoreId: number;
         departmentId: number;
-        name: string;
-      };
+        totalScore: number;
+        evalutionPeriod: string;
+        allPeriods: string[];
+        department: {
+            departmentId: number;
+            name: string;
+        };
     }[];
-  }
-  
+}
 
+interface Tile {
+    title: string;
+    value: number;
+    change: string;
+    changeClass: string;
+    link?: string; // Optional
+}
 export type {
     Page,
     AppBreadcrumbProps,
@@ -301,5 +307,6 @@ export type {
     SupplierEvaluatedScore,
     MappedSupplierScore,
     Department,
-    SupplierScoreboardSummary
+    SupplierScoreboardSummary,
+    Tile
 };

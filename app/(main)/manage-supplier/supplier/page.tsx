@@ -116,32 +116,6 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const handleSubmit = async () => {
-        console.log('Form data:', form);
-        if (!validateText(form.supplierName)) {
-            setAlert('error', 'Supplier name cannot be empty');
-            return;
-        }
-        if (!validateText(form.supplierManufacturerName)) {
-            setAlert('error', 'Supplier manufacturer name cannot be empty');
-            return;
-        }
-        if (!validateText(form.location)) {
-            setAlert('error', 'Location cannot be empty');
-            return;
-        }
-        if (!validateText(form.factoryName)) {
-            setAlert('error', 'Factory name cannot be empty');
-            return;
-        }
-        if (!validateSiteAddress(form.siteAddress)) {
-            setAlert('error', 'Site address cannot be empty');
-            return;
-        }
-        if (!validateText(form.warehouseLocation)) {
-            setAlert('error', 'Warehouse location cannot be empty');
-            return;
-        }
-
         setLoading(true);
         try {
             const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
@@ -162,6 +136,17 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
+        if (val) {
+            // Trim the value and calculate the word count
+            const trimmedValue = val.trim();
+            const wordCount = trimmedValue.length; 
+            if (name !== 'siteAddress' && name !== 'warehouseLocation') {
+                if (wordCount > 25) {
+                    setAlert('error', 'Word limit exceeded!');
+                    return; 
+                }
+            }
+        }
         setForm((prevForm) => {
             const updatedForm = {
                 ...prevForm,
@@ -207,6 +192,35 @@ const ManageSupplierAddEditPage = () => {
 
     // navigation Handlers
     const handleNext = () => {
+        // if (!validateEachFiledExceed(form)) {
+        //     setAlert('error', 'value too long for type character varying(70)');
+        //     return;
+        // }
+        if (!validateText(form.supplierName)) {
+            setAlert('error', 'Supplier name cannot be empty');
+            return;
+        }
+        if (!validateText(form.supplierManufacturerName)) {
+            setAlert('error', 'Supplier manufacturer name cannot be empty');
+            return;
+        }
+        if (!validateText(form.location)) {
+            setAlert('error', 'Location cannot be empty');
+            return;
+        }
+        if (!validateText(form.factoryName)) {
+            setAlert('error', 'Factory name cannot be empty');
+            return;
+        }
+        if (!validateSiteAddress(form.siteAddress)) {
+            setAlert('error', 'Site address cannot be empty');
+            return;
+        }
+        if (!validateText(form.warehouseLocation)) {
+            setAlert('error', 'Warehouse location cannot be empty');
+            return;
+        }
+        
         if (currentStep < totalSteps) {
             setCompletedSteps((prev) => {
                 const newSteps = [...prev];
@@ -214,6 +228,30 @@ const ManageSupplierAddEditPage = () => {
                 return newSteps;
             });
             setCurrentStep((prev) => prev + 1);
+        }
+        if (!validateText(form.supplierName)) {
+            setAlert('error', 'Supplier name cannot be empty');
+            return;
+        }
+        if (!validateText(form.supplierManufacturerName)) {
+            setAlert('error', 'Supplier manufacturer name cannot be empty');
+            return;
+        }
+        if (!validateText(form.location)) {
+            setAlert('error', 'Location cannot be empty');
+            return;
+        }
+        if (!validateText(form.factoryName)) {
+            setAlert('error', 'Factory name cannot be empty');
+            return;
+        }
+        if (!validateSiteAddress(form.siteAddress)) {
+            setAlert('error', 'Site address cannot be empty');
+            return;
+        }
+        if (!validateText(form.warehouseLocation)) {
+            setAlert('error', 'Warehouse location cannot be empty');
+            return;
         }
     };
 
@@ -275,7 +313,7 @@ const ManageSupplierAddEditPage = () => {
 
                                 <div className="field col-4">
                                     <label htmlFor="supplierCategory" className="font-semibold">
-                                    Category
+                                        Procurement Category
                                     </label>
                                     <Dropdown
                                         id="supplierCategory"
@@ -286,14 +324,14 @@ const ManageSupplierAddEditPage = () => {
                                         optionLabel="categoryName"
                                         optionValue="categoryId"
                                         onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
-                                        placeholder="Select Supplier Category"
+                                        placeholder="Select Procurement Category"
                                         className="w-full"
                                     />
                                 </div>
 
                                 <div className="field col-4">
                                     <label htmlFor="procurementCategory" className="font-semibold">
-                                       Procurement Category
+                                        Supplier Category
                                     </label>
                                     {form.supplierCategoryId ? (
                                         <Dropdown
@@ -303,11 +341,11 @@ const ManageSupplierAddEditPage = () => {
                                             optionLabel="subCategoryName"
                                             optionValue="subCategoryId"
                                             onChange={(e) => onInputChange('procurementCategoryId', e.value)}
-                                            placeholder="Select Supplier Procurement Category"
+                                            placeholder="Select Supplier Category"
                                             className="w-full"
                                         />
                                     ) : (
-                                        <Dropdown id="supplierCategory" placeholder="Please Select a Procurement Category" className="w-full" />
+                                        <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
                                     )}
                                 </div>
 
@@ -340,12 +378,15 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="px-3">
+                            <i className="text-red-400 text-sm">All feilds required *</i>
+                        </div>
                     </div>
                 );
             case 2:
                 return (
                     <div className="flex flex-column gap-3 pt-5">
-                        <h2 className="text-center font-bold ">Add Manufacture Details</h2>
+                        <h2 className="text-center font-bold ">Compliance requirement</h2>
                         <div className="p-fluid grid mx-1 pt-5">
                             {/* GMP */}
                             <div className="field col-6">

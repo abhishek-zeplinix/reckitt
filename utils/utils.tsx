@@ -241,3 +241,10 @@ export const validateSiteAddress = (address: string): boolean => {
     }
     return true; // Any non-empty string is valid
 };
+
+export const validateField = (fieldValue: any): boolean => {
+    if (fieldValue === null || fieldValue === undefined || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
+        return false; // Field is empty
+    }
+    return true; // Field has data
+};

@@ -1,24 +1,152 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
-import { getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Chart } from 'primereact/chart';
 import SupplierDirectory from '@/components/SupplierDirectory';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useAppContext } from '@/layout/AppWrapper';
+import { CustomResponse, Tile } from '@/types';
+import { GetCall } from '../api-config/ApiKit';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [filtersVisible, setfiltersVisible] = useState(false);
+    const [filtersVisible, setfiltersVisible] = useState(true);
     const [position, setPosition] = useState('center');
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [selectedCity, setSelectedCity] = useState(null);
+    const { isLoading, setLoading, setScroll, setAlert } = useAppContext();
+    const [tilesData, setTilesData] = useState<Tile[]>([]);
+    const [topSupplierData, setTopSupplierData] = useState([]);
+    const [bottomSupplierData, setBottomSupplierData] = useState([]);
+
+    useEffect(() => {
+        fetchData();
+        fetchTopData();
+        fetchBottomData();
+    }, []);
+    const fetchData = async (params?: any) => {
+        if (!params) {
+            params = { limit: limit, page: page };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/dashboard-data?${queryString}`);
+        setLoading(false);
+
+        if (response.code === 'SUCCESS') {
+            const apiData = response.data.evasupa;
+            const mappedData = mapApiDataToTiles(apiData); // Use the mapping function
+            setTilesData(mappedData);
+
+            setTilesData(mappedData);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setTilesData([]);
+        }
+    };
+    const fetchTopData = async (params?: any) => {
+        if (!params) {
+            params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'desc' };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+
+        const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setTopSupplierData(response.data);
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setTopSupplierData([]);
+        }
+    };
+    const fetchBottomData = async (params?: any) => {
+        if (!params) {
+            params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'asc' };
+        }
+        setLoading(true);
+        const queryString = buildQueryParams(params);
+        const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setBottomSupplierData(response.data);
+            console.log(response.data, '83');
+
+            if (response.total) {
+                setTotalRecords(response?.total);
+            }
+        } else {
+            setBottomSupplierData([]);
+        }
+    };
+
+    const mapApiDataToTiles = (apiData: any): Tile[] => [
+        {
+            title: 'Total Evaluators',
+            value: apiData.evaluatorCount || 0,
+            change: `+ ${apiData.evaluatorCount}`,
+            changeClass: 'text-green-600'
+        },
+        {
+            title: 'Total Suppliers',
+            value: apiData.supplierCount || 0,
+            change: `+ ${apiData.supplierCount}`,
+            changeClass: 'text-green-600',
+            link: '/manage-supplier'
+        },
+        {
+            title: 'Total Approver',
+            value: apiData.approverCount || 0,
+            change: `+ ${apiData.approverCount}`,
+            changeClass: 'text-green-600'
+        },
+        {
+            title: 'Total Assessment Expected',
+            value: 0, // Placeholder or calculate dynamically
+            change: `+ 0`,
+            changeClass: 'text-red-600'
+        }
+    ];
+
+    const secondData = [
+        {
+            title: 'Completed Assessment',
+            value: 0,
+            change: `+ 0`,
+            changeClass: 'text-green-500'
+        },
+        {
+            title: 'In Progress Assessment',
+            value: 0,
+            change: `+ 0`,
+            changeClass: 'text-red-500'
+        }
+    ];
+    const thirdData = [
+        {
+            title: 'Pending Assessment',
+            value: 0,
+            change: `+ 0`,
+            changeClass: 'text-green-500'
+        }
+    ];
+
     const cities = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -26,53 +154,14 @@ const Dashboard = () => {
         { name: 'Istanbul', code: 'IST' },
         { name: 'Paris', code: 'PRS' }
     ];
-    const firstData = [
-        {
-            title: 'Total Evaluators',
-            value: 167,
-            change: '+36%',
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Suppliers',
-            value: 512,
-            change: '+36%',
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Approver',
-            value: 324,
-            change: '+36%',
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Assessment Expected',
-            value: 234,
-            change: '-12%',
-            changeClass: 'text-red-600'
-        }
-    ];
-    const secondData = [
-        {
-            title: 'Completed Assessment',
-            value: 76,
-            change: '(+36%)',
-            changeClass: 'text-green-500'
-        },
-        {
-            title: 'In Progress Assessment',
-            value: 45,
-            change: '(-24%)',
-            changeClass: 'text-red-500'
-        }
-    ];
-    const thirdData = [
-        {
-            title: 'Pending Assessment',
-            value: 11,
-            change: '(+36%)',
-            changeClass: 'text-green-500'
-        }
+    const dropdownConfigs = [
+        { label: "Period's", placeholder: 'Select a Period' },
+        { label: 'Action', placeholder: 'Select Action' },
+        { label: 'Supplier Category', placeholder: 'Select Supplier Category' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' },
+        { label: 'Supplier Name', placeholder: 'Select Supplier' }
     ];
 
     const TopSuppliers = [
@@ -284,8 +373,8 @@ const Dashboard = () => {
             <div className="pt-4 px-4 border-round-xl shadow-2 surface-card mb-4">
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
-                <div style={{ height: '310px' }}>
-                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '330px' }} />
+                <div style={{ height: '350px' }}>
+                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '360px' }} />
                 </div>
                 <div className="grid mt-3 score-bg p-4">
                     <div className="col-6">
@@ -316,11 +405,11 @@ const Dashboard = () => {
     const BarGraph = barGraph();
     const barGraphSupplierTiers = () => {
         return (
-            <div className="pt-4 px-4 border-round-xl shadow-2 surface-card mb-4">
+            <div className="pt-4 px-4  border-round-xl shadow-2 surface-card mb-4 ">
                 <h3 className="text-900">Supplier Performance Trend</h3>
                 <p className="text-600 text-sm">Lorem ipsum dummy text In Progress Assessment</p>
-                <div style={{ height: '310px' }}>
-                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '330px' }} />
+                <div style={{ height: '350px' }}>
+                    <Chart type="bar" data={Bardata} options={Baroptions} style={{ height: '360px' }} />
                 </div>
                 <div className="grid mt-3 score-bg p-4">
                     <div className="flex gap-2  px-2">
@@ -347,7 +436,32 @@ const Dashboard = () => {
     };
 
     const BarGraphSupplierTiers = barGraphSupplierTiers();
+    const sections = [
+        { label: 'Sustainability', image: '/images/waves/blue.svg' },
+        { label: 'Development', image: '/images/waves/yellow.svg' },
+        { label: 'Procurement', image: '/images/waves/green.svg' },
+        { label: 'Planning', image: '/images/waves/red.svg' },
+        { label: 'Quality', image: '/images/waves/purple.svg' }
+    ];
 
+    const waveSideGraphs = () => {
+        return (
+            <div className="p-4 border-round-md shadow-1 w-2xl">
+                {sections.map((section, index) => (
+                    <div key={index} className="p-flex p-ai-center p-jc-between py-1 border-bottom-1 border-gray-300 last:border-none">
+                        {/* Icon */}
+                        <div className="flex items-center pt-2">
+                            <Image src={section.image} alt={section.label} width={30} height={30} className="pb-2" />
+                            {/* Label */}
+                            <span className="text-gray-700 text-lg ml-3">{section.label}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const WaveSideGraphs = waveSideGraphs();
     const dataWaveGraphs = {
         labels: ['Q1/2025', 'Q2/H1 2025', 'Q3 2025', 'Q4/H2 2025', 'Q1 2025', 'Q2/H1 2025'],
         datasets: [
@@ -433,8 +547,11 @@ const Dashboard = () => {
                         <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" placeholder="All Supplier" className="w-full md:w-14rem bgActiveBtn bgActiveBtnText px-2 py-1 " />
                     </div>
                 </div>
-                <div style={{ width: '70%', height: 'auto' }}>
-                    <Chart type="line" data={dataWaveGraphs} options={waveOptions} />
+                <div className="flex justify-content-between">
+                    <div style={{ width: '70%', height: 'auto' }} className="">
+                        <Chart type="line" data={dataWaveGraphs} options={waveOptions} />
+                    </div>
+                    <div style={{ background: '#F8FAFC' }}>{WaveSideGraphs}</div>
                 </div>
                 <div>
                     <div className="grid mt-3 score-bg p-4">
@@ -466,44 +583,57 @@ const Dashboard = () => {
 
     const dataFilters = () => {
         return (
-            <div className={`p-card p-shadow-4 p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                <p>This is a toggled panel!</p>
-                <button onClick={() => setfiltersVisible(false)} className="p-button p-button-text">
-                    Close
-                </button>
+            <div className={`px-4 py-4  p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} `}>
+                <div className="relative border-bottom-1 border-300">
+                    <h3>Filters</h3>
+                    <span onClick={() => setfiltersVisible(false)} className="absolute top-0 right-0 border-0 bg-transparent">
+                        <i className="pi pi-times text-sm"></i>
+                    </span>
+                </div>
+                <div className="grid mt-4 gap-4 px-2">
+                    {dropdownConfigs.map((config, index) => (
+                        <div key={index} className="flex flex-column">
+                            <label className="mb-1">{config.label}</label>
+                            <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" showClear placeholder={config.placeholder} className="w-full md:w-14rem" />
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     };
 
     const DataFilters = dataFilters();
+
     const dataTiles = () => {
         return (
             <>
                 <div>
-                    <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden`}>{DataFilters}</div>
+                    <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden shadow-2 surface-card border-round-2xl mr-3 mb-3`}>{DataFilters}</div>
                     <div className="py-1 ">
                         <div className="grid grid-nogutter">
-                            {firstData.map((tile, index) => (
+                            {tilesData.map((tile, index) => (
                                 <div
                                     key={index}
                                     className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
                                 >
-                                    <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
-                                        <div className="flex justify-content-between gap-2 align-items-center">
-                                            <div>
+                                    <Link href={tile.link || ''}>
+                                        <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
+                                            <div className="flex justify-content-between gap-2 align-items-center">
                                                 <div>
-                                                    <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                    <div>
+                                                        <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
+                                                        <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="mt-2">
-                                                    <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
-                                                    <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                <div>
+                                                    <i className="pi pi-angle-right text-pink-400"></i>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <i className="pi pi-angle-right text-pink-400"></i>
                                             </div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 </div>
                             ))}
                         </div>
@@ -572,7 +702,7 @@ const Dashboard = () => {
                                             <div className="">
                                                 <DataTable
                                                     className="mb-3 mt-3"
-                                                    value={TopSuppliers}
+                                                    value={topSupplierData}
                                                     paginator={false} // Enable pagination
                                                     rows={limit} // Items per page
                                                     totalRecords={totalRecords} // Total records from API response
@@ -588,34 +718,37 @@ const Dashboard = () => {
                                                         }}
                                                         style={{ minWidth: '50px', maxWidth: '50px' }}
                                                     />
-                                                    <Column header="Name" field="name" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="region" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
                                                     <Column
                                                         header="Score"
-                                                        field="score"
+                                                        field="Score"
                                                         style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => (
-                                                            <span className="font-bold" style={{ color: getScoreColor(rowData.score) }}>
-                                                                {rowData.score}
-                                                            </span>
-                                                        )}
+                                                        body={(rowData) => {
+                                                            const roundedScore = Math.round(rowData.Score);
+                                                            return (
+                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
+                                                                    {roundedScore}%
+                                                                </span>
+                                                            );
+                                                        }}
+                                                        className="text-center"
                                                     />
                                                 </DataTable>
                                             </div>
-                                            <button
-                                                onClick={() => {}}
-                                                className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300"
-                                            >
-                                                <span className="flex align-items-center gap-2">View All</span>
-                                                <span className="flex flex-row gap-2">
-                                                    {dashes.map((dash, index) => (
-                                                        <span key={index}>{dash}</span>
-                                                    ))}
-                                                </span>
-                                                <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
-                                                    <i className="pi pi-arrow-right"></i>
-                                                </span>
-                                            </button>
+                                            <Link href="/manage-supplier">
+                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
+                                                    <span className="flex align-items-center gap-2">View All</span>
+                                                    <span className="flex flex-row gap-2">
+                                                        {dashes.map((dash, index) => (
+                                                            <span key={index}>{dash}</span>
+                                                        ))}
+                                                    </span>
+                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                        <i className="pi pi-arrow-right"></i>
+                                                    </span>
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
 
@@ -626,7 +759,7 @@ const Dashboard = () => {
                                             <div className="">
                                                 <DataTable
                                                     className="mb-3 mt-3"
-                                                    value={BottomSupplier}
+                                                    value={bottomSupplierData}
                                                     paginator={false} // Enable pagination
                                                     rows={limit} // Items per page
                                                     totalRecords={totalRecords} // Total records from API response
@@ -642,34 +775,37 @@ const Dashboard = () => {
                                                         }}
                                                         style={{ minWidth: '60px', maxWidth: '60px' }}
                                                     />
-                                                    <Column header="Name" field="name" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="region" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
                                                     <Column
                                                         header="Score"
-                                                        field="score"
+                                                        field="Score"
                                                         style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => (
-                                                            <span className="font-bold" style={{ color: getScoreColor(rowData.score) }}>
-                                                                {rowData.score}
-                                                            </span>
-                                                        )}
+                                                        body={(rowData) => {
+                                                            const roundedScore = Math.round(rowData.Score);
+                                                            return (
+                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
+                                                                    {roundedScore}%
+                                                                </span>
+                                                            );
+                                                        }}
+                                                        className="text-center"
                                                     />
                                                 </DataTable>
                                             </div>
-                                            <button
-                                                onClick={() => {}}
-                                                className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300"
-                                            >
-                                                <span className="flex align-items-center gap-2">View All</span>
-                                                <span className="flex flex-row gap-2">
-                                                    {dashes.map((dash, index) => (
-                                                        <span key={index}>{dash}</span>
-                                                    ))}
-                                                </span>
-                                                <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
-                                                    <i className="pi pi-arrow-right"></i>
-                                                </span>
-                                            </button>
+                                            <Link href="/manage-suppliers">
+                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
+                                                    <span className="flex align-items-center gap-2">View All</span>
+                                                    <span className="flex flex-row gap-2">
+                                                        {dashes.map((dash, index) => (
+                                                            <span key={index}>{dash}</span>
+                                                        ))}
+                                                    </span>
+                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                        <i className="pi pi-arrow-right"></i>
+                                                    </span>
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
 
@@ -679,6 +815,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
+
                 <div>{WaveGraphs}</div>
             </>
         );
@@ -695,8 +832,8 @@ const Dashboard = () => {
                         <Button label="Dashboard" icon="pi pi-th-large" className={`p-button-text ${activeTab === 'dashboard' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('dashboard')} />
                         <Button label="Supplier" icon="pi pi-box" className={`p-button-text ${activeTab === 'supplier' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
                     </div>
-                    <div>
-                        <Button label="Supplier" icon="pi pi-filter" className="p-button-text bgActiveBtn text-whitebg-transparent text-white" onClick={() => setfiltersVisible(!filtersVisible)} />
+                    <div className={`${activeTab === 'supplier' ? ' opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <Button label="Filters" icon="pi pi-filter" className={`p-button-text bgActiveBtn text-whitebg-transparent text-white `} onClick={() => setfiltersVisible(!filtersVisible)} />
                     </div>
                 </div>
             </div>
