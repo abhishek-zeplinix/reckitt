@@ -141,10 +141,10 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category }: a
     };
 
     const fixedDropdown = {
-        width: '230px',
+        width: '180px',
         minWidth: '150px',
-        padding: '4px',
-        height: '45px'
+        padding: '1px',
+        height: '32px'
     };
 
     return (
