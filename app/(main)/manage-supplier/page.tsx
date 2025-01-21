@@ -314,20 +314,42 @@ const ManageSupplierPage = () => {
         }
     };
 
-        const dropdownCategory = () => {
-                return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName"className="w-full md:w-10rem" showClear={!!selectedCategory}/>;
-            };
-        
-            const dropdownFieldCategory = dropdownCategory();
-        
-        const dropdownMenuSubCategory = () => {
-                return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear={!!SelectedSubCategory}/>;
-            };
-        const dropdownFieldSubCategory = dropdownMenuSubCategory();
-        const globalSearch= () => {
-            return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
-        };
-        const FieldGlobalSearch = globalSearch();
+    const dropdownCategory = () => {
+        return (
+            <Dropdown
+                value={selectedCategory}
+                onChange={onCategorychange}
+                options={procurementCategories}
+                optionValue="categoryId"
+                placeholder="Select Category"
+                optionLabel="categoryName"
+                className="w-full md:w-10rem"
+                showClear={!!selectedCategory}
+            />
+        );
+    };
+
+    const dropdownFieldCategory = dropdownCategory();
+
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown
+                value={SelectedSubCategory}
+                onChange={onSubCategorychange}
+                options={supplierCategories}
+                optionLabel="subCategoryName"
+                optionValue="subCategoryId"
+                placeholder="Select Sub Category"
+                className="w-full md:w-10rem"
+                showClear={!!SelectedSubCategory}
+            />
+        );
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    const globalSearch = () => {
+        return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
+    };
+    const FieldGlobalSearch = globalSearch();
 
     const handleEditSupplier = (sup: any) => {
         const supId = sup.supId;
