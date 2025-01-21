@@ -26,6 +26,9 @@ const Dashboard = () => {
     const [selectedCity, setSelectedCity] = useState(null);
     const { isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const [tilesData, setTilesData] = useState<Tile[]>([]);
+    const [secondTilesData, setSecondTilesData] = useState<Tile[]>([]);
+    const [thirdTilesData, setThirdTilesData] = useState<Tile[]>([]);
+    const [chartData, setChartData] = useState<Tile[]>([]);
     const [topSupplierData, setTopSupplierData] = useState([]);
     const [bottomSupplierData, setBottomSupplierData] = useState([]);
 
@@ -45,10 +48,14 @@ const Dashboard = () => {
 
         if (response.code === 'SUCCESS') {
             const apiData = response.data.evasupa;
+            const chartData = mapApiDataToTiles(apiData);
             const mappedData = mapApiDataToTiles(apiData); // Use the mapping function
+            const SecondTilesData = secondData(apiData); // Use the mapping function
+            const ThirdTilesData = thirdData(apiData); // Use the mapping function
             setTilesData(mappedData);
-
-            setTilesData(mappedData);
+            setSecondTilesData(SecondTilesData);
+            setThirdTilesData(ThirdTilesData);
+            setChartData(chartData);
 
             if (response.total) {
                 setTotalRecords(response?.total);
@@ -96,56 +103,66 @@ const Dashboard = () => {
         }
     };
 
-    const mapApiDataToTiles = (apiData: any): Tile[] => [
-        {
-            title: 'Total Evaluators',
-            value: apiData.evaluatorCount || 0,
-            change: `+ ${apiData.evaluatorCount}`,
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Suppliers',
-            value: apiData.supplierCount || 0,
-            change: `+ ${apiData.supplierCount}`,
-            changeClass: 'text-green-600',
-            link: '/manage-supplier'
-        },
-        {
-            title: 'Total Approver',
-            value: apiData.approverCount || 0,
-            change: `+ ${apiData.approverCount}`,
-            changeClass: 'text-green-600'
-        },
-        {
-            title: 'Total Assessment Expected',
-            value: 0, // Placeholder or calculate dynamically
-            change: `+ 0`,
-            changeClass: 'text-red-600'
-        }
-    ];
+    const mapApiDataToTiles = (apiData: any): Tile[] => {
+        const evaluationData = apiData.EvaluationData?.[0] || {}; // Get the first item in the EvaluationData array or an empty object
 
-    const secondData = [
-        {
-            title: 'Completed Assessment',
-            value: 0,
-            change: `+ 0`,
-            changeClass: 'text-green-500'
-        },
-        {
-            title: 'In Progress Assessment',
-            value: 0,
-            change: `+ 0`,
-            changeClass: 'text-red-500'
-        }
-    ];
-    const thirdData = [
-        {
-            title: 'Pending Assessment',
-            value: 0,
-            change: `+ 0`,
-            changeClass: 'text-green-500'
-        }
-    ];
+        return [
+            {
+                title: 'Total Evaluators',
+                value: apiData.evaluatorCount || 0,
+                change: `+ ${apiData.evaluatorCount}`,
+                changeClass: 'text-green-600'
+            },
+            {
+                title: 'Total Suppliers',
+                value: apiData.supplierCount || 0,
+                change: `+ ${apiData.supplierCount}`,
+                changeClass: 'text-green-600',
+                link: '/manage-supplier'
+            },
+            {
+                title: 'Total Approvers',
+                value: apiData.approverCount || 0,
+                change: `+ ${apiData.approverCount}`,
+                changeClass: 'text-green-600'
+            },
+            {
+                title: 'Total Assessment Expected',
+                value: evaluationData.totalAssessments || 0, // Extract "totalAssessments" from EvaluationData
+                change: `+ ${evaluationData.totalAssessments}`, // Optional: show pending assessments
+                changeClass: 'text-green-600' // Dynamic class based on value
+            }
+        ];
+    };
+
+    const secondData = (apiData: any): Tile[] => {
+        const evaluationData = apiData.EvaluationData?.[0] || {};
+        return [
+            {
+                title: 'Completed Assessment',
+                value: evaluationData.completedAssessments || 0,
+                change: `+ ${evaluationData.completedAssessments}`,
+                changeClass: 'text-green-500'
+            },
+            {
+                title: 'In Progress Assessment',
+                value: evaluationData.inProgressAssessments || 0,
+                change: `+ ${evaluationData.inProgressAssessments}`,
+                changeClass: 'text-green-500'
+            }
+        ];
+    };
+    const thirdData = (apiData: any): Tile[] => {
+        const evaluationData = apiData.EvaluationData?.[0] || {};
+        return [
+            {
+                title: 'Pending Assessment',
+                value: evaluationData.pendingAssessments || 0,
+                change: `+ ${evaluationData.pendingAssessments}`,
+                changeClass: 'text-green-500'
+            }
+        ];
+    };
     const fourthData = [
         {
             title: 'Task Management',
@@ -173,22 +190,12 @@ const Dashboard = () => {
         { label: 'Supplier Name', placeholder: 'Select Supplier' }
     ];
 
-    const TopSuppliers = [
-        { id: 1, name: 'Ramesh Kumar', region: 'Delhi', score: '95%' },
-        { id: 2, name: 'Amit Sharma', region: 'Mumbai', score: '85%' },
-        { id: 3, name: 'Suresh Gupta', region: 'Bangalore', score: '75%' },
-        { id: 4, name: 'Rajesh Verma', region: 'Chennai', score: '72%' },
-        { id: 5, name: 'Priya Patel', region: 'Kolkata', score: '70%' }
-    ];
-    const BottomSupplier = [
-        { id: 6, name: 'Vikas Reddy', region: 'Hyderabad', score: '50%' },
-        { id: 7, name: 'Anil Joshi', region: 'Pune', score: '45%' },
-        { id: 8, name: 'Sunita Mehta', region: 'Ahmedabad', score: '35%' },
-        { id: 9, name: 'Vijay Singh', region: 'Surat', score: '25%' },
-        { id: 10, name: 'Neelam Sharma', region: 'Lucknow', score: '15%' }
-    ];
-
     const dashes = Array(22).fill('-');
+
+    const thirdDataa = (apiData: any) => {
+        const evaluationData = apiData.EvaluationData?.[0] || {};
+        return [evaluationData.pendingAssessments || 0, evaluationData.inProgressAssessments || 0, evaluationData.completedAssessments || 0];
+    };
 
     const data = {
         labels: ['Pending ', 'In-progress', 'Completed '],
@@ -657,7 +664,7 @@ const Dashboard = () => {
                         <div className="col-12 md:col-6">
                             <div className="pt-3">
                                 <div className="grid grid-nogutter">
-                                    {secondData.map((tile, index) => (
+                                    {secondTilesData.map((tile, index) => (
                                         <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
                                             <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
                                                 <div className="flex justify-content-between gap-2 align-items-center">
@@ -678,7 +685,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="py-3">
                                     <div className="grid grid-nogutter">
-                                        {thirdData.map((tile, index) => (
+                                        {thirdTilesData.map((tile, index) => (
                                             <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
                                                 <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
                                                     <div className="flex justify-content-between gap-2 align-items-center">
