@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation'; // Correct import for Next.js router
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -14,6 +14,7 @@ import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
 
 const SupplierDirectory = () => {
     const router = useRouter();
@@ -27,12 +28,17 @@ const SupplierDirectory = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
+
+    const dataTableRef = useRef<CustomDataTableRef>(null);
+
     useEffect(() => {
         // setScroll(true);
         fetchData();
         fetchsupplierCategories();
         // fetchRolesData();
     }, []);
+
+    
 
     const fetchData = async (params?: any) => {
         if (!params) {
@@ -105,8 +111,24 @@ const SupplierDirectory = () => {
         </span>
     );
 
-    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData.supId, rowData.category.categoryId, rowData.subCategories.subCategoryId)} />;
-    const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData.supId, rowData.category.categoryId, rowData.subCategories.subCategoryId)} />;
+    
+    const evaluateBodyTemplate = (rowData: any) => 
+    (
+        <Button icon="pi pi-plus"
+         className="p-button-rounded p-button-pink-400"
+          onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} 
+          />
+    )
+  
+    
+    const HistoryBodyTemplate = (rowData: any) => (
+        <Button icon="pi pi-eye"
+        className="p-button-rounded p-button-pink-400"
+        onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} 
+        />
+    )
+  
+  
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit
         fetchprocurementCategories(e.value);
@@ -155,7 +177,7 @@ const SupplierDirectory = () => {
                     <div className="">{FieldGlobalSearch}</div>
                 </div>
             </div>
-            <DataTable
+            {/* <DataTable
                 value={suppliers}
                 scrollable
                 // scrollHeight="250px"
@@ -172,7 +194,80 @@ const SupplierDirectory = () => {
                 <Column field="subCategories.subCategoryName" header="Supplier Category" />
                 <Column header="History" body={HistoryBodyTemplate} />
                 <Column header="Evaluate" body={evaluateBodyTemplate} />
-            </DataTable>
+            </DataTable> */}
+
+                                <CustomDataTable
+                                ref={dataTableRef}
+                                // filter
+                                page={page}
+                                limit={limit}
+                                totalRecords={totalRecords}
+                                // extraButtons={getExtraButtons}
+                                data={suppliers?.map((item: any) => ({
+                                    supId: item.supId,
+                                    supplierName: item.supplierName,
+                                    status: item.status,
+                                    warehouseLocation: item.warehouseLocation,
+                                    categoryName: item.category.categoryName,
+                                    subCategoryName: item.subCategories.subCategoryName,
+                                    categoryId: item.category?.categoryId,
+                                    subCategoryId: item.subCategories?.subCategoryId 
+                                }))}
+
+                                columns={[
+                                    {
+                                        header: 'Sr. No',
+                                        body: (data: any, options: any) => {
+                                            const normalizedRowIndex = options.rowIndex % limit;
+                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+
+                                            return <span>{srNo}</span>;
+                                        },
+                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
+                                    },
+                                    {
+                                        header: 'Supplier Name',
+                                        field: 'supplierName',
+                                        bodyStyle: { minWidth: 120, maxWidth: 150 },
+                                        filterPlaceholder: 'Search Supplier Name'
+                                    },
+                                    {
+                                        header: 'Status',
+                                        field: 'status',
+                                        style: { minWidth: 120, maxWidth: 120 }
+                                    },
+                                    {
+                                        header: 'Warehouse Location',
+                                        field: 'warehouseLocation',
+                                        style: { minWidth: 120, maxWidth: 180 }
+                                    },
+                                    
+                                    {
+                                        header: 'Procurement Category',
+                                        field: 'categoryName',
+                                        style: { minWidth: 120, maxWidth: 120 }
+                                    },
+
+                                    {
+                                        header: 'Supplier Category',
+                                        field: 'subCategoryName',
+                                        style: { minWidth: 120, maxWidth: 180 }
+                                    },
+                                    {
+                                        header: 'History',
+                                        body: HistoryBodyTemplate,
+                                        style: { minWidth: 70, maxWidth: 70 },
+                                        className: 'text-center'
+                                    },
+                                    {
+                                        header: 'Evaluate',
+                                        body: evaluateBodyTemplate,
+                                        style: { minWidth: 70, maxWidth: 70 },
+                                        className: 'text-center'
+                                    }
+                                ]}
+                                onLoad={(params: any) => fetchData(params)}
+                            />
         </div>
     );
 };

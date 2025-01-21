@@ -32,11 +32,11 @@ const SupplierScoreboardTables = () => {
     const { supId, catId, subCatId } = params;
 
     const [dialogVisible, setDialogVisible] = useState(false);
-    const [selectedEvaluation, setSelectedEvaluation] = useState({ evaluationPeriod: '', departmentId: '' });
-    // const [lowScoreData, setLowScoreData] = useState([]);
+   
     const [evaluationData, setEvaluationData] = useState([]);
 
-
+    console.log(supplierScore?.ratings?.length);
+    
 
     const [popupData, setPopupData] = useState<any>([])
     useEffect(() => {
@@ -132,35 +132,6 @@ const SupplierScoreboardTables = () => {
 
 
     console.log(popupData);
-
-    
-    const columns = [
-        {
-            header: 'Type',
-            field: 'type',
-            style: { minWidth: 120, maxWidth: 120 }
-        },
-        {
-            header: 'Criteria',
-            field: 'criteria',
-            bodyStyle: { minWidth: 150, maxWidth: 150 }
-        },
-        {
-            header: 'Ratio',
-            field: 'ratio',
-            bodyStyle: { minWidth: 150, maxWidth: 150 }
-        },
-        {
-            header: 'Evaluation',
-            field: 'evaluation',
-            bodyStyle: { minWidth: 150, maxWidth: 150 }
-        },
-        {
-            header: 'Score',
-            field: 'score',
-            bodyStyle: { minWidth: 150, maxWidth: 150 }
-        }
-    ];
     
 
     useEffect(() => {
@@ -322,7 +293,7 @@ const SupplierScoreboardTables = () => {
                         textAlign: 'center'
                     }}
                 />
-                {percentage <= 50 && (
+                {(percentage <= 50  && supplierScore?.ratings?.length > 0)&& (
                     <i 
                         className="pi pi-info-circle text-yellow-500 cursor-pointer"
                         onClick={handleIconClick}
@@ -501,15 +472,15 @@ const SupplierScoreboardTables = () => {
                    
                     onHide={() => setDialogVisible(false)}
                 >
-                    <div className="flex flex-column w-full surface-border p-3 gap-4">
+                    <div className="flex flex-column w-full surface-border p-1 gap-4">
                        
                         
                         <DataTable value={evaluationData} >
-                        <Column field="type" header="Action Needed" style={{ width: '250px' }} />
-                        <Column field="criteria" header="Action Needed" style={{ width: '250px' }} />
-                        <Column field="ratio" header="Action Needed" style={{ width: '250px' }} />
-                        <Column field="evaluation" header="Action Needed" style={{ width: '250px' }} />
-                        <Column field="score" header="Action Needed" style={{ width: '250px' }} />
+                        <Column field="type" header="Type" style={{ width: '250px' }} />
+                        <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
+                        <Column field="ratio" header="Ratio" style={{ width: '250px' }} />
+                        <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
+                        <Column field="score" header="Score" style={{ width: '250px' }} />
                           
                         </DataTable>
                     </div>

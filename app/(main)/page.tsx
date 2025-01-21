@@ -32,6 +32,17 @@ const Dashboard = () => {
     const [topSupplierData, setTopSupplierData] = useState([]);
     const [bottomSupplierData, setBottomSupplierData] = useState([]);
 
+    const [pieData, setPieData] = useState({
+        labels: ['Pending', 'In-progress', 'Completed'],
+        datasets: [{
+            data: [0, 0, 0],
+            backgroundColor: ['#FFE434', '#3A60F8', '#78C47B']
+        }]
+    });
+
+    const [totalDonut, setTotalDonut] = useState<any>()
+
+
     useEffect(() => {
         fetchData();
         fetchTopData();
@@ -56,6 +67,22 @@ const Dashboard = () => {
             setSecondTilesData(SecondTilesData);
             setThirdTilesData(ThirdTilesData);
             setChartData(chartData);
+
+            const { pendingAssessments, inProgressAssessments, completedAssessments } = response.data.evasupa.EvaluationData[0];
+
+            const pending = parseInt(pendingAssessments);
+            const inProgress = parseInt(inProgressAssessments);
+            const completed = parseInt(completedAssessments);
+            const total = pending + inProgress + completed;
+            setTotalDonut(total)
+            setPieData(prev => ({
+                ...prev,
+                datasets: [{
+                    ...prev.datasets[0],
+                    data: [parseInt(pendingAssessments), parseInt(inProgressAssessments), parseInt(completedAssessments)]
+                }]
+            }));
+
 
             if (response.total) {
                 setTotalRecords(response?.total);
@@ -197,16 +224,20 @@ const Dashboard = () => {
         return [evaluationData.pendingAssessments || 0, evaluationData.inProgressAssessments || 0, evaluationData.completedAssessments || 0];
     };
 
-    const data = {
-        labels: ['Pending ', 'In-progress', 'Completed '],
-        datasets: [
-            {
-                data: [50, 80, 54], // Values for the donut chart
-                backgroundColor: ['#FFE434', '#3A60F8', '#78C47B'], // Corresponding colors
-                hoverBackgroundColor: ['#FFE434', '#3A60F8', '#78C47B']
-            }
-        ]
-    };
+    // const data = {
+    //     labels: ['Pending ', 'In-progress', 'Completed '],
+    //     datasets: [
+    //         {
+    //             data: [
+    //                 parseInt(pieData[0].pendingAssessments),
+    //                 parseInt(pieData[0].inProgressAssessments),
+    //                 parseInt(pieData[0].completedAssessments)
+    //             ], // Values for the donut chart
+    //             backgroundColor: ['#FFE434', '#3A60F8', '#78C47B'], // Corresponding colors
+    //             hoverBackgroundColor: ['#FFE434', '#3A60F8', '#78C47B']
+    //         }
+    //     ]
+    // };
 
     const options = {
         plugins: {
@@ -237,14 +268,14 @@ const Dashboard = () => {
     const donutGraph = () => {
         return (
             <div className="surface-0 p-4 border-round shadow-2">
-                <h3 className="text-left mb-2">Total Assessment Summary</h3>
+                <h3 className="text-left mb-2">Total Assessment Summaryyy</h3>
                 <p className="text-left text-sm mb-4">Lorem ipsum dummy text In Progress Assessment Lorem ipsum</p>
 
                 <div className="grid align-items-center">
                     {/* Donut Chart Section */}
                     <div className="col-7 flex justify-content-center">
                         <div className="relative">
-                            <Chart type="doughnut" data={data} options={options} />
+                            <Chart type="doughnut" data={pieData} options={options} />
                             <div
                                 className="flex justify-content-center align-items-center "
                                 style={{
@@ -257,7 +288,7 @@ const Dashboard = () => {
                                     color: '#6C757D'
                                 }}
                             >
-                                184
+                                {totalDonut}
                                 <p className="text-sm m-0">Total</p>
                             </div>
                         </div>
