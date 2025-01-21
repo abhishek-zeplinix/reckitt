@@ -127,6 +127,7 @@ interface Supplier {
 };
 
 interface Rules {
+    capaRuleId:any
     ruleId: any;
     section: string;
     ratedCriteria: string;

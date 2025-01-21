@@ -41,6 +41,7 @@ const ManageRulesPage = () => {
     const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [filterCategories, setCategories] = useState([]);
@@ -212,7 +213,7 @@ const ManageRulesPage = () => {
                         aria-label="Delete Rule"
                         className="bg-pink-500 border-pink-500 hover:text-white"
                         onClick={() => {
-                            BulkDelete();
+                            handleAllDelete()
                         }}
                         style={{ marginLeft: 10 }}
                     />
@@ -345,10 +346,33 @@ const ManageRulesPage = () => {
 
     const closeDeleteDialog = () => {
         setIsDeleteDialogVisible(false);
+        setIsAllDeleteDialogVisible(false);
+    };
+    const handleAllDelete = () => {
+        setIsAllDeleteDialogVisible(true);
+        setIsDeleteDialogVisible(true);
     };
 
     const onDelete = async () => {
         setLoading(true);
+        if(isAllDeleteDialogVisible){
+            try {
+                const response = await DeleteCall(`/company/rules`);
+    
+                if (response.code === 'SUCCESS') {
+                    closeDeleteDialog();
+                    setAlert('success', 'Rule successfully deleted!');
+                    fetchData();
+                } else {
+                    setAlert('error', 'Something went wrong!');
+                    closeDeleteDialog();
+                }
+            } catch (error) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
+            }
+        }else{
 
         try {
             const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
@@ -366,28 +390,29 @@ const ManageRulesPage = () => {
         } finally {
             setLoading(false);
         }
+    }
     };
 
-    const BulkDelete = async () => {
-        setLoading(true);
+    // const BulkDelete = async () => {
+    //     setLoading(true);
 
-        try {
-            const response = await DeleteCall(`/company/rules/`);
+    //     try {
+    //         const response = await DeleteCall(`/company/rules/`);
 
-            if (response.code === 'SUCCESS') {
-                closeDeleteDialog();
-                fetchData();
-                setAlert('success', 'Rule successfully deleted!');
-            } else {
-                setAlert('error', 'Something went wrong!');
-                closeDeleteDialog();
-            }
-        } catch (error) {
-            setAlert('error', 'Something went wrong!');
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         if (response.code === 'SUCCESS') {
+    //             closeDeleteDialog();
+    //             fetchData();
+    //             setAlert('success', 'Rule successfully deleted!');
+    //         } else {
+    //             setAlert('error', 'Something went wrong!');
+    //             closeDeleteDialog();
+    //         }
+    //     } catch (error) {
+    //         setAlert('error', 'Something went wrong!');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
     return (
         <div className="grid">
             <div className="col-12">
@@ -522,32 +547,64 @@ const ManageRulesPage = () => {
                 </div>
 
                 <Dialog
-                    header="Delete confirmation"
-                    visible={isDeleteDialogVisible}
-                    style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
-                    className="delete-dialog"
-                    footer={
-                        <div className="flex justify-content-center p-2">
-                            <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                            <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
-                        </div>
-                    }
-                    onHide={closeDeleteDialog}
-                >
-                    {isLoading && (
-                        <div className="center-pos">
-                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                        </div>
-                    )}
-                    <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
-                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                            header="Delete confirmation"
+                            visible={isDeleteDialogVisible}
+                            style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
+                            className="delete-dialog"
+                            footer={
+                                <div className="flex justify-content-center p-2">
+                                    <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
+                                    <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                                </div>
+                            }
+                            onHide={closeDeleteDialog}
+                        >
+                            {isLoading && (
+                                <div className="center-pos">
+                                    <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                                </div>
+                            )}
+                            <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+                                <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
 
-                        <div className="flex flex-column align-items-center gap-1">
-                            <span>Are you sure you want to delete this rule? </span>
-                            <span>This action cannot be undone. </span>
-                        </div>
-                    </div>
-                </Dialog>
+                                <div className="flex flex-column align-items-center gap-1">
+                                    <span>
+                                        {isAllDeleteDialogVisible 
+                                            ? "Are you sure you want to delete all rule." 
+                                            : "Are you sure you want to delete selected rule."}
+                                    </span>
+                                    <span>This action cannot be undone. </span>
+                                </div>
+                            </div>
+                        </Dialog>
+
+                            {/* <Dialog
+                                header="Delete confirmation"
+                                visible={isAllDeleteDialogVisible}
+                                style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
+                                className="delete-dialog"
+                                footer={
+                                    <div className="flex justify-content-center p-2">
+                                        <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeAllDeleteDialog} />
+                                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={BulkDelete} />
+                                    </div>
+                                }
+                                onHide={closeAllDeleteDialog}
+                            >
+                                {isLoading && (
+                                    <div className="center-pos">
+                                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                                    </div>
+                                )}
+                                <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+                                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                
+                                    <div className="flex flex-column align-items-center gap-1">
+                                        <span>Are you sure you want to delete all rule. </span>
+                                        <span>This action cannot be undone. </span>
+                                    </div>
+                                </div>
+                            </Dialog> */}
             </div>
         </div>
     );

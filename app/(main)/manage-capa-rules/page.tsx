@@ -50,6 +50,7 @@ const ManageCapaRulesPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
+    const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
     const handleCreateNavigation = () => {
         router.push('/manage-capa-rules/create-new-capa-rules'); // Replace with the route you want to navigate to
     };
@@ -165,6 +166,13 @@ const ManageCapaRulesPage = () => {
     const handleEditRules = (capaRuleId: any) => {
         router.push(`/manage-capa-rules/create-new-capa-rules?edit=true&capaRuleId=${capaRuleId}`);
     };
+    const openAllDeleteDialog = (items:any) => {
+        setIsAllDeleteDialogVisible(true);
+    };
+
+    const closeAllDeleteDialog = () => {
+        setIsAllDeleteDialogVisible(false);
+    };
 
     const renderHeader = () => {
         return (
@@ -209,7 +217,7 @@ const ManageCapaRulesPage = () => {
                         aria-label="Delete Rule"
                         className="bg-pink-500 border-pink-500 hover:text-white"
                         onClick={() => {
-                            BulkDelete();
+                            handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
                     />
@@ -345,7 +353,7 @@ const ManageCapaRulesPage = () => {
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
-        setSelectedRuleId(perm.ruleId);
+        setSelectedRuleId(perm.capaRuleId);
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
@@ -356,50 +364,76 @@ const ManageCapaRulesPage = () => {
         setIsDeleteDialogVisible(true);
     };
 
-    const closeDeleteDialog = () => {
-        setIsDeleteDialogVisible(false);
-    };
-
-    const onDelete = async () => {
-        setLoading(true);
-
-        try {
-            const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
-
-            if (response.code === 'SUCCESS') {
-                setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
-                closeDeleteDialog();
-                setAlert('success', 'Rule successfully deleted!');
-            } else {
+     const closeDeleteDialog = () => {
+            setIsDeleteDialogVisible(false);
+            setIsAllDeleteDialogVisible(false);
+        };
+        const handleAllDelete = () => {
+            setIsAllDeleteDialogVisible(true);
+            setIsDeleteDialogVisible(true);
+        };
+    
+        const onDelete = async () => {
+            setLoading(true);
+            if(isAllDeleteDialogVisible){
+                try {
+                    const response = await DeleteCall(`/company/caparule`);
+        
+                    if (response.code === 'SUCCESS') {
+                        closeDeleteDialog();
+                        setAlert('success', 'Rule successfully deleted!');
+                        fetchData();
+                    } else {
+                        setAlert('error', 'Something went wrong!');
+                        closeDeleteDialog();
+                    }
+                } catch (error) {
+                    setAlert('error', 'Something went wrong!');
+                } finally {
+                    setLoading(false);
+                }
+            }else{
+    
+            try {
+                const response = await DeleteCall(`/company/caparule/${selectedRuleId}`);
+    
+                if (response.code === 'SUCCESS') {
+                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
+                    closeDeleteDialog();
+                    setAlert('success', 'Rule successfully deleted!');
+                    fetchData();
+                } else {
+                    setAlert('error', 'Something went wrong!');
+                    closeDeleteDialog();
+                }
+            } catch (error) {
                 setAlert('error', 'Something went wrong!');
-                closeDeleteDialog();
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            setAlert('error', 'Something went wrong!');
-        } finally {
-            setLoading(false);
         }
-    };
-    const BulkDelete = async () => {
-        setLoading(true);
+        };
+    
+    // const BulkDelete = async () => {
+    //     setLoading(true);
 
-        try {
-            const response = await DeleteCall(`/company/caparule/`);
+    //     try {
+    //         const response = await DeleteCall(`/company/caparule/`);
 
-            if (response.code === 'SUCCESS') {
-                closeDeleteDialog();
-                fetchData();
-                setAlert('success', 'Rule successfully deleted!');
-            } else {
-                setAlert('error', 'Something went wrong!');
-                closeDeleteDialog();
-            }
-        } catch (error) {
-            setAlert('error', 'Something went wrong!');
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         if (response.code === 'SUCCESS') {
+    //             closeAllDeleteDialog();
+    //             fetchData();
+    //             setAlert('success', 'Rule successfully deleted!');
+    //         } else {
+    //             setAlert('error', 'Something went wrong!');
+    //             closeAllDeleteDialog();
+    //         }
+    //     } catch (error) {
+    //         setAlert('error', 'Something went wrong!');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="grid">
@@ -506,33 +540,38 @@ const ManageCapaRulesPage = () => {
                     </div>
                 </div>
 
-                <Dialog
-                    header="Delete confirmation"
-                    visible={isDeleteDialogVisible}
-                    style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
-                    className="delete-dialog"
-                    footer={
-                        <div className="flex justify-content-center p-2">
-                            <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                            <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
-                        </div>
-                    }
-                    onHide={closeDeleteDialog}
-                >
-                    {isLoading && (
-                        <div className="center-pos">
-                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                        </div>
-                    )}
-                    <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
-                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                                            <Dialog
+    header="Delete confirmation"
+    visible={isDeleteDialogVisible}
+    style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
+    className="delete-dialog"
+    footer={
+        <div className="flex justify-content-center p-2">
+            <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
+            <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+        </div>
+    }
+    onHide={closeDeleteDialog}
+>
+    {isLoading && (
+        <div className="center-pos">
+            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+        </div>
+    )}
+    <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
 
-                        <div className="flex flex-column align-items-center gap-1">
-                            <span>Are you sure you want to delete this capa rule? </span>
-                            <span>This action cannot be undone. </span>
-                        </div>
-                    </div>
-                </Dialog>
+        <div className="flex flex-column align-items-center gap-1">
+            <span>
+                {isAllDeleteDialogVisible 
+                    ? "Are you sure you want to delete all CAPA rule." 
+                    : "Are you sure you want to delete selected CAPA rule."}
+            </span>
+            <span>This action cannot be undone. </span>
+        </div>
+    </div>
+</Dialog>
+
             </div>
         </div>
     );
