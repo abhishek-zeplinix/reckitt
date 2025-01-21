@@ -440,19 +440,19 @@ const AppMenu = () => {
                 {
                     label: 'Request Management',
                     icon: 'pi pi-bolt',
-                    check: (user: any) => {
-                        // Check if the user is a super admin
-                        if (get(user, 'isSuperAdmin')) {
-                            return true;
-                        }
+                    // check: (user: any) => {
+                    //     // Check if the user is a super admin
+                    //     if (get(user, 'isSuperAdmin')) {
+                    //         return true;
+                    //     }
 
-                        // Check if the user has the required permissions
-                        const userPermissions = get(user, 'permissions.permissions', []);
-                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                    //     // Check if the user has the required permissions
+                    //     const userPermissions = get(user, 'permissions.permissions', []);
+                    //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                        // Grant access based on permissions
-                        return hasPermission;
-                    },
+                    //     // Grant access based on permissions
+                    //     return hasPermission;
+                    // },
                     items: [
                         {
                             label: 'Manage Request',
@@ -475,19 +475,19 @@ const AppMenu = () => {
                         {
                             label: 'Generate Request',
                             url: '/generate-requests',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                            // check: (user: any) => {
+                            //     // Check if the user is a super admin
+                            //     if (get(user, 'isSuperAdmin')) {
+                            //         return true;
+                            //     }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                            //     // Check if the user has the required permissions
+                            //     const userPermissions = get(user, 'permissions.permissions', []);
+                            //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
+                            //     // Grant access based on permissions
+                            //     return hasPermission;
+                            // },
                             command: handleMenuClick
                         }
                     ]
@@ -495,19 +495,19 @@ const AppMenu = () => {
                 {
                     label: 'Supplier Feedback',
                     icon: 'pi pi-gift',
-                    check: (user: any) => {
-                        // Check if the user is a super admin
-                        if (get(user, 'isSuperAdmin')) {
-                            return true;
-                        }
+                    // check: (user: any) => {
+                    //     // Check if the user is a super admin
+                    //     if (get(user, 'isSuperAdmin')) {
+                    //         return true;
+                    //     }
 
-                        // Check if the user has the required permissions
-                        const userPermissions = get(user, 'permissions.permissions', []);
-                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                    //     // Check if the user has the required permissions
+                    //     const userPermissions = get(user, 'permissions.permissions', []);
+                    //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                        // Grant access based on permissions
-                        return hasPermission;
-                    },
+                    //     // Grant access based on permissions
+                    //     return hasPermission;
+                    // },
                     items: [
                         {
                             label: 'Manage Feedback',
@@ -530,19 +530,19 @@ const AppMenu = () => {
                         {
                             label: 'Create new feedback',
                             url: '/add-feedback',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                            // check: (user: any) => {
+                            //     // Check if the user is a super admin
+                            //     if (get(user, 'isSuperAdmin')) {
+                            //         return true;
+                            //     }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                            //     // Check if the user has the required permissions
+                            //     const userPermissions = get(user, 'permissions.permissions', []);
+                            //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
+                            //     // Grant access based on permissions
+                            //     return hasPermission;
+                            // },
                             command: handleMenuClick
                         }
                     ]
