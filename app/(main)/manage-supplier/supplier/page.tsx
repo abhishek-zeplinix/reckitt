@@ -137,16 +137,16 @@ const ManageSupplierAddEditPage = () => {
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
         if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId') {
-        if (val) { 
-            const trimmedValue = val.trim();
-            const wordCount = trimmedValue.length;
-            if (name !== 'siteAddress' && name !== 'warehouseLocation') {
-                if (wordCount > 25) {
-                    setAlert('error', 'Word limit exceeded!');
-                    return;
+            if (val) {
+                const trimmedValue = val.trim();
+                const wordCount = trimmedValue.length;
+                if (name !== 'siteAddress' && name !== 'warehouseLocation') {
+                    if (wordCount > 25) {
+                        setAlert('error', 'Word limit exceeded!');
+                        return;
+                    }
                 }
             }
-        }
         }
         setForm((prevForm) => {
             const updatedForm = {
@@ -250,7 +250,7 @@ const ManageSupplierAddEditPage = () => {
             setAlert('error', 'Site address cannot be empty');
             return;
         }
-        if (!validateText(form.warehouseLocation)) {
+        if (!validateSiteAddress(form.warehouseLocation)) {
             setAlert('error', 'Warehouse location cannot be empty');
             return;
         }
