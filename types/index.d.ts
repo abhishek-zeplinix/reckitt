@@ -132,7 +132,7 @@ interface Field {
     section: string;
     categoryId: number | null;
     subCategoryId: number | null;
-    criteria: string;
+    ratedCriteria: string;
     criteriaEvaluation: string;
     score: string;
     ratiosRawpack: string;

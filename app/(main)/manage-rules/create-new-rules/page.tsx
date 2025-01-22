@@ -43,7 +43,7 @@ const CreateNewRulesPage = () => {
             section:  '',
             categoryId:  null,
             subCategoryId:  null,
-            criteria: '',
+            ratedCriteria: '',
             criteriaEvaluation: '',
             score: '',
             ratiosRawpack: '',
@@ -51,7 +51,7 @@ const CreateNewRulesPage = () => {
         },
       ]);
       
-      type FieldKey = 'criteria' | 'criteriaEvaluation' | 'score' | 'ratiosRawpack' | 'ratiosCopack';
+      type FieldKey = 'ratedCriteria' | 'criteriaEvaluation' | 'score' | 'ratiosRawpack' | 'ratiosCopack';
 
 const handleChange = (index: number, field: FieldKey, value: string) => {
   const updatedFields = [...fields];
@@ -96,7 +96,7 @@ const handleAddFields = () => {
 
   const newFieldSet: Field = {
     ...commonFields,
-    criteria: '',
+    ratedCriteria: '',
     criteriaEvaluation: '',
     score: '',
     ratiosRawpack: '',
@@ -110,78 +110,92 @@ const handleRemoveField = (index: number) => {
 };
   
 console.log('67',fields)
-    const handleSubmit = async () => {
-        const userForm = {
-            effectiveFrom: date || null,
-            departmentId: selectedProcurementDepartment || null,
-            orderBy: parseInt(orderBy) || null,
-            section: selectedsection || '',
-            categoryId: selectedProcurementCategory || null,
-            subCategoryId: selectedSupplierCategory || null,
-            ratedCriteria: selectedCriteria || '',
-            criteriaEvaluation: selectedcriteriaEvaluation || '',
-            score: selectedScore || null,
-            ratiosRawpack: parseInt(selectedratiosRawpack) || 0,
-            ratiosCopack: parseInt(selectedratiosCopack) || 0
-        };
-        let endpoint: string;
-        let response: CustomResponse;
-        if (isEditMode) {
-            if (!validateField(userForm.orderBy)) {
-                setAlert('error', 'OrderBy cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.departmentId)) {
-                setAlert('error', 'Department cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.categoryId)) {
-                setAlert('error', 'Supplier Category cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.subCategoryId)) {
-                setAlert('error', 'Procurement Category cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.section)) {
-                setAlert('error', 'Section cannot be empty');
-                return;
-            }
+const handleSubmit = async () => {
+    // Validate all fields
+    for (const field of fields) {
+        const {
+            effectiveFrom,
+            departmentId,
+            orderBy,
+            section,
+            categoryId,
+            subCategoryId,
+            ratedCriteria,
+            criteriaEvaluation,
+            score,
+            ratiosRawpack,
+            ratiosCopack,
+        } = field;
 
-            if (!validateField(userForm.ratedCriteria)) {
-                setAlert('error', 'Criteria cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.criteriaEvaluation)) {
-                setAlert('error', 'Criteria evaluation cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.score)) {
-                setAlert('error', 'Score name cannot be empty');
-                return;
-            }
+        if (!validateField(effectiveFrom)) {
+            setAlert('error', 'effective From cannot be empty');
+            return;
+        }
+        if (!validateField(orderBy)) {
+            setAlert('error', 'OrderBy cannot be empty');
+            return;
+        }
+        if (!validateField(departmentId)) {
+            setAlert('error', 'Department cannot be empty');
+            return;
+        }
+        if (!validateField(categoryId)) {
+            setAlert('error', 'Supplier Category cannot be empty');
+            return;
+        }
+        if (!validateField(subCategoryId)) {
+            setAlert('error', 'Procurement Category cannot be empty');
+            return;
+        }
+        if (!validateField(section)) {
+            setAlert('error', 'Section cannot be empty');
+            return;
+        }
+        if (!validateField(ratedCriteria)) {
+            setAlert('error', 'Criteria cannot be empty');
+            return;
+        }
+        if (!validateField(criteriaEvaluation)) {
+            setAlert('error', 'Criteria evaluation cannot be empty');
+            return;
+        }
+        if (!validateField(score)) {
+            setAlert('error', 'Score cannot be empty');
+            return;
+        }
+        if (!validateField(ratiosCopack)) {
+            setAlert('error', 'Ratios copack cannot be empty');
+            return;
+        }
+        if (!validateField(ratiosRawpack)) {
+            setAlert('error', 'Ratios rawpack cannot be empty');
+            return;
+        }
+    }
 
-            if (!validateField(userForm.ratiosCopack)) {
-                setAlert('error', 'Ratios copack name cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.ratiosRawpack)) {
-                setAlert('error', 'Ratios rawpack cannot be empty');
-                return;
-            }
-            endpoint = `/company/rules/${ruleId}`;
-            response = await PutCall(endpoint, userForm); // Call PUT API
+
+    if (isEditMode) {
+        const endpoint = `/company/rules/${ruleId}`;
+        try {
+            const response: CustomResponse = await PutCall(endpoint, fields); // Call PUT API
             if (response.code === 'SUCCESS') {
                 router.push('/manage-rules');
                 setAlert('success', 'Rules updated.');
             } else {
                 setAlert('error', response.message);
             }
-        } else {
-            // Submit data to API
-            onNewAdd(userForm);
+        } catch (error) {
+            setAlert('error', 'Failed to update rules. Please try again.');
         }
-    };
+    } else {
+        try {
+            onNewAdd(fields); // Submit data for new addition
+            setAlert('success', 'Rules added successfully.');
+        } catch (error) {
+            setAlert('error', 'Failed to add rules. Please try again.');
+        }
+    }
+};
 
     useEffect(() => {
         fetchprocurementDepartment();
@@ -269,50 +283,69 @@ console.log('67',fields)
     };
 
     const onNewAdd = async (userForm: any) => {
-        if (!validateField(userForm.orderBy)) {
-            setAlert('error', 'OrderBy cannot be empty');
-            return;
+        for (const field of fields) {
+            const {
+                effectiveFrom,
+                departmentId,
+                orderBy,
+                section,
+                categoryId,
+                subCategoryId,
+                ratedCriteria,
+                criteriaEvaluation,
+                score,
+                ratiosRawpack,
+                ratiosCopack,
+            } = field;
+    
+            if (!validateField(effectiveFrom)) {
+                setAlert('error', 'effective From cannot be empty');
+                return;
+            }
+            if (!validateField(orderBy)) {
+                setAlert('error', 'OrderBy cannot be empty');
+                return;
+            }
+            if (!validateField(departmentId)) {
+                setAlert('error', 'Department cannot be empty');
+                return;
+            }
+            if (!validateField(categoryId)) {
+                setAlert('error', 'Supplier Category cannot be empty');
+                return;
+            }
+            if (!validateField(subCategoryId)) {
+                setAlert('error', 'Procurement Category cannot be empty');
+                return;
+            }
+            if (!validateField(section)) {
+                setAlert('error', 'Section cannot be empty');
+                return;
+            }
+            if (!validateField(ratedCriteria)) {
+                setAlert('error', 'Criteria cannot be empty');
+                return;
+            }
+            if (!validateField(criteriaEvaluation)) {
+                setAlert('error', 'Criteria evaluation cannot be empty');
+                return;
+            }
+            if (!validateField(score)) {
+                setAlert('error', 'Score cannot be empty');
+                return;
+            }
+            if (!validateField(ratiosCopack)) {
+                setAlert('error', 'Ratios copack cannot be empty');
+                return;
+            }
+            if (!validateField(ratiosRawpack)) {
+                setAlert('error', 'Ratios rawpack cannot be empty');
+                return;
+            }
         }
-        if (!validateField(userForm.departmentId)) {
-            setAlert('error', 'Department cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.categoryId)) {
-            setAlert('error', 'Supplier Category cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.subCategoryId)) {
-            setAlert('error', 'Procurement Category cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.section)) {
-            setAlert('error', 'Section cannot be empty');
-            return;
-        }
-
-        if (!validateField(userForm.ratedCriteria)) {
-            setAlert('error', 'Criteria cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.criteriaEvaluation)) {
-            setAlert('error', 'Criteria evaluation cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.score)) {
-            setAlert('error', 'Score name cannot be empty');
-            return;
-        }
-
-        if (!validateField(userForm.ratiosCopack)) {
-            setAlert('error', 'Ratios copack name cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.ratiosRawpack)) {
-            setAlert('error', 'Ratios rawpack cannot be empty');
-            return;
-        }
+    
         setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/rules`, userForm);
+        const response: CustomResponse = await PostCall(`/company/rules`, fields);
         setIsDetailLoading(false);
         if (response.code == 'SUCCESS') {
             router.push('/manage-rules');
@@ -390,12 +423,12 @@ console.log('67',fields)
                                 <>
                                 
                                 <div key={index} className="field col-4">
-                                <label htmlFor="criteria">Criteria</label>
+                                <label htmlFor="ratedCriteria">Criteria</label>
                                 <input
                                     type="text"
                                     placeholder="Criteria"
-                                    value={field.criteria}
-                                    onChange={(e) => handleChange(index, 'criteria', e.target.value)}
+                                    value={field.ratedCriteria}
+                                    onChange={(e) => handleChange(index, 'ratedCriteria', e.target.value)}
                                     className="p-inputtext w-full"
                                 />
                                 </div>
