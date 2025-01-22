@@ -5,11 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import _ from 'lodash';
 import { Dropdown } from 'primereact/dropdown';
-import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
-import { CustomResponse } from '@/types';
+import { CustomResponse, Field } from '@/types';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { validateField } from '@/utils/utils';
+import { Calendar } from 'primereact/calendar';
 
 const CreateNewRulesPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
@@ -30,12 +30,89 @@ const CreateNewRulesPage = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    const [date, setDate] = useState<Date | null>(null);
     const router = useRouter();
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Rules' : 'Add Rules';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add Rules';
+    const [fields, setFields] = useState<Field[]>([
+        {
+            effectiveFrom:null,
+            departmentId: null,
+            orderBy: null ,
+            section:  '',
+            categoryId:  null,
+            subCategoryId:  null,
+            criteria: '',
+            criteriaEvaluation: '',
+            score: '',
+            ratiosRawpack: '',
+            ratiosCopack: '',
+        },
+      ]);
+      
+      type FieldKey = 'criteria' | 'criteriaEvaluation' | 'score' | 'ratiosRawpack' | 'ratiosCopack';
+
+const handleChange = (index: number, field: FieldKey, value: string) => {
+  const updatedFields = [...fields];
+  updatedFields[index][field] = value;
+  setFields(updatedFields);
+};
+// Helper function to ensure all objects in the fields array have common fields updated
+const updateCommonFields = () => {
+    const commonFields = {
+      effectiveFrom: date || null,
+      departmentId: selectedProcurementDepartment || null,
+      orderBy: parseInt(orderBy) || null,
+      section: selectedsection || '',
+      categoryId: selectedProcurementCategory || null,
+      subCategoryId: selectedSupplierCategory || null,
+    };
+  
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      ...commonFields,
+    }));
+  
+    setFields(updatedFields);
+  };
+
+  // Update common fields when they change
+useEffect(() => {
+    updateCommonFields();
+  }, [date, selectedProcurementDepartment, orderBy, selectedsection, selectedProcurementCategory, selectedSupplierCategory]);
+  
+
+  // Add new set of fields at the end
+const handleAddFields = () => {
+  const commonFields = {
+    effectiveFrom: date || null,
+    departmentId: selectedProcurementDepartment || null,
+    orderBy: parseInt(orderBy) || null,
+    section: selectedsection || '',
+    categoryId: selectedProcurementCategory || null,
+    subCategoryId: selectedSupplierCategory || null,
+  };
+
+  const newFieldSet: Field = {
+    ...commonFields,
+    criteria: '',
+    criteriaEvaluation: '',
+    score: '',
+    ratiosRawpack: '',
+    ratiosCopack: '',
+  };
+
+  setFields([...fields, newFieldSet]);
+};
+const handleRemoveField = (index: number) => {
+    setFields(fields.filter((_, i) => i !== index));
+};
+  
+console.log('67',fields)
     const handleSubmit = async () => {
         const userForm = {
+            effectiveFrom: date || null,
             departmentId: selectedProcurementDepartment || null,
             orderBy: parseInt(orderBy) || null,
             section: selectedsection || '',
@@ -249,7 +326,6 @@ const CreateNewRulesPage = () => {
         fetchprocurementCategories(value); // Call the API with the selected value
     };
 
-    const { departments } = useFetchDepartments();
     const renderContentbody = () => {
         return (
             <div className="grid">
@@ -257,6 +333,12 @@ const CreateNewRulesPage = () => {
                     <div className="flex flex-column gap-3 pt-2">
                         <h2 className="text-center font-bold ">{pageTitle}</h2>
                         <div className="p-fluid grid md:mx-7 pt-2">
+                            <div className="field col-4">
+                                <label htmlFor="effectiveFrom">
+                                    Select Effective Date:
+                                </label>
+                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                            </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
                                 <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
@@ -300,35 +382,83 @@ const CreateNewRulesPage = () => {
                                     className="w-full"
                                 />
                             </div>
-
-                            {/* <div className="field col-4">
-                                <label htmlFor="manufacturerName">Criteria Category</label>
-                                <input id="manufacturerName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter  Name" />
-                            </div> */}
                             <div className="field col-4">
                                 <label htmlFor="section">Section</label>
                                 <input id="section" type="text" value={selectedsection} onChange={(e) => setSelectedsection(e.target.value)} className="p-inputtext w-full" placeholder="Enter Section Name" />
                             </div>
-                            <div className="field col-4">
-                                <label htmlFor="ratedCriteria">Criteria</label>
-                                <input id="ratedCriteria" type="text" value={selectedCriteria} onChange={(e) => setCriteria(e.target.value)} className="p-inputtext w-full" placeholder="Enter Factory Name" />
-                            </div>
-                            <div className="field col-4">
+                            {fields.map((field, index) => (
+                                <>
+                                
+                                <div key={index} className="field col-4">
+                                <label htmlFor="criteria">Criteria</label>
+                                <input
+                                    type="text"
+                                    placeholder="Criteria"
+                                    value={field.criteria}
+                                    onChange={(e) => handleChange(index, 'criteria', e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                <div key={index} className="field col-4">
                                 <label htmlFor="criteriaEvaluation">Criteria Evaluation List</label>
-                                <input id="criteriaEvaluation" type="text" value={selectedcriteriaEvaluation} onChange={(e) => setcriteriaEvaluation(e.target.value)} className="p-inputtext w-full" placeholder="Enter Criteria Evaluation" />
-                            </div>
-                            <div className="field col-4">
+                                <input
+                                    type="text"
+                                    placeholder="Criteria Evaluation List"
+                                    value={field.criteriaEvaluation}
+                                    onChange={(e) => handleChange(index, 'criteriaEvaluation', e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                <div key={index} className="field col-4">
                                 <label htmlFor="score">Criteria Score</label>
-                                <input id="score" type="text" value={selectedScore} onChange={(e) => setScore(e.target.value)} className="p-inputtext w-full" placeholder="Enter Score" />
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="ratiosRawpack">Ratio Co Pack</label>
-                                <input id="ratiosRawpack" type="text" value={selectedratiosRawpack} onChange={(e) => setratiosRawpack(e.target.value)} className="p-inputtext w-full" placeholder="Enter Ratio Co Pack" />
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="ratiosCopack">Ratios Raw & Pack</label>
-                                <input id="ratiosCopack" type="text" value={selectedratiosCopack} onChange={(e) => setratiosCopack(e.target.value)} className="p-inputtext w-full" placeholder="Enter Ratios Raw & Pack" />
-                            </div>
+                                <input
+                                    type="text"
+                                    placeholder="Criteria Score"
+                                    value={field.score}
+                                    onChange={(e) => handleChange(index, 'score', e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                <div key={index} className="field col-4">
+                                <label htmlFor="ratiosRawpack">Ratios Raw & Pack</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ratios Raw & Pack"
+                                    value={field.ratiosRawpack}
+                                    onChange={(e) => handleChange(index, 'ratiosRawpack', e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                <div key={index} className="field col-4">
+                                <label htmlFor="ratiosCopack">Ratio Co Pack</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ratio Co Pack"
+                                    value={field.ratiosCopack}
+                                    onChange={(e) => handleChange(index, 'ratiosCopack', e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                <div key={index} className="field col-4">
+                    
+                    {fields.length>1 && (
+                        <Button
+                            className="p-button-rounded p-button-red-400 mt-4"
+                            // label="Remove"
+                            icon="pi pi-trash"
+                            // className="p-button-danger"
+                            onClick={() => handleRemoveField(index)}
+                        />
+                    )}
+                    </div>
+                                </>
+                            ))}
+                            <Button
+                                icon="pi pi-plus"
+                                label="Add"
+                                onClick={handleAddFields}
+                                className="p-button-sm p-button-secondary mb-4 col-2 ml-2"
+                            />
                         </div>
                     </div>
                 </div>

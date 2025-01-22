@@ -393,26 +393,6 @@ const ManageRulesPage = () => {
     }
     };
 
-    // const BulkDelete = async () => {
-    //     setLoading(true);
-
-    //     try {
-    //         const response = await DeleteCall(`/company/rules/`);
-
-    //         if (response.code === 'SUCCESS') {
-    //             closeDeleteDialog();
-    //             fetchData();
-    //             setAlert('success', 'Rule successfully deleted!');
-    //         } else {
-    //             setAlert('error', 'Something went wrong!');
-    //             closeDeleteDialog();
-    //         }
-    //     } catch (error) {
-    //         setAlert('error', 'Something went wrong!');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
     return (
         <div className="grid">
             <div className="col-12">
@@ -476,14 +456,12 @@ const ManageRulesPage = () => {
                                     {
                                         header: 'DEPARTMENT ',
                                         field: 'department',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'PROCUREMENT CATEGORY ',
                                         field: 'category',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
@@ -491,7 +469,6 @@ const ManageRulesPage = () => {
                                         header: 'SUPPLIER CATEGORY',
                                         field: 'subCategories',
                                         sortable: true,
-                                        // filter: true,
 
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 150, maxWidth: 150 }
@@ -499,42 +476,36 @@ const ManageRulesPage = () => {
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'section',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'CRITERIA',
                                         field: 'ratedCriteria',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'CRITERIA EVALUATION LIST',
                                         field: 'criteriaEvaluation',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'CRITERIA SCORE',
                                         field: 'score',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'RATIOS COPACK',
                                         field: 'ratiosCopack',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'RATIOS RAW&PACK',
                                         field: 'ratiosRawpack',
-                                        // filter: true,
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     }
@@ -577,34 +548,6 @@ const ManageRulesPage = () => {
                                 </div>
                             </div>
                         </Dialog>
-
-                            {/* <Dialog
-                                header="Delete confirmation"
-                                visible={isAllDeleteDialogVisible}
-                                style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
-                                className="delete-dialog"
-                                footer={
-                                    <div className="flex justify-content-center p-2">
-                                        <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeAllDeleteDialog} />
-                                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={BulkDelete} />
-                                    </div>
-                                }
-                                onHide={closeAllDeleteDialog}
-                            >
-                                {isLoading && (
-                                    <div className="center-pos">
-                                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                                    </div>
-                                )}
-                                <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
-                                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
-                
-                                    <div className="flex flex-column align-items-center gap-1">
-                                        <span>Are you sure you want to delete all rule. </span>
-                                        <span>This action cannot be undone. </span>
-                                    </div>
-                                </div>
-                            </Dialog> */}
             </div>
         </div>
     );

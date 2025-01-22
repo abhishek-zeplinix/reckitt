@@ -125,7 +125,19 @@ interface Supplier {
 
     };
 };
-
+interface Field {
+    effectiveFrom: Date | null;
+    departmentId: number | null;
+    orderBy: number | null;
+    section: string;
+    categoryId: number | null;
+    subCategoryId: number | null;
+    criteria: string;
+    criteriaEvaluation: string;
+    score: string;
+    ratiosRawpack: string;
+    ratiosCopack: string;
+  }
 interface Rules {
     capaRuleId:any
     ruleId: any;
@@ -309,5 +321,6 @@ export type {
     MappedSupplierScore,
     Department,
     SupplierScoreboardSummary,
-    Tile
+    Tile,
+    Field
 };
