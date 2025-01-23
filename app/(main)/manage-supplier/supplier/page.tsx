@@ -351,12 +351,74 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
 
                                 <div className="field col-4">
-                                    <label htmlFor="location" className="font-semibold">
-                                        Location
+                                    <label htmlFor="email" className="font-semibold">
+                                        Email Address
                                     </label>
-                                    <InputText id="name" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Location Name" className="p-inputtext w-full" />
+                                    <InputText id="email" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full" />
                                 </div>
-
+                                <div className="field col-4">
+                                    <label htmlFor="phone" className="font-semibold">
+                                        Phone Number
+                                    </label>
+                                    <InputText id="phone" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Phone Number " className="p-inputtext w-full" />
+                                </div>
+                                <div className="field col-4">
+                                    <label htmlFor="country" className="font-semibold">
+                                        Country
+                                    </label>
+                                    <Dropdown
+                                        id="supplierCategory"
+                                        value={get(form, 'supplierCategoryId')}
+                                        options={category}
+                                        // optionLabel="subCategoryName"
+                                        // optionValue="subCategoryId"
+                                        optionLabel="categoryName"
+                                        optionValue="categoryId"
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
+                                        placeholder="Select Procurement Category"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-4">
+                                    <label htmlFor="state" className="font-semibold">
+                                        State
+                                    </label>
+                                    <Dropdown
+                                        id="supplierCategory"
+                                        value={get(form, 'supplierCategoryId')}
+                                        options={category}
+                                        // optionLabel="subCategoryName"
+                                        // optionValue="subCategoryId"
+                                        optionLabel="categoryName"
+                                        optionValue="categoryId"
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
+                                        placeholder="Select Procurement Category"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-4">
+                                    <label htmlFor="city" className="font-semibold">
+                                        City
+                                    </label>
+                                    <Dropdown
+                                        id="supplierCategory"
+                                        value={get(form, 'supplierCategoryId')}
+                                        options={category}
+                                        // optionLabel="subCategoryName"
+                                        // optionValue="subCategoryId"
+                                        optionLabel="categoryName"
+                                        optionValue="categoryId"
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
+                                        placeholder="Select Procurement Category"
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div className="field col-4">
+                                    <label htmlFor="city" className="font-semibold">
+                                        ZipCode
+                                    </label>
+                                    <InputText id="city" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full" />
+                                </div>
                                 <div className="field col-4">
                                     <label htmlFor="siteAddress" className="font-semibold">
                                         Site Address

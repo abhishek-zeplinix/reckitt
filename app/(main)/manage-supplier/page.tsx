@@ -359,21 +359,41 @@ const ManageSupplierPage = () => {
     const handleCreateNavigation = () => {
         router.push('/manage-supplier/supplier');
     };
+
+    const dialogHeader = () => {
+        return (
+            <div className="flex justify-content-between align-items-center w-full">
+                <span>Choose your file</span>
+                <Button
+                    label="Download Sample PDF"
+                    icon="pi pi-download"
+                    className="p-button-text p-button-sm text-pink-600"
+                    onClick={() => {
+                        // Trigger PDF download
+                        const link = document.createElement('a');
+                        link.href = '/path-to-your-pdf.pdf'; // Replace with the actual path to your PDF
+                        link.download = 'example.pdf'; // Replace with the desired file name
+                        link.click();
+                    }}
+                />
+            </div>
+        );
+    };
     const renderHeader = () => {
         return (
-            <div className="flex justify-content-between">
+            <div className="flex justify-content-between ">
                 <span className="p-input-icon-left flex align-items-center">
                     <h3 className="mb-0">Manage Suppliers</h3>
                 </span>
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} onClick={() => setVisible(true)} />
                     <Dialog
-                        header="Choose your file"
+                        header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={5000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>

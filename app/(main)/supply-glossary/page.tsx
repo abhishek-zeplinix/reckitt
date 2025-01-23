@@ -11,6 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import 'primeicons/primeicons.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import { useAuth } from '@/layout/context/authContext';
 
 interface Glossary {
     id: number;
@@ -21,7 +22,7 @@ interface Glossary {
 const SupplyGlossaryPage = () => {
     const { isLoading, setLoading, setAlert } = useAppContext();
     const { layoutState } = useContext(LayoutContext);
-
+    const { isSuperAdmin } = useAuth();
     const [glossaryData, setGlossaryData] = useState<Glossary[]>([]);
     const [visible, setVisible] = useState(false);
     const [selectedGlossary, setSelectedGlossary] = useState<Glossary | null>(null);
@@ -142,9 +143,11 @@ const SupplyGlossaryPage = () => {
                             <h3 className="mb-1 text-md font-medium">Supply glossary of categories</h3>
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
                         </div>
-                        <div>
-                            <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleAddNew} />
-                        </div>
+                        {isSuperAdmin() && (
+                            <div>
+                                <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleAddNew} />
+                            </div>
+                        )}
                     </div>
 
                     <Dialog header={selectedGlossary ? 'Edit Supply Glossary' : 'Add New Supply Glossary'} visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} footer={<DialogFooter />}>
@@ -213,32 +216,34 @@ const SupplyGlossaryPage = () => {
                                                     <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
                                                         {glossary.name}
                                                     </span>
-                                                    <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                        <i
-                                                            className="pi pi-file-edit"
-                                                            style={{
-                                                                color: '#64748B',
-                                                                padding: '5px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleEditClick(glossary);
-                                                            }}
-                                                        />
-                                                        <i
-                                                            className="pi pi-trash"
-                                                            style={{
-                                                                color: '#F56565',
-                                                                padding: '5px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                openDeleteDialog(glossary.id);
-                                                            }}
-                                                        />
-                                                    </div>
+                                                    {isSuperAdmin() && (
+                                                        <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                                                            <i
+                                                                className="pi pi-file-edit"
+                                                                style={{
+                                                                    color: '#64748B',
+                                                                    padding: '5px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleEditClick(glossary);
+                                                                }}
+                                                            />
+                                                            <i
+                                                                className="pi pi-trash"
+                                                                style={{
+                                                                    color: '#F56565',
+                                                                    padding: '5px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openDeleteDialog(glossary.id);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </button>
                                         )}

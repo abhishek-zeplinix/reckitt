@@ -1724,14 +1724,14 @@
   }
 
   .p-radiobutton .p-radiobutton-box:not(.p-disabled):not(.p-highlight):hover {
-    border-color: #0068e3;
+    border-color: #df177c !important;
   }
 
   .p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
     outline: 0 none;
     outline-offset: 0;
-    box-shadow: 0 0 0 0.2rem #C7D2FE;
-    border-color: #0068e3;
+    /* box-shadow: 0 0 0 0.2rem #e274ab; */
+    border-color: #df177c;
   }
 
   .p-radiobutton .p-radiobutton-box .p-radiobutton-icon {
@@ -1742,13 +1742,13 @@
   }
 
   .p-radiobutton .p-radiobutton-box.p-highlight {
-    border-color: #0068e3;
-    background: #0068e3;
+    border-color: #df177c;
+    background: #df177c;
   }
 
   .p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
-    border-color: #4338CA;
-    background: #4338CA;
+    border-color: #df177c;
+    background: #df177c;
     color: #ffffff;
   }
 
@@ -1769,11 +1769,11 @@
   }
 
   .p-input-filled .p-radiobutton .p-radiobutton-box.p-highlight {
-    background: #0068e3;
+    background: #df177c;
   }
 
   .p-input-filled .p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
-    background: #4338CA;
+    background: #df177c;
   }
 
   .p-rating {

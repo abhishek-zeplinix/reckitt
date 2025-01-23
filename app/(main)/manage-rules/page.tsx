@@ -170,6 +170,25 @@ const ManageRulesPage = () => {
 
     const { isLoading, setLoading, setAlert } = useAppContext();
 
+    const dialogHeader = () => {
+        return (
+            <div className="flex justify-content-between align-items-center w-full">
+                <span>Choose your file</span>
+                <Button
+                    label="Download Sample PDF"
+                    icon="pi pi-download"
+                    className="p-button-text p-button-sm text-pink-600"
+                    onClick={() => {
+                        // Trigger PDF download
+                        const link = document.createElement('a');
+                        link.href = '/path-to-your-pdf.pdf'; // Replace with the actual path to your PDF
+                        link.download = 'example.pdf'; // Replace with the desired file name
+                        link.click();
+                    }}
+                />
+            </div>
+        );
+    };
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -187,16 +206,14 @@ const ManageRulesPage = () => {
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
                     />
                     <Dialog
-                        header="Choose your file"
+                        header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
-
-                        <div className="mt-3">
+                        <div className="mb-3">
                             <div>
-                                <div className="flex justify-center items-center gap-4 mt-2">
+                                <div className="flex justify-center items-center gap-4 ">
                                     <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
                                         Select Effective Date:
                                     </label>
@@ -204,6 +221,7 @@ const ManageRulesPage = () => {
                                 </div>
                             </div>
                         </div>
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                     <Button
@@ -213,7 +231,7 @@ const ManageRulesPage = () => {
                         aria-label="Delete Rule"
                         className="bg-pink-500 border-pink-500 hover:text-white"
                         onClick={() => {
-                            handleAllDelete()
+                            handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
                     />
@@ -355,10 +373,10 @@ const ManageRulesPage = () => {
 
     const onDelete = async () => {
         setLoading(true);
-        if(isAllDeleteDialogVisible){
+        if (isAllDeleteDialogVisible) {
             try {
                 const response = await DeleteCall(`/company/rules`);
-    
+
                 if (response.code === 'SUCCESS') {
                     closeDeleteDialog();
                     setAlert('success', 'Rule successfully deleted!');
@@ -372,25 +390,24 @@ const ManageRulesPage = () => {
             } finally {
                 setLoading(false);
             }
-        }else{
+        } else {
+            try {
+                const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
-        try {
-            const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
-
-            if (response.code === 'SUCCESS') {
-                setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
-                closeDeleteDialog();
-                setAlert('success', 'Rule successfully deleted!');
-            } else {
+                if (response.code === 'SUCCESS') {
+                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
+                    closeDeleteDialog();
+                    setAlert('success', 'Rule successfully deleted!');
+                } else {
+                    setAlert('error', 'Something went wrong!');
+                    closeDeleteDialog();
+                }
+            } catch (error) {
                 setAlert('error', 'Something went wrong!');
-                closeDeleteDialog();
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            setAlert('error', 'Something went wrong!');
-        } finally {
-            setLoading(false);
         }
-    }
     };
 
     return (
@@ -518,36 +535,32 @@ const ManageRulesPage = () => {
                 </div>
 
                 <Dialog
-                            header="Delete confirmation"
-                            visible={isDeleteDialogVisible}
-                            style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
-                            className="delete-dialog"
-                            footer={
-                                <div className="flex justify-content-center p-2">
-                                    <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                                    <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
-                                </div>
-                            }
-                            onHide={closeDeleteDialog}
-                        >
-                            {isLoading && (
-                                <div className="center-pos">
-                                    <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                                </div>
-                            )}
-                            <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
-                                <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                    header="Delete confirmation"
+                    visible={isDeleteDialogVisible}
+                    style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
+                    className="delete-dialog"
+                    footer={
+                        <div className="flex justify-content-center p-2">
+                            <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
+                            <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                        </div>
+                    }
+                    onHide={closeDeleteDialog}
+                >
+                    {isLoading && (
+                        <div className="center-pos">
+                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                        </div>
+                    )}
+                    <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
 
-                                <div className="flex flex-column align-items-center gap-1">
-                                    <span>
-                                        {isAllDeleteDialogVisible 
-                                            ? "Are you sure you want to delete all rule." 
-                                            : "Are you sure you want to delete selected rule."}
-                                    </span>
-                                    <span>This action cannot be undone. </span>
-                                </div>
-                            </div>
-                        </Dialog>
+                        <div className="flex flex-column align-items-center gap-1">
+                            <span>{isAllDeleteDialogVisible ? 'Are you sure you want to delete all rule.' : 'Are you sure you want to delete selected rule.'}</span>
+                            <span>This action cannot be undone. </span>
+                        </div>
+                    </div>
+                </Dialog>
             </div>
         </div>
     );
