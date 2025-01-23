@@ -432,14 +432,6 @@ const ManageSupplierPage = () => {
                                     isEdit={true} // show edit button
                                     isDelete={true} // show delete button
                                     data={suppliers}
-                                    // extraButtons={[
-                                    //     {
-                                    //         icon: 'pi pi-user-edit',
-                                    //         onClick: (e) => {
-                                    //             handleEditUser(e.id); // Pass the userId from the row data
-                                    //         }
-                                    //     }
-                                    // ]}
                                     columns={[
                                         {
                                             header: 'Sr. No',
@@ -454,43 +446,56 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
-                                            filterPlaceholder: 'Supplier Name',
                                             style: { minWidth: 120, maxWidth: 120 }
                                         },
                                         {
                                             header: 'Procurement Category',
                                             field: 'category.categoryName',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            filterPlaceholder: 'Proc Category'
                                         },
                                         {
                                             header: 'Supplier Category',
                                             field: 'subCategories.subCategoryName',
-                                            filterPlaceholder: 'Supplier Category',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Manufacturer Name',
                                             field: 'supplierManufacturerName',
-                                            filterPlaceholder: 'Manufacturer Name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Site Address',
                                             field: 'siteAddress',
-                                            filterPlaceholder: 'Search Site Address',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Factory Name',
                                             field: 'factoryName',
-                                            filterPlaceholder: 'Factory Name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Warehouse Location',
                                             field: 'warehouseLocation',
-                                            filterPlaceholder: 'Warehouse Location',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'Country',
+                                            field: 'country',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'State',
+                                            field: 'state',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'City',
+                                            field: 'city',
+
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },{
+                                            header: 'Zip',
+                                            field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         }
                                     ]}

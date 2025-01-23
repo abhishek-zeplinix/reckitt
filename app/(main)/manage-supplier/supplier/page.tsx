@@ -275,10 +275,10 @@ const ManageSupplierAddEditPage = () => {
             case 1:
                 return (
                     <div>
-                        <div className="flex flex-column gap-3 pt-2">
+                        <div className="flex flex-column gap-2 pt-2">
                             <h2 className="text-center font-bold ">{pageTitle}</h2>
                             <div className="p-fluid grid mx-1 pt-2">
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="supplierName" className="font-semibold">
                                         Supplier Name
                                     </label>
@@ -292,7 +292,7 @@ const ManageSupplierAddEditPage = () => {
                                         required
                                     />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="manufacturerName" className="font-semibold">
                                         Manufacturer Name
                                     </label>
@@ -305,14 +305,14 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Enter Manufacturer Name"
                                     />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="factoryName" className="font-semibold">
                                         Factory Name
                                     </label>
                                     <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full" />
                                 </div>
 
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="supplierCategory" className="font-semibold">
                                         Procurement Category
                                     </label>
@@ -330,7 +330,7 @@ const ManageSupplierAddEditPage = () => {
                                     />
                                 </div>
 
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="procurementCategory" className="font-semibold">
                                         Supplier Category
                                     </label>
@@ -350,19 +350,19 @@ const ManageSupplierAddEditPage = () => {
                                     )}
                                 </div>
 
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="email" className="font-semibold">
                                         Email Address
                                     </label>
                                     <InputText id="email" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full" />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="phone" className="font-semibold">
                                         Phone Number
                                     </label>
                                     <InputText id="phone" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Phone Number " className="p-inputtext w-full" />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="country" className="font-semibold">
                                         Country
                                     </label>
@@ -379,7 +379,7 @@ const ManageSupplierAddEditPage = () => {
                                         className="w-full"
                                     />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="state" className="font-semibold">
                                         State
                                     </label>
@@ -396,7 +396,7 @@ const ManageSupplierAddEditPage = () => {
                                         className="w-full"
                                     />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
@@ -413,20 +413,20 @@ const ManageSupplierAddEditPage = () => {
                                         className="w-full"
                                     />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         ZipCode
                                     </label>
                                     <InputText id="city" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full" />
                                 </div>
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="siteAddress" className="font-semibold">
                                         Site Address
                                     </label>
                                     <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
                                 </div>
 
-                                <div className="field col-4">
+                                <div className="field col-3">
                                     <label htmlFor="warehouseLocation" className="font-semibold">
                                         Warehouse Location
                                     </label>
@@ -441,9 +441,9 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="px-3">
+                        {/* <div className="px-3">
                             <i className="text-red-400 text-sm">All feilds required *</i>
-                        </div>
+                        </div> */}
                     </div>
                 );
             case 2:
