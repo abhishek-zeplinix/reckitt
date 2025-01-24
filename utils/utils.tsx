@@ -57,16 +57,16 @@ export const validateCountryCode = (countryCode: string) => {
     return true;
 };
 
-export const validateEmail = (email: string) => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (typeof email !== 'string' || email.trim() === '') {
-        return false;
-    }
-    if (!emailPattern.test(email)) {
-        return false;
-    }
-    return true;
-};
+// export const validateEmail = (email: string) => {
+//     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (typeof email !== 'string' || email.trim() === '') {
+//         return false;
+//     }
+//     if (!emailPattern.test(email)) {
+//         return false;
+//     }
+//     return true;
+// };
 export const validateNumberOfRacks = (noOfRacks: number) => {
     if (typeof noOfRacks !== 'string' || noOfRacks <= 0) {
         return false; // Invalid if not a positive number
@@ -229,10 +229,6 @@ export const validateText = (text: string): boolean => {
     if (typeof text !== 'string' || text.trim() === '') {
         return false; // Text should not be empty
     }
-    const wordCount = text.trim().split(/\s+/).length; // Split by whitespace and count words
-    if (wordCount >= 80) {
-        return false; // Text should have less than 80 words
-    }
     return true;
 };
 export const validateSiteAddress = (address: string): boolean => {
@@ -248,3 +244,39 @@ export const validateField = (fieldValue: any): boolean => {
     }
     return true; // Field has data
 };
+
+// Email Validation
+export const validateEmail = (email: string): boolean => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation pattern
+    if (typeof email !== 'string' || email.trim() === '') {
+        return false; // Email must be a non-empty string
+    }
+    return emailPattern.test(email);
+};
+
+// Phone Number Validation
+export const validatePhoneNumber = (phoneNumber: string): boolean => {
+    const phonePattern = /^[0-9]{10}$/; // Validates a 10-digit phone number
+    if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
+        return false; // Phone number must be a non-empty string
+    }
+    return phonePattern.test(phoneNumber);
+};
+
+export const validateZipCode = (zip: string): boolean => {
+    const zipPattern = /^[0-9]{1,5}$/; // Matches 1 to 5 digits
+    if (typeof zip !== 'string' || zip.trim() === '') {
+        return false; // ZIP code must be a non-empty string
+    }
+    return zipPattern.test(zip);
+};
+
+
+export const validateFullName = (fullName: string): boolean => {
+    const fullNamePattern = /^[a-zA-Z]+( [a-zA-Z]+)*$/; // Validates full name format (case-insensitive)
+    if (typeof fullName !== 'string' || fullName.trim() === '') {
+        return false; // Full name must be a non-empty string
+    }
+    return fullNamePattern.test(fullName);
+};
+

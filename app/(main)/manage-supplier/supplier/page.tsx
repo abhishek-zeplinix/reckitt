@@ -6,7 +6,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
-import { buildQueryParams, validateName, validateSiteAddress, validateText } from '@/utils/utils';
+import { buildQueryParams, validateEmail, validateFullName, validateName, validatePhoneNumber, validateSiteAddress, validateString, validateText, validateZipCode } from '@/utils/utils';
 import { InputText } from 'primereact/inputtext';
 import { get } from 'lodash';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -17,9 +17,14 @@ import Stepper from '@/components/Stepper';
 const defaultForm: EmptySupplier = {
     supId: null,
     supplierName: '',
+    supplierNumber:'',
     supplierManufacturerName: '',
     siteAddress: '',
     procurementCategoryId: null,
+    stateId:null,
+    districtId:null,
+    email:'',
+    Zip:'',
     supplierCategoryId: null,
     warehouseLocation: '',
     factoryName: '',
@@ -48,6 +53,9 @@ const ManageSupplierAddEditPage = () => {
     });
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
     const [category, setCategory] = useState<any>([]);
+    const [allCountry, setAllCountry] = useState<any>([]);
+    const [allState, setAllState] = useState<any>([]);
+    const [allCity, setAllCity] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
 
     // map API response to form structure
@@ -70,8 +78,8 @@ const ManageSupplierAddEditPage = () => {
             try {
                 await Promise.all([
                     fetchCategory(),
-                    // fetchSubCategory(),
-                    isEditMode && fetchSupplierData()
+                    fetchAllCountry(),
+                    isEditMode &&  fetchSupplierData()
                 ]);
             } finally {
                 setLoading(false);
@@ -114,6 +122,25 @@ const ManageSupplierAddEditPage = () => {
             setCategory(response.data);
         }
     };
+    const fetchAllCountry = async () => {
+        const response: CustomResponse = await GetCall(`/company/supplier/countries`);
+        if (response.code === 'SUCCESS') {
+            setAllCountry(response.data);
+            
+        }
+    };
+    const fetchAllSatate = async (countryId:any) => {
+        const response: CustomResponse = await GetCall(`/company/supplier/states/${countryId}`);
+        if (response.code === 'SUCCESS') {
+            setAllState(response.data.states);
+        }
+    };
+    const fetchAllCity = async (stateId:any) => {
+        const response: CustomResponse = await GetCall(`/company/supplier/districts/${stateId}`);
+        if (response.code === 'SUCCESS') {
+            setAllCity(response.data.districts);
+        }
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -136,13 +163,20 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId') {
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId'&& name !== 'countryId'&& name !== 'stateId'&& name !== 'districtId') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
                 if (name !== 'siteAddress' && name !== 'warehouseLocation') {
                     if (wordCount > 25) {
                         setAlert('error', 'Word limit exceeded!');
+                        return;
+                    }
+                }
+                if(name==='supplierNumber'){
+                    const typeValue=typeof(val);
+                    if (isNaN(Number(val)) || typeValue !== 'string') {
+                        setAlert('error', 'Phone must be a valid number');
                         return;
                     }
                 }
@@ -153,12 +187,18 @@ const ManageSupplierAddEditPage = () => {
                 ...prevForm,
                 ...(typeof name === 'string' ? { [name]: val } : name)
             };
-
             if (name === 'supplierCategoryId') {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-
+            if (name === 'countryId') {
+                fetchAllSatate(val);
+                updatedForm.stateId = null;
+            }
+            if (name === 'stateId') {
+                fetchAllCity(val);
+                updatedForm.districtId = null;
+            }
             return updatedForm;
         });
     };
@@ -190,27 +230,31 @@ const ManageSupplierAddEditPage = () => {
         const { name, checked } = event.target;
         setChecked((prev) => ({ ...prev, [name]: checked }));
     };
-
     // navigation Handlers
     const handleNext = () => {
-        // if (!validateEachFiledExceed(form)) {
-        //     setAlert('error', 'value too long for type character varying(70)');
-        //     return;
-        // }
-        if (!validateText(form.supplierName)) {
-            setAlert('error', 'Supplier name cannot be empty');
+
+        if (!validateFullName(form.supplierName)) {
+            setAlert('error', 'Supplier name must be in proper format');
             return;
         }
-        if (!validateText(form.supplierManufacturerName)) {
-            setAlert('error', 'Supplier manufacturer name cannot be empty');
+        if (!validateFullName(form.supplierManufacturerName)) {
+            setAlert('error', 'Supplier manufacturer must be in proper format');
             return;
         }
-        if (!validateText(form.location)) {
-            setAlert('error', 'Location cannot be empty');
+        if (!validateFullName(form.factoryName)) {
+            setAlert('error', 'Factory must be in proper format');
             return;
         }
-        if (!validateText(form.factoryName)) {
-            setAlert('error', 'Factory name cannot be empty');
+        if (!validateEmail(form.email)) {
+            setAlert('error', 'Email must be in proper format');
+            return;
+        }
+        if (!validatePhoneNumber(form.supplierNumber)) {
+            setAlert('error', 'Phone number must be in proper format');
+            return;
+        }
+        if (!validateZipCode(form.Zip)) {
+            setAlert('error', 'Zip must be in proper format');
             return;
         }
         if (!validateSiteAddress(form.siteAddress)) {
@@ -229,30 +273,6 @@ const ManageSupplierAddEditPage = () => {
                 return newSteps;
             });
             setCurrentStep((prev) => prev + 1);
-        }
-        if (!validateText(form.supplierName)) {
-            setAlert('error', 'Supplier name cannot be empty');
-            return;
-        }
-        if (!validateText(form.supplierManufacturerName)) {
-            setAlert('error', 'Supplier manufacturer name cannot be empty');
-            return;
-        }
-        if (!validateText(form.location)) {
-            setAlert('error', 'Location cannot be empty');
-            return;
-        }
-        if (!validateText(form.factoryName)) {
-            setAlert('error', 'Factory name cannot be empty');
-            return;
-        }
-        if (!validateSiteAddress(form.siteAddress)) {
-            setAlert('error', 'Site address cannot be empty');
-            return;
-        }
-        if (!validateSiteAddress(form.warehouseLocation)) {
-            setAlert('error', 'Warehouse location cannot be empty');
-            return;
         }
     };
 
@@ -320,8 +340,6 @@ const ManageSupplierAddEditPage = () => {
                                         id="supplierCategory"
                                         value={get(form, 'supplierCategoryId')}
                                         options={category}
-                                        // optionLabel="subCategoryName"
-                                        // optionValue="subCategoryId"
                                         optionLabel="categoryName"
                                         optionValue="categoryId"
                                         onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
@@ -329,7 +347,6 @@ const ManageSupplierAddEditPage = () => {
                                         className="w-full"
                                     />
                                 </div>
-
                                 <div className="field col-3">
                                     <label htmlFor="procurementCategory" className="font-semibold">
                                         Supplier Category
@@ -354,28 +371,26 @@ const ManageSupplierAddEditPage = () => {
                                     <label htmlFor="email" className="font-semibold">
                                         Email Address
                                     </label>
-                                    <InputText id="email" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full" />
+                                    <InputText id="email" value={get(form, 'email')} type="text" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full" />
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="phone" className="font-semibold">
+                                    <label htmlFor="supplierNumber" className="font-semibold">
                                         Phone Number
                                     </label>
-                                    <InputText id="phone" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter Phone Number " className="p-inputtext w-full" />
+                                    <InputText id="supplierNumber" value={get(form, 'supplierNumber')} type="text" onChange={(e) => onInputChange('supplierNumber', e.target.value)} placeholder="Enter Phone Number " className="p-inputtext w-full" />
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="country" className="font-semibold">
                                         Country
                                     </label>
                                     <Dropdown
-                                        id="supplierCategory"
-                                        value={get(form, 'supplierCategoryId')}
-                                        options={category}
-                                        // optionLabel="subCategoryName"
-                                        // optionValue="subCategoryId"
-                                        optionLabel="categoryName"
-                                        optionValue="categoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
-                                        placeholder="Select Procurement Category"
+                                        id="countryId"
+                                        value={get(form, 'countryId')}
+                                        options={allCountry}
+                                        optionLabel="name"
+                                        optionValue="countryId"
+                                        onChange={(e) => onInputChange('countryId', e.value)}
+                                        placeholder="Select Country"
                                         className="w-full"
                                     />
                                 </div>
@@ -384,40 +399,36 @@ const ManageSupplierAddEditPage = () => {
                                         State
                                     </label>
                                     <Dropdown
-                                        id="supplierCategory"
-                                        value={get(form, 'supplierCategoryId')}
-                                        options={category}
-                                        // optionLabel="subCategoryName"
-                                        // optionValue="subCategoryId"
-                                        optionLabel="categoryName"
-                                        optionValue="categoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
-                                        placeholder="Select Procurement Category"
+                                        id="stateId"
+                                        value={get(form, 'stateId')}
+                                        options={allState}
+                                        optionLabel="name"
+                                        optionValue="stateId"
+                                        onChange={(e) => onInputChange('stateId', e.value)}
+                                        placeholder="Select state"
                                         className="w-full"
                                     />
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="city" className="font-semibold">
+                                    <label htmlFor="cityId" className="font-semibold">
                                         City
                                     </label>
                                     <Dropdown
-                                        id="supplierCategory"
-                                        value={get(form, 'supplierCategoryId')}
-                                        options={category}
-                                        // optionLabel="subCategoryName"
-                                        // optionValue="subCategoryId"
-                                        optionLabel="categoryName"
-                                        optionValue="categoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
-                                        placeholder="Select Procurement Category"
+                                        id="districtId"
+                                        value={get(form, 'districtId')}
+                                        options={allCity}
+                                        optionLabel="name"
+                                        optionValue="districtId"
+                                        onChange={(e) => onInputChange('districtId', e.value)}
+                                        placeholder="Select city"
                                         className="w-full"
                                     />
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="city" className="font-semibold">
+                                    <label htmlFor="Zip" className="font-semibold">
                                         ZipCode
                                     </label>
-                                    <InputText id="city" value={get(form, 'location')} type="text" onChange={(e) => onInputChange('location', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full" />
+                                    <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full" />
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="siteAddress" className="font-semibold">
@@ -425,7 +436,6 @@ const ManageSupplierAddEditPage = () => {
                                     </label>
                                     <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
                                 </div>
-
                                 <div className="field col-3">
                                     <label htmlFor="warehouseLocation" className="font-semibold">
                                         Warehouse Location

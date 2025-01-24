@@ -301,9 +301,14 @@ type EmptySupplier = {
     supplierManufacturerName: string;
     siteAddress: string;
     procurementCategoryId?: number | null;
+    stateId:number | null;
+    email:string;
+    supplierNumber:string,
+    Zip:string;
     supplierCategoryId?: number | null;
     warehouseLocation: string;
     factoryId?: number | null;
+    districtId?:number | null;
     gmpFile?: any;
     gdpFile?: any;
     reachFile: any;
