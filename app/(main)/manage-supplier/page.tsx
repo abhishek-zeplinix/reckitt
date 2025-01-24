@@ -16,6 +16,9 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { EmptySupplier } from '@/types/forms';
 import { FileUpload } from 'primereact/fileupload';
 import { Dropdown } from 'primereact/dropdown';
+import { RadioButton } from 'primereact/radiobutton';
+import { Calendar } from 'primereact/calendar';
+import { InputTextarea } from 'primereact/inputtextarea';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -78,7 +81,8 @@ const ManageSupplierPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-
+    const [chooseBlockOption, setChooseBlockOption] = useState('');
+    const [date, setDate] = useState<Date | null>(null);
     useEffect(() => {
         setScroll(true);
         fetchData();
@@ -432,6 +436,11 @@ const ManageSupplierPage = () => {
                                     isEdit={true} // show edit button
                                     isDelete={true} // show delete button
                                     data={suppliers}
+                                    extraButtons={[
+                                        {
+                                            icon: 'pi pi-ban'
+                                        }
+                                    ]}
                                     columns={[
                                         {
                                             header: 'Sr. No',
@@ -451,7 +460,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Procurement Category',
                                             field: 'category.categoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Supplier Category',
@@ -493,7 +502,8 @@ const ManageSupplierPage = () => {
                                             field: 'city',
 
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },{
+                                        },
+                                        {
                                             header: 'Zip',
                                             field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
@@ -509,14 +519,14 @@ const ManageSupplierPage = () => {
                 </div>
             </div>
             <Dialog
-                header="Delete confirmation"
+                header="Blocking confirmation"
                 visible={isDeleteDialogVisible}
                 style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
                 className="delete-dialog"
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                        <Button label="Save" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
@@ -527,11 +537,63 @@ const ManageSupplierPage = () => {
                     </div>
                 )}
                 <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
-                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                    <div className="flex flex-wrap gap-3 mt-2 mb-1 justify-content-center">
+                        <div className="flex align-items-center flex-column gap-3">
+                            <div className="flex align-items-center">
+                                <RadioButton inputId="block" name="block" value="Permanent Block" onChange={(e) => setChooseBlockOption(e.value)} checked={chooseBlockOption === 'Permanent Block'} />
+                                <label htmlFor="block" className="ml-2">
+                                    Permanent Block
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex align-items-center flex-column gap-3">
+                            <div className="flex align-items-center">
+                                <RadioButton inputId="tempBlock" name="tempBlock" value="Temporary Block" onChange={(e) => setChooseBlockOption(e.value)} checked={chooseBlockOption === 'Temporary Block'} />
+
+                                <label htmlFor="tempBlock" className="ml-2">
+                                    Temporary Block
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    {/* <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
                         <span>Are you sure you want to delete this supplier? </span>
                         <span>This action cannot be undone. </span>
+                    </div> */}
+                    <div className="flex flex-column align-items-center gap-1">
+                        {chooseBlockOption === 'Permanent Block' && (
+                            <div className="w-full">
+                                <InputTextarea
+                                    id="name"
+                                    // type='text'
+                                    onChange={(e: any) => {}}
+                                    placeholder="Enter Reason"
+                                    className="p-inputtext w-full"
+                                />
+                            </div>
+                        )}
+                        {chooseBlockOption === 'Temporary Block' && (
+                            <div className="flex flex-column">
+                                <InputTextarea
+                                    id="name"
+                                    // type='text'
+                                    onChange={(e: any) => {}}
+                                    placeholder="Enter Reason"
+                                    className="p-inputtext w-full"
+                                />
+                                <div className="flex flex-column justify-center items-center gap-2 mt-4">
+                                    <label htmlFor="calendarInput" className="block mb-1 text-md ">
+                                        Select Period of Block:
+                                    </label>
+                                    <div className="flex gap-4">
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </Dialog>
