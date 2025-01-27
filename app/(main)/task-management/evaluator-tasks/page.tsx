@@ -50,7 +50,7 @@ const ControlTower = () => {
                             {Tabs?.map((item: any) => (
                                 <div
                                     key={item}
-                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === item ? 'text-pink-500 border border-pink-500 rounded-lg' : 'text-gray-500 border-none'}`}
+                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === item ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'}`}
                                     style={{
                                         border: activeTab === item ? '1px solid #ec4899' : 'none',
                                         borderRadius: activeTab === item ? '12px' : '0'

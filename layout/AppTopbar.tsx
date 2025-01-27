@@ -51,17 +51,17 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             command: () => setVisible(true)
         }
     ];
-    const menuToggleClass = classNames('menu-toggle-icon bg-pink-500', {
-            'toogle-overlay': layoutConfig.menuMode === 'overlay',
-            'toogle-static': layoutConfig.menuMode === 'static',
-            'toogle-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-            'toogle-overlay-active': layoutState.overlayMenuActive,
-            'toogle-mobile-active': layoutState.staticMenuMobileActive
-        });
+    const menuToggleClass = classNames('menu-toggle-icon bg-primary-main', {
+        'toogle-overlay': layoutConfig.menuMode === 'overlay',
+        'toogle-static': layoutConfig.menuMode === 'static',
+        'toogle-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
+        'toogle-overlay-active': layoutState.overlayMenuActive,
+        'toogle-mobile-active': layoutState.staticMenuMobileActive
+    });
     const iconClass = classNames('pi', {
-            'pi-angle-left': !layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-            'pi-angle-right': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
-        });
+        'pi-angle-left': !layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
+        'pi-angle-right': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
+    });
     useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,
         topbarmenu: topbarmenuRef.current,
@@ -82,15 +82,14 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
 
     return (
         <div className="layout-topbar">
-            
             <Link href="/" className="layout-topbar-logo">
                 <img src="/images/reckitt.webp" width="100px" height={'40px'} alt="logo" />
             </Link>
             {!layoutState.isMobile && (
-                    <div className={menuToggleClass} onClick={onMenuToggle}>
-                        <i className={iconClass}></i>
-                    </div>
-                )}
+                <div className={menuToggleClass} onClick={onMenuToggle}>
+                    <i className={iconClass}></i>
+                </div>
+            )}
 
             {layoutState.isMobile && (
                 <button ref={menubuttonRef} type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>

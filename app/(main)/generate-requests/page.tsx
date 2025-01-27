@@ -29,7 +29,7 @@ const GenerateRequestPage = () => {
         status: 'Pending',
         // Keep IDs for backward compatibility
         supplierCategoryId: null,
-        procurementCategoryId: null,
+        procurementCategoryId: null
     });
 
     const [categories, setCategories] = useState<any>([]);
@@ -43,10 +43,7 @@ const GenerateRequestPage = () => {
     const fetchInitialData = async () => {
         setLoading(true);
         try {
-            await Promise.all([
-                fetchCategories(),
-                fetchSupplierData()
-            ]);
+            await Promise.all([fetchCategories(), fetchSupplierData()]);
         } finally {
             setLoading(false);
         }
@@ -182,11 +179,10 @@ const GenerateRequestPage = () => {
     //     });
     // };
 
-    
     const handleSubmit = async () => {
         // Get requested data based on checked fields
         const requestedData: any = {};
-        Object.keys(selectedFields).forEach(field => {
+        Object.keys(selectedFields).forEach((field) => {
             if (selectedFields[field]) {
                 // For categories, send the names instead of IDs
                 if (field === 'supplierCategoryId') {
@@ -198,12 +194,12 @@ const GenerateRequestPage = () => {
                 }
             }
         });
-    
+
         if (Object.keys(requestedData).length === 0) {
             setAlert('info', 'No fields selected for update');
             return;
         }
-    
+
         try {
             setLoading(true);
             const apiData = {
@@ -212,17 +208,15 @@ const GenerateRequestPage = () => {
             };
 
             console.log(apiData);
-            
-            
+
             const response = await PostCall('/company/manageRequest', apiData);
 
-                    if (response.code === 'SUCCESS') {
-                        setAlert('success', 'Request submitted successfully');
-                        router.push('/manage-requests');
-                    } else {
-                        setAlert('error', response.message);
-                    }
-                    
+            if (response.code === 'SUCCESS') {
+                setAlert('success', 'Request submitted successfully');
+                router.push('/manage-requests');
+            } else {
+                setAlert('error', response.message);
+            }
         } catch (error) {
             setAlert('error', 'Failed to submit request');
         } finally {
@@ -233,7 +227,7 @@ const GenerateRequestPage = () => {
     const handleInputChange = (name: any, value: any) => {
         setFormData((prev: any) => {
             const updated = { ...prev, [name]: value };
-    
+
             // Handle category selection
             if (name === 'supplierCategoryId') {
                 const category = categories.find((c: any) => c.categoryId === value);
@@ -242,13 +236,13 @@ const GenerateRequestPage = () => {
                 updated.procurementCategory = '';
                 fetchSubCategories(value);
             }
-    
+
             // Handle subcategory selection
             if (name === 'procurementCategoryId') {
                 const subCategory = subCategories.find((sc: any) => sc.subCategoryId === value);
                 updated.procurementCategory = subCategory?.subCategoryName || '';
             }
-    
+
             return updated;
         });
     };
@@ -264,10 +258,7 @@ const GenerateRequestPage = () => {
         return (
             <div className="flexfield col-4">
                 <div className="flex align-items-center gap-2 mb-1">
-                    <Checkbox
-                        checked={selectedFields[fieldName] || false}
-                        onChange={() => toggleField(fieldName)}
-                    />
+                    <Checkbox checked={selectedFields[fieldName] || false} onChange={() => toggleField(fieldName)} />
                     <label className="font-semibold">{label}</label>
                 </div>
                 <div>
@@ -288,11 +279,17 @@ const GenerateRequestPage = () => {
                         <h2 className="text-center font-bold">Generate request to change information</h2>
 
                         <div className="p-fluid grid mx-1 pt-2">
-                            {renderField('supplierName', 'Supplier Name', <InputText value={formData.supplierName}
-                                onChange={(e) => handleInputChange('supplierName', e.target.value)} className="p-inputtext w-full"
-                                placeholder="Enter Supplier Name" />)}
+                            {renderField(
+                                'supplierName',
+                                'Supplier Name',
+                                <InputText value={formData.supplierName} onChange={(e) => handleInputChange('supplierName', e.target.value)} className="p-inputtext w-full" placeholder="Enter Supplier Name" />
+                            )}
 
-                            {renderField('supplierEmail', 'Supplier Email', <InputText value={formData.supplierEmail} onChange={(e) => handleInputChange('supplierEmail', e.target.value)} className="p-inputtext w-full" placeholder="Enter Supplier Email" />)}
+                            {renderField(
+                                'supplierEmail',
+                                'Supplier Email',
+                                <InputText value={formData.supplierEmail} onChange={(e) => handleInputChange('supplierEmail', e.target.value)} className="p-inputtext w-full" placeholder="Enter Supplier Email" />
+                            )}
 
                             {renderField(
                                 'supplierContact',
@@ -342,21 +339,17 @@ const GenerateRequestPage = () => {
                                 <InputTextarea value={formData.warehouseLocation} onChange={(e) => handleInputChange('warehouseLocation', e.target.value)} className="p-inputtext w-full" placeholder="Enter Warehouse Location" />
                             )}
 
-                            {renderField('siteAddress', 'Site Address', <InputTextarea value={formData.siteAddress} onChange={(e) => handleInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />)}
+                            {renderField(
+                                'siteAddress',
+                                'Site Address',
+                                <InputTextarea value={formData.siteAddress} onChange={(e) => handleInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
+                            )}
                         </div>
-
-
                     </div>
                 </div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    <Button
-                        label="Update"
-                        icon="pi pi-check"
-                        className="bg-pink-500 border-pink-500 hover:text-white mb-3"
-                        onClick={handleSubmit}
-                        disabled={Object.keys(selectedFields).length === 0}
-                    />
+                    <Button label="Update" icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSubmit} disabled={Object.keys(selectedFields).length === 0} />
                 </div>
             </div>
         </div>

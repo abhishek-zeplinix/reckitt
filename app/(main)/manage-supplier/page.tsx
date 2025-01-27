@@ -35,9 +35,9 @@ const defaultForm: EmptySupplier = {
     siteAddress: '',
     procurementCategoryId: null,
     supplierCategoryId: null,
-    stateId:null,
-    countryId:null,
-    cityId:null,
+    stateId: null,
+    countryId: null,
+    cityId: null,
     warehouseLocation: '',
     factoryId: null,
     gmpFile: '',
@@ -57,16 +57,16 @@ const defaultForm: EmptySupplier = {
     factoryName: '',
     countries: {
         name: '',
-        countryId: null,
-      },
-      states: {
+        countryId: null
+    },
+    states: {
         name: '',
-        stateId: null,
-      },
-      cities: {
-        name:'',
-        cityId:  null,
-      }
+        stateId: null
+    },
+    cities: {
+        name: '',
+        cityId: null
+    }
 };
 
 const ManageSupplierPage = () => {
@@ -389,7 +389,7 @@ const ManageSupplierPage = () => {
                 <Button
                     label="Download Sample PDF"
                     icon="pi pi-download"
-                    className="p-button-text p-button-sm text-pink-600"
+                    className="p-button-text p-button-sm text-primary-main"
                     onClick={() => {
                         // Trigger PDF download
                         const link = document.createElement('a');
@@ -417,7 +417,7 @@ const ManageSupplierPage = () => {
                     >
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={5000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );
@@ -543,8 +543,8 @@ const ManageSupplierPage = () => {
                 className="delete-dialog"
                 footer={
                     <div className="flex justify-content-center p-2">
-                        <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Save" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                        <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                        <Button label="Save" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
@@ -574,7 +574,7 @@ const ManageSupplierPage = () => {
                             </div>
                         </div>
                     </div>
-                    {/* <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                    {/* <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
                         <span>Are you sure you want to delete this supplier? </span>

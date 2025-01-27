@@ -31,7 +31,7 @@ const Permission = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [specificRolePermissions, setSpecificRolePermissions] = useState<any>([]);
     const [roleId, setSelectedRoleId] = useState<any>([]);
-    
+
     useEffect(() => {
         fetchData();
         fetchPermissionData();
@@ -50,7 +50,6 @@ const Permission = () => {
             setLoading(false);
         }
     };
-
 
     const fetchPermissionData = async (params?: any) => {
         setLoading(true);
@@ -75,7 +74,6 @@ const Permission = () => {
         }
     };
 
-    
     // const fetchPermissionsByRoleId = async (rId: Number) => {
     //     try {
     //         setIsDetailLoading(true);
@@ -87,13 +85,13 @@ const Permission = () => {
     //         console.log('Fetched role permissions:', response.data);
     //         setSpecificRolePermissions(response.data);
     //         console.log(response.data);
-            
+
     //         // pre-select existing permissions in MultiSelect
     //         // const existingPermissionIds = response.data.permission.map((perm: any) => perm.permission.permissionId);
     //         const existingPermissionIds = response.data.map((item: any) => item.permission.permissionId);
 
     //         console.log('existing permissions',existingPermissionIds);
-            
+
     //         setSelectedPermissions(existingPermissionIds);
     //     } catch (error) {
     //         setAlert('error', 'Failed to fetch role permissions');
@@ -105,12 +103,12 @@ const Permission = () => {
     const fetchPermissionsByRoleId = async (rId: Number) => {
         try {
             setIsDetailLoading(true);
-            const params = {filters: {roleId: rId}}
+            const params = { filters: { roleId: rId } };
             const queryString = buildQueryParams(params);
-    
+
             const response = await GetCall(`/settings/role-permissions?${queryString}`);
             console.log('Fetched role permissions:', response.data);
-            
+
             // Update to handle the new response structure
             setSpecificRolePermissions({
                 permissions: response.data.map((item: any) => ({
@@ -122,12 +120,10 @@ const Permission = () => {
                     }
                 }))
             });
-            
+
             // Update selected permissions based on the new structure
-            const existingPermissionIds = response.data.map((item: any) => 
-                item.permission.permissionId
-            );
-            
+            const existingPermissionIds = response.data.map((item: any) => item.permission.permissionId);
+
             console.log('existing permissions', existingPermissionIds);
             setSelectedPermissions(existingPermissionIds);
         } catch (error) {
@@ -137,28 +133,24 @@ const Permission = () => {
         }
     };
 
-
-    const openViewDialog = async(items: any) => {
+    const openViewDialog = async (items: any) => {
         setVisible(true);
         // selectedRoleId(items.rouleId);
         console.log(items);
-        
+
         setSelectedRoleId(items.roleId);
         setSelectedRole(items.role);
         await fetchPermissionsByRoleId(items.roleId);
     };
 
-    
-    
     const onRowSelect = (perm: any, action: any) => {
         if (action === ACTIONS.VIEW) {
             openViewDialog(perm);
         }
     };
 
-    
     // const handleSubmit = async () => {
-        
+
     //     setIsDetailLoading(true);
 
     //     // get the current permissions for comparison
@@ -214,14 +206,12 @@ const Permission = () => {
 
     const handleSubmit = async () => {
         setIsDetailLoading(true);
-    
+
         // Get current permissions from the new structure
-        const currentPermissions = specificRolePermissions?.permissions?.map(
-            (perm: any) => perm.permission.permissionId
-        ) || [];
-    
+        const currentPermissions = specificRolePermissions?.permissions?.map((perm: any) => perm.permission.permissionId) || [];
+
         // const payloadToSend = [];
-    
+
         // // Handle removed permissions
         // for (const permId of currentPermissions) {
         //     if (!selectedPermissions.includes(permId)) {
@@ -232,7 +222,7 @@ const Permission = () => {
         //         });
         //     }
         // }
-    
+
         // // Handle added permissions
         // for (const permId of selectedPermissions) {
         //     if (!currentPermissions.includes(permId)) {
@@ -243,7 +233,6 @@ const Permission = () => {
         //         });
         //     }
         // }
-    
 
         const payload = {
             roleId: roleId,
@@ -261,9 +250,9 @@ const Permission = () => {
             //     setAlert('info', 'No changes to submit');
             //     return;
             // }
-    
+
             const response: CustomResponse = await PostCall('/settings/role-permissions', payload);
-    
+
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Permissions updated successfully!');
                 await fetchPermissionsByRoleId(roleId);
@@ -278,18 +267,17 @@ const Permission = () => {
         }
     };
 
-
     const multiSelectFooter = () => {
         return (
             <div className="flex justify-content-end p-2 footer-panel gap-3">
                 {/* <Button
                     label="Reset"
-                    className='bg-white text-pink-500 border-none'
+                    className='bg-white text-primary-main border-none'
                     onClick={() => setSelectedPermissions([])}
                 />
                 <Button
                     label="Ok"
-                    className='bg-pink-500 text-white'
+                    className='bg-primary-main text-white'
                     onClick={handleSubmit}
                     disabled={!selectedPermissions || selectedPermissions.length === 0}
                 /> */}
@@ -305,7 +293,6 @@ const Permission = () => {
         width: isSmallScreen ? '80%' : '40vw',
         maxHeight: isSmallScreen ? '80%' : '50vh'
     };
-
 
     return (
         <>
@@ -354,65 +341,65 @@ const Permission = () => {
                 />
             </div>
 
-             <Dialog
-                            header={`Select permission for role: ${selectedRole || 'N/A'}`}
-                            visible={visible}
-                            style={DilogBoxstyle}
-                            onHide={() => {
-                                if (!visible) return;
-                                setVisible(false);
-                                setSelectedPermissions([]);
-                            }}
-                        >
-                            <div className="space-y-6">
-                                <div>
-                                    <MultiSelect
-                                        value={selectedPermissions}
-                                        onChange={(e) => setSelectedPermissions(e.value)}
-                                        options={permissions}
-                                        optionLabel="label"
-                                        filter
-                                        placeholder="Select Permissions"
-                                        panelFooterTemplate={multiSelectFooter}
-                                        // maxSelectedLabels={3}
-                                        className="w-full"
-                                        display="chip"
-                                    />
-                                </div>
-            
-                                {isDetailLoading ? (
-                                    <div className="text-center py-4">
-                                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                                    </div>
-                                ) : (
-                                    <div className="mt-2">
-                                        <div className="flex align-items-center gap-2 mb-3">
-                                            <i className="pi pi-shield text-primary text-xl"></i>
-                                            <h3 className="text-xl font-medium">Current Permissions</h3>
-                                        </div>
-            
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {specificRolePermissions?.permissions?.map((permissionData: any) => (
-                                                <div key={permissionData.routePermissionId} className="flex align-items-center p-3 bg-gray-50 border-round border-1 surface-border hover:surface-100 transition-colors">
-                                                    <div className="w-2 h-2 border-circle bg-green-500 mr-3"></div>
-                                                    <div className="flex flex-column">
-                                                        <span className="text-700 font-medium">{permissionData.permission.permission}</span>
-                                                        <span className="text-500 text-sm">{permissionData.permission.module}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-            
-                                        {(!specificRolePermissions?.permissions || specificRolePermissions.permissions.length === 0) && (
-                                            <div className="text-center py-6">
-                                                <i className="pi pi-shield text-500 text-4xl mb-3 block"></i>
-                                                <p className="text-500">No permissions assigned to this role yet</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+            <Dialog
+                header={`Select permission for role: ${selectedRole || 'N/A'}`}
+                visible={visible}
+                style={DilogBoxstyle}
+                onHide={() => {
+                    if (!visible) return;
+                    setVisible(false);
+                    setSelectedPermissions([]);
+                }}
+            >
+                <div className="space-y-6">
+                    <div>
+                        <MultiSelect
+                            value={selectedPermissions}
+                            onChange={(e) => setSelectedPermissions(e.value)}
+                            options={permissions}
+                            optionLabel="label"
+                            filter
+                            placeholder="Select Permissions"
+                            panelFooterTemplate={multiSelectFooter}
+                            // maxSelectedLabels={3}
+                            className="w-full"
+                            display="chip"
+                        />
+                    </div>
+
+                    {isDetailLoading ? (
+                        <div className="text-center py-4">
+                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                        </div>
+                    ) : (
+                        <div className="mt-2">
+                            <div className="flex align-items-center gap-2 mb-3">
+                                <i className="pi pi-shield text-primary text-xl"></i>
+                                <h3 className="text-xl font-medium">Current Permissions</h3>
                             </div>
-                        </Dialog>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                {specificRolePermissions?.permissions?.map((permissionData: any) => (
+                                    <div key={permissionData.routePermissionId} className="flex align-items-center p-3 bg-gray-50 border-round border-1 surface-border hover:surface-100 transition-colors">
+                                        <div className="w-2 h-2 border-circle bg-green-500 mr-3"></div>
+                                        <div className="flex flex-column">
+                                            <span className="text-700 font-medium">{permissionData.permission.permission}</span>
+                                            <span className="text-500 text-sm">{permissionData.permission.module}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {(!specificRolePermissions?.permissions || specificRolePermissions.permissions.length === 0) && (
+                                <div className="text-center py-6">
+                                    <i className="pi pi-shield text-500 text-4xl mb-3 block"></i>
+                                    <p className="text-500">No permissions assigned to this role yet</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </Dialog>
         </>
     );
 };

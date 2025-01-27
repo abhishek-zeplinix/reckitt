@@ -36,7 +36,7 @@ const ManageUsersPage = () => {
                     <h3 className="mb-0">Manage Users</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button icon="pi pi-plus" size="small" label="Add User" aria-label="Import Supplier" className="bg-pink-500 hover:text-white border-pink-500 " onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add User" aria-label="Import Supplier" className="bg-primary-main hover:text-white border-primary-main " onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );

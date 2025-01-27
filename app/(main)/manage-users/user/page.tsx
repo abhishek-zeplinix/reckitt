@@ -34,7 +34,6 @@ const ManageUserAddPage = () => {
     // }, []);
 
     // console.log('sup id selected on dropdown', supplierId);
-    
 
     useEffect(() => {
         fetchData();
@@ -43,13 +42,13 @@ const ManageUserAddPage = () => {
             fetchUserDetails(); // Fetch and pre-fill data in edit mode
         }
     }, []);
-    
+
     const fetchUserDetails = async () => {
         setLoading(true);
         try {
             const response: CustomResponse = await GetCall(`/company/user?filters.id=${userId}&sortBy=id`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
-                console.log('49',response.data)
+                console.log('49', response.data);
                 const userDetails = response.data[0]; // Assuming the API returns an array of users
                 setRoleName(userDetails.name || '');
                 setRoleEmail(userDetails.email || '');
@@ -66,7 +65,6 @@ const ManageUserAddPage = () => {
             setLoading(false);
         }
     };
-    
 
     const fetchData = async () => {
         setLoading(true);
@@ -114,23 +112,22 @@ const ManageUserAddPage = () => {
 
     const handleSubmit = async () => {
         // Validate required fields
-       
-    
+
         setIsDetailLoading(true);
-    
+
         const payload = {
             roleId: createRole,
             supplierId: supplierId,
             name: roleName,
             email: roleEmail,
             password: rolePassword,
-            phone: rolePhone,
+            phone: rolePhone
         };
-    
+
         try {
             let endpoint: string;
             let response: CustomResponse;
-    
+
             // Determine API call based on isEditMode
             if (isEditMode) {
                 endpoint = `/company/user/${userId}`;
@@ -143,7 +140,7 @@ const ManageUserAddPage = () => {
                 endpoint = `/company/user`;
                 response = await PostCall(endpoint, payload); // Call POST API
             }
-    
+
             // Handle API response
             if (response.code === 'SUCCESS') {
                 setAlert('success', isEditMode ? 'User updated successfully!' : 'User added successfully!');
@@ -158,7 +155,6 @@ const ManageUserAddPage = () => {
             setIsDetailLoading(false);
         }
     };
-    
 
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit User' : 'Add User';
@@ -169,10 +165,10 @@ const ManageUserAddPage = () => {
             <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
                 <Button
                     label="Cancel"
-                    className="text-pink-500 bg-white border-pink-500 hover:text-pink-500 hover:bg-transparent transition-colors duration-150 mb-3"
+                    className="text-primary-main bg-white border-primary-main hover:text-primary-main hover:bg-transparent transition-colors duration-150 mb-3"
                     onClick={() => router.push('/manage-users')} // Navigate back to manage users
                 />
-                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleSubmit} />
+                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSubmit} />
             </div>
         );
     };
@@ -201,27 +197,19 @@ const ManageUserAddPage = () => {
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="email">Role Email</label>
-                                <input id="email" type="text" value={roleEmail} onChange={(e) => setRoleEmail(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Email"  disabled={isEditMode === true}/>
+                                <input id="email" type="text" value={roleEmail} onChange={(e) => setRoleEmail(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Email" disabled={isEditMode === true} />
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="phone">Role Phone Number</label>
                                 <input id="phone" type="text" value={rolePhone} onChange={(e) => setRolePhone(e.target.value)} className="p-inputtext w-full" placeholder="Enter Role Phone Number" disabled={isEditMode === true} />
                             </div>
-                            
+
                             {!isEditMode && (
                                 <div className="field col-4">
                                     <label htmlFor="manufacturerName">Password</label>
-                                    <input
-                                        id="manufacturerName"
-                                        type="text"
-                                        value={rolePassword}
-                                        onChange={(e) => setRolePassword(e.target.value)}
-                                        className="p-inputtext w-full"
-                                        placeholder="Enter Password"
-                                    />
+                                    <input id="manufacturerName" type="text" value={rolePassword} onChange={(e) => setRolePassword(e.target.value)} className="p-inputtext w-full" placeholder="Enter Password" />
                                 </div>
                             )}
-
                         </div>
                     </div>
                 </div>
