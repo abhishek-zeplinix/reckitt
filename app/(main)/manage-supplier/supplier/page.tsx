@@ -192,7 +192,7 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId'&& name !== 'countryId'&& name !== 'stateId'&& name !== 'cityId') {
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId'&& name !== 'countryId'&& name !== 'stateId'&& name !== 'cityId' && name !=='email') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
@@ -220,11 +220,11 @@ const ManageSupplierAddEditPage = () => {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-            if (name === 'country') {
+            if (name === 'countryId') {
                 fetchAllSatate(val);
                 updatedForm.stateId = null;
             }
-            if (name === 'state') {
+            if (name === 'stateId') {
                 fetchAllCity(val);
                 updatedForm.cityId = null;
             }
