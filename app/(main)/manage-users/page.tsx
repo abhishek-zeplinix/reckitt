@@ -153,7 +153,7 @@ const ManageUsersPage = () => {
                                         header: 'Status ',
                                         field: 'isActive',
                                         bodyStyle: { minWidth: 150, maxWidth: 150, fontWeight: 'bold' },
-                                        body: (rowData) => <span style={{ color: rowData.isActive ? 'green' : 'red' }}>{rowData.isActive ? 'Active' : 'Inactive'}</span>
+                                        body: (rowData) => <span style={{ color: rowData.isActive ? '#15B097' : 'red' }}>{rowData.isActive ? 'Active' : 'Inactive'}</span>
                                     }
                                 ]}
                             />
