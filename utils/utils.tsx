@@ -264,7 +264,7 @@ export const validatePhoneNumber = (phoneNumber: string): boolean => {
 };
 
 export const validateZipCode = (zip: string): boolean => {
-    const zipPattern = /^[0-9]{1,5}$/; // Matches 1 to 5 digits
+    const zipPattern = /^[0-9]{1,6}$/; // Matches 1 to 5 digits
     if (typeof zip !== 'string' || zip.trim() === '') {
         return false; // ZIP code must be a non-empty string
     }

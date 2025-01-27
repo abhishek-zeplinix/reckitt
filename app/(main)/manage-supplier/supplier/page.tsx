@@ -22,7 +22,8 @@ const defaultForm: EmptySupplier = {
     siteAddress: '',
     procurementCategoryId: null,
     stateId:null,
-    districtId:null,
+    countryId:null,
+    cityId:null,
     email:'',
     Zip:'',
     supplierCategoryId: null,
@@ -32,7 +33,19 @@ const defaultForm: EmptySupplier = {
     gdpFile: '',
     reachFile: '',
     isoFile: '',
-    location: ''
+    location: '',
+    countries: {
+        name: '',
+        countryId: null,
+      },
+      states: {
+        name: '',
+        stateId: null,
+      },
+      cities: {
+        name:'',
+        cityId:  null,
+      }
 };
 
 const ManageSupplierAddEditPage = () => {
@@ -71,23 +84,33 @@ const ManageSupplierAddEditPage = () => {
         };
     };
 
-    // Fetch initial data
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
+                // Fetch independent data first
                 await Promise.all([
                     fetchCategory(),
                     fetchAllCountry(),
-                    isEditMode &&  fetchSupplierData()
+                    isEditMode && fetchSupplierData(),
                 ]);
+                console.log('97',form)
+    
+                // Fetch dependent data sequentially
+                // const states = await fetchAllSatate(); // Dependent on fetchAllCountry
+                // if (states) {
+                //     await fetchAllCity(); // Dependent on fetchAllState
+                // }
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
             } finally {
                 setLoading(false);
             }
         };
+    
         fetchInitialData();
-    }, []);
-
+    }, [isEditMode]); // Add isEditMode as a dependency if its value can change
+    
     const fetchSupplierData = async () => {
         try {
             const params = { filters: { supId }, pagination: false };
@@ -97,12 +120,18 @@ const ManageSupplierAddEditPage = () => {
             if (response.data && response.data[0]) {
                 const mappedForm = mapToForm(response.data[0]);
                 setForm(mappedForm);
+                console.log('123',mappedForm)
 
                 // Fetch subcategories dynamically based on the selected category
                 if (mappedForm.supplierCategoryId) {
                     await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
                 }
-
+                if (mappedForm.supplierCategoryId && mappedForm.countries) {
+                    await fetchAllSatate(mappedForm.countryId);
+                }
+                if (mappedForm.supplierCategoryId && mappedForm.countries && mappedForm.states ) {
+                    await fetchAllCity(mappedForm.stateId);
+                }
                 // set checkbox states based on file existence
                 setChecked({
                     gmp: Boolean(mappedForm.gmpFile),
@@ -136,9 +165,9 @@ const ManageSupplierAddEditPage = () => {
         }
     };
     const fetchAllCity = async (stateId:any) => {
-        const response: CustomResponse = await GetCall(`/company/supplier/districts/${stateId}`);
+        const response: CustomResponse = await GetCall(`/company/supplier/city/${stateId}`);
         if (response.code === 'SUCCESS') {
-            setAllCity(response.data.districts);
+            setAllCity(response.data.city);
         }
     };
 
@@ -163,7 +192,7 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId'&& name !== 'countryId'&& name !== 'stateId'&& name !== 'districtId') {
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId'&& name !== 'countryId'&& name !== 'stateId'&& name !== 'cityId') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
@@ -191,13 +220,13 @@ const ManageSupplierAddEditPage = () => {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-            if (name === 'countryId') {
+            if (name === 'country') {
                 fetchAllSatate(val);
                 updatedForm.stateId = null;
             }
-            if (name === 'stateId') {
+            if (name === 'state') {
                 fetchAllCity(val);
-                updatedForm.districtId = null;
+                updatedForm.cityId = null;
             }
             return updatedForm;
         });
@@ -232,7 +261,7 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = () => {
-
+        console.log('235',form)
         if (!validateFullName(form.supplierName)) {
             setAlert('error', 'Supplier name must be in proper format');
             return;
@@ -384,7 +413,7 @@ const ManageSupplierAddEditPage = () => {
                                         Country
                                     </label>
                                     <Dropdown
-                                        id="countryId"
+                                        id="country"
                                         value={get(form, 'countryId')}
                                         options={allCountry}
                                         optionLabel="name"
@@ -410,16 +439,16 @@ const ManageSupplierAddEditPage = () => {
                                     />
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="cityId" className="font-semibold">
+                                    <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
                                     <Dropdown
-                                        id="districtId"
-                                        value={get(form, 'districtId')}
+                                        id="cityId"
+                                        value={get(form, 'cityId')}
                                         options={allCity}
                                         optionLabel="name"
-                                        optionValue="districtId"
-                                        onChange={(e) => onInputChange('districtId', e.value)}
+                                        optionValue="cityId"
+                                        onChange={(e) => onInputChange('cityId', e.value)}
                                         placeholder="Select city"
                                         className="w-full"
                                     />

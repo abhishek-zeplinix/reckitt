@@ -33,7 +33,8 @@ const defaultForm: EmptySupplier = {
     procurementCategoryId: null,
     supplierCategoryId: null,
     stateId:null,
-    districtId:null,
+    countryId:null,
+    cityId:null,
     warehouseLocation: '',
     factoryId: null,
     gmpFile: '',
@@ -50,7 +51,19 @@ const defaultForm: EmptySupplier = {
         subCategoryId: null,
         subCategoryName: ''
     },
-    factoryName: ''
+    factoryName: '',
+    countries: {
+        name: '',
+        countryId: null,
+      },
+      states: {
+        name: '',
+        stateId: null,
+      },
+      cities: {
+        name:'',
+        cityId:  null,
+      }
 };
 
 const ManageSupplierPage = () => {
@@ -451,7 +464,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
-                                            style: { minWidth: 120, maxWidth: 120 }
+                                            style: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Procurement Category',
@@ -466,7 +479,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Manufacturer Name',
                                             field: 'supplierManufacturerName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         },
                                         {
                                             header: 'Site Address',
@@ -485,17 +498,17 @@ const ManageSupplierPage = () => {
                                         },
                                         {
                                             header: 'Country',
-                                            field: 'country',
+                                            field: 'countries.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'State',
-                                            field: 'state',
+                                            field: 'states.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'City',
-                                            field: 'city',
+                                            field: 'cities.name',
 
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },{

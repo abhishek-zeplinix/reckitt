@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
@@ -13,12 +13,11 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules, SetRulesDir } from '@/types';
+import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 import { useLoaderContext } from '@/layout/context/LoaderContext';
-import { RadioButton } from 'primereact/radiobutton';
 
 const ACTIONS = {
     ADD: 'add',
@@ -27,19 +26,19 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const MainRules = () => {
+const SetRulesPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const [rules, setRules] = useState<SetRulesDir[]>([]);
+    const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
-    const [selectedRuleSetId, setSelectedRuleSetId] = useState<any>([]);
+    const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
@@ -50,7 +49,8 @@ const MainRules = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-    const [chooseRules, setChooseRules] = useState('');
+    const searchParams = useSearchParams();
+    const ruleSetId = searchParams.get('ruleSetId');
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -64,42 +64,42 @@ const MainRules = () => {
     ];
 
     // Handle limit change
-    // const onCategorychange = (e: any) => {
-    //     setSelectedCategory(e.value); // Update limit
-    //     // fetchprocurementCategories(e.value);
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             categoryId: e.value
-    //         }
-    //     });
-    // };
-    // // Handle limit change
-    // const onDepartmentChange = (e: any) => {
-    //     setSelectedDepartment(e.value);
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             departmentId: e.value
-    //         }
-    //     });
-    // };
-    // // Handle limit change
-    // const onSubCategorychange = (e: any) => {
-    //     setSelectedSubCategory(e.value); // Update limit
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             subCategoryId: e.value
-    //         }
-    //     });
-    // };
+    const onCategorychange = (e: any) => {
+        setSelectedCategory(e.value); // Update limit
+        fetchprocurementCategories(e.value);
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                categoryId: e.value
+            }
+        });
+    };
+    // Handle limit change
+    const onDepartmentChange = (e: any) => {
+        setSelectedDepartment(e.value);
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                departmentId: e.value
+            }
+        });
+    };
+    // Handle limit change
+    const onSubCategorychange = (e: any) => {
+        setSelectedSubCategory(e.value); // Update limit
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                subCategoryId: e.value
+            }
+        });
+    };
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ limit: limit, page: page, include: 'subCategories,categories,department', search: e.target?.value });
@@ -112,12 +112,12 @@ const MainRules = () => {
     };
     useEffect(() => {
         fetchData();
-        // fetchsupplierCategories();
-        // fetchsupplierDepartment();
+        fetchsupplierCategories();
+        fetchsupplierDepartment();
     }, [limit, page]);
-    // const handleCreateNavigation = () => {
-    //     router.push('/manage-rules/create-new-rules');
-    // };
+    const handleCreateNavigation = () => {
+        router.push(`/rules/set-rules/create-new-rules?ruleSetId=${ruleSetId}`);
+    };
 
     const handleFileUpload = async (event: { files: File[] }) => {
         const file = event.files[0]; // Retrieve the uploaded file
@@ -166,13 +166,8 @@ const MainRules = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
-    const handleEditRules = (e: any) => {
-        if(e.ruleType==='rule'){
-            router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
-        }else{
-            router.push(`/rules/set-capa-rules?ruleSetId=${e.ruleSetId}`);
-        }
-
+    const handleEditRules = (ruleSetId: any,ruleId: any) => {
+        router.push(`/rules/set-rules/create-new-rules?edit=true&ruleSetId=${ruleSetId}&ruleId=${ruleId}`);
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -200,10 +195,10 @@ const MainRules = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Rules Directory</h3>
+                    <h3 className="mb-0">Manage Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Import Rules"
@@ -211,54 +206,27 @@ const MainRules = () => {
                         className="default-button"
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
-                    />
+                    /> */}
                     <Dialog
                         header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <div className="card px-3 py-2">
-                            <label htmlFor="" className="mb-1 font-bold">
-                                Choose Rules
-                            </label>
-                            <div className="flex flex-wrap gap-3 mt-2 mb-3">
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId="rules" name="rules" value="Rules" onChange={(e) => setChooseRules(e.value)} checked={chooseRules === 'Rules'} />
-                                    <label htmlFor="rules" className="ml-2">
-                                        Rules
+                        <div className="mb-3">
+                            <div>
+                                <div className="flex justify-center items-center gap-4 ">
+                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                        Select Effective Date:
                                     </label>
-                                </div>
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId="capaRules" name="capaRules" value="Capa Rules" onChange={(e) => setChooseRules(e.value)} checked={chooseRules === 'Capa Rules'} />
-                                    <label htmlFor="capaRules" className="ml-2">
-                                        Capa Rules
-                                    </label>
+                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
                                 </div>
                             </div>
-                            <div className="mb-3 card flex justify-content-between align-items-center p-4 gap-3">
-                                <div className="col-6">
-                                    <div className="flex flex-column justify-center items-center gap-2 ">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Select Effective Date:
-                                        </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                    </div>
-                                </div>
-                                <div className="col-6">
-                                    <div className="flex flex-column justify-center items-center gap-2 ">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Enter Name for Rules Group:
-                                        </label>
-                                        <InputText id="email" type="text" onChange={(e) => {}} placeholder="Enter Email Address " className="p-inputtext w-full py-2" />
-                                    </div>
-                                </div>
-                            </div>
-                            <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                         </div>
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    {/* <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} /> */}
-                    <Button
+                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Delete Rules"
@@ -268,7 +236,7 @@ const MainRules = () => {
                             handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
-                    />
+                    /> */}
                 </div>
             </div>
         );
@@ -279,17 +247,17 @@ const MainRules = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, sortBy: 'ruleSetId' };
+                params = { limit: limit, page: page, include: 'subCategories,categories,department', sortOrder: 'asc' };
             }
 
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
 
-            const response = await GetCall(`company/rules-set?${queryString}`);
+            const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
-            setRules(response.data.rows);
+            setRules(response.data);
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -302,96 +270,96 @@ const MainRules = () => {
     useEffect(() => {
         fetchData();
     }, []);
-    // const fetchprocurementCategories = async (categoryId: number | null) => {
-    //     if (!categoryId) {
-    //         setprocurementCategories([]); // Clear subcategories if no category is selected
-    //         return;
-    //     }
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setprocurementCategories(response.data);
-    //     } else {
-    //         setprocurementCategories([]);
-    //     }
-    // };
-    // const fetchsupplierCategories = async () => {
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setCategories(response.data);
-    //     } else {
-    //         setCategories([]);
-    //     }
-    // };
-    // const fetchsupplierDepartment = async () => {
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setSupplierDepartment(response.data);
-    //     } else {
-    //         setSupplierDepartment([]);
-    //     }
-    // };
+    const fetchprocurementCategories = async (categoryId: number | null) => {
+        if (!categoryId) {
+            setprocurementCategories([]); // Clear subcategories if no category is selected
+            return;
+        }
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setprocurementCategories(response.data);
+        } else {
+            setprocurementCategories([]);
+        }
+    };
+    const fetchsupplierCategories = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setCategories(response.data);
+        } else {
+            setCategories([]);
+        }
+    };
+    const fetchsupplierDepartment = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setSupplierDepartment(response.data);
+        } else {
+            setSupplierDepartment([]);
+        }
+    };
 
-    // const dropdownMenuDepartment = () => {
-    //     return (
-    //         <Dropdown
-    //             value={selectedDepartment}
-    //             onChange={onDepartmentChange}
-    //             options={supplierDepartment}
-    //             optionValue="departmentId"
-    //             placeholder="Select Department"
-    //             optionLabel="name"
-    //             className="w-full md:w-10rem"
-    //             showClear={!!selectedDepartment}
-    //         />
-    //     );
-    // };
+    const dropdownMenuDepartment = () => {
+        return (
+            <Dropdown
+                value={selectedDepartment}
+                onChange={onDepartmentChange}
+                options={supplierDepartment}
+                optionValue="departmentId"
+                placeholder="Select Department"
+                optionLabel="name"
+                className="w-full md:w-10rem"
+                showClear={!!selectedDepartment}
+            />
+        );
+    };
 
-    // const dropdownFieldDeparment = dropdownMenuDepartment();
+    const dropdownFieldDeparment = dropdownMenuDepartment();
 
-    // const dropdownCategory = () => {
-    //     return (
-    //         <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory} />
-    //     );
-    // };
-    // const dropdownFieldCategory = dropdownCategory();
+    const dropdownCategory = () => {
+        return (
+            <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory} />
+        );
+    };
+    const dropdownFieldCategory = dropdownCategory();
 
-    // const dropdownMenuSubCategory = () => {
-    //     return (
-    //         <Dropdown
-    //             value={SelectedSubCategory}
-    //             onChange={onSubCategorychange}
-    //             options={procurementCategories}
-    //             optionLabel="subCategoryName"
-    //             optionValue="subCategoryId"
-    //             placeholder="Select Sub Category"
-    //             className="w-full md:w-10rem"
-    //             showClear={!!SelectedSubCategory}
-    //         />
-    //     );
-    // };
-    // const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown
+                value={SelectedSubCategory}
+                onChange={onSubCategorychange}
+                options={procurementCategories}
+                optionLabel="subCategoryName"
+                optionValue="subCategoryId"
+                placeholder="Select Sub Category"
+                className="w-full md:w-10rem"
+                showClear={!!SelectedSubCategory}
+            />
+        );
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
 
-    const onRowSelect = async (perm: SetRulesDir, action: any) => {
+    const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
-        setSelectedRuleSetId(perm);
+        setSelectedRuleId(perm.ruleId);
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
     };
 
-    const openDeleteDialog = (items: SetRulesDir) => {
+    const openDeleteDialog = (items: Rules) => {
         setIsDeleteDialogVisible(true);
     };
 
@@ -424,12 +392,11 @@ const MainRules = () => {
                 setLoading(false);
             }
         } else {
-            if(selectedRuleSetId.ruleType==='rule'){
             try {
-                const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
+                const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
                 if (response.code === 'SUCCESS') {
-                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleSetId !== selectedRuleSetId.ruleSetId));
+                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
                     closeDeleteDialog();
                     setAlert('success', 'Rule successfully deleted!');
                 } else {
@@ -440,24 +407,6 @@ const MainRules = () => {
                 setAlert('error', 'Something went wrong!');
             } finally {
                 setLoading(false);
-            }
-            }else{
-                try {
-                    const response = await DeleteCall(`/company/caparule-set/${selectedRuleSetId.ruleSetId}`);
-    
-                    if (response.code === 'SUCCESS') {
-                        setRules((prevRules) => prevRules.filter((rule) => rule.ruleSetId !== selectedRuleSetId.ruleSetId));
-                        closeDeleteDialog();
-                        setAlert('success', 'Rule successfully deleted!');
-                    } else {
-                        setAlert('error', 'Something went wrong!');
-                        closeDeleteDialog();
-                    }
-                } catch (error) {
-                    setAlert('error', 'Something went wrong!');
-                } finally {
-                    setLoading(false);
-                }
             }
         }
     };
@@ -477,9 +426,9 @@ const MainRules = () => {
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
                                 </div>
                                 <div className="flex  gap-2">
-                                    {/* <div className="mt-2">{dropdownFieldDeparment}</div>
+                                    <div className="mt-2">{dropdownFieldDeparment}</div>
                                     <div className="mt-2">{dropdownFieldCategory}</div>
-                                    <div className="mt-2">{dropdownFieldSubCategory}</div> */}
+                                    <div className="mt-2">{dropdownFieldSubCategory}</div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
@@ -493,17 +442,23 @@ const MainRules = () => {
                                 isDelete={true} // show delete button
                                 extraButtons={[
                                     {
-                                        icon: 'pi pi-eye',
+                                        icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(e); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId,e.ruleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
                                 data={rules.map((item: any) => ({
-                                    ruleSetId: item.ruleSetId,
-                                    value: item.value,
-                                    ruleType:item.ruleType
-                                    
+                                    ruleId: item.ruleId,
+                                    department: item.department?.name,
+                                    category: item.categories?.categoryName,
+                                    subCategories: item.subCategories?.subCategoryName,
+                                    section: item.section,
+                                    ratedCriteria: item.ratedCriteria,
+                                    criteriaEvaluation: item.criteriaEvaluation,
+                                    score: item.score,
+                                    ratiosCopack: item.ratiosCopack,
+                                    ratiosRawpack: item.ratiosRawpack
                                 }))}
                                 columns={[
                                     {
@@ -517,18 +472,59 @@ const MainRules = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'RULES TYPE ',
-                                        field: 'ruleType',
+                                        header: 'DEPARTMENT ',
+                                        field: 'department',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RULES NAME ',
-                                        field: 'value',
+                                        header: 'PROCUREMENT CATEGORY ',
+                                        field: 'category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
-                                    
+                                    {
+                                        header: 'SUPPLIER CATEGORY',
+                                        field: 'subCategories',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 150, maxWidth: 150 }
+                                    },
+                                    {
+                                        header: 'CRITERIA CATEGORY',
+                                        field: 'section',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'CRITERIA',
+                                        field: 'ratedCriteria',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'CRITERIA EVALUATION LIST',
+                                        field: 'criteriaEvaluation',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'CRITERIA SCORE',
+                                        field: 'score',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'RATIOS COPACK',
+                                        field: 'ratiosCopack',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'RATIOS RAW&PACK',
+                                        field: 'ratiosRawpack',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        headerStyle: dataTableHeaderStyle
+                                    }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
@@ -569,4 +565,4 @@ const MainRules = () => {
     );
 };
 
-export default MainRules;
+export default SetRulesPage;

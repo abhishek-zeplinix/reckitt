@@ -276,42 +276,42 @@ const AppMenu = () => {
                             },
                             command: handleMenuClick
                         },
-                        {
-                            label: 'Manage Rule',
-                            url: '/manage-rules',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                        // {
+                        //     label: 'Manage Rule',
+                        //     url: '/manage-rules',
+                        //     check: (user: any) => {
+                        //         // Check if the user is a super admin
+                        //         if (get(user, 'isSuperAdmin')) {
+                        //             return true;
+                        //         }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                        //         // Check if the user has the required permissions
+                        //         const userPermissions = get(user, 'permissions.permissions', []);
+                        //         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
-                            command: handleMenuClick
-                        },
-                        {
-                            label: 'Manage CAPA Rule',
-                            url: '/manage-capa-rules',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                        //         // Grant access based on permissions
+                        //         return hasPermission;
+                        //     },
+                        //     command: handleMenuClick
+                        // },
+                        // {
+                        //     label: 'Manage CAPA Rule',
+                        //     url: '/manage-capa-rules',
+                        //     check: (user: any) => {
+                        //         // Check if the user is a super admin
+                        //         if (get(user, 'isSuperAdmin')) {
+                        //             return true;
+                        //         }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                        //         // Check if the user has the required permissions
+                        //         const userPermissions = get(user, 'permissions.permissions', []);
+                        //         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
-                            command: handleMenuClick
-                        }
+                        //         // Grant access based on permissions
+                        //         return hasPermission;
+                        //     },
+                        //     command: handleMenuClick
+                        // }
                     ]
                 },
                 {

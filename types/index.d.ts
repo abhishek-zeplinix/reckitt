@@ -124,6 +124,18 @@ interface Supplier {
         factoryName: string;
 
     };
+    countries: {
+        name: string;
+        countryId: number | null;
+      },
+      states: {
+        name: string;
+        stateId: number | null;
+      },
+      cities: {
+        name: string;
+        cityId: number | null;
+      }
 };
 interface Field {
     effectiveFrom: Date | null;
@@ -150,6 +162,13 @@ interface Rules {
     subCategories?: {
         subCategoryName: string;
     }
+}
+interface SetRulesDir {
+    ruleSetId:any
+    value: any;
+    ruleType: string;
+    createdAt: any;
+    updatedAt: any;
 }
 
 interface CompanyUsers {
@@ -322,5 +341,6 @@ export type {
     Department,
     SupplierScoreboardSummary,
     Tile,
+    SetRulesDir,
     Field
 };

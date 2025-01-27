@@ -300,6 +300,7 @@ type EmptySupplier = {
     supplierName: string;
     supplierManufacturerName: string;
     siteAddress: string;
+    countryId:number | null;
     procurementCategoryId?: number | null;
     stateId:number | null;
     email:string;
@@ -308,7 +309,7 @@ type EmptySupplier = {
     supplierCategoryId?: number | null;
     warehouseLocation: string;
     factoryId?: number | null;
-    districtId?:number | null;
+    cityId:number | null;
     gmpFile?: any;
     gdpFile?: any;
     reachFile: any;
@@ -325,6 +326,18 @@ type EmptySupplier = {
         subCategoryId: number | null;
         subCategoryName: string;
     };
+    countries: {
+        name: string;
+        countryId: number | null;
+      },
+      states: {
+        name: string;
+        stateId: number | null;
+      },
+      cities: {
+        name: string;
+        cityId: number | null;
+      }
     // factoryName?: {
     //     factoryId: number | null;
     //     factoryName: string;

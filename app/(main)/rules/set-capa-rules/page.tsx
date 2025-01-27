@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
@@ -13,12 +13,10 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules, SetRulesDir } from '@/types';
+import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
-import { useLoaderContext } from '@/layout/context/LoaderContext';
-import { RadioButton } from 'primereact/radiobutton';
 
 const ACTIONS = {
     ADD: 'add',
@@ -27,22 +25,24 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const MainRules = () => {
+const ManageCapaRulesPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const [rules, setRules] = useState<SetRulesDir[]>([]);
+    const [selectedRuleId, setSelectedRuleId] = useState();
+    const [action, setAction] = useState(null);
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    // const [selectedDepartment, setSelectedDepartment] = useState('');
+    // const [selectedSubCategory, setSelectedSubCategory] = useState('');
+    const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
-    const [selectedRuleSetId, setSelectedRuleSetId] = useState<any>([]);
-    const [action, setAction] = useState(null);
-    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [filterCategories, setCategories] = useState([]);
@@ -50,10 +50,12 @@ const MainRules = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-    const [chooseRules, setChooseRules] = useState('');
-    // const [isValid, setIsValid] = useState(true);
-    // const { loader } = useLoaderContext();
-    // const { loader, setLoader } = useLoaderContext();
+    const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
+    const searchParams = useSearchParams();
+    const ruleSetId = searchParams.get('ruleSetId');
+    const handleCreateNavigation = () => {
+        router.push(`/rules/set-capa-rules/create-new-capa-rules?ruleSetId=${ruleSetId}`); // Replace with the route you want to navigate to
+    };
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -64,42 +66,42 @@ const MainRules = () => {
     ];
 
     // Handle limit change
-    // const onCategorychange = (e: any) => {
-    //     setSelectedCategory(e.value); // Update limit
-    //     // fetchprocurementCategories(e.value);
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             categoryId: e.value
-    //         }
-    //     });
-    // };
-    // // Handle limit change
-    // const onDepartmentChange = (e: any) => {
-    //     setSelectedDepartment(e.value);
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             departmentId: e.value
-    //         }
-    //     });
-    // };
-    // // Handle limit change
-    // const onSubCategorychange = (e: any) => {
-    //     setSelectedSubCategory(e.value); // Update limit
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             subCategoryId: e.value
-    //         }
-    //     });
-    // };
+    const onCategorychange = (e: any) => {
+        setSelectedCategory(e.value); // Update limit
+        fetchprocurementCategories(e.value);
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                categoryId: e.value
+            }
+        });
+    };
+    // Handle limit change
+    const onDepartmentChange = (e: any) => {
+        setSelectedDepartment(e.value);
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                departmentId: e.value
+            }
+        });
+    };
+    // Handle limit change
+    const onSubCategorychange = (e: any) => {
+        setSelectedSubCategory(e.value); // Update limit
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                subCategoryId: e.value
+            }
+        });
+    };
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ limit: limit, page: page, include: 'subCategories,categories,department', search: e.target?.value });
@@ -112,13 +114,9 @@ const MainRules = () => {
     };
     useEffect(() => {
         fetchData();
-        // fetchsupplierCategories();
-        // fetchsupplierDepartment();
+        fetchsupplierCategories();
+        fetchsupplierDepartment();
     }, [limit, page]);
-    // const handleCreateNavigation = () => {
-    //     router.push('/manage-rules/create-new-rules');
-    // };
-
     const handleFileUpload = async (event: { files: File[] }) => {
         const file = event.files[0]; // Retrieve the uploaded file
         if (!file) {
@@ -149,12 +147,12 @@ const MainRules = () => {
         setIsDetailLoading(true);
         try {
             // Use the existing PostCall function
-            const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
+            const response: CustomResponse = await PostCall('/company/caparule/bulkadd', formData);
 
             setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Rules imported successfully');
+                setAlert('success', 'Capa Rules imported successfully');
                 setVisible(false);
                 fetchData();
             } else {
@@ -166,16 +164,17 @@ const MainRules = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
-    const handleEditRules = (e: any) => {
-        if(e.ruleType==='rule'){
-            router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
-        }else{
-            router.push(`/rules/set-capa-rules?ruleSetId=${e.ruleSetId}`);
-        }
-
+    const { isLoading, setLoading, setAlert } = useAppContext();
+    const handleEditRules = (ruleSetId:any,capaRuleId: any) => {
+        router.push(`/rules/set-capa-rules/create-new-capa-rules?edit=true&ruleSetId=${ruleSetId}&capaRuleId=${capaRuleId}`);
+    };
+    const openAllDeleteDialog = (items: any) => {
+        setIsAllDeleteDialogVisible(true);
     };
 
-    const { isLoading, setLoading, setAlert } = useAppContext();
+    const closeAllDeleteDialog = () => {
+        setIsAllDeleteDialogVisible(false);
+    };
 
     const dialogHeader = () => {
         return (
@@ -200,10 +199,10 @@ const MainRules = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Rules Directory</h3>
+                    <h3 className="mb-0">Manage Capa Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Import Rules"
@@ -211,54 +210,27 @@ const MainRules = () => {
                         className="default-button"
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
-                    />
+                    /> */}
                     <Dialog
                         header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <div className="card px-3 py-2">
-                            <label htmlFor="" className="mb-1 font-bold">
-                                Choose Rules
-                            </label>
-                            <div className="flex flex-wrap gap-3 mt-2 mb-3">
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId="rules" name="rules" value="Rules" onChange={(e) => setChooseRules(e.value)} checked={chooseRules === 'Rules'} />
-                                    <label htmlFor="rules" className="ml-2">
-                                        Rules
+                        <div className="mb-3">
+                            <div>
+                                <div className="flex justify-center items-center gap-4 ">
+                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                        Select Effective Date:
                                     </label>
-                                </div>
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId="capaRules" name="capaRules" value="Capa Rules" onChange={(e) => setChooseRules(e.value)} checked={chooseRules === 'Capa Rules'} />
-                                    <label htmlFor="capaRules" className="ml-2">
-                                        Capa Rules
-                                    </label>
+                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
                                 </div>
                             </div>
-                            <div className="mb-3 card flex justify-content-between align-items-center p-4 gap-3">
-                                <div className="col-6">
-                                    <div className="flex flex-column justify-center items-center gap-2 ">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Select Effective Date:
-                                        </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                    </div>
-                                </div>
-                                <div className="col-6">
-                                    <div className="flex flex-column justify-center items-center gap-2 ">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Enter Name for Rules Group:
-                                        </label>
-                                        <InputText id="email" type="text" onChange={(e) => {}} placeholder="Enter Email Address " className="p-inputtext w-full py-2" />
-                                    </div>
-                                </div>
-                            </div>
-                            <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                         </div>
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    {/* <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} /> */}
-                    <Button
+                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Delete Rules"
@@ -268,7 +240,7 @@ const MainRules = () => {
                             handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
-                    />
+                    /> */}
                 </div>
             </div>
         );
@@ -276,20 +248,40 @@ const MainRules = () => {
 
     const header = renderHeader();
 
+    const renderInputBox = () => {
+        return (
+            <div style={{ position: 'relative' }}>
+                <InputText placeholder="Search" style={{ paddingLeft: '40px', width: '40%' }} />
+                <span
+                    className="pi pi-search"
+                    style={{
+                        position: 'absolute',
+                        left: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: 'gray',
+                        fontSize: '1.5rem'
+                    }}
+                ></span>
+            </div>
+        );
+    };
+
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, sortBy: 'ruleSetId' };
+                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
             }
 
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
+            console.log(queryString, 'abhi');
 
-            const response = await GetCall(`company/rules-set?${queryString}`);
+            const response = await GetCall(`company/caparule-set/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
-            setRules(response.data.rows);
+            setRules(response.data);
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -299,99 +291,96 @@ const MainRules = () => {
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-    // const fetchprocurementCategories = async (categoryId: number | null) => {
-    //     if (!categoryId) {
-    //         setprocurementCategories([]); // Clear subcategories if no category is selected
-    //         return;
-    //     }
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setprocurementCategories(response.data);
-    //     } else {
-    //         setprocurementCategories([]);
-    //     }
-    // };
-    // const fetchsupplierCategories = async () => {
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setCategories(response.data);
-    //     } else {
-    //         setCategories([]);
-    //     }
-    // };
-    // const fetchsupplierDepartment = async () => {
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setSupplierDepartment(response.data);
-    //     } else {
-    //         setSupplierDepartment([]);
-    //     }
-    // };
+    const fetchprocurementCategories = async (categoryId: number | null) => {
+        if (!categoryId) {
+            setprocurementCategories([]); // Clear subcategories if no category is selected
+            return;
+        }
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setprocurementCategories(response.data);
+        } else {
+            setprocurementCategories([]);
+        }
+    };
+    const fetchsupplierCategories = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setCategories(response.data);
+        } else {
+            setCategories([]);
+        }
+    };
+    const fetchsupplierDepartment = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setSupplierDepartment(response.data);
+        } else {
+            setSupplierDepartment([]);
+        }
+    };
 
-    // const dropdownMenuDepartment = () => {
-    //     return (
-    //         <Dropdown
-    //             value={selectedDepartment}
-    //             onChange={onDepartmentChange}
-    //             options={supplierDepartment}
-    //             optionValue="departmentId"
-    //             placeholder="Select Department"
-    //             optionLabel="name"
-    //             className="w-full md:w-10rem"
-    //             showClear={!!selectedDepartment}
-    //         />
-    //     );
-    // };
+    const dropdownMenuDepartment = () => {
+        return (
+            <Dropdown
+                value={selectedDepartment}
+                onChange={onDepartmentChange}
+                options={supplierDepartment}
+                optionValue="departmentId"
+                placeholder="Select Department"
+                optionLabel="name"
+                className="w-full md:w-10rem"
+                showClear={!!selectedDepartment}
+            />
+        );
+    };
 
-    // const dropdownFieldDeparment = dropdownMenuDepartment();
+    const dropdownFieldDeparment = dropdownMenuDepartment();
 
-    // const dropdownCategory = () => {
-    //     return (
-    //         <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory} />
-    //     );
-    // };
-    // const dropdownFieldCategory = dropdownCategory();
+    const dropdownCategory = () => {
+        return (
+            <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory} />
+        );
+    };
+    const dropdownFieldCategory = dropdownCategory();
 
-    // const dropdownMenuSubCategory = () => {
-    //     return (
-    //         <Dropdown
-    //             value={SelectedSubCategory}
-    //             onChange={onSubCategorychange}
-    //             options={procurementCategories}
-    //             optionLabel="subCategoryName"
-    //             optionValue="subCategoryId"
-    //             placeholder="Select Sub Category"
-    //             className="w-full md:w-10rem"
-    //             showClear={!!SelectedSubCategory}
-    //         />
-    //     );
-    // };
-    // const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown
+                value={SelectedSubCategory}
+                onChange={onSubCategorychange}
+                options={procurementCategories}
+                optionLabel="subCategoryName"
+                optionValue="subCategoryId"
+                placeholder="Select Sub Category"
+                className="w-full md:w-10rem"
+                showClear={!!SelectedSubCategory}
+            />
+        );
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
 
-    const onRowSelect = async (perm: SetRulesDir, action: any) => {
+    const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
-        setSelectedRuleSetId(perm);
+        setSelectedRuleId(perm.capaRuleId);
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
     };
 
-    const openDeleteDialog = (items: SetRulesDir) => {
+    const openDeleteDialog = (items: Rules) => {
         setIsDeleteDialogVisible(true);
     };
 
@@ -408,7 +397,7 @@ const MainRules = () => {
         setLoading(true);
         if (isAllDeleteDialogVisible) {
             try {
-                const response = await DeleteCall(`/company/rules`);
+                const response = await DeleteCall(`/company/caparule&ruleSetId=${ruleSetId}`);
 
                 if (response.code === 'SUCCESS') {
                     closeDeleteDialog();
@@ -424,14 +413,14 @@ const MainRules = () => {
                 setLoading(false);
             }
         } else {
-            if(selectedRuleSetId.ruleType==='rule'){
             try {
-                const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
+                const response = await DeleteCall(`/company/caparule/${selectedRuleId}`);
 
                 if (response.code === 'SUCCESS') {
-                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleSetId !== selectedRuleSetId.ruleSetId));
+                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
                     closeDeleteDialog();
                     setAlert('success', 'Rule successfully deleted!');
+                    fetchData();
                 } else {
                     setAlert('error', 'Something went wrong!');
                     closeDeleteDialog();
@@ -441,26 +430,29 @@ const MainRules = () => {
             } finally {
                 setLoading(false);
             }
-            }else{
-                try {
-                    const response = await DeleteCall(`/company/caparule-set/${selectedRuleSetId.ruleSetId}`);
-    
-                    if (response.code === 'SUCCESS') {
-                        setRules((prevRules) => prevRules.filter((rule) => rule.ruleSetId !== selectedRuleSetId.ruleSetId));
-                        closeDeleteDialog();
-                        setAlert('success', 'Rule successfully deleted!');
-                    } else {
-                        setAlert('error', 'Something went wrong!');
-                        closeDeleteDialog();
-                    }
-                } catch (error) {
-                    setAlert('error', 'Something went wrong!');
-                } finally {
-                    setLoading(false);
-                }
-            }
         }
     };
+
+    // const BulkDelete = async () => {
+    //     setLoading(true);
+
+    //     try {
+    //         const response = await DeleteCall(`/company/caparule/`);
+
+    //         if (response.code === 'SUCCESS') {
+    //             closeAllDeleteDialog();
+    //             fetchData();
+    //             setAlert('success', 'Rule successfully deleted!');
+    //         } else {
+    //             setAlert('error', 'Something went wrong!');
+    //             closeAllDeleteDialog();
+    //         }
+    //     } catch (error) {
+    //         setAlert('error', 'Something went wrong!');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="grid">
@@ -472,14 +464,15 @@ const MainRules = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
+                            {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
                             <div className="flex justify-content-between items-center border-b">
                                 <div>
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
                                 </div>
                                 <div className="flex  gap-2">
-                                    {/* <div className="mt-2">{dropdownFieldDeparment}</div>
+                                    <div className="mt-2">{dropdownFieldDeparment}</div>
                                     <div className="mt-2">{dropdownFieldCategory}</div>
-                                    <div className="mt-2">{dropdownFieldSubCategory}</div> */}
+                                    <div className="mt-2">{dropdownFieldSubCategory}</div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
@@ -493,17 +486,19 @@ const MainRules = () => {
                                 isDelete={true} // show delete button
                                 extraButtons={[
                                     {
-                                        icon: 'pi pi-eye',
+                                        icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(e); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId,e.capaRuleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
                                 data={rules.map((item: any) => ({
-                                    ruleSetId: item.ruleSetId,
-                                    value: item.value,
-                                    ruleType:item.ruleType
-                                    
+                                    capaRuleId: item.capaRuleId,
+                                    name: item.department?.name,
+                                    categoryName: item.category?.categoryName,
+                                    subCategoryName: item.subCategory?.subCategoryName,
+                                    capaRulesName: item.capaRulesName,
+                                    status: item.status
                                 }))}
                                 columns={[
                                     {
@@ -517,18 +512,45 @@ const MainRules = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'RULES TYPE ',
-                                        field: 'ruleType',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        header: 'DEPARTMENT ',
+                                        field: 'name',
+                                        // filter: true,
+                                        bodyStyle: { minWidth: 100, maxWidth: 100 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RULES NAME ',
-                                        field: 'value',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        header: 'Procurement Category',
+                                        field: 'categoryName',
+                                        // sortable: true,
+                                        // filter: true,
+                                        filterPlaceholder: 'Supplier Name',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 100, maxWidth: 100 }
+                                    },
+                                    {
+                                        header: 'SUB CATEGORY',
+                                        field: 'subCategoryName',
+                                        // sortable: true,
+                                        // filter: true,
+                                        filterPlaceholder: 'Supplier Name',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 180, maxWidth: 180 }
+                                    },
+                                    {
+                                        header: 'CRITERIA CATEGORY',
+                                        field: 'capaRulesName',
+                                        // filter: true,
+                                        bodyStyle: { minWidth: 300, maxWidth: 300 },
                                         headerStyle: dataTableHeaderStyle
                                     },
-                                    
+                                    {
+                                        header: 'CRITERIA',
+                                        field: 'status',
+                                        // filter: true,
+                                        filterPlaceholder: 'Search Supplier Category',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
@@ -559,7 +581,7 @@ const MainRules = () => {
                         <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
 
                         <div className="flex flex-column align-items-center gap-1">
-                            <span>{isAllDeleteDialogVisible ? 'Are you sure you want to delete all rule.' : 'Are you sure you want to delete selected rule.'}</span>
+                            <span>{isAllDeleteDialogVisible ? 'Are you sure you want to delete all CAPA rule.' : 'Are you sure you want to delete selected CAPA rule.'}</span>
                             <span>This action cannot be undone. </span>
                         </div>
                     </div>
@@ -569,4 +591,4 @@ const MainRules = () => {
     );
 };
 
-export default MainRules;
+export default ManageCapaRulesPage;
