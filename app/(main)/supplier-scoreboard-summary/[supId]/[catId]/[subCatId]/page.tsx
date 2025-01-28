@@ -40,33 +40,25 @@ const SupplierScoreboardTables = () => {
     const [chartImage, setChartImage] = useState<string | null>(null);
     const [pdfReady, setPdfReady] = useState(false);
 
-    console.log(supplierScore);
-
 
     useEffect(() => {
-        const captureChartAsImage = async () => {
-            if (!chartRef.current) return;
-
-            // Wait for charts to render completely
+        const captureTimer = setTimeout(async () => {
+            if (!chartRef.current || pdfReady) return;
+            
             await new Promise(resolve => requestAnimationFrame(resolve));
-            await new Promise(resolve => setTimeout(resolve, 500)); // Increased timeout
-
             const canvas = await html2canvas(chartRef.current, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: "#ffffff",
-                logging: false,
+              scale: 2,
+              useCORS: true,
+              backgroundColor: "#ffffff",
+              logging: false,
             });
+            
+            setChartImage(canvas.toDataURL("image/png"));
+          }, 1000); // Add debounce delay
+        
+          return () => clearTimeout(captureTimer);
+    }, [ratingsData, selectedYear, pdfReady]);
 
-            setChartImage(canvas.toDataURL("image/png", 1.0)); //store the captured graph
-
-        };
-
-        if (!pdfReady) {
-            captureChartAsImage();
-        }
-
-    }, [ratingsData, selectedYear]);
 
     useEffect(() => {
         if (chartImage) {
@@ -172,8 +164,10 @@ const SupplierScoreboardTables = () => {
         }
     }, [supplierScore, departments]);
 
+
     // Add cleanup for chart image
-    useEffect(() => {
+
+  useEffect(() => {
         return () => {
             setChartImage(null);
             setPdfReady(false);
@@ -518,6 +512,75 @@ const SupplierScoreboardTables = () => {
 
     const renderDataPanel = dataPanel();
 
+    const memoizedOptions = React.useMemo(() => ({
+        
+        responsive: true,
+
+        plugins: {
+            legend: {
+                position: 'none' // Position legend on the left side
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: {
+                    display: false // Hide gridlines if not required
+                },
+                ticks: {
+                    autoSkip: true // Automatically skips labels if needed
+                },
+                categoryPercentage: 1.0, // Bars will cover full space
+                barPercentage: 0.8 // Control the width of the bars
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
+                    max: 100, // Maximum value of y-axis
+                    min: 0 // Minimum value of y-axis
+                }
+            }
+        }
+    }), []);    
+    
+    const memoizedBarOptions = React.useMemo(() => ({
+        responsive: true,
+
+        plugins: {
+            legend: {
+                position: 'bottom' // Position legend on the left side
+            },
+            labels: {
+                boxWidth: 20, // Set the width of the legend box
+                boxHeight: 20, // Set the height of the legend box
+                padding: 10 // Adjust the padding between the box and the text
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: {
+                    display: false // Hide gridlines if not required
+                },
+                ticks: {
+                    autoSkip: true // Automatically skips labels if needed
+                },
+                categoryPercentage: 1.0, // Bars will cover full space
+                barPercentage: 0.8 // Control the width of the bars
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
+                    max: 100, // Maximum value of y-axis
+                    min: 0 // Minimum value of y-axis
+                }
+            }
+        }
+    }), []);
+
+
     const options = {
         responsive: true,
 
@@ -662,7 +725,10 @@ const SupplierScoreboardTables = () => {
 
         return { ratingData, lineData };
     };
-    const { ratingData, lineData } = prepareChartData();
+    // const { ratingData, lineData } = prepareChartData();
+
+    const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
+
 
     const GraphsPanel: any = React.memo(() => {
         return (
@@ -671,7 +737,7 @@ const SupplierScoreboardTables = () => {
                 <div className="flex justify-content-between align-items-start flex-wrap gap-4" ref={chartRef}>
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance Rating per Quarter</h4>
-                        <Chart type="bar" data={ratingData} options={options} />
+                        <Chart type="bar" data={ratingData} options={memoizedOptions} />
                         <h6 className="text-center">Quarters</h6>
                     </div>
 
@@ -679,7 +745,7 @@ const SupplierScoreboardTables = () => {
                     {/* second chart */}
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance per Function</h4>
-                        <Chart type="bar" data={lineData} options={baroptions} className='' />
+                        <Chart type="bar" data={lineData} options={memoizedBarOptions} className='' />
                         <h6 className="text-center">Quarters</h6>
                     </div>
                 </div>

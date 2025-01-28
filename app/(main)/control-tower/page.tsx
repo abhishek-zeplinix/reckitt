@@ -10,6 +10,7 @@ const Tabs = ['Roles', 'Routes', 'Accessibility', 'Permissions'];
 
 const ControlTower = () => {
     const [activeTab, setActiveTab] = useState('Roles');
+    
 
     const renderHeader = () => {
         return (
