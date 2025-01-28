@@ -19,8 +19,8 @@ const SupplierRatingPage = () => {
     const [periodOptions, setPeriodOptions] = useState<any>([]);
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [reload, setReload] = useState<boolean>(false);
-
-    console.log(selectedPeriod);
+    const [isApprover, setIsApprover] = useState(false)
+    
 
     const urlParams = useParams();
     const { supId, catId, subCatId, currentYear } = urlParams;
@@ -39,20 +39,6 @@ const SupplierRatingPage = () => {
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-    console.log('category', category);
-
-    //fetch department api
-    // const fetchDepartments = async () => {
-
-    //     try {
-    //         const response = await GetCall('/company/department');
-    //         setDepartments(response.data);
-    //         return response.data;
-
-    //     } catch (error) {
-    //         setAlert('error', 'Failed to fetch departments');
-    //     }
-    // };
 
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
@@ -69,7 +55,6 @@ const SupplierRatingPage = () => {
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/company/supplier?${queryString}`);
-            console.log('fetch indivisual supplier data', response.data[0]);
 
             setSupplierData(response.data[0]);
 
@@ -101,7 +86,6 @@ const SupplierRatingPage = () => {
 
             setSupplierScoreData(response.data);
 
-            console.log(response.data);
 
             return response.data;
         } catch (error) {
@@ -131,7 +115,7 @@ const SupplierRatingPage = () => {
             try {
                 const supplierDetails = await fetchSupplierData();
 
-                console.log('sdetails', supplierDetails);
+
 
                 // Check if supplier has been evaluated for the selected department
                 const isDepartmentEvaluated = supplierDetails?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment);
@@ -162,14 +146,14 @@ const SupplierRatingPage = () => {
             if (!isPeriodValid) return;
 
             setLoading(true);
-
             try {
                 const scoreData = await fetchSupplierScore();
 
                 // If no score data exists for this period, fetch default rules
-                if (!scoreData || scoreData.length === 0) {
-                    await fetchRules();
-                }
+                // if (!scoreData || scoreData.length === 0) {
+                await fetchRules();
+                // }
+
             } catch (error) {
                 // Error handled in respective fetch functions
             } finally {
@@ -196,7 +180,6 @@ const SupplierRatingPage = () => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
 
-            console.log('current dep', currentDepartment);
 
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
@@ -346,8 +329,7 @@ const SupplierRatingPage = () => {
     const renderSummoryInfo = summoryCards();
 
     // console.log(departments);
-    console.log(selectedDepartment);
-    console.log(selectedPeriod);
+   
 
     const dataPanel = () => {
         return (
@@ -386,36 +368,29 @@ const SupplierRatingPage = () => {
                         </div>
                     </div>
 
-                    {/* <div className="mt-4">{renderContent()}</div> */}
+                  
 
-                    {/* {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentId={selectedDepartment} department={activeTab} />} */}
-
-                    {supplierData?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod) ? (
+                    {rules && (
                         <SupplierEvaluationTable
-                            rules={supplierScoreData?.find((score: any) => score.department?.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod) || []}
-                            // rules={supplierScoreData}
+                            rules={rules} // Always pass rules
+                            supplierScoreData={supplierScoreData} // Pass the score data separately
                             category={category}
                             evaluationPeriod={selectedPeriod}
                             categoryName={categoryName}
                             departmentId={selectedDepartment}
                             department={activeTab}
-                            isEvaluatedData={true}
-                            totalScoreEvaluated={supplierData.supplierScores.find((score: any) => score.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod)?.totalScore}
+                            isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
+                            onSuccess={() => setReload(!reload)}
+                            totalScoreEvaluated={
+                                supplierData?.supplierScores?.find(
+                                    (score: any) =>
+                                        score.departmentId === selectedDepartment &&
+                                        score.evalutionPeriod === selectedPeriod
+                                )?.totalScore
+                            }
                         />
-                    ) : (
-                        rules && (
-                            <SupplierEvaluationTable
-                                rules={rules}
-                                category={category}
-                                evaluationPeriod={selectedPeriod}
-                                categoryName={categoryName}
-                                departmentId={selectedDepartment}
-                                department={activeTab}
-                                isEvaluatedData={false}
-                                onSuccess={() => setReload(!reload)}
-                            />
-                        )
                     )}
+
                 </div>
             </>
         );

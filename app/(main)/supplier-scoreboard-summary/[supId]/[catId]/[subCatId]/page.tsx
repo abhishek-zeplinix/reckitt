@@ -3,18 +3,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { buildQueryParams } from '@/utils/utils';
+import { buildQueryParams, getBackgroundColor } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { useParams } from 'next/navigation';
 import { GetCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Department, SupplierScoreboardSummary } from '@/types';
+import { CustomResponse, Department } from '@/types';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { Dropdown } from 'primereact/dropdown';
 import Link from 'next/link';
 import { Button } from 'primereact/button';
 import { Chart } from 'primereact/chart';
 import { Dialog } from 'primereact/dialog';
-import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import SupplierScoreboardPDF from '@/components/pdf/supplier-scoreboard/SupplierScoreboardPDF';
+import html2canvas from 'html2canvas';
+
 
 const SupplierScoreboardTables = () => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
@@ -24,20 +27,46 @@ const SupplierScoreboardTables = () => {
     const [selectedYear, setSelectedYear] = useState<any>('2025');
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
-    const dataTableRef = useRef<CustomDataTableRef>(null);
-
     const { departments } = useFetchDepartments();
+
     const { setLoading, setAlert } = useAppContext();
     const params = useParams();
     const { supId, catId, subCatId } = params;
 
     const [dialogVisible, setDialogVisible] = useState(false);
-
     const [evaluationData, setEvaluationData] = useState([]);
+    const chartRef = useRef(null);
 
-    console.log(supplierScore?.ratings?.length);
+    const [chartImage, setChartImage] = useState<string | null>(null);
+    const [pdfReady, setPdfReady] = useState(false);
 
-    const [popupData, setPopupData] = useState<any>([]);
+
+    useEffect(() => {
+        const captureTimer = setTimeout(async () => {
+            if (!chartRef.current || pdfReady) return;
+            
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            const canvas = await html2canvas(chartRef.current, {
+              scale: 2,
+              useCORS: true,
+              backgroundColor: "#ffffff",
+              logging: false,
+            });
+            
+            setChartImage(canvas.toDataURL("image/png"));
+          }, 1000); // Add debounce delay
+        
+          return () => clearTimeout(captureTimer);
+    }, [ratingsData, selectedYear, pdfReady]);
+
+
+    useEffect(() => {
+        if (chartImage) {
+            setPdfReady(!!chartImage);
+        }
+    }, [chartImage]);
+
+
     useEffect(() => {
         fetchData();
         fetchSupplierData();
@@ -93,15 +122,16 @@ const SupplierScoreboardTables = () => {
     };
 
     const fetchSpecificSupplierWithLessScore = async (depId: any, period: any) => {
-        setLoading(false);
+        setLoading(false)
         try {
             setLoading(true);
+
 
             const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}/department/${depId}/period/${period}`);
             setLoading(false);
 
+
             if (response.code == 'SUCCESS') {
-                setPopupData(response.data);
 
                 const flatData = response.data.flatMap((section: any) =>
                     section.ratedCriteria.map((criteria: any) => ({
@@ -113,23 +143,37 @@ const SupplierScoreboardTables = () => {
                     }))
                 );
                 setEvaluationData(flatData);
+
+
             } else {
-                setPopupData([]);
+                setEvaluationData([]);
             }
         } catch (error) {
-            setAlert('error', 'Something went wrong!');
+            setAlert('error', 'Something went wrong!')
+
         } finally {
             setLoading(false);
         }
-    };
 
-    console.log(popupData);
+    }
+
 
     useEffect(() => {
         if (supplierScore && departments) {
             processData();
         }
     }, [supplierScore, departments]);
+
+
+    // Add cleanup for chart image
+
+  useEffect(() => {
+        return () => {
+            setChartImage(null);
+            setPdfReady(false);
+        };
+    }, [selectedYear]);
+
 
     const processData = () => {
         // sort departments by orderBy
@@ -176,13 +220,6 @@ const SupplierScoreboardTables = () => {
             };
         });
 
-        // process ratings data
-
-        //use this if any issue with current year in rating table
-
-        // const yearRatings = supplierScore?.ratings?.filter(rating =>
-        //     rating.period.includes(selectedYear)
-        // ) || [];
 
         const ratingsTableData = supplierScore?.ratings?.map((rating: any) => ({
             name: rating.period,
@@ -209,16 +246,7 @@ const SupplierScoreboardTables = () => {
         const status = rowData[field];
         const percentage = parseInt(status);
 
-        let backgroundColor;
-        if (percentage >= 90) {
-            backgroundColor = '#48BB78';
-        } else if (percentage >= 70) {
-            backgroundColor = '#EC934B';
-        } else if (percentage >= 50) {
-            backgroundColor = '#ECC94B';
-        } else {
-            backgroundColor = '#F56565';
-        }
+        const backgroundColor = getBackgroundColor(percentage);
 
         return (
             <Tag
@@ -237,32 +265,23 @@ const SupplierScoreboardTables = () => {
         const status = rowData[field];
         const percentage = parseInt(status);
 
-        let backgroundColor;
-        if (percentage >= 90) {
-            backgroundColor = '#48BB78';
-        } else if (percentage >= 70) {
-            backgroundColor = '#EC934B';
-        } else if (percentage >= 50) {
-            backgroundColor = '#ECC94B';
-        } else {
-            backgroundColor = '#F56565';
-        }
+        const backgroundColor = getBackgroundColor(percentage);
 
         const handleIconClick = (e: React.MouseEvent) => {
             e.stopPropagation();
 
-            const period = isHalfYearly ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}` : `Quarterly-${field.slice(1)}-${selectedYear}`;
-
-            // setSelectedEvaluation({
-            //     evaluationPeriod: period,
-            //     departmentId: departments.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || ''
-            // });
+            const period = isHalfYearly
+                ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}`
+                : `Quarterly-${field.slice(1)}-${selectedYear}`;
 
             const depId = (departments as any[])?.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || '';
 
             fetchSpecificSupplierWithLessScore(depId, period);
 
-            setDialogVisible(true);
+            if (evaluationData) {
+                setDialogVisible(true);
+            }
+
         };
 
         return (
@@ -276,7 +295,12 @@ const SupplierScoreboardTables = () => {
                         textAlign: 'center'
                     }}
                 />
-                {percentage <= 50 && supplierScore?.ratings?.length > 0 && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
+                {(percentage <= 50 && percentage !== 0) && (
+                    <i
+                        className="pi pi-info-circle text-yellow-500 cursor-pointer"
+                        onClick={handleIconClick}
+                    />
+                )}
             </div>
         );
     };
@@ -295,10 +319,10 @@ const SupplierScoreboardTables = () => {
     const safeSupplierData = supplierData || {}; // ensuree it's never undefined
 
     const leftPanelData = [
-        { label: 'Category :', value: safeSupplierData.category?.categoryName ?? 'N/A' },
-        { label: 'Sub-Category :', value: safeSupplierData.subCategories?.subCategoryName ?? 'N/A' },
         { label: 'Supplier Name :', value: safeSupplierData.supplierName ?? 'N/A' },
         { label: 'Supplier Id :', value: safeSupplierData.supId ?? 'N/A' },
+        { label: 'Category :', value: safeSupplierData.category?.categoryName ?? 'N/A' },
+        { label: 'Sub-Category :', value: safeSupplierData.subCategories?.subCategoryName ?? 'N/A' },
         { label: 'Supplier Manufacturer Name :', value: safeSupplierData.supplierManufacturerName ?? 'N/A' }
     ];
 
@@ -382,6 +406,7 @@ const SupplierScoreboardTables = () => {
     };
     const renderSummoryInfo = summoryCards();
 
+
     const headerComp = () => {
         return (
             <div className="flex justify-content-between ">
@@ -396,9 +421,28 @@ const SupplierScoreboardTables = () => {
                 </div>
 
                 <div className="flex justify-content-end">
-                    <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
+                    {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
+                    {/* <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }}
+                    /> */}
+
+
+                    <PDFDownloadLink
+                        document={<SupplierScoreboardPDF supplierData={supplierData} ratingsData={ratingsData} selectedYear={selectedYear} chartImage={chartImage} quarterlyData={quarterlyData} halfYearlyData={halfYearlyData} />}
+                        fileName={`Supplier-scoreboard-summary-${supId}.pdf`}
+                        style={{ color: 'white', marginLeft: 10 }}
+                    >
+                        <Button
+                            icon="pi pi-download"
+                            size="small"
+                            label='Donwload PDF'
+                           className="default-button"
+                            aria-label="Donwload PDF"
+                            disabled={!pdfReady}
+                        />
+                    </PDFDownloadLink>
+
                 </div>
+
             </div>
         );
     };
@@ -445,15 +489,19 @@ const SupplierScoreboardTables = () => {
                         visible={dialogVisible}
                         style={{ width: '80vw' }} // Made wider to accommodate table
                         className="delete-dialog"
+
                         onHide={() => setDialogVisible(false)}
                     >
                         <div className="flex flex-column w-full surface-border p-1 gap-4">
-                            <DataTable value={evaluationData}>
+
+
+                            <DataTable value={evaluationData} >
                                 <Column field="type" header="Type" style={{ width: '250px' }} />
                                 <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
                                 <Column field="ratio" header="Ratio" style={{ width: '250px' }} />
                                 <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
                                 <Column field="score" header="Score" style={{ width: '250px' }} />
+
                             </DataTable>
                         </div>
                     </Dialog>
@@ -463,6 +511,75 @@ const SupplierScoreboardTables = () => {
     };
 
     const renderDataPanel = dataPanel();
+
+    const memoizedOptions = React.useMemo(() => ({
+        
+        responsive: true,
+
+        plugins: {
+            legend: {
+                position: 'none' // Position legend on the left side
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: {
+                    display: false // Hide gridlines if not required
+                },
+                ticks: {
+                    autoSkip: true // Automatically skips labels if needed
+                },
+                categoryPercentage: 1.0, // Bars will cover full space
+                barPercentage: 0.8 // Control the width of the bars
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
+                    max: 100, // Maximum value of y-axis
+                    min: 0 // Minimum value of y-axis
+                }
+            }
+        }
+    }), []);    
+    
+    const memoizedBarOptions = React.useMemo(() => ({
+        responsive: true,
+
+        plugins: {
+            legend: {
+                position: 'bottom' // Position legend on the left side
+            },
+            labels: {
+                boxWidth: 20, // Set the width of the legend box
+                boxHeight: 20, // Set the height of the legend box
+                padding: 10 // Adjust the padding between the box and the text
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: {
+                    display: false // Hide gridlines if not required
+                },
+                ticks: {
+                    autoSkip: true // Automatically skips labels if needed
+                },
+                categoryPercentage: 1.0, // Bars will cover full space
+                barPercentage: 0.8 // Control the width of the bars
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
+                    max: 100, // Maximum value of y-axis
+                    min: 0 // Minimum value of y-axis
+                }
+            }
+        }
+    }), []);
+
 
     const options = {
         responsive: true,
@@ -542,8 +659,8 @@ const SupplierScoreboardTables = () => {
                 {
                     label: 'Rating',
                     data: ratingValues,
-                    backgroundColor: '#DF1740',
-                    borderColor: '#DF1740',
+                    backgroundColor: '#1F77B4',
+                    borderColor: '#1F77B4',
                     borderWidth: 1,
                     barThickness: 100
                 }
@@ -554,11 +671,11 @@ const SupplierScoreboardTables = () => {
         const periods = [`Q1 ${selectedYear}`, `Q2/H1 ${selectedYear}`, `Q3 ${selectedYear}`, `Q4/H2 ${selectedYear}`];
 
         const departmentColors: any = {
-            procurement: '#2196F3',
-            sustainability: '#F44336',
-            planning: '#FFA600',
-            quality: '#4CAF50',
-            development: '#DF1740'
+            'procurement': '#3F5169',
+            'sustainability': '#FFC60C',
+            'planning': '#EC7D31',
+            'quality': '#00AF50',
+            'development': '#00ADF0'
         };
 
         const datasets: any = [];
@@ -608,44 +725,50 @@ const SupplierScoreboardTables = () => {
 
         return { ratingData, lineData };
     };
-    const { ratingData, lineData } = prepareChartData();
+    // const { ratingData, lineData } = prepareChartData();
 
-    const GraphsPanel = () => {
+    const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
+
+
+    const GraphsPanel: any = React.memo(() => {
         return (
             <>
                 {/* first chart */}
-                <div className="flex justify-content-between align-items-start flex-wrap gap-4">
+                <div className="flex justify-content-between align-items-start flex-wrap gap-4" ref={chartRef}>
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance Rating per Quarter</h4>
-                        <Chart type="bar" data={ratingData} options={options} />
+                        <Chart type="bar" data={ratingData} options={memoizedOptions} />
                         <h6 className="text-center">Quarters</h6>
                     </div>
+
 
                     {/* second chart */}
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance per Function</h4>
-                        <Chart type="bar" data={lineData} options={baroptions} className="" />
+                        <Chart type="bar" data={lineData} options={memoizedBarOptions} className='' />
                         <h6 className="text-center">Quarters</h6>
                     </div>
                 </div>
             </>
         );
-    };
+    });
 
-    const renderGraphsPanel = GraphsPanel();
+    // const renderGraphsPanel = GraphsPanel;
 
     return (
-        <div className="grid" id="content-to-print">
-            <div className="col-12">
-                <div>{renderSummoryInfo}</div>
+        <>
+            <div className="grid">
+
+                <div className="col-12">
+                    <div>{renderSummoryInfo}</div>
+                </div>
+                <div className="col-12">
+                    <div>{renderDataPanel}</div>
+                </div>
+                <div className="col-12"><GraphsPanel /></div>
             </div>
-            <div className="col-12">
-                <div>{renderDataPanel}</div>
-            </div>
-            <div className="col-12">
-                <div>{renderGraphsPanel}</div>
-            </div>
-        </div>
+
+        </>
     );
 };
 
