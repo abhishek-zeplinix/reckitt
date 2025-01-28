@@ -280,3 +280,15 @@ export const validateFullName = (fullName: string): boolean => {
     return fullNamePattern.test(fullName);
 };
 
+
+export const getBackgroundColor = (percentage: any) => {
+    if (percentage >= 90) {
+        return '#2196F3';
+    } else if (percentage >= 70) {
+        return '#4CAF50';
+    } else if (percentage >= 50) {
+        return '#FF9800'; 
+    } else {
+        return '#F44336'; 
+    }
+};
