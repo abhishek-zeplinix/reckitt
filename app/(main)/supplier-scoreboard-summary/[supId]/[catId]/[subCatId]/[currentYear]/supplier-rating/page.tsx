@@ -368,41 +368,7 @@ const SupplierRatingPage = () => {
                         </div>
                     </div>
 
-                    {/* <div className="mt-4">{renderContent()}</div> */}
-
-                    {/* {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentId={selectedDepartment} department={activeTab} />} */}
-
-
-                    {/* { supplierData?.supplierScores?.some(
-                            (score: any) =>
-                                score.departmentId === selectedDepartment &&
-                                score.evalutionPeriod === selectedPeriod
-                        ) ? (
-                        <SupplierEvaluationTable
-                            rules={supplierScoreData?.find((score: any) => score.department?.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod) || []}
-                            // rules={supplierScoreData}
-                            category={category}
-                            evaluationPeriod={selectedPeriod}
-                            categoryName={categoryName}
-                            departmentId={selectedDepartment}
-                            department={activeTab}
-                            isEvaluatedData={true}
-                            totalScoreEvaluated={supplierData.supplierScores.find((score: any) => score.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod)?.totalScore}
-                        />
-                    ) : (
-                        rules && (
-                            <SupplierEvaluationTable
-                                rules={rules}
-                                category={category}
-                                evaluationPeriod={selectedPeriod}
-                                categoryName={categoryName}
-                                departmentId={selectedDepartment}
-                                department={activeTab}
-                                isEvaluatedData={false}
-                                onSuccess={() => setReload(!reload)}
-                            />
-                        )
-                    )} */}
+                  
 
                     {rules && (
                         <SupplierEvaluationTable
