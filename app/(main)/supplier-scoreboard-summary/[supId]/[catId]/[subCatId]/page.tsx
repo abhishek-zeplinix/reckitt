@@ -130,11 +130,14 @@ const SupplierScoreboardTables = () => {
         try {
             setLoading(true);
 
+
             const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}/department/${depId}/period/${period}`);
             setLoading(false);
 
+
             if (response.code == 'SUCCESS') {
 
+                const flatData = response.data.flatMap((section: any) =>
                 const flatData = response.data.flatMap((section: any) =>
                     section.ratedCriteria.map((criteria: any) => ({
                         type: section.sectionName,
@@ -265,7 +268,6 @@ const SupplierScoreboardTables = () => {
         );
     };
 
-
     const statusBodyTemplate = (rowData: any, field: any, isHalfYearly = false) => {
         const status = rowData[field];
         const percentage = parseInt(status);
@@ -321,9 +323,8 @@ const SupplierScoreboardTables = () => {
         );
     };
 
-
     const nameBodyTemplate = (rowData: any) => {
-        return <span className="text-pink-500 font-bold">{rowData.name}</span>;
+        return <span className="text-primary-main font-bold">{rowData.name}</span>;
     };
 
     const years = [
@@ -503,7 +504,6 @@ const SupplierScoreboardTables = () => {
                         </DataTable>
                     </div>
 
-
                     <Dialog
                         visible={dialogVisible}
                         style={{ width: '80vw' }} // Made wider to accommodate table
@@ -562,7 +562,6 @@ const SupplierScoreboardTables = () => {
         }
     };
 
-
     const baroptions = {
         responsive: true,
 
@@ -599,32 +598,27 @@ const SupplierScoreboardTables = () => {
         }
     };
 
-
     const prepareChartData = () => {
-
         //chart 1
         const ratingLabels = ratingsData?.map((rating: any) => rating.name) || [];
         const ratingValues = ratingsData?.map((rating: any) => parseFloat(rating.status1.replace('%', ''))) || [];
 
         const ratingData = {
             labels: ratingLabels,
-            datasets: [{
-                label: 'Rating',
-                data: ratingValues,
-                backgroundColor: '#DF177C',
-                borderColor: '#DF177C',
-                borderWidth: 1,
-                barThickness: 100
-            }]
+            datasets: [
+                {
+                    label: 'Rating',
+                    data: ratingValues,
+                    backgroundColor: '#DF1740',
+                    borderColor: '#DF1740',
+                    borderWidth: 1,
+                    barThickness: 100
+                }
+            ]
         };
 
         //chart 2
-        const periods = [
-            `Q1 ${selectedYear}`,
-            `Q2/H1 ${selectedYear}`,
-            `Q3 ${selectedYear}`,
-            `Q4/H2 ${selectedYear}`
-        ];
+        const periods = [`Q1 ${selectedYear}`, `Q2/H1 ${selectedYear}`, `Q3 ${selectedYear}`, `Q4/H2 ${selectedYear}`];
 
         const departmentColors: any = {
             'procurement': '#2196F3',
@@ -635,10 +629,11 @@ const SupplierScoreboardTables = () => {
         };
 
         const datasets: any = [];
+        const datasets: any = [];
 
         // process quarterly departments
         quarterlyData.forEach((dept: any) => {
-            const data = periods.map(period => {
+            const data = periods.map((period) => {
                 if (period.includes('Q1')) return parseFloat(dept.q1.replace('%', ''));
                 if (period.includes('Q2')) return parseFloat(dept.q2.replace('%', ''));
                 if (period.includes('Q3')) return parseFloat(dept.q3.replace('%', ''));
@@ -650,6 +645,7 @@ const SupplierScoreboardTables = () => {
                 label: dept.name,
                 data: data,
                 backgroundColor: departmentColors[dept.name.toLowerCase()],
+                backgroundColor: departmentColors[dept.name.toLowerCase()],
                 borderColor: departmentColors[dept.name.toLowerCase()],
                 borderWidth: 1,
                 tension: 0.01
@@ -658,7 +654,7 @@ const SupplierScoreboardTables = () => {
 
         // process half-yearly departments
         halfYearlyData.forEach((dept: any) => {
-            const data = periods.map(period => {
+            const data = periods.map((period) => {
                 if (period.includes('H1')) return parseFloat(dept.status1.replace('%', ''));
                 if (period.includes('H2')) return parseFloat(dept.status2.replace('%', ''));
                 return null; // Return null for Q1 and Q3 periods
@@ -682,7 +678,6 @@ const SupplierScoreboardTables = () => {
         return { ratingData, lineData };
     };
     const { ratingData, lineData } = prepareChartData();
-
 
     const GraphsPanel = () => {
         return (

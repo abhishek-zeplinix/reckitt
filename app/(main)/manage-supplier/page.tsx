@@ -16,6 +16,9 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { EmptySupplier } from '@/types/forms';
 import { FileUpload } from 'primereact/fileupload';
 import { Dropdown } from 'primereact/dropdown';
+import { RadioButton } from 'primereact/radiobutton';
+import { Calendar } from 'primereact/calendar';
+import { InputTextarea } from 'primereact/inputtextarea';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -25,10 +28,16 @@ const ACTIONS = {
 const defaultForm: EmptySupplier = {
     supId: null,
     supplierName: '',
+    email: '',
+    supplierNumber: '',
+    Zip: '',
     supplierManufacturerName: '',
     siteAddress: '',
     procurementCategoryId: null,
     supplierCategoryId: null,
+    stateId: null,
+    countryId: null,
+    cityId: null,
     warehouseLocation: '',
     factoryId: null,
     gmpFile: '',
@@ -45,7 +54,19 @@ const defaultForm: EmptySupplier = {
         subCategoryId: null,
         subCategoryName: ''
     },
-    factoryName: ''
+    factoryName: '',
+    countries: {
+        name: '',
+        countryId: null
+    },
+    states: {
+        name: '',
+        stateId: null
+    },
+    cities: {
+        name: '',
+        cityId: null
+    }
 };
 
 const ManageSupplierPage = () => {
@@ -78,7 +99,8 @@ const ManageSupplierPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-
+    const [chooseBlockOption, setChooseBlockOption] = useState('');
+    const [date, setDate] = useState<Date | null>(null);
     useEffect(() => {
         setScroll(true);
         fetchData();
@@ -359,23 +381,43 @@ const ManageSupplierPage = () => {
     const handleCreateNavigation = () => {
         router.push('/manage-supplier/supplier');
     };
+
+    const dialogHeader = () => {
+        return (
+            <div className="flex justify-content-between align-items-center w-full">
+                <span>Choose your file</span>
+                <Button
+                    label="Download Sample PDF"
+                    icon="pi pi-download"
+                    className="p-button-text p-button-sm text-primary-main"
+                    onClick={() => {
+                        // Trigger PDF download
+                        const link = document.createElement('a');
+                        link.href = '/path-to-your-pdf.pdf'; // Replace with the actual path to your PDF
+                        link.download = 'example.pdf'; // Replace with the desired file name
+                        link.click();
+                    }}
+                />
+            </div>
+        );
+    };
     const renderHeader = () => {
         return (
-            <div className="flex justify-content-between">
+            <div className="flex justify-content-between ">
                 <span className="p-input-icon-left flex align-items-center">
                     <h3 className="mb-0">Manage Suppliers</h3>
                 </span>
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-plus" size="small" label="Import Supplier" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} onClick={() => setVisible(true)} />
                     <Dialog
-                        header="Choose your file"
+                        header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={5000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
             </div>
         );
@@ -412,14 +454,11 @@ const ManageSupplierPage = () => {
                                     isEdit={true} // show edit button
                                     isDelete={true} // show delete button
                                     data={suppliers}
-                                    // extraButtons={[
-                                    //     {
-                                    //         icon: 'pi pi-user-edit',
-                                    //         onClick: (e) => {
-                                    //             handleEditUser(e.id); // Pass the userId from the row data
-                                    //         }
-                                    //     }
-                                    // ]}
+                                    extraButtons={[
+                                        {
+                                            icon: 'pi pi-ban'
+                                        }
+                                    ]}
                                     columns={[
                                         {
                                             header: 'Sr. No',
@@ -434,43 +473,62 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
-                                            filterPlaceholder: 'Supplier Name',
-                                            style: { minWidth: 120, maxWidth: 120 }
+                                            style: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Procurement Category',
                                             field: 'category.categoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            filterPlaceholder: 'Proc Category'
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Supplier Category',
                                             field: 'subCategories.subCategoryName',
-                                            filterPlaceholder: 'Supplier Category',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Manufacturer Name',
                                             field: 'supplierManufacturerName',
-                                            filterPlaceholder: 'Manufacturer Name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                        },
+                                        {
+                                            header: 'Email',
+                                            field: 'email',
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         },
                                         {
                                             header: 'Site Address',
                                             field: 'siteAddress',
-                                            filterPlaceholder: 'Search Site Address',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Factory Name',
                                             field: 'factoryName',
-                                            filterPlaceholder: 'Factory Name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Warehouse Location',
                                             field: 'warehouseLocation',
-                                            filterPlaceholder: 'Warehouse Location',
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                        },
+                                        {
+                                            header: 'Country',
+                                            field: 'countries.name',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'State',
+                                            field: 'states.name',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'City',
+                                            field: 'cities.name',
+
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        },
+                                        {
+                                            header: 'Zip',
+                                            field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         }
                                     ]}
@@ -484,14 +542,14 @@ const ManageSupplierPage = () => {
                 </div>
             </div>
             <Dialog
-                header="Delete confirmation"
+                header="Blocking confirmation"
                 visible={isDeleteDialogVisible}
                 style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
                 className="delete-dialog"
                 footer={
                     <div className="flex justify-content-center p-2">
-                        <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                        <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                        <Button label="Save" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
@@ -502,11 +560,63 @@ const ManageSupplierPage = () => {
                     </div>
                 )}
                 <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
-                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                    <div className="flex flex-wrap gap-3 mt-2 mb-1 justify-content-center">
+                        <div className="flex align-items-center flex-column gap-3">
+                            <div className="flex align-items-center">
+                                <RadioButton inputId="block" name="block" value="Permanent Block" onChange={(e) => setChooseBlockOption(e.value)} checked={chooseBlockOption === 'Permanent Block'} />
+                                <label htmlFor="block" className="ml-2">
+                                    Permanent Block
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex align-items-center flex-column gap-3">
+                            <div className="flex align-items-center">
+                                <RadioButton inputId="tempBlock" name="tempBlock" value="Temporary Block" onChange={(e) => setChooseBlockOption(e.value)} checked={chooseBlockOption === 'Temporary Block'} />
+
+                                <label htmlFor="tempBlock" className="ml-2">
+                                    Temporary Block
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    {/* <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
                         <span>Are you sure you want to delete this supplier? </span>
                         <span>This action cannot be undone. </span>
+                    </div> */}
+                    <div className="flex flex-column align-items-center gap-1">
+                        {chooseBlockOption === 'Permanent Block' && (
+                            <div className="w-full">
+                                <InputTextarea
+                                    id="name"
+                                    // type='text'
+                                    onChange={(e: any) => {}}
+                                    placeholder="Enter Reason"
+                                    className="p-inputtext w-full"
+                                />
+                            </div>
+                        )}
+                        {chooseBlockOption === 'Temporary Block' && (
+                            <div className="flex flex-column">
+                                <InputTextarea
+                                    id="name"
+                                    // type='text'
+                                    onChange={(e: any) => {}}
+                                    placeholder="Enter Reason"
+                                    className="p-inputtext w-full"
+                                />
+                                <div className="flex flex-column justify-center items-center gap-2 mt-4">
+                                    <label htmlFor="calendarInput" className="block mb-1 text-md ">
+                                        Select Period of Block:
+                                    </label>
+                                    <div className="flex gap-4">
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </Dialog>

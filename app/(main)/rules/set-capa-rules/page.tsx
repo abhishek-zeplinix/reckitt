@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
@@ -51,8 +51,10 @@ const ManageCapaRulesPage = () => {
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
+    const searchParams = useSearchParams();
+    const ruleSetId = searchParams.get('ruleSetId');
     const handleCreateNavigation = () => {
-        router.push('/manage-capa-rules/create-new-capa-rules'); // Replace with the route you want to navigate to
+        router.push(`/rules/set-capa-rules/create-new-capa-rules?ruleSetId=${ruleSetId}`); // Replace with the route you want to navigate to
     };
 
     const limitOptions = [
@@ -163,8 +165,8 @@ const ManageCapaRulesPage = () => {
         }
     };
     const { isLoading, setLoading, setAlert } = useAppContext();
-    const handleEditRules = (capaRuleId: any) => {
-        router.push(`/manage-capa-rules/create-new-capa-rules?edit=true&capaRuleId=${capaRuleId}`);
+    const handleEditRules = (ruleSetId: any, capaRuleId: any) => {
+        router.push(`/rules/set-capa-rules/create-new-capa-rules?edit=true&ruleSetId=${ruleSetId}&capaRuleId=${capaRuleId}`);
     };
     const openAllDeleteDialog = (items: any) => {
         setIsAllDeleteDialogVisible(true);
@@ -200,7 +202,7 @@ const ManageCapaRulesPage = () => {
                     <h3 className="mb-0">Manage Capa Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Import Rules"
@@ -208,7 +210,7 @@ const ManageCapaRulesPage = () => {
                         className="default-button"
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
-                    />
+                    /> */}
                     <Dialog
                         header={dialogHeader}
                         visible={visible}
@@ -228,7 +230,7 @@ const ManageCapaRulesPage = () => {
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
-                    <Button
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Delete Rules"
@@ -238,7 +240,7 @@ const ManageCapaRulesPage = () => {
                             handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
-                    />
+                    /> */}
                 </div>
             </div>
         );
@@ -276,7 +278,7 @@ const ManageCapaRulesPage = () => {
             const queryString = buildQueryParams(params);
             console.log(queryString, 'abhi');
 
-            const response = await GetCall(`company/caparule?${queryString}`);
+            const response = await GetCall(`company/caparule-set/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
             setRules(response.data);
@@ -395,7 +397,7 @@ const ManageCapaRulesPage = () => {
         setLoading(true);
         if (isAllDeleteDialogVisible) {
             try {
-                const response = await DeleteCall(`/company/caparule`);
+                const response = await DeleteCall(`/company/caparule&ruleSetId=${ruleSetId}`);
 
                 if (response.code === 'SUCCESS') {
                     closeDeleteDialog();
@@ -486,7 +488,7 @@ const ManageCapaRulesPage = () => {
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(e.capaRuleId); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId, e.capaRuleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}

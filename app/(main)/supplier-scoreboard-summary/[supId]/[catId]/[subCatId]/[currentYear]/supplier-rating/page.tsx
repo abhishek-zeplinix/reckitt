@@ -32,7 +32,7 @@ const SupplierRatingPage = () => {
 
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
-        'copack': 'ratiosCopack'
+        copack: 'ratiosCopack'
     };
 
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
@@ -43,9 +43,7 @@ const SupplierRatingPage = () => {
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
-
             const params = {
-
                 filters: {
                     supplierCategoryId: catId,
                     procurementCategoryId: subCatId,
@@ -53,7 +51,6 @@ const SupplierRatingPage = () => {
                 },
                 pagination: false
             };
-
 
             const queryString = buildQueryParams(params);
 
@@ -69,12 +66,8 @@ const SupplierRatingPage = () => {
 
     // Fetch supplier score data
     const fetchSupplierScore = async () => {
-
-
         try {
-
             const params = {
-
                 filters: {
                     supplierCategoryId: catId,
                     procurementCategoryId: subCatId,
@@ -95,12 +88,10 @@ const SupplierRatingPage = () => {
 
 
             return response.data;
-
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier score data');
         }
     };
-
 
     //fetch rules
     const fetchRules = async () => {
@@ -117,27 +108,21 @@ const SupplierRatingPage = () => {
         }
     };
 
-
     // Initial data fetch
     useEffect(() => {
         const initializeData = async () => {
             setLoading(true);
             try {
-
                 const supplierDetails = await fetchSupplierData();
 
 
 
-
                 // Check if supplier has been evaluated for the selected department
-                const isDepartmentEvaluated = supplierDetails?.supplierScores?.some(
-                    (score: any) => score.departmentId === selectedDepartment
-                );
+                const isDepartmentEvaluated = supplierDetails?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment);
 
                 if (supplierDetails?.isEvaluated && isDepartmentEvaluated) {
                     await fetchSupplierScore();
                 }
-
             } catch (error) {
                 setAlert('error', 'Something went wrong during initialization');
             } finally {
@@ -147,7 +132,6 @@ const SupplierRatingPage = () => {
 
         initializeData();
     }, [reload]);
-
 
     useEffect(() => {
         const fetchRulesData = async () => {
@@ -163,7 +147,6 @@ const SupplierRatingPage = () => {
 
             setLoading(true);
             try {
-
                 const scoreData = await fetchSupplierScore();
 
                 // If no score data exists for this period, fetch default rules
@@ -193,8 +176,6 @@ const SupplierRatingPage = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-
-
     useEffect(() => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
@@ -214,7 +195,6 @@ const SupplierRatingPage = () => {
             }
         }
     }, [selectedDepartment, departments]);
-
 
     //function to get periods based on evolution type...
     const getPeriodOptions = (evolutionType: string) => {
@@ -362,7 +342,7 @@ const SupplierRatingPage = () => {
                                 .map((department: any) => (
                                     <div
                                         key={department.name}
-                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name ? 'text-pink-500 border border-pink-500 rounded-lg' : 'text-gray-500 border-none'}`}
+                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'}`}
                                         style={{
                                             border: activeTab === department.name ? '1px solid #ec4899' : 'none',
                                             borderRadius: activeTab === department.name ? '12px' : '0'
@@ -384,7 +364,7 @@ const SupplierRatingPage = () => {
 
                         <div className="flex justify-content-end">
                             <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
-                            <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
+                            <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div>
                     </div>
 
@@ -399,11 +379,7 @@ const SupplierRatingPage = () => {
                                 score.evalutionPeriod === selectedPeriod
                         ) ? (
                         <SupplierEvaluationTable
-                            rules={supplierScoreData?.find(
-                                (score: any) =>
-                                    score.department?.departmentId === selectedDepartment &&
-                                    score.evalutionPeriod === selectedPeriod
-                            ) || []}
+                            rules={supplierScoreData?.find((score: any) => score.department?.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod) || []}
                             // rules={supplierScoreData}
                             category={category}
                             evaluationPeriod={selectedPeriod}
@@ -411,11 +387,7 @@ const SupplierRatingPage = () => {
                             departmentId={selectedDepartment}
                             department={activeTab}
                             isEvaluatedData={true}
-                            totalScoreEvaluated={supplierData.supplierScores.find(
-                                (score: any) =>
-                                    score.departmentId === selectedDepartment &&
-                                    score.evalutionPeriod === selectedPeriod
-                            )?.totalScore}
+                            totalScoreEvaluated={supplierData.supplierScores.find((score: any) => score.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod)?.totalScore}
                         />
                     ) : (
                         rules && (
@@ -427,7 +399,7 @@ const SupplierRatingPage = () => {
                                 departmentId={selectedDepartment}
                                 department={activeTab}
                                 isEvaluatedData={false}
-                                onSuccess={() => setReload(!reload)} 
+                                onSuccess={() => setReload(!reload)}
                             />
                         )
                     )} */}

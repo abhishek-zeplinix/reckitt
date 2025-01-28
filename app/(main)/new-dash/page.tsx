@@ -251,9 +251,9 @@ const Dashboard = () => {
                             </div>
                             <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
                                 <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                    <div className="bg-pink-500 h-full" style={{ width: '67%' }} />
+                                    <div className="bg-primary-main h-full" style={{ width: '67%' }} />
                                 </div>
-                                <span className="text-pink-500 ml-3 font-medium">%67</span>
+                                <span className="text-primary-main ml-3 font-medium">%67</span>
                             </div>
                         </li>
                         <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
@@ -358,7 +358,7 @@ const Dashboard = () => {
                         </li>
                         <li className="flex align-items-center py-2 border-bottom-1 surface-border">
                             <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
-                                <i className="pi pi-question text-xl text-pink-500" />
+                                <i className="pi pi-question text-xl text-primary-main" />
                             </div>
                             <span className="text-900 line-height-3">
                                 Jane Davis

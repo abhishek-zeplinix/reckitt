@@ -13,13 +13,16 @@ export const deleteSupplierScore = "deleteSupplierScore"
 export const viewSupplyGlossary = "viewSupplyGlossary"
 export const editSupplyGlossary = "editSupplyGlossary  "
 export const deleteSupplyGlossary = "deleteSupplyGlossary"
+export const viewRules = "viewRules"
+export const editRules = "editRules"
+export const deleteRules = "deleteRules"
 export const task = "task"
 
 
 export const COMPANIES_MENU = [Dashboard, EditDashboard,viewDashboard]
 export const FAQ_MENU = [Dashboard, viewFAQ, editFAQ,deleteFAQ,viewSupplyGlossary,editSupplyGlossary,deleteSupplyGlossary]
 
-// export const COMPANIES_MENU = [Dashboard, EditDashboard, viewDashboard]
+export const COMPANIES_RULES = [Dashboard, viewRules, editRules,deleteRules]
 
 export const COMPANY_MENU = [Dashboard, editUsers, viewUsers, deleteUsers]
 export const COMPANY_ROLE_MENU = [Dashboard, viewSupplierScore, editSupplierScore, deleteSupplierScore]

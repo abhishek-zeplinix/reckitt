@@ -11,6 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import 'primeicons/primeicons.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import { useAuth } from '@/layout/context/authContext';
 
 interface Glossary {
     id: number;
@@ -21,7 +22,7 @@ interface Glossary {
 const SupplyGlossaryPage = () => {
     const { isLoading, setLoading, setAlert } = useAppContext();
     const { layoutState } = useContext(LayoutContext);
-
+    const { isSuperAdmin } = useAuth();
     const [glossaryData, setGlossaryData] = useState<Glossary[]>([]);
     const [visible, setVisible] = useState(false);
     const [selectedGlossary, setSelectedGlossary] = useState<Glossary | null>(null);
@@ -121,7 +122,7 @@ const SupplyGlossaryPage = () => {
         }
     };
 
-    const DialogFooter = () => <Button label={selectedGlossary ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
+    const DialogFooter = () => <Button label={selectedGlossary ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
 
     const openDeleteDialog = (id: number) => {
         setIsDeleteDialogVisible(true);
@@ -142,9 +143,11 @@ const SupplyGlossaryPage = () => {
                             <h3 className="mb-1 text-md font-medium">Supply glossary of categories</h3>
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
                         </div>
-                        <div>
-                            <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleAddNew} />
-                        </div>
+                        {isSuperAdmin() && (
+                            <div>
+                                <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-primary-main border-primary-main hover:text-white" onClick={handleAddNew} />
+                            </div>
+                        )}
                     </div>
 
                     <Dialog header={selectedGlossary ? 'Edit Supply Glossary' : 'Add New Supply Glossary'} visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} footer={<DialogFooter />}>
@@ -171,8 +174,8 @@ const SupplyGlossaryPage = () => {
                         className="delete-dialog"
                         footer={
                             <div className="flex justify-content-center p-2">
-                                <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                                <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                                <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                                <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                             </div>
                         }
                         onHide={closeDeleteDialog}
@@ -183,7 +186,7 @@ const SupplyGlossaryPage = () => {
                             </div>
                         )}
                         <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
-                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                             <div className="flex flex-column align-items-center gap-1">
                                 <span>Are you sure you want to delete this Supply Glossary? </span>
@@ -213,32 +216,34 @@ const SupplyGlossaryPage = () => {
                                                     <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
                                                         {glossary.name}
                                                     </span>
-                                                    <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                        <i
-                                                            className="pi pi-file-edit"
-                                                            style={{
-                                                                color: '#64748B',
-                                                                padding: '5px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleEditClick(glossary);
-                                                            }}
-                                                        />
-                                                        <i
-                                                            className="pi pi-trash"
-                                                            style={{
-                                                                color: '#F56565',
-                                                                padding: '5px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                openDeleteDialog(glossary.id);
-                                                            }}
-                                                        />
-                                                    </div>
+                                                    {isSuperAdmin() && (
+                                                        <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                                                            <i
+                                                                className="pi pi-file-edit"
+                                                                style={{
+                                                                    color: '#64748B',
+                                                                    padding: '5px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleEditClick(glossary);
+                                                                }}
+                                                            />
+                                                            <i
+                                                                className="pi pi-trash"
+                                                                style={{
+                                                                    color: '#F56565',
+                                                                    padding: '5px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openDeleteDialog(glossary.id);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </button>
                                         )}

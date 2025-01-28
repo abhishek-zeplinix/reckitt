@@ -48,14 +48,12 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     };
     // Use useEffect to set loader when the page changes or the active state changes
     useEffect(() => {
-
         if (getTextColorClass()) {
             setTimeout(() => {
-            setLoader(false); // Set loader to false when the item is active 
-        }, 500);
+                setLoader(false); // Set loader to false when the item is active
+            }, 500);
         }
     }, [pathname, item, setLoader]);
-   
 
     const itemClick = (event: React.MouseEvent, subItem?: any) => {
         if (item!.disabled) {
@@ -92,7 +90,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
             ? 'mx-collapsed' // Class for collapsed state
             : 'mx-default'; // Class for default state
 
-        return `${baseClass} ${marginClass} ${isActive ? 'bg-pink-500' : ''}`;
+        return `${baseClass} ${marginClass} ${isActive ? 'bg-primary-main' : ''}`;
     };
     const getTextColorClass = (isSubItem = false, subItemUrl?: string) => {
         const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive();

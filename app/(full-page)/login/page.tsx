@@ -125,7 +125,7 @@ const LoginPage = () => {
                                                     Password
                                                 </label>
                                             </div>
-                                            <Link href="/forgot-password" className="font-bold no-underline ml-2 text-pink-500 text-right cursor-pointer">
+                                            <Link href="/forgot-password" className="font-bold no-underline ml-2 text-primary-main text-right cursor-pointer">
                                                 Forgot your password?
                                             </Link>
                                         </div>
@@ -138,7 +138,7 @@ const LoginPage = () => {
                                                     value="rememberme"
                                                     onChange={handleCheckboxChange}
                                                     checked={checked} // Make sure `checked` is a boolean
-                                                    className="p-checkbox-checked:bg-pink-500"
+                                                    className="p-checkbox-checked:bg-primary-main"
                                                     style={{ width: '25px', height: '20px' }}
                                                 />
                                                 <label htmlFor="ingredient1" className="ml-2">
@@ -150,7 +150,7 @@ const LoginPage = () => {
                                 )}
                             </div>
 
-                            <Button label={role === 'admin' ? 'Login' : 'Get otp'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-pink-500 border-pink-500 mb-2 hover:text-white" onClick={loginClick} />
+                            <Button label={role === 'admin' ? 'Login' : 'Get otp'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginClick} />
                         </div>
                     </div>
                 </div>

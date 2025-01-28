@@ -1121,13 +1121,13 @@
     border-radius: 6px;
   }
   .p-inputtext:enabled:hover {
-    border-color: #DF177C;
+    border-color: #DF1740;
   }
   .p-inputtext:enabled:focus {
     outline: 0 none;
     outline-offset: 0;
     box-shadow: 0 0 0 0.2rem rgba(129, 140, 248, 0.2);
-    border-color: #DF177C;
+    border-color: #DF1740;
   }
   .p-inputtext.p-invalid.p-component {
     border-color: #FCA5A5;
@@ -3763,7 +3763,7 @@
   .p-accordion .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link {
     /* background: #1f2937; */
     border-color: #424b57;
-    color: #DF177C !important;
+    color: #DF1740 !important;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
   }

@@ -124,8 +124,32 @@ interface Supplier {
         factoryName: string;
 
     };
+    countries: {
+        name: string;
+        countryId: number | null;
+      },
+      states: {
+        name: string;
+        stateId: number | null;
+      },
+      cities: {
+        name: string;
+        cityId: number | null;
+      }
 };
-
+interface Field {
+    effectiveFrom: Date | null;
+    departmentId: number | null;
+    orderBy: number | null;
+    section: string;
+    categoryId: number | null;
+    subCategoryId: number | null;
+    ratedCriteria: string;
+    criteriaEvaluation: string;
+    score: string;
+    ratiosRawpack: string;
+    ratiosCopack: string;
+  }
 interface Rules {
     capaRuleId:any
     ruleId: any;
@@ -138,6 +162,13 @@ interface Rules {
     subCategories?: {
         subCategoryName: string;
     }
+}
+interface SetRulesDir {
+    ruleSetId:any
+    value: any;
+    ruleType: string;
+    createdAt: any;
+    updatedAt: any;
 }
 
 interface CompanyUsers {
@@ -309,5 +340,7 @@ export type {
     MappedSupplierScore,
     Department,
     SupplierScoreboardSummary,
-    Tile
+    Tile,
+    SetRulesDir,
+    Field
 };

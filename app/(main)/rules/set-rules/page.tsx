@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
@@ -17,6 +17,7 @@ import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { useLoaderContext } from '@/layout/context/LoaderContext';
 
 const ACTIONS = {
     ADD: 'add',
@@ -25,24 +26,22 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const ManageCapaRulesPage = () => {
+const SetRulesPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const [selectedRuleId, setSelectedRuleId] = useState();
-    const [action, setAction] = useState(null);
-    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
-    // const [selectedDepartment, setSelectedDepartment] = useState('');
-    // const [selectedSubCategory, setSelectedSubCategory] = useState('');
     const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
+    const [selectedRuleId, setSelectedRuleId] = useState();
+    const [action, setAction] = useState(null);
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [filterCategories, setCategories] = useState([]);
@@ -50,10 +49,11 @@ const ManageCapaRulesPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-    const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
-    const handleCreateNavigation = () => {
-        router.push('/manage-capa-rules/create-new-capa-rules'); // Replace with the route you want to navigate to
-    };
+    const searchParams = useSearchParams();
+    const ruleSetId = searchParams.get('ruleSetId');
+    // const [isValid, setIsValid] = useState(true);
+    // const { loader } = useLoaderContext();
+    // const { loader, setLoader } = useLoaderContext();
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -115,6 +115,10 @@ const ManageCapaRulesPage = () => {
         fetchsupplierCategories();
         fetchsupplierDepartment();
     }, [limit, page]);
+    const handleCreateNavigation = () => {
+        router.push(`/rules/set-rules/create-new-rules?ruleSetId=${ruleSetId}`);
+    };
+
     const handleFileUpload = async (event: { files: File[] }) => {
         const file = event.files[0]; // Retrieve the uploaded file
         if (!file) {
@@ -145,12 +149,12 @@ const ManageCapaRulesPage = () => {
         setIsDetailLoading(true);
         try {
             // Use the existing PostCall function
-            const response: CustomResponse = await PostCall('/company/caparule/bulkadd', formData);
+            const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
 
             setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Capa Rules imported successfully');
+                setAlert('success', 'Rules imported successfully');
                 setVisible(false);
                 fetchData();
             } else {
@@ -162,17 +166,11 @@ const ManageCapaRulesPage = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
-    const { isLoading, setLoading, setAlert } = useAppContext();
-    const handleEditRules = (capaRuleId: any) => {
-        router.push(`/manage-capa-rules/create-new-capa-rules?edit=true&capaRuleId=${capaRuleId}`);
-    };
-    const openAllDeleteDialog = (items: any) => {
-        setIsAllDeleteDialogVisible(true);
+    const handleEditRules = (ruleSetId: any, ruleId: any) => {
+        router.push(`/rules/set-rules/create-new-rules?edit=true&ruleSetId=${ruleSetId}&ruleId=${ruleId}`);
     };
 
-    const closeAllDeleteDialog = () => {
-        setIsAllDeleteDialogVisible(false);
-    };
+    const { isLoading, setLoading, setAlert } = useAppContext();
 
     const dialogHeader = () => {
         return (
@@ -197,10 +195,10 @@ const ManageCapaRulesPage = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Manage Capa Rules</h3>
+                    <h3 className="mb-0">Manage Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Import Rules"
@@ -208,7 +206,7 @@ const ManageCapaRulesPage = () => {
                         className="default-button"
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
-                    />
+                    /> */}
                     <Dialog
                         header={dialogHeader}
                         visible={visible}
@@ -228,7 +226,7 @@ const ManageCapaRulesPage = () => {
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
-                    <Button
+                    {/* <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Delete Rules"
@@ -238,7 +236,7 @@ const ManageCapaRulesPage = () => {
                             handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
-                    />
+                    /> */}
                 </div>
             </div>
         );
@@ -246,37 +244,17 @@ const ManageCapaRulesPage = () => {
 
     const header = renderHeader();
 
-    const renderInputBox = () => {
-        return (
-            <div style={{ position: 'relative' }}>
-                <InputText placeholder="Search" style={{ paddingLeft: '40px', width: '40%' }} />
-                <span
-                    className="pi pi-search"
-                    style={{
-                        position: 'absolute',
-                        left: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: 'gray',
-                        fontSize: '1.5rem'
-                    }}
-                ></span>
-            </div>
-        );
-    };
-
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
+                params = { limit: limit, page: page, include: 'subCategories,categories,department', sortOrder: 'asc' };
             }
 
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-            console.log(queryString, 'abhi');
 
-            const response = await GetCall(`company/caparule?${queryString}`);
+            const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
             setRules(response.data);
@@ -289,6 +267,9 @@ const ManageCapaRulesPage = () => {
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
+    useEffect(() => {
+        fetchData();
+    }, []);
     const fetchprocurementCategories = async (categoryId: number | null) => {
         if (!categoryId) {
             setprocurementCategories([]); // Clear subcategories if no category is selected
@@ -371,7 +352,7 @@ const ManageCapaRulesPage = () => {
     const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
-        setSelectedRuleId(perm.capaRuleId);
+        setSelectedRuleId(perm.ruleId);
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
@@ -395,7 +376,7 @@ const ManageCapaRulesPage = () => {
         setLoading(true);
         if (isAllDeleteDialogVisible) {
             try {
-                const response = await DeleteCall(`/company/caparule`);
+                const response = await DeleteCall(`/company/rules`);
 
                 if (response.code === 'SUCCESS') {
                     closeDeleteDialog();
@@ -412,13 +393,12 @@ const ManageCapaRulesPage = () => {
             }
         } else {
             try {
-                const response = await DeleteCall(`/company/caparule/${selectedRuleId}`);
+                const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
                 if (response.code === 'SUCCESS') {
                     setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
                     closeDeleteDialog();
                     setAlert('success', 'Rule successfully deleted!');
-                    fetchData();
                 } else {
                     setAlert('error', 'Something went wrong!');
                     closeDeleteDialog();
@@ -431,27 +411,6 @@ const ManageCapaRulesPage = () => {
         }
     };
 
-    // const BulkDelete = async () => {
-    //     setLoading(true);
-
-    //     try {
-    //         const response = await DeleteCall(`/company/caparule/`);
-
-    //         if (response.code === 'SUCCESS') {
-    //             closeAllDeleteDialog();
-    //             fetchData();
-    //             setAlert('success', 'Rule successfully deleted!');
-    //         } else {
-    //             setAlert('error', 'Something went wrong!');
-    //             closeAllDeleteDialog();
-    //         }
-    //     } catch (error) {
-    //         setAlert('error', 'Something went wrong!');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     return (
         <div className="grid">
             <div className="col-12">
@@ -462,7 +421,6 @@ const ManageCapaRulesPage = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
-                            {/* <div className="search-box  mt-5 w-70">{inputboxfeild}</div> */}
                             <div className="flex justify-content-between items-center border-b">
                                 <div>
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
@@ -486,17 +444,21 @@ const ManageCapaRulesPage = () => {
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(e.capaRuleId); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId, e.ruleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
                                 data={rules.map((item: any) => ({
-                                    capaRuleId: item.capaRuleId,
-                                    name: item.department?.name,
-                                    categoryName: item.category?.categoryName,
-                                    subCategoryName: item.subCategory?.subCategoryName,
-                                    capaRulesName: item.capaRulesName,
-                                    status: item.status
+                                    ruleId: item.ruleId,
+                                    department: item.department?.name,
+                                    category: item.categories?.categoryName,
+                                    subCategories: item.subCategories?.subCategoryName,
+                                    section: item.section,
+                                    ratedCriteria: item.ratedCriteria,
+                                    criteriaEvaluation: item.criteriaEvaluation,
+                                    score: item.score,
+                                    ratiosCopack: item.ratiosCopack,
+                                    ratiosRawpack: item.ratiosRawpack
                                 }))}
                                 columns={[
                                     {
@@ -511,42 +473,56 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'DEPARTMENT ',
-                                        field: 'name',
-                                        // filter: true,
-                                        bodyStyle: { minWidth: 100, maxWidth: 100 },
+                                        field: 'department',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'Procurement Category',
-                                        field: 'categoryName',
-                                        // sortable: true,
-                                        // filter: true,
-                                        filterPlaceholder: 'Supplier Name',
-                                        headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 100, maxWidth: 100 }
+                                        header: 'PROCUREMENT CATEGORY ',
+                                        field: 'category',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'SUB CATEGORY',
-                                        field: 'subCategoryName',
-                                        // sortable: true,
-                                        // filter: true,
-                                        filterPlaceholder: 'Supplier Name',
+                                        header: 'SUPPLIER CATEGORY',
+                                        field: 'subCategories',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 180, maxWidth: 180 }
+                                        style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',
-                                        field: 'capaRulesName',
-                                        // filter: true,
-                                        bodyStyle: { minWidth: 300, maxWidth: 300 },
+                                        field: 'section',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'CRITERIA',
-                                        field: 'status',
-                                        // filter: true,
-                                        filterPlaceholder: 'Search Supplier Category',
+                                        field: 'ratedCriteria',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'CRITERIA EVALUATION LIST',
+                                        field: 'criteriaEvaluation',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'CRITERIA SCORE',
+                                        field: 'score',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'RATIOS COPACK',
+                                        field: 'ratiosCopack',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'RATIOS RAW&PACK',
+                                        field: 'ratiosRawpack',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     }
                                 ]}
@@ -579,7 +555,7 @@ const ManageCapaRulesPage = () => {
                         <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                         <div className="flex flex-column align-items-center gap-1">
-                            <span>{isAllDeleteDialogVisible ? 'Are you sure you want to delete all CAPA rule.' : 'Are you sure you want to delete selected CAPA rule.'}</span>
+                            <span>{isAllDeleteDialogVisible ? 'Are you sure you want to delete all rule.' : 'Are you sure you want to delete selected rule.'}</span>
                             <span>This action cannot be undone. </span>
                         </div>
                     </div>
@@ -589,4 +565,4 @@ const ManageCapaRulesPage = () => {
     );
 };
 
-export default ManageCapaRulesPage;
+export default SetRulesPage;

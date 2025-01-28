@@ -301,7 +301,7 @@ const ManageRequestsPage = () => {
                     style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
                     footer={
                         <div className="flex justify-content-center p-2 gap-2">
-                            <Button label="Cancel" className="bg-pink-500 text-white hover:bg-pink-600 border-none" onClick={closeDialog} />
+                            <Button label="Cancel" className="bg-primary-main text-white hover:bg-pink-600 border-none" onClick={closeDialog} />
                             <Button
                                 label={action === REQUEST_ACTIONS.APPROVE ? 'Approve' : 'Reject'}
                                 className={`px-4 ${action === REQUEST_ACTIONS.APPROVE ? 'p-button-success' : 'bg-red-600 text-white border-none hover:bg-red-700'}`}

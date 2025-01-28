@@ -7,5 +7,5 @@ export default function TopLinerLoader() {
     if (!isLoading) {
         return <div></div>;
     }
-    return <ProgressBar mode="indeterminate" className="w-full" color={'#DF177C'} style={{ height: '3px', position: 'fixed', top: 0, zIndex: 1111 }}></ProgressBar>;
+    return <ProgressBar mode="indeterminate" className="w-full" color={'#DF1740'} style={{ height: '3px', position: 'fixed', top: 0, zIndex: 1111 }}></ProgressBar>;
 }

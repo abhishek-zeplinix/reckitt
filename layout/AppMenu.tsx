@@ -78,54 +78,54 @@ const AppMenu = () => {
                 {
                     label: 'Guidlines & Glossary',
                     icon: 'pi pi-sliders-v',
-                    check: (user: any) => {
-                        // Check if the user is a super admin
-                        if (get(user, 'isSuperAdmin')) {
-                            return true;
-                        }
+                    // check: (user: any) => {
+                    //     // Check if the user is a super admin
+                    //     if (get(user, 'isSuperAdmin')) {
+                    //         return true;
+                    //     }
 
-                        // Check if the user has the required permissions
-                        const userPermissions = get(user, 'permissions.permissions', []);
-                        const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
+                    //     // Check if the user has the required permissions
+                    //     const userPermissions = get(user, 'permissions.permissions', []);
+                    //     const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
 
-                        // Grant access based on permissions
-                        return hasPermission;
-                    },
+                    //     // Grant access based on permissions
+                    //     return hasPermission;
+                    // },
                     items: [
                         {
                             label: 'FAQs',
                             url: '/faq',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                            // check: (user: any) => {
+                            //     // Check if the user is a super admin
+                            //     if (get(user, 'isSuperAdmin')) {
+                            //         return true;
+                            //     }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
+                            //     // Check if the user has the required permissions
+                            //     const userPermissions = get(user, 'permissions.permissions', []);
+                            //     const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
+                            //     // Grant access based on permissions
+                            //     return hasPermission;
+                            // },
                             command: handleMenuClick
                         },
                         {
                             label: 'Supply Glossary',
                             url: '/supply-glossary',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                            // check: (user: any) => {
+                            //     // Check if the user is a super admin
+                            //     if (get(user, 'isSuperAdmin')) {
+                            //         return true;
+                            //     }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
+                            //     // Check if the user has the required permissions
+                            //     const userPermissions = get(user, 'permissions.permissions', []);
+                            //     const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
+                            //     // Grant access based on permissions
+                            //     return hasPermission;
+                            // },
                             command: handleMenuClick
                         }
                     ]
@@ -133,13 +133,13 @@ const AppMenu = () => {
                 {
                     label: 'Task Management',
                     icon: 'pi pi-ticket',
-                    // check: (user: any) => {
-                    //     const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
-                    //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                    //         return true;
-                    //     }
-                    //     return false;
-                    // },
+                    check: (user: any) => {
+                        // const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
+                        if (get(user, 'isSuperAdmin')) {
+                            return true;
+                        }
+                        return false;
+                    },
                     items: [
                         {
                             label: 'Suppliers task',
@@ -259,8 +259,8 @@ const AppMenu = () => {
                     },
                     items: [
                         {
-                            label: 'Manage Rule',
-                            url: '/manage-rules',
+                            label: 'Rules',
+                            url: '/rules',
                             check: (user: any) => {
                                 // Check if the user is a super admin
                                 if (get(user, 'isSuperAdmin')) {
@@ -276,24 +276,42 @@ const AppMenu = () => {
                             },
                             command: handleMenuClick
                         },
-                        {
-                            label: 'Manage CAPA Rule',
-                            url: '/manage-capa-rules',
-                            check: (user: any) => {
-                                // Check if the user is a super admin
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
+                        // {
+                        //     label: 'Manage Rule',
+                        //     url: '/manage-rules',
+                        //     check: (user: any) => {
+                        //         // Check if the user is a super admin
+                        //         if (get(user, 'isSuperAdmin')) {
+                        //             return true;
+                        //         }
 
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                        //         // Check if the user has the required permissions
+                        //         const userPermissions = get(user, 'permissions.permissions', []);
+                        //         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                                // Grant access based on permissions
-                                return hasPermission;
-                            },
-                            command: handleMenuClick
-                        }
+                        //         // Grant access based on permissions
+                        //         return hasPermission;
+                        //     },
+                        //     command: handleMenuClick
+                        // },
+                        // {
+                        //     label: 'Manage CAPA Rule',
+                        //     url: '/manage-capa-rules',
+                        //     check: (user: any) => {
+                        //         // Check if the user is a super admin
+                        //         if (get(user, 'isSuperAdmin')) {
+                        //             return true;
+                        //         }
+
+                        //         // Check if the user has the required permissions
+                        //         const userPermissions = get(user, 'permissions.permissions', []);
+                        //         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+
+                        //         // Grant access based on permissions
+                        //         return hasPermission;
+                        //     },
+                        //     command: handleMenuClick
+                        // }
                     ]
                 },
                 {
@@ -440,19 +458,19 @@ const AppMenu = () => {
                 {
                     label: 'Request Management',
                     icon: 'pi pi-bolt',
-                    // check: (user: any) => {
-                    //     // Check if the user is a super admin
-                    //     if (get(user, 'isSuperAdmin')) {
-                    //         return true;
-                    //     }
+                    check: (user: any) => {
+                        // Check if the user is a super admin
+                        if (get(user, 'isSuperAdmin')) {
+                            return true;
+                        }
 
-                    //     // Check if the user has the required permissions
-                    //     const userPermissions = get(user, 'permissions.permissions', []);
-                    //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                        // Check if the user has the required permissions
+                        const userPermissions = get(user, 'permissions.permissions', []);
+                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                    //     // Grant access based on permissions
-                    //     return hasPermission;
-                    // },
+                        // Grant access based on permissions
+                        return hasPermission;
+                    },
                     items: [
                         {
                             label: 'Manage Request',
@@ -495,19 +513,19 @@ const AppMenu = () => {
                 {
                     label: 'Supplier Feedback',
                     icon: 'pi pi-gift',
-                    // check: (user: any) => {
-                    //     // Check if the user is a super admin
-                    //     if (get(user, 'isSuperAdmin')) {
-                    //         return true;
-                    //     }
+                    check: (user: any) => {
+                        // Check if the user is a super admin
+                        if (get(user, 'isSuperAdmin')) {
+                            return true;
+                        }
 
-                    //     // Check if the user has the required permissions
-                    //     const userPermissions = get(user, 'permissions.permissions', []);
-                    //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                        // Check if the user has the required permissions
+                        const userPermissions = get(user, 'permissions.permissions', []);
+                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-                    //     // Grant access based on permissions
-                    //     return hasPermission;
-                    // },
+                        // Grant access based on permissions
+                        return hasPermission;
+                    },
                     items: [
                         {
                             label: 'Manage Feedback',

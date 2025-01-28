@@ -30,8 +30,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   const [defaultPercentages, setDefaultPercentages] = useState<any>({});
   const [isCompleted, setIsCompleted] = useState<any>('pending');
 
-  const urlParams = useParams();
-  const { supId, catId, subCatId } = urlParams;
+    const urlParams = useParams();
+    const { supId, catId, subCatId } = urlParams;
 
   const dropdownRef = useRef<any>(null);
   const { setLoading, setAlert } = useAppContext();
@@ -180,9 +180,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       setCapaDataCompletedCount(initialCapaCompletedCount);
     }
 
-    setSelectedEvaluations(initialEvals);
-    setOriginalPercentages(initialPercentages);
-    setCurrentPercentages(initialPercentages);
+        setSelectedEvaluations(initialEvals);
+        setOriginalPercentages(initialPercentages);
+        setCurrentPercentages(initialPercentages);
 
     const roundedPercentages = distributeRoundedPercentages(initialPercentages);
 
@@ -208,9 +208,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
 
 
-  const distributeRoundedPercentages = (percentages: any) => {
-    const displayPercentages: any = {};
-    const nonNAEntries: string[] = [];
+    const distributeRoundedPercentages = (percentages: any) => {
+        const displayPercentages: any = {};
+        const nonNAEntries: string[] = [];
 
     // first, handle NA values and non-NA values
     Object.entries(percentages).forEach(([key, value]) => {
@@ -223,24 +223,24 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       }
     });
 
-    if (nonNAEntries.length === 0) return displayPercentages;
+        if (nonNAEntries.length === 0) return displayPercentages;
 
-    // sort entries by their decimal parts
-    const sortedEntries = nonNAEntries
-      .map((key) => ({
-        key,
-        originalValue: Number(percentages[key]),
-        roundedValue: Math.floor(Number(percentages[key])),
-        decimalPart: Number(percentages[key]) % 1
-      }))
-      .sort((a, b) => b.decimalPart - a.decimalPart);
+        // sort entries by their decimal parts
+        const sortedEntries = nonNAEntries
+            .map((key) => ({
+                key,
+                originalValue: Number(percentages[key]),
+                roundedValue: Math.floor(Number(percentages[key])),
+                decimalPart: Number(percentages[key]) % 1
+            }))
+            .sort((a, b) => b.decimalPart - a.decimalPart);
 
-    // first pass: assign floor values
-    let usedPercentage = 0;
-    sortedEntries.forEach((entry) => {
-      displayPercentages[entry.key] = entry.roundedValue;
-      usedPercentage += entry.roundedValue;
-    });
+        // first pass: assign floor values
+        let usedPercentage = 0;
+        sortedEntries.forEach((entry) => {
+            displayPercentages[entry.key] = entry.roundedValue;
+            usedPercentage += entry.roundedValue;
+        });
 
     // second pass: distribute remaining percentage points
     const remaining = 100 - usedPercentage;
@@ -248,8 +248,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
     }
 
-    return displayPercentages;
-  };
+        return displayPercentages;
+    };
 
   const recalculateAllPercentages = (evaluations: any) => {
     // identify NA criteria and calculate total percentage to redistribute
@@ -335,31 +335,28 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   };
 
 
-  const calculateTotalScore = (evaluations: any, percentages: any) => {
-    let scoreSum = 0;
+    const calculateTotalScore = (evaluations: any, percentages: any) => {
+        let scoreSum = 0;
 
-    tableData?.sections?.forEach((section: any, sectionIndex: number) => {
+        tableData?.sections?.forEach((section: any, sectionIndex: number) => {
+            section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
+                const key = `${sectionIndex}-${criteriaIndex}`;
+                const selectedEval = evaluations[key];
+                const currentPercentage = percentages[key];
 
-      section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
+                if (selectedEval && selectedEval !== '' && currentPercentage !== 'NA') {
+                    // add check for empty string
 
-        const key = `${sectionIndex}-${criteriaIndex}`;
-        const selectedEval = evaluations[key];
-        const currentPercentage = percentages[key];
+                    const evaluation = (criteria.evaluations as any[]).find((e) => e.criteriaEvaluation === selectedEval);
 
-        if (selectedEval && selectedEval !== "" && currentPercentage !== 'NA') { // add check for empty string
-
-          const evaluation = (criteria.evaluations as any[]).find(
-            (e) => e.criteriaEvaluation === selectedEval
-          );
-
-          if (evaluation && evaluation.score !== 'NA') {
-            const score = Number(evaluation.score);
-            const percentage = Number(currentPercentage);
-            scoreSum += (score * percentage) / 10;
-          }
-        }
-      });
-    });
+                    if (evaluation && evaluation.score !== 'NA') {
+                        const score = Number(evaluation.score);
+                        const percentage = Number(currentPercentage);
+                        scoreSum += (score * percentage) / 10;
+                    }
+                }
+            });
+        });
 
     setTotalScore(Math.round(scoreSum * 100) / 100);
   };
@@ -392,48 +389,48 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   };
 
 
-  const prepareApiData = () => {
-    const sections = tableData?.sections?.map((section: any) => {
-      return {
-        sectionName: section.sectionName,
-        ratedCriteria: section.ratedCriteria
-          .map((criteria: any, criteriaIndex: number) => {
-            const sectionIndex = tableData.sections.indexOf(section);
-            const key = `${sectionIndex}-${criteriaIndex}`;
-            const selectedEval = selectedEvaluations[key];
+    const prepareApiData = () => {
+        const sections = tableData?.sections?.map((section: any) => {
+            return {
+                sectionName: section.sectionName,
+                ratedCriteria: section.ratedCriteria
+                    .map((criteria: any, criteriaIndex: number) => {
+                        const sectionIndex = tableData.sections.indexOf(section);
+                        const key = `${sectionIndex}-${criteriaIndex}`;
+                        const selectedEval = selectedEvaluations[key];
 
-            const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
+                        const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
 
-            if (!evaluation) return null;
+                        if (!evaluation) return null;
 
-            // get the current percentage for this criteria
-            const currentPercentage = displayPercentages[key];
+                        // get the current percentage for this criteria
+                        const currentPercentage = displayPercentages[key];
 
             // get the score
             const score = evaluation.score;
 
-            // prepare the ratio key based on category
-            // const ratioKey = category.toLowerCase() === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
+                        // prepare the ratio key based on category
+                        // const ratioKey = category.toLowerCase() === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
 
-            return {
-              criteriaName: criteria.criteriaName,
-              evaluations: [
-                {
-                  criteriaEvaluation: evaluation.criteriaEvaluation,
-                  // Keep score as string if it's 'NA', otherwise convert to number
-                  // score: score === 'NA' ? 'NA' : Number(score),
-                  score: score === 'NA' ? 'NA' : String(score),
-                  // Keep ratio as string if it's 'NA', otherwise use the current percentage
-                  [category]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
-                }
-              ]
+                        return {
+                            criteriaName: criteria.criteriaName,
+                            evaluations: [
+                                {
+                                    criteriaEvaluation: evaluation.criteriaEvaluation,
+                                    // Keep score as string if it's 'NA', otherwise convert to number
+                                    // score: score === 'NA' ? 'NA' : Number(score),
+                                    score: score === 'NA' ? 'NA' : String(score),
+                                    // Keep ratio as string if it's 'NA', otherwise use the current percentage
+                                    [category]: currentPercentage === 'NA' ? 'NA' : Number(currentPercentage)
+                                }
+                            ]
+                        };
+                    })
+                    .filter(Boolean)
             };
-          })
-          .filter(Boolean)
-      };
-    });
+        });
 
-    const subCategoryId = subCatId;
+        const subCategoryId = subCatId;
 
 
     const criteriaStatus = evaluatedCriteriaCount === criteriaCount
@@ -475,8 +472,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       ...(totalScore <= 50 && { capa: capaData })
     };
 
-    return apiData;
-  };
+        return apiData;
+    };
 
   const handleSubmit = async () => {
 
@@ -532,8 +529,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
 
 
-  return (
-    // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
+    return (
+        // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
 
     //changed
     <div className=" w-full shadow-sm mt-3 overflow-x-auto">
@@ -555,28 +552,27 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
         </div>
 
-        <table className="min-w-full bg-white border">
-          <thead>
-            <tr style={{ backgroundColor: "#E9EFF6" }}>
+                <table className="min-w-full bg-white border">
+                    <thead>
+                        <tr style={{ backgroundColor: '#E9EFF6' }}>
+                            <th className="px-4 py-3 text-left text-md font-bold text-black">Section Name</th>
+                            <th className="px-4 py-3 text-left text-md font-bold text-black">Rated Criteria</th>
+                            <th className="px-4 py-3 text-left text-md font-bold text-black">Ratio (100%)</th>
+                            <th className="px-4 py-3 text-left text-md font-bold text-black">Evaluation</th>
+                            <th className="px-4 py-3 text-left text-md font-bold text-black">Score</th>
+                        </tr>
+                    </thead>
 
-              <th className="px-4 py-3 text-left text-md font-bold text-black">Section Name</th>
-              <th className="px-4 py-3 text-left text-md font-bold text-black">Rated Criteria</th>
-              <th className="px-4 py-3 text-left text-md font-bold text-black">Ratio (100%)</th>
-              <th className="px-4 py-3 text-left text-md font-bold text-black">Evaluation</th>
-              <th className="px-4 py-3 text-left text-md font-bold text-black">Score</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {tableData?.sections?.map((section: any, sectionIndex: any) => (
-              <>
-                <tr key={`section-${sectionIndex}`}>
-                  {sectionIndex !== 0 && (
-                    <td colSpan={5}>
-                      <hr />
-                    </td>
-                  )}
-                </tr>
+                    <tbody>
+                        {tableData?.sections?.map((section: any, sectionIndex: any) => (
+                            <>
+                                <tr key={`section-${sectionIndex}`}>
+                                    {sectionIndex !== 0 && (
+                                        <td colSpan={5}>
+                                            <hr />
+                                        </td>
+                                    )}
+                                </tr>
 
                 {section?.ratedCriteria?.map((criteria: any, criteriaIndex: any) => {
                   const key = `${sectionIndex}-${criteriaIndex}`;
@@ -584,22 +580,20 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                   const currentPercentage = currentPercentages[key];
 
 
-                  //if no evaluation is selected, 'NA' will be assigned to score by default
-                  const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
+                                    //if no evaluation is selected, 'NA' will be assigned to score by default
+                                    const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
 
-                  return (
-
-                    <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
-
-                      {criteriaIndex === 0 && (
-                        <td
-                          className="px-4 py-2 text-md text-black-800"
-                          rowSpan={section.ratedCriteria.length}
-                        // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
-                        >
-                          {section.sectionName}
-                        </td>
-                      )}
+                                    return (
+                                        <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
+                                            {criteriaIndex === 0 && (
+                                                <td
+                                                    className="px-4 py-2 text-md text-black-800"
+                                                    rowSpan={section.ratedCriteria.length}
+                                                    // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
+                                                >
+                                                    {section.sectionName}
+                                                </td>
+                                            )}
 
                       <td className="px-4 py-2 text-md text-gray-500"><Checkbox onChange={e => handleCheckboxChange(section)} checked={score < 5} className='mx-2'></Checkbox>
                         {criteria.criteriaName}</td>
@@ -644,35 +638,24 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
                       </td>
 
-                      <td className="px-4 py-2">
-
-                        {score === 'NA' ?
-
-                          <InputText
-                            type="text" size={1} value={score} readOnly className='m-auto bg-gray-400 font-bold border-none text-white text-center' />
-                          :
-
-                          Number(score) >= 7
-                            ? <InputText
-                              type="text" size={1} value={score} readOnly className='m-auto bg-green-400 font-bold border-none text-white text-center' /> :
-
-                            score >= "empty"
-                              ? <InputText
-                                type="text" size={1} value='' readOnly className='m-auto bg-white text-center text-transparent' /> :
-
-                              Number(score) >= 4
-                                ? <InputText
-                                  type="text" size={1} value={score} readOnly className='m-auto bg-yellow-400 font-bold border-none text-white text-center' /> :
-
-                                <InputText
-                                  type="text" size={1} value={score} readOnly className='m-auto bg-red-400 font-bold border-none text-white text-center' />
-                        }
-                      </td>
-                    </tr>
-                  );
-                })}
-              </>
-            ))}
+                                            <td className="px-4 py-2">
+                                                {score === 'NA' ? (
+                                                    <InputText type="text" size={1} value={score} readOnly className="m-auto bg-gray-400 font-bold border-none text-white text-center" />
+                                                ) : Number(score) >= 7 ? (
+                                                    <InputText type="text" size={1} value={score} readOnly className="m-auto bg-green-400 font-bold border-none text-white text-center" />
+                                                ) : score >= 'empty' ? (
+                                                    <InputText type="text" size={1} value="" readOnly className="m-auto bg-white text-center text-transparent" />
+                                                ) : Number(score) >= 4 ? (
+                                                    <InputText type="text" size={1} value={score} readOnly className="m-auto bg-yellow-400 font-bold border-none text-white text-center" />
+                                                ) : (
+                                                    <InputText type="text" size={1} value={score} readOnly className="m-auto bg-red-400 font-bold border-none text-white text-center" />
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </>
+                        ))}
 
             {/* {isEvaluatedData ? */}
 {/*             
@@ -698,18 +681,18 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
         </table>
       </div>
 
-      <div className='flex flex-col justify-content-end gap-3 mt-2 mr-2'>
+            <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
+                {totalScore > 50 && (
+                    <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
+                        <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+                    </div>
+                )}
 
-        {totalScore > 50 &&
-          <div className='m-3 max-w-sm text-ellipsis overflow-hidden' style={{ wordWrap: "normal", maxWidth: "300px", alignItems: "stretch" }}>
-            <span className='text-red-500'>Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
-          </div>}
+                {/* divider */}
+                <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
 
-        {/* divider */}
-        <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
-
-        <div>
-          <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
+                <div>
+                    <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
 
 
           <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={comments}

@@ -11,6 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import 'primeicons/primeicons.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import { useAuth } from '@/layout/context/authContext';
 
 interface FAQ {
     id: number;
@@ -21,7 +22,7 @@ interface FAQ {
 const FaqPage = () => {
     const { isLoading, setLoading, setAlert } = useAppContext();
     const { layoutState } = useContext(LayoutContext);
-
+    const { isSuperAdmin } = useAuth();
     const [faqData, setFaqData] = useState<FAQ[]>([]);
     const [visible, setVisible] = useState(false);
     const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
@@ -123,7 +124,7 @@ const FaqPage = () => {
         }
     };
 
-    const DialogFooter = () => <Button label={selectedFaq ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
+    const DialogFooter = () => <Button label={selectedFaq ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
 
     const openDeleteDialog = (id: number) => {
         setIsDeleteDialogVisible(true);
@@ -144,9 +145,11 @@ const FaqPage = () => {
                             <h3 className="mb-1 text-md font-medium">Frequently Asked Questions</h3>
                             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, quo!</p>
                         </div>
-                        <div>
-                            <Button icon="pi pi-plus" size="small" label="Add FAQ" className="bg-pink-500 hover:text-white border-pink-500" onClick={handleAddNew} />
-                        </div>
+                        {isSuperAdmin() && (
+                            <div>
+                                <Button icon="pi pi-plus" size="small" label="Add FAQ" className="bg-primary-main hover:text-white border-primary-main" onClick={handleAddNew} />
+                            </div>
+                        )}
                     </div>
 
                     <Dialog header={selectedFaq ? 'Edit FAQ' : 'Add New FAQ'} visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} footer={<DialogFooter />}>
@@ -173,8 +176,8 @@ const FaqPage = () => {
                         className="delete-dialog"
                         footer={
                             <div className="flex justify-content-center p-2">
-                                <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                                <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                                <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                                <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                             </div>
                         }
                         onHide={closeDeleteDialog}
@@ -185,7 +188,7 @@ const FaqPage = () => {
                             </div>
                         )}
                         <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
-                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                             <div className="flex flex-column align-items-center gap-1">
                                 <span>Are you sure you want to delete this FAQ? </span>
@@ -216,32 +219,34 @@ const FaqPage = () => {
                                                         <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
                                                             {faq.question}
                                                         </span>
-                                                        <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                            <i
-                                                                className="pi pi-file-edit"
-                                                                style={{
-                                                                    color: '#64748B',
-                                                                    padding: '5px',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleEditClick(faq);
-                                                                }}
-                                                            />
-                                                            <i
-                                                                className="pi pi-trash"
-                                                                style={{
-                                                                    color: '#F56565',
-                                                                    padding: '5px',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    openDeleteDialog(faq.id);
-                                                                }}
-                                                            />
-                                                        </div>
+                                                        {isSuperAdmin() && (
+                                                            <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                                                                <i
+                                                                    className="pi pi-file-edit"
+                                                                    style={{
+                                                                        color: '#64748B',
+                                                                        padding: '5px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleEditClick(faq);
+                                                                    }}
+                                                                />
+                                                                <i
+                                                                    className="pi pi-trash"
+                                                                    style={{
+                                                                        color: '#F56565',
+                                                                        padding: '5px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        openDeleteDialog(faq.id);
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </button>
                                             )}
