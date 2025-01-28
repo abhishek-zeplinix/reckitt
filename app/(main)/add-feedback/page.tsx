@@ -224,7 +224,7 @@ const AddFeedBackPages = () => {
                 {/* Footer Buttons */}
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
-                    <Button label="Generate request" icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleSubmit} />
+                    <Button label="Generate request" icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSubmit} />
                 </div>
             </div>
         </div>

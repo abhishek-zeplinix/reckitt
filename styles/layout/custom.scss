@@ -570,7 +570,7 @@ $spacing-sizes: (
 }
 
 .custom-add-field-button .p-button-icon {
-  color: #DF177C;
+  color: var(--color-primary);
   // box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
   background-color: #F2A2CB33;
   padding: 4px;
@@ -611,7 +611,7 @@ $spacing-sizes: (
 //mulitinput
 
 .p-multiselect:not(.p-disabled):hover{
-  border-color: #DF177C;
+  border-color: var(--primary-color);
 }
 .mx-collapsed {
   margin-left: 0.45rem !important;
@@ -646,7 +646,7 @@ $spacing-sizes: (
 }
 
 .dashboardButton {
-  background: linear-gradient(180deg, rgba(223, 23, 124, 0.8) 0%, rgba(223, 24, 69, 0.8) 100%);
+  background: var(--primary-color);
 
 }
 .border-round-5xl{
@@ -707,4 +707,41 @@ background-color: #3A60F8;
   border-radius: 0 0% 20% 0%;
   top: 0;
   left: 0px;
+}
+
+.good-text{
+  color: #4CAF50;
+}
+.completed{
+  background-color: #2196F3;
+}
+.pending{
+  background-color: #FFA600;
+}
+.inProgress{
+  background-color: #4CAF50;
+}
+.critical{
+  background-color: #F44336;
+}
+.improvement{
+  background-color: #FF9800;
+}
+.good{
+  background-color: #4CAF50;
+}
+.excellent{
+  background-color: #2196F3;
+}
+.bg-primary-main{
+  background-color: var(--primary-color) !important;
+}
+.border-primary-main{
+  border-color: var(--primary-color) !important;
+}
+.text-primary-main{
+  color: var(--primary-color) !important;;
+}
+.text-active{
+  color: #15B097;
 }

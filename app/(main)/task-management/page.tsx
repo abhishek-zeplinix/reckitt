@@ -534,7 +534,7 @@ const TaskManagement = () => {
                                     className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
                                 >
                                     <Link href={tile.link || ''}>
-                                        <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
+                                        <div className="p-3 border-1 border-primary-main border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
                                             <div className="flex justify-content-between gap-2 align-items-center">
                                                 <div>
                                                     <div>
@@ -546,7 +546,7 @@ const TaskManagement = () => {
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <i className="pi pi-angle-right text-pink-400"></i>
+                                                    <i className="pi pi-angle-right text-primary-main"></i>
                                                 </div>
                                             </div>
                                         </div>

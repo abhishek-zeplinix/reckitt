@@ -38,8 +38,6 @@ const SupplierDirectory = () => {
         // fetchRolesData();
     }, []);
 
-    
-
     const fetchData = async (params?: any) => {
         if (!params) {
             params = { limit: limit, page: page };
@@ -103,7 +101,7 @@ const SupplierDirectory = () => {
     const statusBodyTemplate = (rowData: any) => (
         <span
             style={{
-                color: rowData.status === 'Active' ? 'green' : 'red',
+                color: rowData.status === 'Active' ? '#15B097' : 'red',
                 fontWeight: 'bold'
             }}
         >
@@ -111,24 +109,10 @@ const SupplierDirectory = () => {
         </span>
     );
 
-    
-    const evaluateBodyTemplate = (rowData: any) => 
-    (
-        <Button icon="pi pi-plus"
-         className="p-button-rounded p-button-pink-400"
-          onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} 
-          />
-    )
-  
-    
-    const HistoryBodyTemplate = (rowData: any) => (
-        <Button icon="pi pi-eye"
-        className="p-button-rounded p-button-pink-400"
-        onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} 
-        />
-    )
-  
-  
+    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
+
+    const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
+
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit
         fetchprocurementCategories(e.value);
@@ -152,13 +136,35 @@ const SupplierDirectory = () => {
         fetchData({ search: e.target?.value });
     };
     const dropdownCategory = () => {
-        return <Dropdown value={selectedCategory} onChange={onCategorychange} options={procurementCategories} optionValue="categoryId" placeholder="Select Department" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory}/>;
+        return (
+            <Dropdown
+                value={selectedCategory}
+                onChange={onCategorychange}
+                options={procurementCategories}
+                optionValue="categoryId"
+                placeholder="Select Department"
+                optionLabel="categoryName"
+                className="w-full md:w-10rem"
+                showClear={!!selectedCategory}
+            />
+        );
     };
 
     const dropdownFieldCategory = dropdownCategory();
 
     const dropdownMenuSubCategory = () => {
-        return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" showClear={!!SelectedSubCategory}/>;
+        return (
+            <Dropdown
+                value={SelectedSubCategory}
+                onChange={onSubCategorychange}
+                options={supplierCategories}
+                optionLabel="subCategoryName"
+                optionValue="subCategoryId"
+                placeholder="Select Sub Category"
+                className="w-full md:w-10rem"
+                showClear={!!SelectedSubCategory}
+            />
+        );
     };
     const dropdownFieldSubCategory = dropdownMenuSubCategory();
     const globalSearch = () => {
@@ -198,78 +204,77 @@ const SupplierDirectory = () => {
                 <Column header="Evaluate" body={evaluateBodyTemplate} />
             </DataTable> */}
 
-                                <CustomDataTable
-                                ref={dataTableRef}
-                                // filter
-                                page={page}
-                                limit={limit}
-                                totalRecords={totalRecords}
-                                // extraButtons={getExtraButtons}
-                                data={suppliers?.map((item: any) => ({
-                                    supId: item.supId,
-                                    supplierName: item.supplierName,
-                                    status: item.status,
-                                    warehouseLocation: item.warehouseLocation,
-                                    categoryName: item.category.categoryName,
-                                    subCategoryName: item.subCategories.subCategoryName,
-                                    categoryId: item.category?.categoryId,
-                                    subCategoryId: item.subCategories?.subCategoryId 
-                                }))}
+            <CustomDataTable
+                ref={dataTableRef}
+                // filter
+                page={page}
+                limit={limit}
+                totalRecords={totalRecords}
+                // extraButtons={getExtraButtons}
+                data={suppliers?.map((item: any) => ({
+                    supId: item.supId,
+                    supplierName: item.supplierName,
+                    status: item.status,
+                    warehouseLocation: item.warehouseLocation,
+                    categoryName: item.category.categoryName,
+                    subCategoryName: item.subCategories.subCategoryName,
+                    categoryId: item.category?.categoryId,
+                    subCategoryId: item.subCategories?.subCategoryId
+                }))}
+                columns={[
+                    {
+                        header: 'Sr. No',
+                        body: (data: any, options: any) => {
+                            const normalizedRowIndex = options.rowIndex % limit;
+                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                columns={[
-                                    {
-                                        header: 'Sr. No',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                            return <span>{srNo}</span>;
+                        },
+                        bodyStyle: { minWidth: 50, maxWidth: 50 }
+                    },
+                    {
+                        header: 'Supplier Name',
+                        field: 'supplierName',
+                        bodyStyle: { minWidth: 120, maxWidth: 150 },
+                        filterPlaceholder: 'Search Supplier Name'
+                    },
+                    {
+                        header: 'Status',
+                        field: 'status',
+                        style: { minWidth: 120, maxWidth: 120 }
+                    },
+                    {
+                        header: 'Warehouse Location',
+                        field: 'warehouseLocation',
+                        style: { minWidth: 120, maxWidth: 180 }
+                    },
 
-                                            return <span>{srNo}</span>;
-                                        },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                    },
-                                    {
-                                        header: 'Supplier Name',
-                                        field: 'supplierName',
-                                        bodyStyle: { minWidth: 120, maxWidth: 150 },
-                                        filterPlaceholder: 'Search Supplier Name'
-                                    },
-                                    {
-                                        header: 'Status',
-                                        field: 'status',
-                                        style: { minWidth: 120, maxWidth: 120 }
-                                    },
-                                    {
-                                        header: 'Warehouse Location',
-                                        field: 'warehouseLocation',
-                                        style: { minWidth: 120, maxWidth: 180 }
-                                    },
-                                    
-                                    {
-                                        header: 'Procurement Category',
-                                        field: 'categoryName',
-                                        style: { minWidth: 120, maxWidth: 120 }
-                                    },
+                    {
+                        header: 'Procurement Category',
+                        field: 'categoryName',
+                        style: { minWidth: 120, maxWidth: 120 }
+                    },
 
-                                    {
-                                        header: 'Supplier Category',
-                                        field: 'subCategoryName',
-                                        style: { minWidth: 120, maxWidth: 180 }
-                                    },
-                                    {
-                                        header: 'History',
-                                        body: HistoryBodyTemplate,
-                                        style: { minWidth: 70, maxWidth: 70 },
-                                        className: 'text-center'
-                                    },
-                                    {
-                                        header: 'Evaluate',
-                                        body: evaluateBodyTemplate,
-                                        style: { minWidth: 70, maxWidth: 70 },
-                                        className: 'text-center'
-                                    }
-                                ]}
-                                onLoad={(params: any) => fetchData(params)}
-                            />
+                    {
+                        header: 'Supplier Category',
+                        field: 'subCategoryName',
+                        style: { minWidth: 120, maxWidth: 180 }
+                    },
+                    {
+                        header: 'History',
+                        body: HistoryBodyTemplate,
+                        style: { minWidth: 70, maxWidth: 70 },
+                        className: 'text-center'
+                    },
+                    {
+                        header: 'Evaluate',
+                        body: evaluateBodyTemplate,
+                        style: { minWidth: 70, maxWidth: 70 },
+                        className: 'text-center'
+                    }
+                ]}
+                onLoad={(params: any) => fetchData(params)}
+            />
         </div>
     );
 };

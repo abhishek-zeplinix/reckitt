@@ -31,13 +31,13 @@ const ManageFeedbackPage = () => {
     const [rejectedReason, setRejectedReason] = useState('');
     const [feedback, setFeedback] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
-    const [selectedStatus, setSelectedStatus] = useState<any>()
-    const [selectedglobalSearch, setSelectedGlobalSearch] = useState<any>()
+    const [selectedStatus, setSelectedStatus] = useState<any>();
+    const [selectedglobalSearch, setSelectedGlobalSearch] = useState<any>();
 
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     console.log(feedback);
-    
+
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -62,7 +62,6 @@ const ManageFeedbackPage = () => {
             const response = await GetCall(`company/feedback-request?${queryString}`);
             setFeedback(response.data);
             setTotalRecords(response.total);
-
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -96,11 +95,9 @@ const ManageFeedbackPage = () => {
 
     const handleConfirm = async () => {
         try {
-
             setLoading(true);
 
             const payload = {
-
                 suppliername: selectedFeedback.suppliername,
                 quarter: selectedFeedback.quarter,
                 info: selectedFeedback.info,
@@ -139,13 +136,7 @@ const ManageFeedbackPage = () => {
                 <i className="pi pi-times-circle text-6xl text-red-500"></i>
                 <div className="flex flex-column align-items-center gap-3">
                     <span>Are you sure you want to reject this feedback?</span>
-                    <InputTextarea
-                        value={rejectedReason}
-                        onChange={(e) => setRejectedReason(e.target.value)}
-                        rows={4}
-                        placeholder="Enter rejection reason"
-                        className="w-full"
-                    />
+                    <InputTextarea value={rejectedReason} onChange={(e) => setRejectedReason(e.target.value)} rows={4} placeholder="Enter rejection reason" className="w-full" />
                 </div>
             </div>
         );
@@ -155,16 +146,8 @@ const ManageFeedbackPage = () => {
         if (rowData.status === 'Pending') {
             return (
                 <>
-                    <Button
-                        icon="pi pi-check"
-                        className="p-button-success p-button-md p-button-text hover:bg-pink-50"
-                        onClick={() => handleApproveClick(rowData)}
-                    />
-                    <Button
-                        icon="pi pi-times"
-                        className="p-button-danger p-button-md p-button-text hover:bg-pink-50"
-                        onClick={() => handleRejectClick(rowData)}
-                    />
+                    <Button icon="pi pi-check" className="p-button-success p-button-md p-button-text hover:bg-pink-50" onClick={() => handleApproveClick(rowData)} />
+                    <Button icon="pi pi-times" className="p-button-danger p-button-md p-button-text hover:bg-pink-50" onClick={() => handleRejectClick(rowData)} />
                 </>
             );
         }
@@ -172,39 +155,39 @@ const ManageFeedbackPage = () => {
     };
 
     const formatDate = (timestamp: any) => {
-
         const date = new Date(timestamp);
 
-        const formattedDate = date.toLocaleString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-        }).replace(",", "");
+        const formattedDate = date
+            .toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            })
+            .replace(',', '');
 
         return formattedDate;
-    }
-
+    };
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
     const statusOptions = [
-        { label: "Pending", value: "Pending" },
-        { label: "Approved", value: "Approved" },
-        { label: "Rejected", value: "Rejected" }
-    ]
+        { label: 'Pending', value: 'Pending' },
+        { label: 'Approved', value: 'Approved' },
+        { label: 'Rejected', value: 'Rejected' }
+    ];
 
     const onStatusChange = (e: any) => {
-        setSelectedStatus(e.value)
+        setSelectedStatus(e.value);
         fetchData({
             filters: {
                 status: e.value
             }
         });
-    }
+    };
 
     const onGlobalSearch = (e: any) => {
         setSelectedGlobalSearch(e.target?.value); // Update limit
@@ -216,9 +199,8 @@ const ManageFeedbackPage = () => {
     //     fetchprocurementCategories(e.value);
     //     fetchData({ filters: {
     //         supplierCategoryId: e.value
-    //     } }); 
+    //     } });
     // };
-
 
     const dropdownStatus = () => {
         return <Dropdown value={selectedStatus} onChange={onStatusChange} options={statusOptions} optionValue="value" placeholder="Select Status" optionLabel="label" className="w-full md:w-10rem" />;
@@ -230,7 +212,7 @@ const ManageFeedbackPage = () => {
     //         return <Dropdown value={SelectedSubCategory} onChange={onSubCategorychange} options={supplierCategories} optionLabel="subCategoryName" optionValue="subCategoryId" placeholder="Select Sub Category" className="w-full md:w-10rem" />;
     //     };
     // const dropdownFieldSubCategory = dropdownMenuSubCategory();
-    
+
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
@@ -257,7 +239,6 @@ const ManageFeedbackPage = () => {
                     <div className="left-panel mb-0">
                         <div className="header">{header}</div>
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
-
                             <div className="flex justify-content-between items-center border-b">
                                 <div>
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
@@ -352,11 +333,7 @@ const ManageFeedbackPage = () => {
                                                         return '';
                                                 }
                                             };
-                                            return (
-                                                <span className={`px-2 py-1 rounded-lg ${getStatusClass(rowData.status)}`}>
-                                                    {rowData.status}
-                                                </span>
-                                            );
+                                            return <span className={`px-2 py-1 rounded-lg ${getStatusClass(rowData.status)}`}>{rowData.status}</span>;
                                         }
                                     },
                                     {
@@ -380,18 +357,14 @@ const ManageFeedbackPage = () => {
                 </div>
 
                 <Dialog
-                    header={action === FEEDBACK_ACTIONS.APPROVE ? "Approve Feedback" : "Reject Feedback"}
+                    header={action === FEEDBACK_ACTIONS.APPROVE ? 'Approve Feedback' : 'Reject Feedback'}
                     visible={isDialogVisible}
                     style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
                     footer={
                         <div className="flex justify-content-center p-2 gap-2">
+                            <Button label="Cancel" className="bg-primary-main text-white hover:bg-pink-600 border-none" onClick={closeDialog} />
                             <Button
-                                label="Cancel"
-                                className="bg-pink-500 text-white hover:bg-pink-600 border-none"
-                                onClick={closeDialog}
-                            />
-                            <Button
-                                label={action === FEEDBACK_ACTIONS.APPROVE ? "Approve" : "Reject"}
+                                label={action === FEEDBACK_ACTIONS.APPROVE ? 'Approve' : 'Reject'}
                                 className={`px-4 ${action === FEEDBACK_ACTIONS.APPROVE ? 'p-button-success' : 'bg-red-600 text-white border-none hover:bg-red-700'}`}
                                 onClick={handleConfirm}
                                 disabled={action === FEEDBACK_ACTIONS.REJECT && !rejectedReason.trim()}

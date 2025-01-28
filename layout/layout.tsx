@@ -133,7 +133,7 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
         'p-ripple-disabled': !layoutConfig.ripple
     });
 
-    const menuToggleClass = classNames('menu-toggle-icon bg-pink-500', {
+    const menuToggleClass = classNames('menu-toggle-icon bg-primary-main', {
         'toogle-overlay': layoutConfig.menuMode === 'overlay',
         'toogle-static': layoutConfig.menuMode === 'static',
         'toogle-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',

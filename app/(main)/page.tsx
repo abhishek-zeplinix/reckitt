@@ -34,14 +34,15 @@ const Dashboard = () => {
 
     const [pieData, setPieData] = useState({
         labels: ['Pending', 'In-progress', 'Completed'],
-        datasets: [{
-            data: [0, 0, 0],
-            backgroundColor: ['#FFE434', '#3A60F8', '#78C47B']
-        }]
+        datasets: [
+            {
+                data: [0, 0, 0],
+                backgroundColor: ['#FFA600', '#4CAF50', '#2196F3']
+            }
+        ]
     });
 
-    const [totalDonut, setTotalDonut] = useState<any>()
-
+    const [totalDonut, setTotalDonut] = useState<any>();
 
     useEffect(() => {
         fetchData();
@@ -74,15 +75,16 @@ const Dashboard = () => {
             const inProgress = parseInt(inProgressAssessments);
             const completed = parseInt(completedAssessments);
             const total = pending + inProgress + completed;
-            setTotalDonut(total)
-            setPieData(prev => ({
+            setTotalDonut(total);
+            setPieData((prev) => ({
                 ...prev,
-                datasets: [{
-                    ...prev.datasets[0],
-                    data: [parseInt(pendingAssessments), parseInt(inProgressAssessments), parseInt(completedAssessments)]
-                }]
+                datasets: [
+                    {
+                        ...prev.datasets[0],
+                        data: [parseInt(pendingAssessments), parseInt(inProgressAssessments), parseInt(completedAssessments)]
+                    }
+                ]
             }));
-
 
             if (response.total) {
                 setTotalRecords(response?.total);
@@ -138,26 +140,26 @@ const Dashboard = () => {
                 title: 'Total Evaluators',
                 value: apiData.evaluatorCount || 0,
                 change: `+ ${apiData.evaluatorCount}`,
-                changeClass: 'text-green-600'
+                changeClass: 'good-text'
             },
             {
                 title: 'Total Suppliers',
                 value: apiData.supplierCount || 0,
                 change: `+ ${apiData.supplierCount}`,
-                changeClass: 'text-green-600',
+                changeClass: 'good-text',
                 link: '/manage-supplier'
             },
             {
                 title: 'Total Approvers',
                 value: apiData.approverCount || 0,
                 change: `+ ${apiData.approverCount}`,
-                changeClass: 'text-green-600'
+                changeClass: 'good-text'
             },
             {
                 title: 'Total Assessment Expected',
                 value: evaluationData.totalAssessments || 0, // Extract "totalAssessments" from EvaluationData
                 change: `+ ${evaluationData.totalAssessments}`, // Optional: show pending assessments
-                changeClass: 'text-green-600' // Dynamic class based on value
+                changeClass: 'good-text' // Dynamic class based on value
             }
         ];
     };
@@ -169,13 +171,13 @@ const Dashboard = () => {
                 title: 'Completed Assessment',
                 value: evaluationData.completedAssessments || 0,
                 change: `+ ${evaluationData.completedAssessments}`,
-                changeClass: 'text-green-500'
+                changeClass: 'good-text'
             },
             {
                 title: 'In Progress Assessment',
                 value: evaluationData.inProgressAssessments || 0,
                 change: `+ ${evaluationData.inProgressAssessments}`,
-                changeClass: 'text-green-500'
+                changeClass: 'good-text'
             }
         ];
     };
@@ -186,7 +188,7 @@ const Dashboard = () => {
                 title: 'Pending Assessment',
                 value: evaluationData.pendingAssessments || 0,
                 change: `+ ${evaluationData.pendingAssessments}`,
-                changeClass: 'text-green-500'
+                changeClass: 'good-text'
             }
         ];
     };
@@ -195,7 +197,7 @@ const Dashboard = () => {
             title: 'Task Management',
             value: 'Click here to view tasks',
             change: `+ 0`,
-            changeClass: 'text-green-500',
+            changeClass: 'good-text',
             link: '/manage-supplier'
         }
     ];
@@ -256,13 +258,13 @@ const Dashboard = () => {
         const scoreValue = parseInt(score); // Assuming score is a percentage string like '100%'
 
         if (scoreValue >= 90) {
-            return 'blue';
+            return '#2196F3';
         } else if (scoreValue >= 70) {
-            return 'green';
+            return '#4CAF50';
         } else if (scoreValue >= 50) {
-            return 'orange';
+            return '#FF9800';
         } else {
-            return 'red';
+            return '#F44336';
         }
     };
     const donutGraph = () => {
@@ -298,20 +300,20 @@ const Dashboard = () => {
                     <div className="col-5">
                         <div className=" justify-content-center score-bg ">
                             <div style={{ height: '130px', width: '100%' }} className="flex flex-column gap-3 p-5 border-round-2xl">
-                                <div className="flex align-items-center gap-2">
-                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#FFE434' }}></div>
+                                <div className="flex align-items-center gap-2 ">
+                                    <div className="border-round pending" style={{ width: '25px', height: '25px' }}></div>
                                     <span className="ml-2 text-md">
                                         Pending <br /> Assessment
                                     </span>
                                 </div>
                                 <div className="flex align-items-center gap-2">
-                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#3A60F8' }}></div>
+                                    <div className="border-round inProgress" style={{ width: '25px', height: '25px' }}></div>
                                     <span className="ml-2 text-md">
                                         In Progress <br /> Assessment
                                     </span>
                                 </div>
                                 <div className="flex align-items-center gap-2">
-                                    <div className="border-round" style={{ width: '25px', height: '25px', background: '#78C47B' }}></div>
+                                    <div className="border-round completed" style={{ width: '25px', height: '25px' }}></div>
                                     <span className="ml-2 text-md">
                                         Completed <br /> Assessment
                                     </span>
@@ -331,25 +333,25 @@ const Dashboard = () => {
         datasets: [
             {
                 label: 'Excellent',
-                backgroundColor: '#3A60F8',
+                backgroundColor: '#2196F3',
                 data: [20, 25, 30, 35],
                 borderRadius: 20
             },
             {
                 label: 'Good',
-                backgroundColor: '#78C47B',
+                backgroundColor: '#4CAF50',
                 data: [25, 20, 25, 20],
                 borderRadius: 20
             },
             {
                 label: 'Improvement Needed',
-                backgroundColor: '#FFE434',
+                backgroundColor: '#FF9800',
                 data: [30, 30, 25, 25],
                 borderRadius: 20
             },
             {
                 label: 'Critical',
-                backgroundColor: '#FD837A',
+                backgroundColor: '#F44336',
                 data: [25, 25, 20, 20],
                 borderRadius: 20
             }
@@ -426,21 +428,21 @@ const Dashboard = () => {
                 <div className="grid mt-3 score-bg p-4">
                     <div className="col-6">
                         <div className="flex align-items-center mr-4 lg:w-1/2 w-full mb-2">
-                            <span className="w-2rem h-2rem graphColorRed  border-round-md mr-2"></span>
+                            <span className="w-2rem h-2rem critical  border-round-md mr-2"></span>
                             <span className="text-sm">Critical</span>
                         </div>
                         <div className="flex align-items-center mr-4 lg:w-1/2 w-full mb-2">
-                            <span className="w-2rem h-2rem graphColorGreen border-round-md mr-2"></span>
+                            <span className="w-2rem h-2rem improvement border-round-md mr-2"></span>
                             <span className="text-sm">Improvement Needed</span>
                         </div>
                     </div>
                     <div className="col-6">
                         <div className="flex align-items-center mr-4 lg:w-1/2 w-full mb-2">
-                            <span className="w-2rem h-2rem graphColorYelloow  border-round-md mr-2"></span>
+                            <span className="w-2rem h-2rem good  border-round-md mr-2"></span>
                             <span className="text-sm">Good</span>
                         </div>
                         <div className="flex align-items-center lg:w-1/2 w-full mb-2">
-                            <span className="w-2rem h-2rem graphColorBlue border-round-md mr-2"></span>
+                            <span className="w-2rem h-2rem excellent border-round-md mr-2"></span>
                             <span className="text-sm">Excellent</span>
                         </div>
                     </div>
@@ -461,19 +463,19 @@ const Dashboard = () => {
                 <div className="grid mt-3 score-bg p-4">
                     <div className="flex gap-2  px-2">
                         <div className="flex align-items-center mr-4 border-right-1 pr-3 p-2 w-full mb-2 border-gray-400">
-                            <span className="w-2rem h-2rem graphColorRed  border-round-md  mr-2 "></span>
+                            <span className="w-2rem h-2rem critical  border-round-md  mr-2 "></span>
                             <span className="text-sm">NA</span>
                         </div>
                         <div className="flex align-items-center mr-4 border-right-1 pr-3 w-full mb-2 border-gray-400">
-                            <span className="w-2rem h-2rem graphColorGreen border-round-md  mr-2 "></span>
+                            <span className="w-2rem h-2rem good border-round-md  mr-2 "></span>
                             <span className="text-sm">Tier 3</span>
                         </div>
                         <div className="flex align-items-center mr-4 border-right-1 pr-3 w-full mb-2 border-gray-400">
-                            <span className="w-2rem h-2rem graphColorYelloow  border-round-md  mr-2 "></span>
+                            <span className="w-2rem h-2rem improvement  border-round-md  mr-2 "></span>
                             <span className="text-sm">Tier 2</span>
                         </div>
                         <div className="flex align-items-center  w-full mb-2 border-gray-400">
-                            <span className="w-2rem h-2rem graphColorBlue border-round-md  mr-2 "></span>
+                            <span className="w-2rem h-2rem excellent border-round-md  mr-2 "></span>
                             <span className="text-sm">Tier 1</span>
                         </div>
                     </div>
@@ -520,7 +522,7 @@ const Dashboard = () => {
             {
                 label: 'Sustainability',
                 data: [80, 85, 90, 95, 88, 92],
-                borderColor: '#007ad9',
+                borderColor: '#2196F3',
                 backgroundColor: 'rgba(0, 122, 217, 0.2)',
                 fill: false,
                 tension: 0.4
@@ -528,7 +530,7 @@ const Dashboard = () => {
             {
                 label: 'Development',
                 data: [60, 65, 70, 75, 68, 72],
-                borderColor: '#f0c808',
+                borderColor: '#FF9800',
                 backgroundColor: 'rgba(240, 200, 8, 0.2)',
                 fill: false,
                 tension: 0.4
@@ -536,7 +538,7 @@ const Dashboard = () => {
             {
                 label: 'Procurement',
                 data: [50, 55, 45, 60, 58, 62],
-                borderColor: '#00a652',
+                borderColor: '#4CAF50',
                 backgroundColor: 'rgba(0, 166, 82, 0.2)',
                 fill: false,
                 tension: 0.4
@@ -544,7 +546,7 @@ const Dashboard = () => {
             {
                 label: 'Planning',
                 data: [30, 35, 25, 40, 38, 42],
-                borderColor: '#d63031',
+                borderColor: '#F44336',
                 backgroundColor: 'rgba(214, 48, 49, 0.2)',
                 fill: false,
                 tension: 0.4
@@ -609,19 +611,19 @@ const Dashboard = () => {
                     <div className="grid mt-3 score-bg p-4">
                         <div className="flex gap-6 px-4 ">
                             <div className="flex align-items-center mr-4 border-right-1 pr-12 p-2 w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem graphColorRed  border-round-md  mr-2 "></span>
+                                <span className="w-2rem h-2rem critical  border-round-md  mr-2 "></span>
                                 <span className="text-sm"> Critical (0-50)</span>
                             </div>
                             <div className="flex align-items-center mr-4 border-right-1 pr-12 w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem graphColorGreen border-round-md  mr-2 "></span>
+                                <span className="w-2rem h-2rem improvement border-round-md  mr-2 "></span>
                                 <span className="text-sm"> Improvement Needed (51-70)</span>
                             </div>
                             <div className="flex align-items-center mr-4 border-right-1 pr-12 w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem graphColorYelloow  border-round-md  mr-2 "></span>
+                                <span className="w-2rem h-2rem good  border-round-md  mr-2 "></span>
                                 <span className="text-sm">Good (71-90)</span>
                             </div>
                             <div className="flex align-items-center  w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem graphColorBlue border-round-md  mr-2 "></span>
+                                <span className="w-2rem h-2rem excellent border-round-md  mr-2 "></span>
                                 <span className="text-sm">Excellent (91-100)</span>
                             </div>
                         </div>
@@ -669,7 +671,7 @@ const Dashboard = () => {
                                     className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
                                 >
                                     <Link href={tile.link || ''}>
-                                        <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
+                                        <div className="p-3 border-1 border-primary-main border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
                                             <div className="flex justify-content-between gap-2 align-items-center">
                                                 <div>
                                                     <div>
@@ -681,7 +683,7 @@ const Dashboard = () => {
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <i className="pi pi-angle-right text-pink-400"></i>
+                                                    <i className="pi pi-angle-right text-primary-main"></i>
                                                 </div>
                                             </div>
                                         </div>
@@ -697,7 +699,7 @@ const Dashboard = () => {
                                 <div className="grid grid-nogutter">
                                     {secondTilesData.map((tile, index) => (
                                         <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
-                                            <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+                                            <div className="p-3 border-1 border-primary-main border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
                                                 <div className="flex justify-content-between gap-2 align-items-center">
                                                     <div>
                                                         <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
@@ -707,7 +709,7 @@ const Dashboard = () => {
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <i className="pi pi-angle-right text-pink-400"></i>
+                                                        <i className="pi pi-angle-right text-primary-main"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -718,7 +720,7 @@ const Dashboard = () => {
                                     <div className="grid grid-nogutter">
                                         {thirdTilesData.map((tile, index) => (
                                             <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
-                                                <div className="p-3 border-1 border-pink-400 border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+                                                <div className="p-3 border-1 border-primary-main border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
                                                     <div className="flex justify-content-between gap-2 align-items-center">
                                                         <div>
                                                             <div>
@@ -730,7 +732,7 @@ const Dashboard = () => {
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <i className="pi pi-angle-right text-pink-400"></i>
+                                                            <i className="pi pi-angle-right text-primary-main"></i>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -797,7 +799,7 @@ const Dashboard = () => {
                                                             <span key={index}>{dash}</span>
                                                         ))}
                                                     </span>
-                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
                                                         <i className="pi pi-arrow-right"></i>
                                                     </span>
                                                 </button>
@@ -855,7 +857,7 @@ const Dashboard = () => {
                                                             <span key={index}>{dash}</span>
                                                         ))}
                                                     </span>
-                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-pink-500 border-circle shadow-2">
+                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
                                                         <i className="pi pi-arrow-right"></i>
                                                     </span>
                                                 </button>

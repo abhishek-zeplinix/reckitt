@@ -17,15 +17,15 @@ import Stepper from '@/components/Stepper';
 const defaultForm: EmptySupplier = {
     supId: null,
     supplierName: '',
-    supplierNumber:'',
+    supplierNumber: '',
     supplierManufacturerName: '',
     siteAddress: '',
     procurementCategoryId: null,
-    stateId:null,
-    countryId:null,
-    cityId:null,
-    email:'',
-    Zip:'',
+    stateId: null,
+    countryId: null,
+    cityId: null,
+    email: '',
+    Zip: '',
     supplierCategoryId: null,
     warehouseLocation: '',
     factoryName: '',
@@ -36,16 +36,16 @@ const defaultForm: EmptySupplier = {
     location: '',
     countries: {
         name: '',
-        countryId: null,
-      },
-      states: {
+        countryId: null
+    },
+    states: {
         name: '',
-        stateId: null,
-      },
-      cities: {
-        name:'',
-        cityId:  null,
-      }
+        stateId: null
+    },
+    cities: {
+        name: '',
+        cityId: null
+    }
 };
 
 const ManageSupplierAddEditPage = () => {
@@ -89,13 +89,9 @@ const ManageSupplierAddEditPage = () => {
             setLoading(true);
             try {
                 // Fetch independent data first
-                await Promise.all([
-                    fetchCategory(),
-                    fetchAllCountry(),
-                    isEditMode && fetchSupplierData(),
-                ]);
-                console.log('97',form)
-    
+                await Promise.all([fetchCategory(), fetchAllCountry(), isEditMode && fetchSupplierData()]);
+                console.log('97', form);
+
                 // Fetch dependent data sequentially
                 // const states = await fetchAllSatate(); // Dependent on fetchAllCountry
                 // if (states) {
@@ -107,10 +103,10 @@ const ManageSupplierAddEditPage = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchInitialData();
     }, [isEditMode]); // Add isEditMode as a dependency if its value can change
-    
+
     const fetchSupplierData = async () => {
         try {
             const params = { filters: { supId }, pagination: false };
@@ -120,7 +116,7 @@ const ManageSupplierAddEditPage = () => {
             if (response.data && response.data[0]) {
                 const mappedForm = mapToForm(response.data[0]);
                 setForm(mappedForm);
-                console.log('123',mappedForm)
+                console.log('123', mappedForm);
 
                 // Fetch subcategories dynamically based on the selected category
                 if (mappedForm.supplierCategoryId) {
@@ -129,7 +125,7 @@ const ManageSupplierAddEditPage = () => {
                 if (mappedForm.supplierCategoryId && mappedForm.countries) {
                     await fetchAllSatate(mappedForm.countryId);
                 }
-                if (mappedForm.supplierCategoryId && mappedForm.countries && mappedForm.states ) {
+                if (mappedForm.supplierCategoryId && mappedForm.countries && mappedForm.states) {
                     await fetchAllCity(mappedForm.stateId);
                 }
                 // set checkbox states based on file existence
@@ -155,16 +151,15 @@ const ManageSupplierAddEditPage = () => {
         const response: CustomResponse = await GetCall(`/company/supplier/countries`);
         if (response.code === 'SUCCESS') {
             setAllCountry(response.data);
-            
         }
     };
-    const fetchAllSatate = async (countryId:any) => {
+    const fetchAllSatate = async (countryId: any) => {
         const response: CustomResponse = await GetCall(`/company/supplier/states/${countryId}`);
         if (response.code === 'SUCCESS') {
             setAllState(response.data.states);
         }
     };
-    const fetchAllCity = async (stateId:any) => {
+    const fetchAllCity = async (stateId: any) => {
         const response: CustomResponse = await GetCall(`/company/supplier/city/${stateId}`);
         if (response.code === 'SUCCESS') {
             setAllCity(response.data.city);
@@ -192,7 +187,7 @@ const ManageSupplierAddEditPage = () => {
     };
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId'&& name !== 'countryId'&& name !== 'stateId'&& name !== 'cityId' && name !=='email') {
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId' && name !== 'email') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
@@ -202,8 +197,8 @@ const ManageSupplierAddEditPage = () => {
                         return;
                     }
                 }
-                if(name==='supplierNumber'){
-                    const typeValue=typeof(val);
+                if (name === 'supplierNumber') {
+                    const typeValue = typeof val;
                     if (isNaN(Number(val)) || typeValue !== 'string') {
                         setAlert('error', 'Phone must be a valid number');
                         return;
@@ -261,7 +256,7 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = () => {
-        console.log('235',form)
+        console.log('235', form);
         if (!validateFullName(form.supplierName)) {
             setAlert('error', 'Supplier name must be in proper format');
             return;
@@ -427,31 +422,13 @@ const ManageSupplierAddEditPage = () => {
                                     <label htmlFor="state" className="font-semibold">
                                         State
                                     </label>
-                                    <Dropdown
-                                        id="stateId"
-                                        value={get(form, 'stateId')}
-                                        options={allState}
-                                        optionLabel="name"
-                                        optionValue="stateId"
-                                        onChange={(e) => onInputChange('stateId', e.value)}
-                                        placeholder="Select state"
-                                        className="w-full"
-                                    />
+                                    <Dropdown id="stateId" value={get(form, 'stateId')} options={allState} optionLabel="name" optionValue="stateId" onChange={(e) => onInputChange('stateId', e.value)} placeholder="Select state" className="w-full" />
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
-                                    <Dropdown
-                                        id="cityId"
-                                        value={get(form, 'cityId')}
-                                        options={allCity}
-                                        optionLabel="name"
-                                        optionValue="cityId"
-                                        onChange={(e) => onInputChange('cityId', e.value)}
-                                        placeholder="Select city"
-                                        className="w-full"
-                                    />
+                                    <Dropdown id="cityId" value={get(form, 'cityId')} options={allCity} optionLabel="name" optionValue="cityId" onChange={(e) => onInputChange('cityId', e.value)} placeholder="Select city" className="w-full" />
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="Zip" className="font-semibold">
@@ -597,11 +574,11 @@ const ManageSupplierAddEditPage = () => {
                 <div className="p-card-body">{renderStepContent()}</div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleNext} />}
+                    {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleNext} />}
                     {currentStep === 2 && (
                         <>
-                            <Button label="Back" icon="pi pi-arrow-left" className="text-pink-500 bg-white border-pink-500 hover:text-pink-500 hover:bg-white transition-colors duration-150 mb-3" onClick={handlePrevious} />
-                            <Button label={isEditMode ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white mb-3" onClick={handleSubmit} />
+                            <Button label="Back" icon="pi pi-arrow-left" className="text-primary-main bg-white border-primary-main hover:text-primary-main hover:bg-white transition-colors duration-150 mb-3" onClick={handlePrevious} />
+                            <Button label={isEditMode ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSubmit} />
                         </>
                     )}
                 </div>

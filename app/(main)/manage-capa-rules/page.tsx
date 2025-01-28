@@ -181,7 +181,7 @@ const ManageCapaRulesPage = () => {
                 <Button
                     label="Download Sample PDF"
                     icon="pi pi-download"
-                    className="p-button-text p-button-sm text-pink-600"
+                    className="p-button-text p-button-sm text-primary-main"
                     onClick={() => {
                         // Trigger PDF download
                         const link = document.createElement('a');
@@ -227,13 +227,13 @@ const ManageCapaRulesPage = () => {
                         </div>
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                     <Button
                         icon="pi pi-plus"
                         size="small"
                         label="Delete Rules"
                         aria-label="Delete Rule"
-                        className="bg-pink-500 border-pink-500 hover:text-white"
+                        className="bg-primary-main border-primary-main hover:text-white"
                         onClick={() => {
                             handleAllDelete();
                         }}
@@ -564,8 +564,8 @@ const ManageCapaRulesPage = () => {
                     className="delete-dialog"
                     footer={
                         <div className="flex justify-content-center p-2">
-                            <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                            <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                            <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                            <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
                         </div>
                     }
                     onHide={closeDeleteDialog}
@@ -576,7 +576,7 @@ const ManageCapaRulesPage = () => {
                         </div>
                     )}
                     <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
-                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                         <div className="flex flex-column align-items-center gap-1">
                             <span>{isAllDeleteDialogVisible ? 'Are you sure you want to delete all CAPA rule.' : 'Are you sure you want to delete selected CAPA rule.'}</span>

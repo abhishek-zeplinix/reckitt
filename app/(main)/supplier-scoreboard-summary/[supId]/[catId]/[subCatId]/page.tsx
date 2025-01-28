@@ -32,13 +32,12 @@ const SupplierScoreboardTables = () => {
     const { supId, catId, subCatId } = params;
 
     const [dialogVisible, setDialogVisible] = useState(false);
-   
+
     const [evaluationData, setEvaluationData] = useState([]);
 
     console.log(supplierScore?.ratings?.length);
-    
 
-    const [popupData, setPopupData] = useState<any>([])
+    const [popupData, setPopupData] = useState<any>([]);
     useEffect(() => {
         fetchData();
         fetchSupplierData();
@@ -93,20 +92,18 @@ const SupplierScoreboardTables = () => {
         }
     };
 
-    const fetchSpecificSupplierWithLessScore = async(depId: any, period:any)=>{
-        setLoading(false)
-        try{
-
-            
+    const fetchSpecificSupplierWithLessScore = async (depId: any, period: any) => {
+        setLoading(false);
+        try {
             setLoading(true);
-        
+
             const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}/department/${depId}/period/${period}`);
             setLoading(false);
-    
+
             if (response.code == 'SUCCESS') {
                 setPopupData(response.data);
 
-                const flatData = response.data.flatMap((section: any) => 
+                const flatData = response.data.flatMap((section: any) =>
                     section.ratedCriteria.map((criteria: any) => ({
                         type: section.sectionName,
                         criteria: criteria.criteriaName,
@@ -116,23 +113,17 @@ const SupplierScoreboardTables = () => {
                     }))
                 );
                 setEvaluationData(flatData);
-
-    
             } else {
                 setPopupData([]);
             }
-        }catch(error){
-            setAlert('error', 'Something went wrong!')
-
-        }finally{
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
             setLoading(false);
         }
-
-    }
-
+    };
 
     console.log(popupData);
-    
 
     useEffect(() => {
         if (supplierScore && departments) {
@@ -218,7 +209,6 @@ const SupplierScoreboardTables = () => {
         const status = rowData[field];
         const percentage = parseInt(status);
 
-    
         let backgroundColor;
         if (percentage >= 90) {
             backgroundColor = '#48BB78';
@@ -243,11 +233,9 @@ const SupplierScoreboardTables = () => {
         );
     };
 
-
     const statusBodyTemplate = (rowData: any, field: any, isHalfYearly = false) => {
         const status = rowData[field];
         const percentage = parseInt(status);
-                
 
         let backgroundColor;
         if (percentage >= 90) {
@@ -263,23 +251,18 @@ const SupplierScoreboardTables = () => {
         const handleIconClick = (e: React.MouseEvent) => {
             e.stopPropagation();
 
-            const period = isHalfYearly 
-                ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}`
-                : `Quarterly-${field.slice(1)}-${selectedYear}`;
-            
+            const period = isHalfYearly ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}` : `Quarterly-${field.slice(1)}-${selectedYear}`;
+
             // setSelectedEvaluation({
             //     evaluationPeriod: period,
             //     departmentId: departments.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || ''
             // });
-            
 
             const depId = (departments as any[])?.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || '';
 
             fetchSpecificSupplierWithLessScore(depId, period);
-        
-            setDialogVisible(true);
-        
 
+            setDialogVisible(true);
         };
 
         return (
@@ -293,19 +276,13 @@ const SupplierScoreboardTables = () => {
                         textAlign: 'center'
                     }}
                 />
-                {(percentage <= 50  && supplierScore?.ratings?.length > 0)&& (
-                    <i 
-                        className="pi pi-info-circle text-yellow-500 cursor-pointer"
-                        onClick={handleIconClick}
-                    />
-                )}
+                {percentage <= 50 && supplierScore?.ratings?.length > 0 && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
             </div>
         );
     };
 
-
     const nameBodyTemplate = (rowData: any) => {
-        return <span className="text-pink-500 font-bold">{rowData.name}</span>;
+        return <span className="text-primary-main font-bold">{rowData.name}</span>;
     };
 
     const years = [
@@ -420,7 +397,7 @@ const SupplierScoreboardTables = () => {
 
                 <div className="flex justify-content-end">
                     <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
-                    <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
+                    <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                 </div>
             </div>
         );
@@ -464,27 +441,22 @@ const SupplierScoreboardTables = () => {
                         </DataTable>
                     </div>
 
-
                     <Dialog
-                    visible={dialogVisible}
-                    style={{ width: '80vw' }} // Made wider to accommodate table
-                    className="delete-dialog"
-                   
-                    onHide={() => setDialogVisible(false)}
-                >
-                    <div className="flex flex-column w-full surface-border p-1 gap-4">
-                       
-                        
-                        <DataTable value={evaluationData} >
-                        <Column field="type" header="Type" style={{ width: '250px' }} />
-                        <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
-                        <Column field="ratio" header="Ratio" style={{ width: '250px' }} />
-                        <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
-                        <Column field="score" header="Score" style={{ width: '250px' }} />
-                          
-                        </DataTable>
-                    </div>
-                </Dialog>
+                        visible={dialogVisible}
+                        style={{ width: '80vw' }} // Made wider to accommodate table
+                        className="delete-dialog"
+                        onHide={() => setDialogVisible(false)}
+                    >
+                        <div className="flex flex-column w-full surface-border p-1 gap-4">
+                            <DataTable value={evaluationData}>
+                                <Column field="type" header="Type" style={{ width: '250px' }} />
+                                <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
+                                <Column field="ratio" header="Ratio" style={{ width: '250px' }} />
+                                <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
+                                <Column field="score" header="Score" style={{ width: '250px' }} />
+                            </DataTable>
+                        </div>
+                    </Dialog>
                 </div>
             </div>
         );
@@ -523,7 +495,6 @@ const SupplierScoreboardTables = () => {
         }
     };
 
-
     const baroptions = {
         responsive: true,
 
@@ -560,46 +531,41 @@ const SupplierScoreboardTables = () => {
         }
     };
 
-
     const prepareChartData = () => {
-
         //chart 1
         const ratingLabels = ratingsData?.map((rating: any) => rating.name) || [];
         const ratingValues = ratingsData?.map((rating: any) => parseFloat(rating.status1.replace('%', ''))) || [];
 
         const ratingData = {
             labels: ratingLabels,
-            datasets: [{
-                label: 'Rating',
-                data: ratingValues,
-                backgroundColor: '#DF177C',
-                borderColor: '#DF177C',
-                borderWidth: 1,
-                barThickness: 100
-            }]
+            datasets: [
+                {
+                    label: 'Rating',
+                    data: ratingValues,
+                    backgroundColor: '#DF1740',
+                    borderColor: '#DF1740',
+                    borderWidth: 1,
+                    barThickness: 100
+                }
+            ]
         };
 
         //chart 2
-        const periods = [
-            `Q1 ${selectedYear}`,
-            `Q2/H1 ${selectedYear}`,
-            `Q3 ${selectedYear}`,
-            `Q4/H2 ${selectedYear}`
-        ];
+        const periods = [`Q1 ${selectedYear}`, `Q2/H1 ${selectedYear}`, `Q3 ${selectedYear}`, `Q4/H2 ${selectedYear}`];
 
-        const departmentColors:any = {
-            'procurement': '#2196F3',
-            'sustainability': '#F44336',
-            'planning': '#FFA600',
-            'quality': '#4CAF50',
-            'development': '#DF177C'
+        const departmentColors: any = {
+            procurement: '#2196F3',
+            sustainability: '#F44336',
+            planning: '#FFA600',
+            quality: '#4CAF50',
+            development: '#DF1740'
         };
 
-        const datasets: any= [];
+        const datasets: any = [];
 
         // process quarterly departments
         quarterlyData.forEach((dept: any) => {
-            const data = periods.map(period => {
+            const data = periods.map((period) => {
                 if (period.includes('Q1')) return parseFloat(dept.q1.replace('%', ''));
                 if (period.includes('Q2')) return parseFloat(dept.q2.replace('%', ''));
                 if (period.includes('Q3')) return parseFloat(dept.q3.replace('%', ''));
@@ -610,7 +576,7 @@ const SupplierScoreboardTables = () => {
             datasets.push({
                 label: dept.name,
                 data: data,
-                backgroundColor: departmentColors[dept.name.toLowerCase()], 
+                backgroundColor: departmentColors[dept.name.toLowerCase()],
                 borderColor: departmentColors[dept.name.toLowerCase()],
                 borderWidth: 1,
                 tension: 0.01
@@ -619,7 +585,7 @@ const SupplierScoreboardTables = () => {
 
         // process half-yearly departments
         halfYearlyData.forEach((dept: any) => {
-            const data = periods.map(period => {
+            const data = periods.map((period) => {
                 if (period.includes('H1')) return parseFloat(dept.status1.replace('%', ''));
                 if (period.includes('H2')) return parseFloat(dept.status2.replace('%', ''));
                 return null; // Return null for Q1 and Q3 periods
@@ -644,7 +610,6 @@ const SupplierScoreboardTables = () => {
     };
     const { ratingData, lineData } = prepareChartData();
 
-
     const GraphsPanel = () => {
         return (
             <>
@@ -656,11 +621,10 @@ const SupplierScoreboardTables = () => {
                         <h6 className="text-center">Quarters</h6>
                     </div>
 
-
-                {/* second chart */}
+                    {/* second chart */}
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance per Function</h4>
-                        <Chart type="bar" data={lineData} options={baroptions} className=''/>
+                        <Chart type="bar" data={lineData} options={baroptions} className="" />
                         <h6 className="text-center">Quarters</h6>
                     </div>
                 </div>
@@ -678,7 +642,9 @@ const SupplierScoreboardTables = () => {
             <div className="col-12">
                 <div>{renderDataPanel}</div>
             </div>
-            <div className="col-12"><div>{renderGraphsPanel}</div></div>
+            <div className="col-12">
+                <div>{renderGraphsPanel}</div>
+            </div>
         </div>
     );
 };

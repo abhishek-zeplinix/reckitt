@@ -122,7 +122,7 @@ const SupplyGlossaryPage = () => {
         }
     };
 
-    const DialogFooter = () => <Button label={selectedGlossary ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
+    const DialogFooter = () => <Button label={selectedGlossary ? 'Update' : 'Submit'} icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white my-2" onClick={handleSubmit} loading={isDetailLoading} />;
 
     const openDeleteDialog = (id: number) => {
         setIsDeleteDialogVisible(true);
@@ -145,7 +145,7 @@ const SupplyGlossaryPage = () => {
                         </div>
                         {isSuperAdmin() && (
                             <div>
-                                <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-pink-500 border-pink-500 hover:text-white" onClick={handleAddNew} />
+                                <Button icon="pi pi-plus" size="small" label="Add Supplier Glossary" className="bg-primary-main border-primary-main hover:text-white" onClick={handleAddNew} />
                             </div>
                         )}
                     </div>
@@ -174,8 +174,8 @@ const SupplyGlossaryPage = () => {
                         className="delete-dialog"
                         footer={
                             <div className="flex justify-content-center p-2">
-                                <Button label="Cancel" style={{ color: '#DF177C' }} className="px-7" text onClick={closeDeleteDialog} />
-                                <Button label="Delete" style={{ backgroundColor: '#DF177C', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                                <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                                <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
                             </div>
                         }
                         onHide={closeDeleteDialog}
@@ -186,7 +186,7 @@ const SupplyGlossaryPage = () => {
                             </div>
                         )}
                         <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
-                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF177C' }}></i>
+                            <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                             <div className="flex flex-column align-items-center gap-1">
                                 <span>Are you sure you want to delete this Supply Glossary? </span>

@@ -174,12 +174,12 @@ const Routes = () => {
             <div className="flex justify-content-end p-2 footer-panel gap-3">
                 {/* <Button
                     label="Reset"
-                    className='bg-white text-pink-500 border-none'
+                    className='bg-white text-primary-main border-none'
                     onClick={() => setSelectedPermissions([])}
                 />
                 <Button
                     label="Ok"
-                    className='bg-pink-500 text-white'
+                    className='bg-primary-main text-white'
                     onClick={handleSubmit}
                     disabled={!selectedPermissions || selectedPermissions.length === 0}
                 /> */}

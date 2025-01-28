@@ -267,7 +267,7 @@ const handleSubmit = async () => {
     };
     const fetchprocurementCategories = async (categoryId:any) => {
         setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all t-he roles
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setprocurementCategories(response.data);
