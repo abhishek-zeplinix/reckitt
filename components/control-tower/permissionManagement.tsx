@@ -35,6 +35,7 @@ const PermissionManagement = () => {
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
     const [allPermissions, setAllPermissions] = useState<any>([]);
     useEffect(() => {
+        fetchData();
         fetchPermissionData();
     }, []);
 

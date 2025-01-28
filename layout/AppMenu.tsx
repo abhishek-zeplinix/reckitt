@@ -9,45 +9,17 @@ import { AppMenuItem } from '@/types';
 import { get, intersection } from 'lodash';
 import { useAppContext } from './AppWrapper';
 // import { getCompanyLogo } from '@/utils/uitl';
-import {
-    // CAMPANY_SETTING_MENU,
-    // COMPANIES_MENU,
-    COMPANIES_MENU,
-    FAQ_MENU,
-    COMPANY_ROLE_MENU,
-    COMPANY
-    // COMPANY_MASTER_CODE_MENU,
-    // COMPANY,
-    // COMPANY_ROLE_MENU,
-    // COMPANY_USER_MENU,
-    // INVENTORY_BIN_MENU,
-    // INVENTORY_CATEGORY_MENU,
-    // INVENTORY_MENU,
-    // INVENTORY_PRODUCT_MENU,
-    // INVENTORY_RACK_MENU,
-    // INVENTORY_WAREHOUSE_MENU,
-    // PERMISSION_MENU,
-    // ROUTE_MENU,
-    // SALES_CUSTOMER_MENU,
-    // SALES_MENU,
-    // SALES_ORDER_MENU,
-    // SUPPLIER_CATELOGUE_MENU,
-    // SUPPLIER_CREDIT_MENU,
-    // SUPPLIER_MENU,
-    // SUPPLIER_PAYMENT_MENU,
-    // SUPPLIER_SCRORECARD_MENU,
-    // SUPPLIER_WAREHOUSE_MENU
-} from '@/config/permissions';
+import {COMPANY_ROLE_MENU,COMPANY  } from '@/config/permissions';
 import { classNames } from 'primereact/utils';
 import { useRouter } from 'next/navigation';
-import Loader from '@/components/common/Loader';
 import { useLoaderContext } from './context/LoaderContext';
+import { useAuth } from './context/authContext';
 
 const AppMenu = () => {
     const router = useRouter();
-    const { user } = useAppContext();
     const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
-    const { loader, setLoader } = useLoaderContext();
+    const {  setLoader } = useLoaderContext();
+    const { hasPermission, hasAnyPermission } = useAuth();
 
     const handleMenuClick = ({ originalEvent, item }: any) => {
         if (originalEvent) {
@@ -78,54 +50,33 @@ const AppMenu = () => {
                 {
                     label: 'Guidlines & Glossary',
                     icon: 'pi pi-sliders-v',
-                    // check: (user: any) => {
-                    //     // Check if the user is a super admin
-                    //     if (get(user, 'isSuperAdmin')) {
-                    //         return true;
-                    //     }
-
-                    //     // Check if the user has the required permissions
-                    //     const userPermissions = get(user, 'permissions.permissions', []);
-                    //     const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
-
-                    //     // Grant access based on permissions
-                    //     return hasPermission;
-                    // },
+                    check: (user: any) => {
+                        if (get(user, 'isSuperAdmin')) {
+                            return true;
+                        }
+                         return hasAnyPermission(['manage_faq', 'manage_supply_glossary']);
+                    },
                     items: [
                         {
                             label: 'FAQs',
                             url: '/faq',
-                            // check: (user: any) => {
-                            //     // Check if the user is a super admin
-                            //     if (get(user, 'isSuperAdmin')) {
-                            //         return true;
-                            //     }
-
-                            //     // Check if the user has the required permissions
-                            //     const userPermissions = get(user, 'permissions.permissions', []);
-                            //     const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
-
-                            //     // Grant access based on permissions
-                            //     return hasPermission;
-                            // },
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                 return hasPermission('manage_faq');
+                            },
                             command: handleMenuClick
                         },
                         {
                             label: 'Supply Glossary',
                             url: '/supply-glossary',
-                            // check: (user: any) => {
-                            //     // Check if the user is a super admin
-                            //     if (get(user, 'isSuperAdmin')) {
-                            //         return true;
-                            //     }
-
-                            //     // Check if the user has the required permissions
-                            //     const userPermissions = get(user, 'permissions.permissions', []);
-                            //     const hasPermission = intersection(FAQ_MENU, userPermissions).length > 0;
-
-                            //     // Grant access based on permissions
-                            //     return hasPermission;
-                            // },
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                 return hasPermission('manage_supply_glossary');
+                            },
                             command: handleMenuClick
                         }
                     ]
@@ -459,53 +410,33 @@ const AppMenu = () => {
                     label: 'Request Management',
                     icon: 'pi pi-bolt',
                     check: (user: any) => {
-                        // Check if the user is a super admin
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-
-                        // Check if the user has the required permissions
-                        const userPermissions = get(user, 'permissions.permissions', []);
-                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                        // Grant access based on permissions
-                        return hasPermission;
+                         return hasAnyPermission(['generate_request', 'manage_request']);
                     },
                     items: [
                         {
                             label: 'Manage Request',
                             url: '/manage-requests',
                             check: (user: any) => {
-                                // Check if the user is a super admin
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                                // Grant access based on permissions
-                                return hasPermission;
+                                return hasPermission('manage_request');
                             },
                             command: handleMenuClick
                         },
                         {
                             label: 'Generate Request',
                             url: '/generate-requests',
-                            // check: (user: any) => {
-                            //     // Check if the user is a super admin
-                            //     if (get(user, 'isSuperAdmin')) {
-                            //         return true;
-                            //     }
+                            check: (user: any) => {
 
-                            //     // Check if the user has the required permissions
-                            //     const userPermissions = get(user, 'permissions.permissions', []);
-                            //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                            //     // Grant access based on permissions
-                            //     return hasPermission;
-                            // },
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                return hasPermission('generate_request');
+                            },
                             command: handleMenuClick
                         }
                     ]
@@ -514,53 +445,32 @@ const AppMenu = () => {
                     label: 'Supplier Feedback',
                     icon: 'pi pi-gift',
                     check: (user: any) => {
-                        // Check if the user is a super admin
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-
-                        // Check if the user has the required permissions
-                        const userPermissions = get(user, 'permissions.permissions', []);
-                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                        // Grant access based on permissions
-                        return hasPermission;
+                         return hasAnyPermission(['generate_feedback', 'manage_feedback']);
                     },
                     items: [
                         {
                             label: 'Manage Feedback',
                             url: '/manage-feedback',
                             check: (user: any) => {
-                                // Check if the user is a super admin
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-
-                                // Check if the user has the required permissions
-                                const userPermissions = get(user, 'permissions.permissions', []);
-                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                                // Grant access based on permissions
-                                return hasPermission;
+                                 return hasPermission('manage_feedback');
                             },
                             command: handleMenuClick
                         },
                         {
                             label: 'Create new feedback',
                             url: '/add-feedback',
-                            // check: (user: any) => {
-                            //     // Check if the user is a super admin
-                            //     if (get(user, 'isSuperAdmin')) {
-                            //         return true;
-                            //     }
-
-                            //     // Check if the user has the required permissions
-                            //     const userPermissions = get(user, 'permissions.permissions', []);
-                            //     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                            //     // Grant access based on permissions
-                            //     return hasPermission;
-                            // },
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                 return hasPermission('generate_feedback');
+                            },
                             command: handleMenuClick
                         }
                     ]
