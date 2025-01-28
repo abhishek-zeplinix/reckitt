@@ -108,9 +108,7 @@ const CreateNewRulesPage = () => {
                     try {
                         const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
                         if (response.code === 'SUCCESS' && response.data.length > 0) {
-                            console.log('49',response.data)
                             const userDetails = response.data[0]; // Assuming the API returns an array of users
-                            console.log('112',response.data[0])
                             setorderBy(userDetails.orderBy || '');
                             setSelectedProcurementDepartment(userDetails.departmentId || null);
                             setSelectedProcurementCategory(userDetails.categoryId || '');
@@ -225,6 +223,12 @@ const CreateNewRulesPage = () => {
                     <div className="flex flex-column gap-3 pt-2">
                         <h2 className="text-center font-bold ">{pageTitle}</h2>
                         <div className="p-fluid grid md:mx-7 pt-2">
+                        <div className="field col-4">
+                            <label htmlFor="effectiveFrom">
+                                            Select Effective Date:
+                                        </label>
+                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                            </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
                                 <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
@@ -263,12 +267,7 @@ const CreateNewRulesPage = () => {
                                 <label htmlFor="status">Status</label>
                                 <input id="status" type="text" value={status} onChange={(e) => setstatus(e.target.value)} className="p-inputtext w-full" placeholder="Enter status" />
                             </div>
-                            <div className="field col-4">
-                            <label htmlFor="effectiveFrom">
-                                            Select Effective Date:
-                                        </label>
-                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                            </div>
+                            
                         </div>
                     </div>
                 </div>

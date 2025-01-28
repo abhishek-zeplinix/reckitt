@@ -491,6 +491,11 @@ const ManageSupplierPage = () => {
                                             bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         },
                                         {
+                                            header: 'Email',
+                                            field: 'email',
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                        },
+                                        {
                                             header: 'Site Address',
                                             field: 'siteAddress',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
@@ -503,7 +508,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Warehouse Location',
                                             field: 'warehouseLocation',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         },
                                         {
                                             header: 'Country',

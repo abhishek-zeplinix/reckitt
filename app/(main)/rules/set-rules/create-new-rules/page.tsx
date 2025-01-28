@@ -68,6 +68,9 @@ const updateCommonFields = () => {
       section: selectedsection || '',
       categoryId: selectedProcurementCategory || null,
       subCategoryId: selectedSupplierCategory || null,
+      ratedCriteria:selectedCriteria || '',
+      ratiosRawpack:selectedratiosRawpack || '',
+      ratiosCopack:selectedratiosCopack || ''
     };
   
     const updatedFields = fields.map((field) => ({
@@ -81,7 +84,7 @@ const updateCommonFields = () => {
   // Update common fields when they change
 useEffect(() => {
     updateCommonFields();
-  }, [date, selectedProcurementDepartment, orderBy, selectedsection, selectedProcurementCategory, selectedSupplierCategory]);
+  }, [date, selectedProcurementDepartment, orderBy, selectedsection, selectedProcurementCategory, selectedSupplierCategory,selectedCriteria,selectedratiosRawpack,selectedratiosCopack]);
   
 
   // Add new set of fields at the end
@@ -93,15 +96,15 @@ const handleAddFields = () => {
     section: selectedsection || '',
     categoryId: selectedProcurementCategory || null,
     subCategoryId: selectedSupplierCategory || null,
+    ratedCriteria:selectedCriteria || '',
+    ratiosRawpack:selectedratiosRawpack || '',
+    ratiosCopack:selectedratiosCopack || ''
   };
 
   const newFieldSet: Field = {
     ...commonFields,
-    ratedCriteria: '',
     criteriaEvaluation: '',
     score: '',
-    ratiosRawpack: '',
-    ratiosCopack: '',
   };
 
   setFields([...fields, newFieldSet]);
@@ -109,6 +112,7 @@ const handleAddFields = () => {
 const handleRemoveField = (index: number) => {
     setFields(fields.filter((_, i) => i !== index));
 };
+console.log('118',fields)
   
 const handleSubmit = async () => {
     // Validate all fields
@@ -345,7 +349,7 @@ const handleSubmit = async () => {
         }
     
         setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/rules`, fields);
+        const response: CustomResponse = await PostCall(`/company/rules/${ruleSetId}`, fields);
         setIsDetailLoading(false);
         if (response.code == 'SUCCESS') {
             router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
@@ -419,19 +423,41 @@ const handleSubmit = async () => {
                                 <label htmlFor="section">Section</label>
                                 <input id="section" type="text" value={selectedsection} onChange={(e) => setSelectedsection(e.target.value)} className="p-inputtext w-full" placeholder="Enter Section Name" />
                             </div>
-                            {fields.map((field, index) => (
-                                <>
+                            
                                 
-                                <div key={index} className="field col-4">
+                                <div className="field col-4">
                                 <label htmlFor="ratedCriteria">Criteria</label>
                                 <input
                                     type="text"
                                     placeholder="Criteria"
-                                    value={field.ratedCriteria}
-                                    onChange={(e) => handleChange(index, 'ratedCriteria', e.target.value)}
+                                    value={selectedCriteria}
+                                    onChange={(e) => setCriteria( e.target.value)}
                                     className="p-inputtext w-full"
                                 />
                                 </div>
+                               
+                                <div className="field col-4">
+                                <label htmlFor="ratiosRawpack">Ratios Raw & Pack</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ratios Raw & Pack"
+                                    value={selectedratiosRawpack}
+                                    onChange={(e) => setratiosRawpack( e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                <div className="field col-4">
+                                <label htmlFor="ratiosCopack">Ratio Co Pack</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ratio Co Pack"
+                                    value={selectedratiosCopack}
+                                    onChange={(e) => setratiosCopack(e.target.value)}
+                                    className="p-inputtext w-full"
+                                />
+                                </div>
+                                {fields.map((field, index) => (
+                                <>
                                 <div key={index} className="field col-4">
                                 <label htmlFor="criteriaEvaluation">Criteria Evaluation List</label>
                                 <input
@@ -449,26 +475,6 @@ const handleSubmit = async () => {
                                     placeholder="Criteria Score"
                                     value={field.score}
                                     onChange={(e) => handleChange(index, 'score', e.target.value)}
-                                    className="p-inputtext w-full"
-                                />
-                                </div>
-                                <div key={index} className="field col-4">
-                                <label htmlFor="ratiosRawpack">Ratios Raw & Pack</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ratios Raw & Pack"
-                                    value={field.ratiosRawpack}
-                                    onChange={(e) => handleChange(index, 'ratiosRawpack', e.target.value)}
-                                    className="p-inputtext w-full"
-                                />
-                                </div>
-                                <div key={index} className="field col-4">
-                                <label htmlFor="ratiosCopack">Ratio Co Pack</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ratio Co Pack"
-                                    value={field.ratiosCopack}
-                                    onChange={(e) => handleChange(index, 'ratiosCopack', e.target.value)}
                                     className="p-inputtext w-full"
                                 />
                                 </div>
