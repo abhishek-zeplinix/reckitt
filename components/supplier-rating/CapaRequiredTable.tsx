@@ -38,9 +38,10 @@ interface CapaRequiredTableProps {
   depId: string;
   existingSelections?: CapaRuleResponse[];
   isEvaluatedData: boolean;
+  setCapaDataCount: any;
 }
 
-const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluatedData }: CapaRequiredTableProps) => {
+const CapaRequiredTable = ({ onDataChange, depId, existingSelections, setCapaDataCount }: CapaRequiredTableProps) => {
   const { setLoading, setAlert } = useAppContext();
   const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
@@ -48,6 +49,9 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
   
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
+
+  console.log("rendered", existingSelections);
+  
 
   const groupDataByRules = (data: CapaRule[]) => {
     const grouped = data.reduce((acc, item) => {
@@ -96,6 +100,10 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
     }
   }, [depId]);
 
+  useEffect(()=>{
+      setIsInitialized(false)
+  }, [existingSelections])
+
 
   
   // Initialize with existing selections only once
@@ -128,9 +136,13 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
       };
       const queryString = buildQueryParams(params);
       const response = await GetCall(`/company/caparule?${queryString}`);
+
       const formattedData = groupDataByRules(response.data || []);
       setGroupedData(formattedData);
 
+      console.log(formattedData);
+      setCapaDataCount(formattedData?.length)
+      
       // Only initialize if there are no existing selections
       if (!existingSelections) {
         const initialValues = formattedData.reduce((acc, item) => {
@@ -146,6 +158,7 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
     }
   };
 
+  
   const handleDropdownChange = (itemId: string, capaRuleId: number, value: string) => {
     setSelectedValues((prevState) => {
       // Only update if value actually changed
@@ -205,7 +218,6 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, isEvaluate
                   onChange={(e) => handleDropdownChange(item.id, item.capaRuleId, e.value)}
                   placeholder="Select Status"
                   className="w-full"
-                  disabled={isEvaluatedData}
                 />
 
               </td>

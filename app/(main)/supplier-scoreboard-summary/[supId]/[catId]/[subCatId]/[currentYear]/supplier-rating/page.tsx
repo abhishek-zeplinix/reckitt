@@ -19,9 +19,9 @@ const SupplierRatingPage = () => {
     const [periodOptions, setPeriodOptions] = useState<any>([]);
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [reload, setReload] = useState<boolean>(false);
-
-    console.log(selectedPeriod);
+    const [isApprover, setIsApprover] = useState(false)
     
+
     const urlParams = useParams();
     const { supId, catId, subCatId, currentYear } = urlParams;
     const { setLoading, setAlert } = useAppContext();
@@ -39,20 +39,6 @@ const SupplierRatingPage = () => {
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-    console.log('category', category);
-
-    //fetch department api
-    // const fetchDepartments = async () => {
-
-    //     try {
-    //         const response = await GetCall('/company/department');
-    //         setDepartments(response.data);
-    //         return response.data;
-
-    //     } catch (error) {
-    //         setAlert('error', 'Failed to fetch departments');
-    //     }
-    // };
 
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
@@ -72,7 +58,6 @@ const SupplierRatingPage = () => {
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/company/supplier?${queryString}`);
-            console.log('fetch indivisual supplier data', response.data[0]);
 
             setSupplierData(response.data[0]);
 
@@ -108,8 +93,7 @@ const SupplierRatingPage = () => {
 
             setSupplierScoreData(response.data);
 
-            console.log(response.data);
-            
+
             return response.data;
 
         } catch (error) {
@@ -143,7 +127,6 @@ const SupplierRatingPage = () => {
                 const supplierDetails = await fetchSupplierData();
 
 
-                console.log('sdetails', supplierDetails);
 
 
                 // Check if supplier has been evaluated for the selected department
@@ -179,15 +162,14 @@ const SupplierRatingPage = () => {
             if (!isPeriodValid) return;
 
             setLoading(true);
-
             try {
 
                 const scoreData = await fetchSupplierScore();
 
                 // If no score data exists for this period, fetch default rules
-                if (!scoreData || scoreData.length === 0) {
-                    await fetchRules();
-                }
+                // if (!scoreData || scoreData.length === 0) {
+                await fetchRules();
+                // }
 
             } catch (error) {
                 // Error handled in respective fetch functions
@@ -217,7 +199,6 @@ const SupplierRatingPage = () => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
 
-            console.log('current dep', currentDepartment);
 
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
@@ -368,8 +349,7 @@ const SupplierRatingPage = () => {
     const renderSummoryInfo = summoryCards();
 
     // console.log(departments);
-    console.log(selectedDepartment);
-    console.log(selectedPeriod);
+   
 
     const dataPanel = () => {
         return (
@@ -413,7 +393,7 @@ const SupplierRatingPage = () => {
                     {/* {rules && <SupplierEvaluationTable rules={rules} category={category} evaluationPeriod={selectedPeriod} categoryName={categoryName} departmentId={selectedDepartment} department={activeTab} />} */}
 
 
-                    { supplierData?.supplierScores?.some(
+                    {/* { supplierData?.supplierScores?.some(
                             (score: any) =>
                                 score.departmentId === selectedDepartment &&
                                 score.evalutionPeriod === selectedPeriod
@@ -450,6 +430,27 @@ const SupplierRatingPage = () => {
                                 onSuccess={() => setReload(!reload)} 
                             />
                         )
+                    )} */}
+
+                    {rules && (
+                        <SupplierEvaluationTable
+                            rules={rules} // Always pass rules
+                            supplierScoreData={supplierScoreData} // Pass the score data separately
+                            category={category}
+                            evaluationPeriod={selectedPeriod}
+                            categoryName={categoryName}
+                            departmentId={selectedDepartment}
+                            department={activeTab}
+                            isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
+                            onSuccess={() => setReload(!reload)}
+                            totalScoreEvaluated={
+                                supplierData?.supplierScores?.find(
+                                    (score: any) =>
+                                        score.departmentId === selectedDepartment &&
+                                        score.evalutionPeriod === selectedPeriod
+                                )?.totalScore
+                            }
+                        />
                     )}
 
                 </div>

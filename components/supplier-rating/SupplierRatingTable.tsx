@@ -2,14 +2,18 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { Badge } from 'primereact/badge';
+import { Checkbox } from 'primereact/checkbox';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Skeleton } from 'primereact/skeleton';
 
-const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department, isEvaluatedData, totalScoreEvaluated, onSuccess }: any) => {
+
+const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department, totalScoreEvaluated, onSuccess, supplierScoreData, isEvaluatedData }: any) => {
 
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
@@ -19,82 +23,203 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   const [totalScore, setTotalScore] = useState<any>(0);
   const [comments, setComments] = useState('');
   const [capaData, setCapaData] = useState<any[]>([]);
-  // const [isAnyCapaEmpty, setIsAnyCapaEmpty] = useState<boolean>(false);
+  const [criteriaCount, setCriteriaCount] = useState(0);
+  const [evaluatedCriteriaCount, setEvaluatedCriteriaCount] = useState(0);
+  const [capaDataCount, setCapaDataCount] = useState(0);
+  const [capaDataCompletedCount, setCapaDataCompletedCount] = useState(0);
+  const [defaultPercentages, setDefaultPercentages] = useState<any>({});
+  const [isCompleted, setIsCompleted] = useState<any>('pending');
 
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
 
+  const dropdownRef = useRef<any>(null);
   const { setLoading, setAlert } = useAppContext();
 
-  // Reset initialization when category changes
+  const [loading, setLoading2] = useState(true); 
+
+  // update function to check CAPA data status
+  const checkCapaDataStatus = (data: any[]) => {
+    if (!data || data.length === 0) return { count: 0, completedCount: 0 };
+
+    const totalCapaRules = data.length;
+    const completedCapaRules = data.filter(
+      item => item.selectedStatus && item.selectedStatus !== ''
+    ).length;
+
+    setCapaDataCount(totalCapaRules);
+    setCapaDataCompletedCount(completedCapaRules);
+
+    return { count: totalCapaRules, completedCount: completedCapaRules };
+  };
+
+
+  // reset initialization when category changes
   useEffect(() => {
-
-    if (rules && category) {
+    if (rules && category && supplierScoreData) {
+        if(supplierScoreData[0]?.status){
+          setIsCompleted(supplierScoreData[0]?.status);      
+        }
       setTableData(rules);
+      initializeData();
+      setTotalScore(totalScoreEvaluated)
+      const totalCriteria = rules?.sections?.reduce((total: any, section: any) => {
+        return total + section.ratedCriteria.length;
+      }, 0);
 
-      initializeData(rules);
+      setCriteriaCount(totalCriteria);
 
       // fetchCapaRules();
     }
 
-  }, [rules, category]);
+  }, [rules, category, supplierScoreData]);
+
+  useEffect(() => {
+    setLoading2(true)
+    if (rules) {
+      setTimeout(() => {
+        if (dropdownRef.current) {
+          const dropdownInstance = dropdownRef.current;
+          const options = dropdownInstance.props.options;
+
+          if (options && options.length > 1) {
+            const originalValue = dropdownInstance.props.value;
+
+            // Step 1: Simulate selecting the second option
+            const newValue = options[1].value; // Pick second value from options
+            dropdownInstance.props.onChange({ value: newValue });
+
+            // Step 2: Restore the original value after 50ms
+            setTimeout(() => {
+              dropdownInstance.props.onChange({ value: originalValue });
+              setTimeout(() => setLoading2(false), 100);
+            }, 50);
+          }
+        } else {
+          setLoading2(false)
+        }
+      }, 400);
+
+    }
 
 
+
+  }, [rules]);
   //capa rule visibility logic
   //it is based on selectedEvaluations
   const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
-  const isAnyEvaluationEmpty = Object.values(selectedEvaluations).some((value) => value === undefined || value === '');
 
 
+  const initializeData = () => {
+    if (!rules?.sections) return;
 
-  const initializeData = (currentRules: any) => {
     const initialEvals: any = {};
     const initialPercentages: any = {};
+    const defaultPercentages: any = {};
 
-    currentRules?.sections?.forEach((section: any, sIndex: number) => {
+    let initialEvaluatedCount = 0;
+
+    rules.sections.forEach((section: any, sIndex: number) => {
+
       section?.ratedCriteria?.forEach((criteria: any, cIndex: number) => {
         const key = `${sIndex}-${cIndex}`;
 
-        // Set initial evaluation
+        const matchingSection = supplierScoreData[0]?.sections?.find(
+          (s: any) => s.sectionName === section.sectionName
+        );
 
-        //uncomment if you want to initialized with first evaluation
+        const matchingCriteria = matchingSection?.ratedCriteria?.find(
+          (c: any) => c.criteriaName === criteria.criteriaName
+        );
 
-        if (isEvaluatedData) {
-          initialEvals[key] = criteria?.evaluations[0]?.criteriaEvaluation;
+
+        if (matchingCriteria?.evaluations?.[0]?.criteriaEvaluation) {
+
+          // handleEvaluationChange(sIndex, cIndex, matchingCriteria?.evaluations?.[0]?.criteriaEvaluation )
+          // Set initial evaluation
+          initialEvals[key] = matchingCriteria.evaluations[0].criteriaEvaluation;
+
+          // only increment if evaluation is not empty -- to track evaluted count of already evaluated data
+          if (matchingCriteria.evaluations[0].criteriaEvaluation !== '') {
+            initialEvaluatedCount++;
+          }
+
+
+          // Determine the percentage based on the current evaluation
+          const currentEvaluation = matchingCriteria?.evaluations?.find(
+            (e: any) => e.criteriaEvaluation === initialEvals[key]
+          );
+
+
+          // Use the appropriate ratio based on the category
+          initialPercentages[key] = currentEvaluation?.[category] ?? 0;
+
+
         } else {
-          initialEvals[key] = criteria?.evaluations.criteriaEvaluation;
 
+          initialEvals[key] = '';
+          // initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
+          initialPercentages[key] = criteria.evaluations[0]?.[category] ?? 0;
         }
-        // Set initial percentage
-        //here category is either rawPack or copack..it coming as a prop
-        const categoryValue = criteria?.evaluations?.[0]?.[category];
 
-        console.log(categoryValue);
-
-        initialPercentages[key] = categoryValue ?? 0;
+        // NEW: Store default percentages for restoration later
+        defaultPercentages[key] = criteria.evaluations[0]?.[category] ?? 0;
 
       });
     });
+
+    setEvaluatedCriteriaCount(initialEvaluatedCount);
+
+    // Similar logic for CAPA data if it exists
+    if (isEvaluatedData && supplierScoreData[0]?.capa) {
+      const initialCapaCompletedCount = supplierScoreData[0].capa.filter(
+        (item: any) => item.selectedStatus && item.selectedStatus !== ''
+      ).length;
+
+      setCapaDataCount(supplierScoreData[0].capa.length);
+      setCapaDataCompletedCount(initialCapaCompletedCount);
+    }
 
     setSelectedEvaluations(initialEvals);
     setOriginalPercentages(initialPercentages);
     setCurrentPercentages(initialPercentages);
 
     const roundedPercentages = distributeRoundedPercentages(initialPercentages);
+
     setDisplayPercentages(roundedPercentages);
-    calculateTotalScore(initialEvals, initialPercentages);
+
+
+
+    // NEW: Store default percentages in state
+    setDefaultPercentages(defaultPercentages);
+
+    calculateTotalScore(initialEvals, roundedPercentages);
+
+
+    // if comments exist in supplierScoreData, set them
+    if (supplierScoreData[0]?.comments) {
+      setComments(supplierScoreData[0].comments);
+    } else {
+      setComments('');
+    }
+
+
   };
+
+
 
   const distributeRoundedPercentages = (percentages: any) => {
     const displayPercentages: any = {};
     const nonNAEntries: string[] = [];
 
-    // first, handle NA values
+    // first, handle NA values and non-NA values
     Object.entries(percentages).forEach(([key, value]) => {
       if (value === 'NA') {
-        displayPercentages[key] = 'NA';
+        displayPercentages[key] = value;  // Keep NA values as is
       } else {
         nonNAEntries.push(key);
+        // Convert the value to a number and store initially
+        displayPercentages[key] = Number(value);
       }
     });
 
@@ -117,10 +242,9 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       usedPercentage += entry.roundedValue;
     });
 
-    // sssecond pass: distribute remaining percentage points
+    // second pass: distribute remaining percentage points
     const remaining = 100 - usedPercentage;
     for (let i = 0; i < remaining; i++) {
-      //cyclic distribution ...in case if remaining is larger than the sortedEntries ..it ensure that index loops back to the start of sortedEntries once it reaches the end...
       displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
     }
 
@@ -133,60 +257,82 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
     let totalToRedistribute = 0;
     let remainingTotal = 0;
 
+
     Object.entries(evaluations).forEach(([key, evalValue]) => {
+      // Skip if evaluation is empty
+      if (!evalValue) {
+        remainingTotal += Number(defaultPercentages[key]) || 0;
+        return;
+      }
+
       const [secIdx, critIdx] = key.split('-').map(Number);
 
-      const evaluation = (tableData?.sections[secIdx].ratedCriteria[critIdx].evaluations as any[]).find((e) => e.criteriaEvaluation === evalValue);
+      const evaluation = (tableData?.sections[secIdx]?.ratedCriteria[critIdx]?.evaluations as any[])
+        .find((e) => e.criteriaEvaluation === evalValue);
 
       if (evaluation?.score === 'NA') {
         naKeys.push(key);
-        totalToRedistribute += originalPercentages[key];
+        // Only add to totalToRedistribute if it's a number
+        const originalValue = Number(defaultPercentages[key]);
+
+        if (!isNaN(originalValue)) {
+          totalToRedistribute += originalValue;
+        }
       } else {
-        remainingTotal += originalPercentages[key];
+        // Only add to remainingTotal if it's a number
+        const originalValue = Number(defaultPercentages[key]);
+
+        if (!isNaN(originalValue)) {
+          remainingTotal += originalValue;
+        }
       }
     });
 
     // if all criteria are NA or no NA selections, return original percentages
     if (naKeys.length === 0 || naKeys.length === Object.keys(evaluations).length) {
-      return { ...originalPercentages };
+      return { ...defaultPercentages };
     }
 
-    // cccalculate new percentages for non-NA criteria
-    const newPercentages = { ...originalPercentages };
+    // Calculate new percentages for non-NA criteria
+    const newPercentages = { ...defaultPercentages };
 
-    // mark NA values first..
+    // Mark NA values
     naKeys.forEach((key) => {
       newPercentages[key] = 'NA';
     });
 
-    // redistribute percentages to non-NA criteria proportionally
+    // Redistribute percentages to non-NA criteria proportionally
     Object.keys(evaluations).forEach((key) => {
       if (!naKeys.includes(key)) {
-        const originalPercentage = originalPercentages[key];
-        const proportion = originalPercentage / remainingTotal;
-        const redistributedAmount = totalToRedistribute * proportion;
-        const newPercentage = originalPercentage + redistributedAmount;
-        newPercentages[key] = Number(newPercentage.toFixed(2));
+        const originalPercentage = Number(defaultPercentages[key]);
+
+        if (!isNaN(originalPercentage)) {
+
+          const proportion = originalPercentage / remainingTotal;
+          const redistributedAmount = totalToRedistribute * proportion;
+          newPercentages[key] = originalPercentage + redistributedAmount;
+        }
       }
     });
 
-    // 3 - eensure total is exactly 100% by adjusting the highest non-NA percentage
-
+    // Ensure total is exactly 100% for non-NA values
     const nonNAKeys = Object.keys(newPercentages).filter((key) => newPercentages[key] !== 'NA');
     if (nonNAKeys.length > 0) {
       let currentTotal = nonNAKeys.reduce((sum, key) => sum + Number(newPercentages[key]), 0);
-      const highestKey = nonNAKeys.reduce((a, b) => (Number(newPercentages[a]) > Number(newPercentages[b]) ? a : b));
+      const highestKey = nonNAKeys.reduce((a, b) =>
+        (Number(newPercentages[a]) > Number(newPercentages[b]) ? a : b)
+      );
 
       if (Math.abs(currentTotal - 100) > 0.01) {
-        // using small threshold for floating point comparison
         const difference = 100 - currentTotal;
-        newPercentages[highestKey] = Number((Number(newPercentages[highestKey]) + difference).toFixed(2));
+        newPercentages[highestKey] = Number(newPercentages[highestKey]) + difference;
       }
     }
 
+    console.log(newPercentages);
+
     return newPercentages;
   };
-
 
 
   const calculateTotalScore = (evaluations: any, percentages: any) => {
@@ -221,15 +367,22 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
   const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
     const key = `${sectionIndex}-${criteriaIndex}`;
+
     const updatedEvals = {
       ...selectedEvaluations,
       [key]: value
     };
 
-    // console.log(updatedEvals);
+    // calculate newly evaluated criteria count
+    const evaluatedCount = Object.values(updatedEvals).filter(
+      (evalv) => evalv !== undefined && evalv !== ''
+    ).length;
+    setEvaluatedCriteriaCount(evaluatedCount);
 
     const updatedPercentages = recalculateAllPercentages(updatedEvals);
     const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
+
+    console.log(updatedEvals);
 
     setSelectedEvaluations(updatedEvals);
     setCurrentPercentages(updatedPercentages);
@@ -237,6 +390,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
     // calculateTotalScore(updatedEvals, updatedPercentages);
     calculateTotalScore(updatedEvals, roundedPercentages);
   };
+
 
   const prepareApiData = () => {
     const sections = tableData?.sections?.map((section: any) => {
@@ -257,7 +411,6 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
             // get the score
             const score = evaluation.score;
-            console.log("category", category);
 
             // prepare the ratio key based on category
             // const ratioKey = category.toLowerCase() === 'copack' ? 'ratiosCopack' : 'ratiosRawpack';
@@ -282,6 +435,32 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
     const subCategoryId = subCatId;
 
+
+    const criteriaStatus = evaluatedCriteriaCount === criteriaCount
+      ? 'Completed'
+      : evaluatedCriteriaCount > 0
+        ? 'In Progress'
+        : 'In Progress';
+
+    // Determine CAPA status (only if total score <= 50)
+    let capaStatus = 'Not Required';
+    if (totalScore <= 50) {
+      capaStatus = capaDataCompletedCount === capaDataCount
+        ? 'Completed'
+        : capaDataCompletedCount > 0
+          ? 'In Progress'
+          : 'In Progress';
+    }
+
+    // Combine overall status
+    const overallStatus = totalScore <= 50
+      ? (criteriaStatus === 'Completed' && capaStatus === 'Completed'
+        ? 'Completed'
+        : 'In Progress')
+      : criteriaStatus;
+
+    console.log(overallStatus);
+
     const apiData = {
       supId,
       departmentId,
@@ -292,6 +471,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       sections,
       totalScore,
       comments,
+      status: overallStatus,
       ...(totalScore <= 50 && { capa: capaData })
     };
 
@@ -299,21 +479,12 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   };
 
   const handleSubmit = async () => {
-    
-    const hasInvalidCapa = capaData.some(item => 
-      !item.selectedStatus || item.selectedStatus.trim() === ''
-    );
-  
-    if (hasInvalidCapa) {
-      setAlert('error', 'must add capa rules');
-      return;
-    }
 
-    
     const apiData = prepareApiData();
+    console.log(apiData);
 
     try {
-
+      setLoading(true)
       const response = await PostCall('/company/supplier-score', apiData);
 
       if (response.code === 'SUCCESS') {
@@ -324,21 +495,41 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
         setAlert('error', response.message)
       }
     } catch (err) {
-
       setAlert('error', "Something Went Wrong!!")
     } finally {
-
+      setLoading(false)
 
     }
 
   };
 
-  
+
   const handleCapaDataChange = (data: any[]) => {
     setCapaData(data);
+    checkCapaDataStatus(data);
+
     console.log(data);
 
   };
+
+
+  const handleCheckboxChange = (item: any) => {
+    // setSelectedCriteria((prev) => {
+    //   const isSelected = prev.some((i) => i.criteria === item.criteria);
+    //   if (isSelected) {
+    //     return prev.filter((i) => i.criteria !== item.criteria);
+    //   } else {
+    //     return [...prev, {
+    //       sectionName: item.sectionName,
+    //       criteria: item.criteria,
+    //       ratio: item.ratio,
+    //       selectedEvaluation: item.selectedEvaluation,
+    //       score: item.score
+    //     }];
+    //   }
+    // });
+  };
+
 
 
   return (
@@ -350,7 +541,18 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       <div className="min-w-[800px]">
         <div className='flex justify-content-start'>
 
-          {isEvaluatedData ? <Badge value="Evaluated" severity="success"></Badge> : '' }
+          {/* {isEvaluatedData ? <Badge value="Evaluated" severity="success"></Badge> : ''} */}
+
+          <Badge value="Rules Status" severity="success" className='mr-3'></Badge>
+          <Badge value={criteriaCount} severity="danger"></Badge>/
+          <Badge value={evaluatedCriteriaCount} severity="danger"></Badge>
+          <div className='mx-2'>
+            |
+          </div>
+          <Badge value="CAPA Status" severity="success" className='mr-3'></Badge>
+          <Badge value={capaDataCount} severity="warning"></Badge>/
+          <Badge value={capaDataCompletedCount} severity="warning"></Badge>
+
         </div>
 
         <table className="min-w-full bg-white border">
@@ -381,6 +583,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                   const selectedEval = selectedEvaluations[key];
                   const currentPercentage = currentPercentages[key];
 
+
                   //if no evaluation is selected, 'NA' will be assigned to score by default
                   const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
 
@@ -398,25 +601,31 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                         </td>
                       )}
 
-                      <td className="px-4 py-2 text-md text-gray-500">{criteria.criteriaName}</td>
+                      <td className="px-4 py-2 text-md text-gray-500"><Checkbox onChange={e => handleCheckboxChange(section)} checked={score < 5} className='mx-2'></Checkbox>
+                        {criteria.criteriaName}</td>
 
-                      <td className="px-4 py-2">
-                        <InputText
-                          type="text"
-                          value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
-                          size={1}
-                          readOnly
-                          className='m-auto text-center'
-                        />
-                      </td>
-
+                      {
+                        loading ? <Skeleton  width="5rem"/>
+                          :
+                          <td className="px-4 py-2">
+                            <InputText
+                              type="text"
+                              value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
+                              size={1}
+                              readOnly
+                              className='m-auto text-center'
+                            />
+                            {loading && <ProgressSpinner className="p-ml-2" />} {/* Show the spinner */}
+                          </td>
+                      }
 
                       <td className="px-4 py-2">
                         <Dropdown
+                          ref={dropdownRef}
                           value={selectedEval}
                           onChange={(e) => handleEvaluationChange(sectionIndex, criteriaIndex, e.value)}
                           options={[
-                            { label: "-- Select an Evaluation --", value: "" }, // for defaukt option, so user can select default again..
+                            // { label: "-- Select an Evaluation --", value: "" }, // for defaukt option, so user can select default again..
                             ...criteria.evaluations.map((evaluation: any) => ({
                               label: evaluation.criteriaEvaluation,
                               value: evaluation.criteriaEvaluation,
@@ -425,13 +634,12 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                           placeholder="-- Select an Evaluation --"
                           className="w-full md:w-14rem"
                           showClear
-                          pt={{
-                            item: ({ selected }: any) => ({
-                              className: selected ? 'bg-primary-100' : undefined
-                            })
-                          }}
+                        // pt={{
+                        //   item: ({ selected }: any) => ({
+                        //     className: selected ? 'bg-primary-100' : undefined
+                        //   })
+                        // }}
 
-                          disabled={isEvaluatedData}
                         />
 
                       </td>
@@ -466,21 +674,23 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
               </>
             ))}
 
+            {/* {isEvaluatedData ? */}
+{/*             
             {isEvaluatedData ?
-              <tr style={{ backgroundColor: totalScoreEvaluated <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
+              <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
                 <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
                   Total Score:
                 </td>
-                <td className="px-4 py-3 font-bold text-lg">{totalScoreEvaluated}</td>
-              </tr> :
+                <td className="px-4 py-3 font-bold text-lg">{totalScore}</td>
+              </tr> : */}
 
               <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
                 <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
                   Total Score:
                 </td>
-                <td className="px-4 py-3 font-bold text-lg">{totalScore.toFixed(2)}</td>
+                <td className="px-4 py-3 font-bold text-lg">{totalScore}</td>
               </tr>
-            }
+            {/* } */}
 
 
           </tbody>
@@ -501,43 +711,33 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
         <div>
           <div className='py-2 text-dark font-medium'>Key Comments / Summary: </div>
 
-          {
-            isEvaluatedData ? 
-            <InputTextarea rows={5} cols={30} value={rules?.comments}
-            disabled={isEvaluatedData} /> :
-            <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={comments}
-            disabled={isEvaluatedData} />
-          }
 
-         
+          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={comments}
+          />
+
+
         </div>
 
       </div>
 
 
-      {/* if CAPA is required */}
-
       {
         isEvaluatedData ?
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScoreEvaluated <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={rules?.capa} isEvaluatedData />}
+            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} isEvaluatedData setCapaDataCount={setCapaDataCount} />}
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} isEvaluatedData={false} />}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} isEvaluatedData={false} setCapaDataCount={setCapaDataCount} />}
           </div>
 
       }
 
-      <div className='flex justify-content-end gap-3 mt-1 p-3'>
-        {
-          !isEvaluatedData &&
-            <>
-            <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isAnyEvaluationEmpty}
-            />
-          </>
-        }
 
+
+      <div className='flex justify-content-end gap-3 mt-1 p-3'>
+
+        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
 
       </div>
     </div>
