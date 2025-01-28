@@ -4,24 +4,24 @@ import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/render
 const styles = StyleSheet.create({
     page: {
         padding: 5,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#ffffff'
     },
     section: {
         marginBottom: 20,
-        padding: 10,
+        padding: 10
     },
     header: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
         color: '#333333',
-        textAlign: 'center',
+        textAlign: 'center'
     },
     subHeader: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 15,
-        color: '#444444',
+        color: '#444444'
     },
     infoGrid: {
         flexDirection: 'row',
@@ -39,12 +39,12 @@ const styles = StyleSheet.create({
     infoRow: {
         marginBottom: 8,
         borderBottom: 1,
-        borderColor: '#EAEAEA',
+        borderColor: '#EAEAEA'
     },
     label: {
         fontSize: 10,
         color: '#666666',
-        marginBottom: 4,
+        marginBottom: 4
     },
     value: {
         fontSize: 10,
@@ -53,28 +53,28 @@ const styles = StyleSheet.create({
     },
     graphsContainer: {
         height: 400,
-        marginTop: 20,
+        marginTop: 20
     },
     graphSection: {
-        marginBottom: 30,
+        marginBottom: 30
     },
     graphTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: '#444444',
+        color: '#444444'
     },
     graph: {
         width: '100%',
         height: 300,
-        marginBottom: 10,
+        marginBottom: 10
     },
     graphCaption: {
         fontSize: 12,
         color: '#666666',
-        textAlign: 'center',
+        textAlign: 'center'
     },
-   
+
     footer: {
         position: 'absolute',
         bottom: 30,
@@ -82,18 +82,18 @@ const styles = StyleSheet.create({
         right: 30,
         textAlign: 'center',
         color: '#666666',
-        fontSize: 10,
+        fontSize: 10
     },
     cellWrapper: {
         flex: 1,
         padding: 4,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     scoreContainer: {
         borderRadius: 6,
         padding: '2px 8px 4px 8px',
-        alignSelf: 'center',
+        alignSelf: 'center'
     },
     scoreText: {
         fontSize: 10,
@@ -101,13 +101,12 @@ const styles = StyleSheet.create({
         fontFamily: 'Helvetica-Bold'
     },
     iconContainer: {
-        marginLeft: 4,
+        marginLeft: 4
     },
-
 
     ratingsTable: {
         marginTop: 20,
-        width: '100%', // Ensure it takes full width
+        width: '100%' // Ensure it takes full width
     },
     tableHeader: {
         flexDirection: 'row',
@@ -117,7 +116,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: '#E5E7EB',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     tableRow: {
         flexDirection: 'row',
@@ -126,18 +125,18 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: '#E5E7EB',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     tableCell: {
         flex: 1,
         fontSize: 12,
         color: '#333333',
-        textAlign: 'center', // Align text properly
+        textAlign: 'center' // Align text properly
     },
     depCell: {
         flex: 1,
         fontSize: 12,
-        color: '#DF177C',
+        color: '#DF177C'
         // textAlign: 'center',
     },
 
@@ -145,28 +144,25 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 12,
         color: '#333333',
-        textAlign: 'left',
+        textAlign: 'left'
     },
     leftColumn: {
         flex: 1,
         padding: 10,
         borderRightWidth: 1, // Right border for left column
-        borderColor: '#EAEAEA',
+        borderColor: '#EAEAEA'
     },
     rightColumn: {
         flex: 1,
-        padding: 10,
+        padding: 10
     },
     separatorLine: {
         width: 1, // Thin vertical separator
-        backgroundColor: '#EAEAEA',
-    },
-
-
+        backgroundColor: '#EAEAEA'
+    }
 });
 
 const getBackgroundColor = (percentage: any) => {
-
     if (percentage >= 90) {
         return '#48BB78'; // Green
     } else if (percentage >= 70) {
@@ -177,7 +173,6 @@ const getBackgroundColor = (percentage: any) => {
         return '#F56565'; // Red
     }
 };
-
 
 const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterlyData, halfYearlyData, selectedYear }: any) => {
     const formatDate = (timestamp: string) => {
@@ -192,9 +187,7 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
         return (
             <View style={styles.cellWrapper}>
                 <View style={[styles.scoreContainer, { backgroundColor }]}>
-                    <Text style={styles.scoreText}>
-                        {value}
-                    </Text>
+                    <Text style={styles.scoreText}>{value}</Text>
                     {percentage <= 50 && (
                         <View style={styles.iconContainer}>
                             <Icon />
@@ -204,7 +197,6 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
             </View>
         );
     };
-
 
     const Icon = () => (
         <svg width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -218,9 +210,8 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
                     </g>
                 </g>
             </g>
-
         </svg>
-    )
+    );
 
     const parsePercentage = (value: any) => {
         if (!value) return 0;
@@ -228,7 +219,6 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
 
         return isNaN(num) ? 0 : num;
     };
-
 
     return (
         <Document>
@@ -239,33 +229,36 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
                 <View style={styles.infoGrid}>
                     {/* Left Grid */}
                     <View style={[styles.infoColumn, styles.leftColumn]}>
-
-                    <View style={styles.infoRow}>
-                            <Text style={styles.label}>Supplier Name:
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>
+                                Supplier Name:
                                 <Text style={styles.value}>{supplierData?.supplierName || 'N/A'}</Text>
                             </Text>
                         </View>
 
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Supplier ID:
+                            <Text style={styles.label}>
+                                Supplier ID:
                                 <Text style={styles.value}>{supplierData?.supId || 'N/A'}</Text>
                             </Text>
                         </View>
 
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Category:
+                            <Text style={styles.label}>
+                                Category:
                                 <Text style={styles.value}>{supplierData?.category?.categoryName || 'N/A'}</Text>
                             </Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Sub-Category:
+                            <Text style={styles.label}>
+                                Sub-Category:
                                 <Text style={styles.value}>{supplierData?.subCategories?.subCategoryName || 'N/A'}</Text>
                             </Text>
                         </View>
-                      
-                       
+
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Supplier Manufacturer Name:
+                            <Text style={styles.label}>
+                                Supplier Manufacturer Name:
                                 <Text style={styles.value}>{supplierData?.supplierManufacturerName || 'N/A'}</Text>
                             </Text>
                         </View>
@@ -277,28 +270,31 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
                     {/* Right Grid */}
                     <View style={[styles.infoColumn, styles.rightColumn]}>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Warehouse Location:
+                            <Text style={styles.label}>
+                                Warehouse Location:
                                 <Text style={styles.value}>{supplierData?.warehouseLocation || 'N/A'}</Text>
                             </Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Assessment Pending:
+                            <Text style={styles.label}>
+                                Assessment Pending:
                                 <Text style={styles.value}>N/A</Text>
                             </Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Onboarding Date:
+                            <Text style={styles.label}>
+                                Onboarding Date:
                                 <Text style={styles.value}>{formatDate(supplierData?.createdAt)}</Text>
                             </Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Supplier Tier:
+                            <Text style={styles.label}>
+                                Supplier Tier:
                                 <Text style={styles.value}>N/A</Text>
                             </Text>
                         </View>
                     </View>
                 </View>
-
 
                 <View style={styles.ratingsTable}>
                     <View style={styles.tableHeader}>
@@ -353,14 +349,10 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
                             <Text style={styles.tableCell}>{rating.action}</Text>
                         </View>
                     ))}
-
                 </View>
-
-
 
                 {/* Performance Graphs */}
                 <View style={styles.graphsContainer}>
-
                     {chartImage && (
                         <View style={styles.graphSection}>
                             <Text style={styles.graphTitle}></Text>
@@ -370,11 +362,8 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
                     )}
                 </View>
 
-
                 {/* Footer */}
-                <Text style={styles.footer}>
-                    Reckitt &copy; 2025
-                </Text>
+                <Text style={styles.footer}>Reckitt &copy; 2025</Text>
             </Page>
         </Document>
     );
