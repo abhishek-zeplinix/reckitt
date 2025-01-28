@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
-import CustomDataTable from '../CustomDataTable';
+import CustomDataTable, { CustomDataTableRef } from '../CustomDataTable';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
@@ -32,25 +32,26 @@ const Routes = () => {
     const [selectedRoute, setSelectedRoute] = useState<any>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [specificRoutePermissions, setSpecificRoutePermissions] = useState<any>([]);
+    const dataTableRef = useRef<CustomDataTableRef>(null);
+
 
     useEffect(() => {
-        fetchRoutes();
+        fetchData();
         fetchPermissionData();
     }, []);
 
-    const fetchRoutes = async (routesParams?: any) => {
+    const fetchData = async (params?: any) => {
         setLoading(true);
 
         try {
-            if (!routesParams) {
-                routesParams = { limit: limit, page: page };
+            if (!params) {
+                params = { limit: limit, page: page };
             }
 
-            setPage(routesParams.page);
+            const queryString = buildQueryParams(params);
 
-            console.log(routesParams);
-
-            const queryString = buildQueryParams(routesParams);
+            console.log(queryString);
+            
 
             const response = await GetCall(`/settings/routes?${queryString}`);
 
@@ -200,7 +201,7 @@ const Routes = () => {
         <>
             <div className="mt-1">
                 <CustomDataTable
-                    ref={routeList}
+                    ref={dataTableRef}
                     // filter
                     page={page}
                     limit={limit} // no of items per page
@@ -208,11 +209,7 @@ const Routes = () => {
                     isView={true}
                     isEdit={false} // show edit button
                     isDelete={false} // show delete button
-                    data={routeList?.map((item: any) => ({
-                        routeId: item?.routeId,
-                        method: item?.method,
-                        path: item?.path
-                    }))}
+                    data={routeList}
                     columns={[
                         // {
                         //     header: 'Route ID',
@@ -247,7 +244,7 @@ const Routes = () => {
                             filterPlaceholder: 'API Path'
                         }
                     ]}
-                    onLoad={(params: any) => fetchRoutes(params)}
+                    onLoad={(params: any) => fetchData(params)}
                     onView={(item: any) => onRowSelect(item, 'view')}
                 />
             </div>
