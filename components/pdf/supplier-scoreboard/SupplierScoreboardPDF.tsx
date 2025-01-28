@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { getBackgroundColor } from '@/utils/utils';
 
 const styles = StyleSheet.create({
     page: {
@@ -130,13 +131,25 @@ const styles = StyleSheet.create({
     tableCell: {
         flex: 1,
         fontSize: 12,
+        color: 'black',
+        textAlign: 'center' // Align text properly
+    },
+    textCell: {
+        flex: 1,
+        fontSize: 12,
+        color: '#333333',
+        textAlign: 'center' // Align text properly
+    },
+    textCell: {
+        flex: 1,
+        fontSize: 12,
         color: '#333333',
         textAlign: 'center' // Align text properly
     },
     depCell: {
         flex: 1,
         fontSize: 12,
-        color: '#DF177C'
+        color: '#DF1740'
         // textAlign: 'center',
     },
 
@@ -161,18 +174,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#EAEAEA'
     }
 });
-
-const getBackgroundColor = (percentage: any) => {
-    if (percentage >= 90) {
-        return '#48BB78'; // Green
-    } else if (percentage >= 70) {
-        return '#EC934B'; // Orange
-    } else if (percentage >= 50) {
-        return '#ECC94B'; // Yellow
-    } else {
-        return '#F56565'; // Red
-    }
-};
 
 const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterlyData, halfYearlyData, selectedYear }: any) => {
     const formatDate = (timestamp: string) => {
@@ -345,8 +346,8 @@ const SupplierScoreboardPDF = ({ supplierData, ratingsData, chartImage, quarterl
                         <View key={index} style={styles.tableRow}>
                             <Text style={styles.rateCell}>{rating.name}</Text>
                             <ScoreCell value={rating.status1} />
-                            <Text style={styles.tableCell}>{rating.remark}</Text>
-                            <Text style={styles.tableCell}>{rating.action}</Text>
+                            <Text style={styles.textCell}>{rating.remark}</Text>
+                            <Text style={styles.textCell}>{rating.action}</Text>
                         </View>
                     ))}
                 </View>

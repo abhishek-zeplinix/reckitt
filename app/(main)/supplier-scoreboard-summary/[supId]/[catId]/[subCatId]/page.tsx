@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { buildQueryParams } from '@/utils/utils';
+import { buildQueryParams, getBackgroundColor } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { useParams } from 'next/navigation';
 import { GetCall } from '@/app/api-config/ApiKit';
@@ -41,35 +41,39 @@ const SupplierScoreboardTables = () => {
     const [pdfReady, setPdfReady] = useState(false);
 
     console.log(supplierScore);
-    
+
 
     useEffect(() => {
         const captureChartAsImage = async () => {
+            if (!chartRef.current) return;
 
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            // Wait for charts to render completely
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise(resolve => setTimeout(resolve, 500)); // Increased timeout
 
-            if (chartRef.current) {
-                const canvas = await html2canvas(chartRef.current, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: "#ffffff",
-                    logging: false,
-                });
+            const canvas = await html2canvas(chartRef.current, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: "#ffffff",
+                logging: false,
+            });
 
-                setChartImage(canvas.toDataURL("image/png", 1.0)); //store the captured graph
-            }
+            setChartImage(canvas.toDataURL("image/png", 1.0)); //store the captured graph
+
         };
 
-        captureChartAsImage();
+        if (!pdfReady) {
+            captureChartAsImage();
+        }
 
     }, [ratingsData, selectedYear]);
 
     useEffect(() => {
         if (chartImage) {
-            setPdfReady(true);
+            setPdfReady(!!chartImage);
         }
     }, [chartImage]);
-    
+
 
     useEffect(() => {
         fetchData();
@@ -168,7 +172,13 @@ const SupplierScoreboardTables = () => {
         }
     }, [supplierScore, departments]);
 
-
+    // Add cleanup for chart image
+    useEffect(() => {
+        return () => {
+            setChartImage(null);
+            setPdfReady(false);
+        };
+    }, [selectedYear]);
 
 
     const processData = () => {
@@ -242,17 +252,7 @@ const SupplierScoreboardTables = () => {
         const status = rowData[field];
         const percentage = parseInt(status);
 
-
-        let backgroundColor;
-        if (percentage >= 90) {
-            backgroundColor = '#48BB78';
-        } else if (percentage >= 70) {
-            backgroundColor = '#EC934B';
-        } else if (percentage >= 50) {
-            backgroundColor = '#ECC94B';
-        } else {
-            backgroundColor = '#F56565';
-        }
+        const backgroundColor = getBackgroundColor(percentage);
 
         return (
             <Tag
@@ -271,17 +271,7 @@ const SupplierScoreboardTables = () => {
         const status = rowData[field];
         const percentage = parseInt(status);
 
-
-        let backgroundColor;
-        if (percentage >= 90) {
-            backgroundColor = '#48BB78';
-        } else if (percentage >= 70) {
-            backgroundColor = '#EC934B';
-        } else if (percentage >= 50) {
-            backgroundColor = '#ECC94B';
-        } else {
-            backgroundColor = '#F56565';
-        }
+        const backgroundColor = getBackgroundColor(percentage);
 
         const handleIconClick = (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -290,12 +280,11 @@ const SupplierScoreboardTables = () => {
                 ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}`
                 : `Quarterly-${field.slice(1)}-${selectedYear}`;
 
-
             const depId = (departments as any[])?.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || '';
 
             fetchSpecificSupplierWithLessScore(depId, period);
 
-            if(evaluationData){
+            if (evaluationData) {
                 setDialogVisible(true);
             }
 
@@ -438,26 +427,25 @@ const SupplierScoreboardTables = () => {
                 </div>
 
                 <div className="flex justify-content-end">
-                    <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} />
+                    {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     {/* <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }}
                     /> */}
 
-                    
-                <PDFDownloadLink
-                    document={<SupplierScoreboardPDF supplierData={supplierData} ratingsData={ratingsData} selectedYear={selectedYear} chartImage={chartImage} quarterlyData={quarterlyData} halfYearlyData={halfYearlyData} />}
-                    fileName={`Supplier-scoreboard-summary-${supId}.pdf`}
-                    style={{ color: 'white', marginLeft: 10 }}
-                >
+
+                    <PDFDownloadLink
+                        document={<SupplierScoreboardPDF supplierData={supplierData} ratingsData={ratingsData} selectedYear={selectedYear} chartImage={chartImage} quarterlyData={quarterlyData} halfYearlyData={halfYearlyData} />}
+                        fileName={`Supplier-scoreboard-summary-${supId}.pdf`}
+                        style={{ color: 'white', marginLeft: 10 }}
+                    >
                         <Button
                             icon="pi pi-download"
                             size="small"
-                            // label={loading ? "Generating PDF..." : "Download PDF"}
                             label='Donwload PDF'
-                            className="bg-pink-500 border-pink-500 hover:text-white"
+                           className="default-button"
                             aria-label="Donwload PDF"
                             disabled={!pdfReady}
                         />
-                </PDFDownloadLink>
+                    </PDFDownloadLink>
 
                 </div>
 
@@ -608,8 +596,8 @@ const SupplierScoreboardTables = () => {
                 {
                     label: 'Rating',
                     data: ratingValues,
-                    backgroundColor: '#DF1740',
-                    borderColor: '#DF1740',
+                    backgroundColor: '#1F77B4',
+                    borderColor: '#1F77B4',
                     borderWidth: 1,
                     barThickness: 100
                 }
@@ -620,15 +608,15 @@ const SupplierScoreboardTables = () => {
         const periods = [`Q1 ${selectedYear}`, `Q2/H1 ${selectedYear}`, `Q3 ${selectedYear}`, `Q4/H2 ${selectedYear}`];
 
         const departmentColors: any = {
-            'procurement': '#2196F3',
-            'sustainability': '#F44336',
-            'planning': '#FFA600',
-            'quality': '#4CAF50',
-            'development': '#DF177C'
+            'procurement': '#3F5169',
+            'sustainability': '#FFC60C',
+            'planning': '#EC7D31',
+            'quality': '#00AF50',
+            'development': '#00ADF0'
         };
 
         const datasets: any = [];
-        
+
         // process quarterly departments
         quarterlyData.forEach((dept: any) => {
             const data = periods.map((period) => {
@@ -676,11 +664,10 @@ const SupplierScoreboardTables = () => {
     };
     const { ratingData, lineData } = prepareChartData();
 
-    const GraphsPanel = () => {
+    const GraphsPanel: any = React.memo(() => {
         return (
             <>
                 {/* first chart */}
-                {/* <div ref={chartRef}> */}
                 <div className="flex justify-content-between align-items-start flex-wrap gap-4" ref={chartRef}>
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance Rating per Quarter</h4>
@@ -696,12 +683,11 @@ const SupplierScoreboardTables = () => {
                         <h6 className="text-center">Quarters</h6>
                     </div>
                 </div>
-                {/* </div> */}
             </>
         );
-    };
+    });
 
-    const renderGraphsPanel = GraphsPanel();
+    // const renderGraphsPanel = GraphsPanel;
 
     return (
         <>
@@ -713,7 +699,7 @@ const SupplierScoreboardTables = () => {
                 <div className="col-12">
                     <div>{renderDataPanel}</div>
                 </div>
-                <div className="col-12"><div>{renderGraphsPanel}</div></div>
+                <div className="col-12"><GraphsPanel /></div>
             </div>
 
         </>
