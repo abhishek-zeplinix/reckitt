@@ -138,7 +138,6 @@ const SupplierScoreboardTables = () => {
             if (response.code == 'SUCCESS') {
 
                 const flatData = response.data.flatMap((section: any) =>
-                const flatData = response.data.flatMap((section: any) =>
                     section.ratedCriteria.map((criteria: any) => ({
                         type: section.sectionName,
                         criteria: criteria.criteriaName,
@@ -629,8 +628,7 @@ const SupplierScoreboardTables = () => {
         };
 
         const datasets: any = [];
-        const datasets: any = [];
-
+        
         // process quarterly departments
         quarterlyData.forEach((dept: any) => {
             const data = periods.map((period) => {
@@ -644,7 +642,6 @@ const SupplierScoreboardTables = () => {
             datasets.push({
                 label: dept.name,
                 data: data,
-                backgroundColor: departmentColors[dept.name.toLowerCase()],
                 backgroundColor: departmentColors[dept.name.toLowerCase()],
                 borderColor: departmentColors[dept.name.toLowerCase()],
                 borderWidth: 1,
