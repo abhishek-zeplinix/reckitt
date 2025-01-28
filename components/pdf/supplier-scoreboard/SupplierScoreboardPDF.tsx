@@ -140,12 +140,6 @@ const styles = StyleSheet.create({
         color: '#333333',
         textAlign: 'center' // Align text properly
     },
-    textCell: {
-        flex: 1,
-        fontSize: 12,
-        color: '#333333',
-        textAlign: 'center' // Align text properly
-    },
     depCell: {
         flex: 1,
         fontSize: 12,
