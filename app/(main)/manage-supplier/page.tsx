@@ -724,7 +724,7 @@ const ManageSupplierPage = () => {
                                 <InputTextarea
                                     id="name"
                                     // type='text'
-                                    onChange={(e: any) => {}}
+                                    onChange={(e) => setReason(e.target.value)}
                                     placeholder="Enter Reason"
                                     className="p-inputtext w-full"
                                 />
