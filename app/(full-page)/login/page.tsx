@@ -19,9 +19,18 @@ const LoginPage = () => {
     const [checked, setChecked] = useState(false);
     const { layoutConfig, layoutState } = useContext(LayoutContext);
     const [otpSent, setOtpSent] = useState(false);
+    const [otp, setOtp] = useState<string>('');
     const [role, setRole] = useState('admin');
+    const [isOtpSent, setIsOtpSent] = useState<boolean>(false);
+    const [phoneNumber, setPhoneNumber] = useState<string>('');
+    const [isPhoneNumber, setIsPhoneNumber] = useState<boolean>(false);
     const router = useRouter();
 
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value);
+    const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => setOtp(e.target.value);
+    const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value);
+
+    const toggleInputType = () => setIsPhoneNumber(!isPhoneNumber);
     const handleEmail = (event: any) => {
         setEmail(event.target.value);
     };
@@ -37,7 +46,15 @@ const LoginPage = () => {
     const handlePassword = (event: any) => {
         setPassword(event.target.value);
     };
+    const sendOtp = () => {
+        if (!email) return alert('Please enter your email.');
 
+        setLoading(true);
+        setTimeout(() => {
+            setIsOtpSent(true); // Show OTP field after sending OTP
+            setLoading(false);
+        }, 1000);
+    };
     const loginClick = async () => {
         if (isLoading) {
             return;
@@ -111,23 +128,46 @@ const LoginPage = () => {
                             </label>
                         </div>
                         <div>
-                            <label htmlFor="email" className="block text-900 font-medium mb-2">
-                                Email Address
-                            </label>
-                            <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmail} />
+                            {role === 'user' && (
+                                <div>
+                                    <div className="flex justify-content-between  align-items-center">
+                                        <label htmlFor="email" className="block text-900 font-medium ">
+                                            {isPhoneNumber ? 'Phone Number' : 'Email Address'}
+                                        </label>
+                                        <Button label={isPhoneNumber ? 'Use Email' : 'Use Phone Number'} className="p-button-text text-primary-main" onClick={toggleInputType} />
+                                    </div>
 
+                                    {isPhoneNumber ? (
+                                        <InputText id="phoneNumber" value={phoneNumber} type="text" placeholder="Phone number" className="w-full mb-3" onChange={handlePhoneNumberChange} />
+                                    ) : (
+                                        <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
+                                    )}
+                                    {!isOtpSent && <Button label="Get OTP" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={sendOtp} />}
+                                    {isOtpSent && (
+                                        <div>
+                                            <label htmlFor="otp" className="block text-900 font-medium mb-2">
+                                                Enter OTP
+                                            </label>
+                                            <InputText id="otp" value={otp} type="text" placeholder="Enter OTP" className="w-full mb-3" onChange={handleOtpChange} />
+
+                                            <Button label="Login" icon="pi pi-user" className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={() => alert('Logging in...')} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             <div className=" align-items-center justify-content-between mb-2">
                                 {role === 'admin' && (
                                     <div>
+                                        <label htmlFor="email" className="block text-900 font-medium mb-2">
+                                            Email Address
+                                        </label>
+                                        <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
                                         <div className="flex align-items-center justify-content-between mb-2">
                                             <div className="flex align-items-center">
                                                 <label htmlFor="password" className="block text-900 font-medium ">
                                                     Password
                                                 </label>
                                             </div>
-                                            <Link href="/forgot-password" className="font-bold no-underline ml-2 text-primary-main text-right cursor-pointer">
-                                                Forgot your password?
-                                            </Link>
                                         </div>
                                         <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} />
                                         <div className="flex flex-wrap justify-content-left gap-3 mb-2">
@@ -146,11 +186,10 @@ const LoginPage = () => {
                                                 </label>
                                             </div>
                                         </div>
+                                        <Button label={'Login'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginClick} />
                                     </div>
                                 )}
                             </div>
-
-                            <Button label={role === 'admin' ? 'Login' : 'Get otp'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginClick} />
                         </div>
                     </div>
                 </div>
