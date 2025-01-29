@@ -73,6 +73,9 @@ const ManageSupplierAddEditPage = () => {
     const [subCategory, setSubCategory] = useState<any>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
+    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({}); 
+    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({}); 
 
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
@@ -188,47 +191,77 @@ const ManageSupplierAddEditPage = () => {
             setLoading(false);
         }
     };
+    console.log('192',wordLimitErrors)
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
+        if (typeof name !== "string") return; // Ensure `name` is always a string
+        let errors = { ...formErrors }; // Clone the existing errors object
         if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId' && name !== 'email') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
                 if (name !== 'siteAddress' && name !== 'warehouseLocation') {
                     if (wordCount > 70) {
-                        setAlert('error', 'Word limit exceeded!');
+                        setWordLimitErrors((prevWordErrors) => ({
+                            ...prevWordErrors,
+                            [name]: 'Word limit exceeded!',
+                        }));
                         return;
+                    } else {
+                        // Clear word limit error if condition is no longer met
+                        setWordLimitErrors((prevWordErrors) => {
+                            const updatedErrors = { ...prevWordErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
                     }
                 }
-                if (name === 'supplierNumber') {
-                    const typeValue = typeof val;
-                    if (isNaN(Number(val)) || typeValue !== 'string') {
-                        setAlert('error', 'Phone must be a valid number');
+                if (name === 'supplierNumber' || name === 'Zip') {
+                    if (!/^\d+$/.test(val)) { // Check if value is not a valid number
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'It must be a valid number!',
+                        }));
                         return;
+                    } else {
+                        setNumberErrors((prevNumErrors) => {
+                            const updatedErrors = { ...prevNumErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
                     }
                 }
-                if (name === 'supplierName') {
+                if (name === 'supplierName' || name === 'supplierManufacturerName') {
                     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
                     if (!isAlphabet) {
-                        setAlert('error', 'Supplier Manufacturer Name must contain only alphabets');
+                        setAlphabetErrors((prevAlphaErrors) => ({
+                            ...prevAlphaErrors,
+                            [name]: 'Must contain only alphabets!',
+                        }));
                         return;
+                    } else {
+                        setAlphabetErrors((prevAlphaErrors) => {
+                            const updatedErrors = { ...prevAlphaErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
                     }
                 }
-                if (name === 'supplierManufacturerName') {
-                    const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
-                    if (!isAlphabet) {
-                        setAlert('error', 'Supplier Manufacturer Name must contain only alphabets');
-                        return;
-                    }
-                }
+                // if (name === 'supplierManufacturerName') {
+                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
+                //     if (!isAlphabet) {
+                //         setAlert('error', 'Supplier Manufacturer Name must contain only alphabets');
+                //         return;
+                //     }
+                // }
                 
-                if (name === 'factoryName') {
-                    const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
-                    if (!isAlphabet) {
-                        setAlert('error', 'factory Name must contain only alphabets');
-                        return;
-                    }
-                }
+                // if (name === 'factoryName') {
+                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
+                //     if (!isAlphabet) {
+                //         setAlert('error', 'factory Name must contain only alphabets');
+                //         return;
+                //     }
+                // }
             }
         }
         setForm((prevForm) => {
@@ -353,6 +386,13 @@ const ManageSupplierAddEditPage = () => {
                                     {formErrors.supplierName && (
                                         <p style={{ color: "red" ,fontSize:'10px'}}>{formErrors.supplierName}</p> // Display error message
                                         )}
+                                     {/* Display word limit errors separately */}
+                                    {wordLimitErrors.supplierName && (
+                                        <p style={{ color: "red", fontSize: "10px" }}>{wordLimitErrors.supplierName}</p>
+                                    )}
+                                    {alphabetErrors.supplierName && (
+                                        <p style={{ color: "red", fontSize: "10px" }}>{alphabetErrors.supplierName}</p>
+                                    )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="manufacturerName" className="font-semibold">
@@ -369,6 +409,13 @@ const ManageSupplierAddEditPage = () => {
                                     {formErrors.supplierManufacturerName && (
                                         <p style={{ color: "red",fontSize:'10px' }}>{formErrors.supplierManufacturerName}</p> // Display error message
                                         )}
+                                    {/* Display word limit errors separately */}
+                                    {wordLimitErrors.supplierManufacturerName && (
+                                        <p style={{ color: "red", fontSize: "10px" }}>{wordLimitErrors.supplierManufacturerName}</p>
+                                    )}
+                                    {alphabetErrors.supplierManufacturerName && ( 
+                                        <p style={{ color: "red", fontSize: "10px" }}>{alphabetErrors.supplierManufacturerName}</p>
+                                    )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="factoryName" className="font-semibold">
@@ -378,6 +425,10 @@ const ManageSupplierAddEditPage = () => {
                                     {formErrors.factoryName && (
                                         <p style={{ color: "red",fontSize:'10px' }}>{formErrors.factoryName}</p> // Display error message
                                         )}
+                                    {/* Display word limit errors separately */}
+                                    {wordLimitErrors.factoryName && (
+                                        <p style={{ color: "red", fontSize: "10px" }}>{wordLimitErrors.factoryName}</p>
+                                    )}
                                 </div>
 
                                 <div className="field col-3">
@@ -438,6 +489,9 @@ const ManageSupplierAddEditPage = () => {
                                     {formErrors.supplierNumber && (
                                         <p style={{ color: "red", fontSize:'10px'}}>{formErrors.supplierNumber}</p> // Display error message
                                         )}
+                                    {numberErrors.supplierNumber && ( // ✅ Display number validation errors
+                                        <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.supplierNumber}</p>
+                                    )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="countryId" className="font-semibold">
@@ -482,6 +536,9 @@ const ManageSupplierAddEditPage = () => {
                                     <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full" />
                                     {formErrors.Zip && (
                                         <p style={{ color: "red", fontSize:'10px' }}>{formErrors.Zip}</p> // Display error message
+                                        )}
+                                        {numberErrors.Zip && ( // ✅ Display number validation errors
+                                            <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.Zip}</p>
                                         )}
                                 </div>
                                 <div className="field col-3">
