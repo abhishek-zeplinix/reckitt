@@ -10,11 +10,12 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { Calendar } from 'primereact/calendar';
 import { validateField } from '@/utils/utils';
+import { z } from 'zod';
 
 const CreateNewRulesPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const [orderBy, setorderBy] = useState('');
-    const [capaRulesName, setcapaRulesName] = useState('');
+    const [selectcapaRulesName, setcapaRulesName] = useState('');
     const [status, setstatus] = useState('');
     const searchParams = useSearchParams();
     const isEditMode = searchParams.get('edit') === 'true'; // Check if in edit mode
@@ -31,62 +32,111 @@ const CreateNewRulesPage = () => {
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Capa Rules' : 'New Capa Rules';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add Capa Rules';
-    const handleSubmit = async () => {
-        const userForm = {
-            departmentId: selectedProcurementDepartment || null,
-            orderBy: parseInt(orderBy) || null,
-            categoryId: selectedSupplierCategory || null,
-            subCategoryId: selectedProcurementCategory || null,
-            capaRulesName: capaRulesName || '',
-            status: status || '',
-            effectiveFrom: date || null
-        };
-        let endpoint: string;
-        let response: CustomResponse;
-        if (isEditMode) {
-            if (!validateField(userForm.orderBy)) {
-                setAlert('error', 'OrderBy cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.departmentId)) {
-                setAlert('error', 'Department cannot be empty');
-                return;
-            }
+     const [fields, setFields] = useState({
+            effectiveFrom: null as Date | null,
+            departmentId: null,
+            orderBy: null as number | null,
+            categoryId: null,
+            subCategoryId: null,
+            capaRulesName:'',
+            status:[''],  
+          });
+          // Update common fields on dependency change
+          useEffect(() => {
+              updateCommonFields();
+            }, [
+              date,
+              selectedProcurementDepartment,
+              orderBy,
+              selectedProcurementCategory,
+              selectedSupplierCategory,
+              selectcapaRulesName,
+            ]);
 
-            if (!validateField(userForm.subCategoryId)) {
-                setAlert('error', 'Procurement Category cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.categoryId)) {
-                setAlert('error', 'Supplier Category cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.capaRulesName)) {
-                setAlert('error', 'Capa Rules Name cannot be empty');
-                return;
-            }
-
-            if (!validateField(userForm.status)) {
-                setAlert('error', 'Status cannot be empty');
-                return;
-            }
-            if (!validateField(userForm.effectiveFrom)) {
-                setAlert('error', 'Effective From cannot be empty');
-                return;
-            }
-            endpoint = `/company/caparule/${capaRuleId}`;
-            response = await PutCall(endpoint, userForm);
-            if (response.code === 'SUCCESS') {
-                router.push(`/rules/set-capa-rules&ruleSetId=${ruleSetId}`);
-                setAlert('success', 'CAPA Rules updated.');
-            } else {
-                setAlert('error', response.message);
-            }
-        } else {
-            // Submit data to API
-            onNewAdd(userForm);
+              const updateCommonFields = () => {
+                setFields((prev) => ({
+                  ...prev,
+                  effectiveFrom: date || null,
+                  departmentId: selectedProcurementDepartment || null,
+                  orderBy: parseInt(orderBy) || null,
+                  categoryId: selectedProcurementCategory || null,
+                  subCategoryId: selectedSupplierCategory || null,
+                  capaRulesName:selectcapaRulesName || '',
+                }));
+              };
+              // Update common fields when they change
+              useEffect(() => {
+                  updateCommonFields();
+                }, [date, selectedProcurementDepartment, orderBy, selectedProcurementCategory, selectedSupplierCategory,selectcapaRulesName]);
+             // Add new set of criteriaEvaluation and score
+const handleAddFields = () => {
+    setFields((prev) => ({
+      ...prev,
+    //   capaRulesName: [...prev.capaRulesName, ""],
+      status: [...prev.status, ""],
+    }));
+  };  
+  const handleChange = (
+    index: number,
+    key: "status",
+    value: string
+  ) => {
+    setFields((prev) => {
+      const updatedArray = [...prev[key]];
+      updatedArray[index] = value;
+      return { ...prev, [key]: updatedArray };
+    });
+  };
+  // Remove a field
+const handleRemoveField = (index: number) => {
+    setFields((prev) => ({
+      ...prev,
+    //   capaRulesName: prev.capaRulesName.filter((_, i) => i !== index),
+      status: prev.status.filter((_, i) => i !== index),
+    }));
+  }; 
+  const handleSubmit = async () => {
+    try {
+      console.log('100',fields)
+      // Validate fields using Zod schema
+    //   fieldsSchema.parse(fields);
+  
+      let endpoint: string;
+      let response: CustomResponse;
+  
+      if (isEditMode) {
+        endpoint = `/company/caparule/${capaRuleId}`;
+        try {
+          response = await PutCall(endpoint, fields); // Call PUT API
+          if (response.code === 'SUCCESS') {
+            router.push(`/rules/set-capa-rules&ruleSetId=${ruleSetId}`);
+            setAlert('success', 'CAPA Rules updated.');
+          } else {
+            setAlert('error', response.message);
+          }
+        } catch (error) {
+          setAlert('error', 'Failed to update CAPA Rules. Please try again.');
         }
-    };
+      } else {
+        try {
+          // Submit data for new addition
+          onNewAdd(fields);
+          setAlert('success', 'CAPA Rules added successfully.');
+        } catch (error) {
+          setAlert('error', 'Failed to add CAPA Rules. Please try again.');
+        }
+      }
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        // Handle validation errors
+        const errors = validationError.errors.map((err) => err.message).join(', ');
+        setAlert('error', `Validation failed: ${errors}`);
+      } else {
+        setAlert('error', 'Unexpected error during validation.');
+      }
+    }
+  };
+  
     useEffect(() => {
             fetchprocurementDepartment();
             fetchsupplierCategories();
@@ -169,36 +219,7 @@ const CreateNewRulesPage = () => {
         }
     };
     const onNewAdd = async (userForm: any) => {
-        if (!validateField(userForm.orderBy)) {
-            setAlert('error', 'OrderBy cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.departmentId)) {
-            setAlert('error', 'Department cannot be empty');
-            return;
-        }
-
-        if (!validateField(userForm.subCategoryId)) {
-            setAlert('error', 'Procurement Category cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.categoryId)) {
-            setAlert('error', 'Supplier Category cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.capaRulesName)) {
-            setAlert('error', 'Capa Rules Name cannot be empty');
-            return;
-        }
-
-        if (!validateField(userForm.status)) {
-            setAlert('error', 'Status cannot be empty');
-            return;
-        }
-        if (!validateField(userForm.effectiveFrom)) {
-            setAlert('error', 'Effective From cannot be empty');
-            return;
-        }
+        
         const response: CustomResponse = await PostCall(`/company/caparule`, userForm);
         if (response.code == 'SUCCESS') {
             router.push('rules/set-capa-rules');
@@ -267,20 +288,56 @@ const CreateNewRulesPage = () => {
                                     className="w-full"
                                 />
                             </div>
-
-                            <div className="field col-4">
-                                <label htmlFor="capaRulesName">Capa Rules Name</label>
-                                <input id="capaRulesName" type="text" value={capaRulesName} onChange={(e) => setcapaRulesName(e.target.value)} className="p-inputtext w-full" placeholder="Enter if capa is required" />
-                            </div>
-                            {/* <div className="field col-4">
-                                <label htmlFor="capaRulesName">Complete below if capa is required</label>
-                                <input id="capaRulesName" type="text" value={manufacturerName} onChange={(e) => setManufacturerName(e.target.value)} className="p-inputtext w-full" placeholder="Enter if capa is required" />
-                            </div> */}
-                            <div className="field col-4">
-                                <label htmlFor="status">Status</label>
-                                <input id="status" type="text" value={status} onChange={(e) => setstatus(e.target.value)} className="p-inputtext w-full" placeholder="Enter status" />
-                            </div>
-                            
+                             
+                                                            <div className="field col-4">
+                                                                <label htmlFor='capaRulesName'>Capa Rules Name</label>
+                                                                <input
+                                                                    id='capaRulesName'
+                                                                    type="text"
+                                                                    placeholder="Capa Rules Name"
+                                                                    value={selectcapaRulesName}
+                                                                    onChange={(e) => setcapaRulesName( e.target.value)}
+                                                                    className="p-inputtext w-full"
+                                                                />
+                                                            </div>
+                                                            {fields.status.map((_, index) => (
+                                                        <React.Fragment key={index}>
+                                                            <div className="field col-4">
+                                                                <label htmlFor={`status-${index}`}>Status</label>
+                                                                <input
+                                                                    id={`status-${index}`}
+                                                                    type="text"
+                                                                    placeholder="Status"
+                                                                    value={fields.status[index]}
+                                                                    onChange={(e) => handleChange(index, "status", e.target.value)}
+                                                                    className="p-inputtext w-full"
+                                                                />
+                                                            </div>
+                                                            
+                                                            {fields.status.length>1 && (
+                                                              <>
+                                                            <div className="field col-4">
+                                                            <Button
+                                                                className="p-button-rounded p-button-danger mt-4"
+                                                                icon="pi pi-trash"
+                                                                onClick={() => handleRemoveField(index)}
+                                                            />
+                                                            </div>
+                                                            <div className="field col-4"></div>
+                                                            </>
+                                                            
+                                                            )}
+                                                        </React.Fragment>
+                                                        ))}
+                                                        <div className="field col-4 mt-4">
+                                                        <Button
+                                                            icon="pi pi-plus"
+                                                            // label="Add"
+                                                            onClick={handleAddFields}
+                                                            className="p-button-sm p-button-secondary mb-4 col-2 ml-2"
+                                                        />
+                                                        </div>
+                    
                         </div>
                     </div>
                 </div>

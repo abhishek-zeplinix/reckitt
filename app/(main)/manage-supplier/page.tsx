@@ -691,7 +691,7 @@ const ManageSupplierPage = () => {
                             </div>
                         </div>
                         )}
-                        {selectedBlock?.blockType !== "unblock" && (
+                        {selectedBlock?.blockType !== "unblock" && selectedBlock?.blockType !== null &&(
                         <div className="flex align-items-center flex-column gap-3">
                             <div className="flex align-items-center">
                                 <RadioButton inputId="unblock" name="unblock" value="UnBlock" onChange={(e) => setBlockOption(e.value)}
