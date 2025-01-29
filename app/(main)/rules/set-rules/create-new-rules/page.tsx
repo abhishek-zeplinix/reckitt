@@ -10,6 +10,7 @@ import { CustomResponse, Field } from '@/types';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { validateField } from '@/utils/utils';
 import { Calendar } from 'primereact/calendar';
+import { z } from 'zod';
 
 const CreateNewRulesPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
@@ -36,49 +37,86 @@ const CreateNewRulesPage = () => {
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Rules' : 'Add Rules';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add Rules';
-    const [fields, setFields] = useState<Field[]>([
-        {
-            effectiveFrom:null,
-            departmentId: null,
-            orderBy: null ,
-            section:  '',
-            categoryId:  null,
-            subCategoryId:  null,
-            ratedCriteria: '',
-            criteriaEvaluation: '',
-            score: '',
-            ratiosRawpack: '',
-            ratiosCopack: '',
-        },
-      ]);
+    const [fields, setFields] = useState({
+        effectiveFrom: null as Date | null,
+        departmentId: null,
+        orderBy: null as number | null,
+        section: '',
+        categoryId: null,
+        subCategoryId: null,
+        ratedCriteria: '',
+        ratiosRawpack: '',
+        ratiosCopack: '',
+        criteriaEvaluation: [''], // Initialize with one empty value
+        score: [''],   
+      });
       
-      type FieldKey = 'ratedCriteria' | 'criteriaEvaluation' | 'score' | 'ratiosRawpack' | 'ratiosCopack';
+      // Update common fields on dependency change
+useEffect(() => {
+    updateCommonFields();
+  }, [
+    date,
+    selectedProcurementDepartment,
+    orderBy,
+    selectedsection,
+    selectedProcurementCategory,
+    selectedSupplierCategory,
+    selectedCriteria,
+    selectedratiosRawpack,
+    selectedratiosCopack,
+  ]);
+  const fieldsSchema = z.object({
+    effectiveFrom: z.date().nullable().refine((val) => val !== null, {
+      message: 'Effective date must be in date format',
+    }),
+    departmentId: z.string().min(1, 'Department ID must not be empty'),
+    orderBy: z
+      .number({ invalid_type_error: 'Order By must be a number' })
+      .refine((val) => val > 0, { message: 'Order By must not be empty' }),
+    section: z.string().min(1, 'Section must not be empty'),
+    categoryId: z.string().min(1, 'Category ID must not be empty'),
+    subCategoryId: z.string().min(1, 'Subcategory ID must not be empty'),
+    ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
+    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
+    ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
+    criteriaEvaluation: z
+      .array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    score: z.array(
+      z
+        .string()
+        .min(1, 'Score must not be empty')
+        .refine((val) => !isNaN(Number(val)), {
+          message: 'Score must be a number',
+        })
+    ),
+  });
 
-const handleChange = (index: number, field: FieldKey, value: string) => {
-  const updatedFields = [...fields];
-  updatedFields[index][field] = value;
-  setFields(updatedFields);
-};
+      const handleChange = (
+        index: number,
+        key: "criteriaEvaluation" | "score",
+        value: string
+      ) => {
+        setFields((prev) => {
+          const updatedArray = [...prev[key]];
+          updatedArray[index] = value;
+          return { ...prev, [key]: updatedArray };
+        });
+      };
 // Helper function to ensure all objects in the fields array have common fields updated
+// Update common fields when they change
 const updateCommonFields = () => {
-    const commonFields = {
+    setFields((prev) => ({
+      ...prev,
       effectiveFrom: date || null,
       departmentId: selectedProcurementDepartment || null,
       orderBy: parseInt(orderBy) || null,
       section: selectedsection || '',
       categoryId: selectedProcurementCategory || null,
       subCategoryId: selectedSupplierCategory || null,
-      ratedCriteria:selectedCriteria || '',
-      ratiosRawpack:selectedratiosRawpack || '',
-      ratiosCopack:selectedratiosCopack || ''
-    };
-  
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      ...commonFields,
+      ratedCriteria: selectedCriteria || '',
+      ratiosRawpack: selectedratiosRawpack || '',
+      ratiosCopack: selectedratiosCopack || '',
     }));
-  
-    setFields(updatedFields);
   };
 
   // Update common fields when they change
@@ -88,118 +126,65 @@ useEffect(() => {
   
 
   // Add new set of fields at the end
+// Add new set of criteriaEvaluation and score
 const handleAddFields = () => {
-  const commonFields = {
-    effectiveFrom: date || null,
-    departmentId: selectedProcurementDepartment || null,
-    orderBy: parseInt(orderBy) || null,
-    section: selectedsection || '',
-    categoryId: selectedProcurementCategory || null,
-    subCategoryId: selectedSupplierCategory || null,
-    ratedCriteria:selectedCriteria || '',
-    ratiosRawpack:selectedratiosRawpack || '',
-    ratiosCopack:selectedratiosCopack || ''
+    setFields((prev) => ({
+      ...prev,
+      criteriaEvaluation: [...prev.criteriaEvaluation, ""],
+      score: [...prev.score, ""],
+    }));
   };
-
-  const newFieldSet: Field = {
-    ...commonFields,
-    criteriaEvaluation: '',
-    score: '',
-  };
-
-  setFields([...fields, newFieldSet]);
-};
+// Remove a field
 const handleRemoveField = (index: number) => {
-    setFields(fields.filter((_, i) => i !== index));
-};
+    setFields((prev) => ({
+      ...prev,
+      criteriaEvaluation: prev.criteriaEvaluation.filter((_, i) => i !== index),
+      score: prev.score.filter((_, i) => i !== index),
+    }));
+  };
 console.log('118',fields)
   
 const handleSubmit = async () => {
-    // Validate all fields
-    for (const field of fields) {
-        const {
-            effectiveFrom,
-            departmentId,
-            orderBy,
-            section,
-            categoryId,
-            subCategoryId,
-            ratedCriteria,
-            criteriaEvaluation,
-            score,
-            ratiosRawpack,
-            ratiosCopack,
-        } = field;
-
-        if (!validateField(effectiveFrom)) {
-            setAlert('error', 'effective From cannot be empty');
-            return;
-        }
-        if (!validateField(orderBy)) {
-            setAlert('error', 'OrderBy cannot be empty');
-            return;
-        }
-        if (!validateField(departmentId)) {
-            setAlert('error', 'Department cannot be empty');
-            return;
-        }
-        if (!validateField(categoryId)) {
-            setAlert('error', 'Supplier Category cannot be empty');
-            return;
-        }
-        if (!validateField(subCategoryId)) {
-            setAlert('error', 'Procurement Category cannot be empty');
-            return;
-        }
-        if (!validateField(section)) {
-            setAlert('error', 'Section cannot be empty');
-            return;
-        }
-        if (!validateField(ratedCriteria)) {
-            setAlert('error', 'Criteria cannot be empty');
-            return;
-        }
-        if (!validateField(criteriaEvaluation)) {
-            setAlert('error', 'Criteria evaluation cannot be empty');
-            return;
-        }
-        if (!validateField(score)) {
-            setAlert('error', 'Score cannot be empty');
-            return;
-        }
-        if (!validateField(ratiosCopack)) {
-            setAlert('error', 'Ratios copack cannot be empty');
-            return;
-        }
-        if (!validateField(ratiosRawpack)) {
-            setAlert('error', 'Ratios rawpack cannot be empty');
-            return;
-        }
-    }
-
-
-    if (isEditMode) {
+    try {
+      const parsedFields = {
+        ...fields,
+        orderBy: fields.orderBy ? Number(fields.orderBy) : null,
+      };
+  
+      // Validate fields
+      fieldsSchema.parse(parsedFields);
+  
+      if (isEditMode) {
         const endpoint = `/company/rules/${ruleId}`;
         try {
-            const response: CustomResponse = await PutCall(endpoint, fields); // Call PUT API
-            if (response.code === 'SUCCESS') {
-                router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
-                setAlert('success', 'Rules updated.');
-            } else {
-                setAlert('error', response.message);
-            }
+          const response: CustomResponse = await PutCall(endpoint, fields); // Call PUT API
+          if (response.code === 'SUCCESS') {
+            router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
+            setAlert('success', 'Rules updated.');
+          } else {
+            setAlert('error', response.message);
+          }
         } catch (error) {
-            setAlert('error', 'Failed to update rules. Please try again.');
+          setAlert('error', 'Failed to update rules. Please try again.');
         }
-    } else {
+      } else {
         try {
-            onNewAdd(fields); // Submit data for new addition
-            setAlert('success', 'Rules added successfully.');
+          onNewAdd(fields); // Submit data for new addition
+          setAlert('success', 'Rules added successfully.');
         } catch (error) {
-            setAlert('error', 'Failed to add rules. Please try again.');
+          setAlert('error', 'Failed to add rules. Please try again.');
         }
+      }
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const errors = validationError.errors.map((err) => err.message).join(', ');
+        setAlert('error', `Validation failed: ${errors}`);
+      } else {
+        setAlert('error', 'Unexpected error during validation.');
+      }
     }
-};
+  };
+  
 
     useEffect(() => {
         fetchprocurementDepartment();
@@ -287,66 +272,66 @@ const handleSubmit = async () => {
     };
 
     const onNewAdd = async (userForm: any) => {
-        for (const field of fields) {
-            const {
-                effectiveFrom,
-                departmentId,
-                orderBy,
-                section,
-                categoryId,
-                subCategoryId,
-                ratedCriteria,
-                criteriaEvaluation,
-                score,
-                ratiosRawpack,
-                ratiosCopack,
-            } = field;
+        // for (const field of fields) {
+        //     const {
+        //         effectiveFrom,
+        //         departmentId,
+        //         orderBy,
+        //         section,
+        //         categoryId,
+        //         subCategoryId,
+        //         ratedCriteria,
+        //         criteriaEvaluation,
+        //         score,
+        //         ratiosRawpack,
+        //         ratiosCopack,
+        //     } = field;
     
-            if (!validateField(effectiveFrom)) {
-                setAlert('error', 'effective From cannot be empty');
-                return;
-            }
-            if (!validateField(orderBy)) {
-                setAlert('error', 'OrderBy cannot be empty');
-                return;
-            }
-            if (!validateField(departmentId)) {
-                setAlert('error', 'Department cannot be empty');
-                return;
-            }
-            if (!validateField(categoryId)) {
-                setAlert('error', 'Supplier Category cannot be empty');
-                return;
-            }
-            if (!validateField(subCategoryId)) {
-                setAlert('error', 'Procurement Category cannot be empty');
-                return;
-            }
-            if (!validateField(section)) {
-                setAlert('error', 'Section cannot be empty');
-                return;
-            }
-            if (!validateField(ratedCriteria)) {
-                setAlert('error', 'Criteria cannot be empty');
-                return;
-            }
-            if (!validateField(criteriaEvaluation)) {
-                setAlert('error', 'Criteria evaluation cannot be empty');
-                return;
-            }
-            if (!validateField(score)) {
-                setAlert('error', 'Score cannot be empty');
-                return;
-            }
-            if (!validateField(ratiosCopack)) {
-                setAlert('error', 'Ratios copack cannot be empty');
-                return;
-            }
-            if (!validateField(ratiosRawpack)) {
-                setAlert('error', 'Ratios rawpack cannot be empty');
-                return;
-            }
-        }
+        //     if (!validateField(effectiveFrom)) {
+        //         setAlert('error', 'effective From cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(orderBy)) {
+        //         setAlert('error', 'OrderBy cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(departmentId)) {
+        //         setAlert('error', 'Department cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(categoryId)) {
+        //         setAlert('error', 'Supplier Category cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(subCategoryId)) {
+        //         setAlert('error', 'Procurement Category cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(section)) {
+        //         setAlert('error', 'Section cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(ratedCriteria)) {
+        //         setAlert('error', 'Criteria cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(criteriaEvaluation)) {
+        //         setAlert('error', 'Criteria evaluation cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(score)) {
+        //         setAlert('error', 'Score cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(ratiosCopack)) {
+        //         setAlert('error', 'Ratios copack cannot be empty');
+        //         return;
+        //     }
+        //     if (!validateField(ratiosRawpack)) {
+        //         setAlert('error', 'Ratios rawpack cannot be empty');
+        //         return;
+        //     }
+        // }
     
         setIsDetailLoading(true);
         const response: CustomResponse = await PostCall(`/company/rules/${ruleSetId}`, fields);
@@ -456,48 +441,49 @@ const handleSubmit = async () => {
                                     className="p-inputtext w-full"
                                 />
                                 </div>
-                                {fields.map((field, index) => (
-                                <>
-                                <div key={index} className="field col-4">
-                                <label htmlFor="criteriaEvaluation">Criteria Evaluation List</label>
-                                <input
-                                    type="text"
-                                    placeholder="Criteria Evaluation List"
-                                    value={field.criteriaEvaluation}
-                                    onChange={(e) => handleChange(index, 'criteriaEvaluation', e.target.value)}
-                                    className="p-inputtext w-full"
+                                {fields.criteriaEvaluation.map((_, index) => (
+                            <React.Fragment key={index}>
+                                <div className="field col-4">
+                                    <label htmlFor={`criteriaEvaluation-${index}`}>Criteria Evaluation</label>
+                                    <input
+                                        id={`criteriaEvaluation-${index}`}
+                                        type="text"
+                                        placeholder="Criteria Evaluation"
+                                        value={fields.criteriaEvaluation[index]}
+                                        onChange={(e) => handleChange(index, "criteriaEvaluation", e.target.value)}
+                                        className="p-inputtext w-full"
+                                    />
+                                </div>
+                                <div className="field col-4">
+                                    <label htmlFor={`score-${index}`}>Score</label>
+                                    <input
+                                        id={`score-${index}`}
+                                        type="text"
+                                        placeholder="Score"
+                                        value={fields.score[index]}
+                                        onChange={(e) => handleChange(index, "score", e.target.value)}
+                                        className="p-inputtext w-full"
+                                    />
+                                </div>
+                                {fields.criteriaEvaluation.length>1 && (
+                                <div className="field col-4">
+                                <Button
+                                    className="p-button-rounded p-button-danger mt-4"
+                                    icon="pi pi-trash"
+                                    onClick={() => handleRemoveField(index)}
                                 />
                                 </div>
-                                <div key={index} className="field col-4">
-                                <label htmlFor="score">Criteria Score</label>
-                                <input
-                                    type="text"
-                                    placeholder="Criteria Score"
-                                    value={field.score}
-                                    onChange={(e) => handleChange(index, 'score', e.target.value)}
-                                    className="p-inputtext w-full"
-                                />
-                                </div>
-                                <div key={index} className="field col-4">
-                    
-                    {fields.length>1 && (
-                        <Button
-                            className="p-button-rounded p-button-red-400 mt-4"
-                            // label="Remove"
-                            icon="pi pi-trash"
-                            // className="p-button-danger"
-                            onClick={() => handleRemoveField(index)}
-                        />
-                    )}
-                    </div>
-                                </>
+                                )}
+                            </React.Fragment>
                             ))}
+                            <div className="field col-4 mt-4">
                             <Button
                                 icon="pi pi-plus"
-                                label="Add"
+                                // label="Add"
                                 onClick={handleAddFields}
                                 className="p-button-sm p-button-secondary mb-4 col-2 ml-2"
                             />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -521,3 +507,12 @@ const handleSubmit = async () => {
 };
 
 export default CreateNewRulesPage;
+{/* {fields.length>1 && ( */}
+{/* <Button
+className="p-button-rounded p-button-red-400 mt-4"
+// label="Remove"
+icon="pi pi-trash"
+// className="p-button-danger"
+onClick={() => handleRemoveField(index)}
+/> */}
+{/* )} */}

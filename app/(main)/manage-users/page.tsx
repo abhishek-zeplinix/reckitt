@@ -102,7 +102,7 @@ const ManageUsersPage = () => {
                                 limit={limit} // no of items per page
                                 isDelete={true} // show delete button
                                 totalRecords={totalRecords}
-                                extraButtons={[
+                                extraButtons={(items) => [
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {

@@ -484,11 +484,11 @@ const ManageCapaRulesPage = () => {
                                 totalRecords={totalRecords} // total records from api response
                                 // isEdit={true} // show edit button
                                 isDelete={true} // show delete button
-                                extraButtons={[
+                                extraButtons={(item) => [
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, e.capaRuleId); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId, item.capaRuleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
