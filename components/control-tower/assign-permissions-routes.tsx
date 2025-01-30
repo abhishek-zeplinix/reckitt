@@ -11,6 +11,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { CustomResponse } from '@/types';
 import SubmitResetButtons from './submit-reset-buttons';
 import Dashboard from '@/app/(main)/page';
+import { SortOrder } from 'primereact/api';
 
 const ACTIONS = {
     ADD: 'add',
@@ -45,7 +46,7 @@ const Routes = () => {
 
         try {
             if (!params) {
-                params = { limit: limit, page: page };
+                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: "routeId" };
             }
 
             const queryString = buildQueryParams(params);

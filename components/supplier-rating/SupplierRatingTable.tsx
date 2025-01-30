@@ -8,13 +8,12 @@ import { useParams } from 'next/navigation';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { Badge } from 'primereact/badge';
-import { Checkbox } from 'primereact/checkbox';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 
 
-const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryName, departmentId, department, totalScoreEvaluated, onSuccess, supplierScoreData, isEvaluatedData }: any) => {
+const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPeriod, categoryName, departmentId, department, totalScoreEvaluated, onSuccess, supplierScoreData, isEvaluatedData }: any) => {
 
   const [tableData, setTableData] = useState(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
@@ -30,6 +29,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   const [capaDataCompletedCount, setCapaDataCompletedCount] = useState(0);
   const [defaultPercentages, setDefaultPercentages] = useState<any>({});
   const [isCompleted, setIsCompleted] = useState<any>('pending');
+  const [loading, setLoading2] = useState(true);
 
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
@@ -37,7 +37,6 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
   const dropdownRef = useRef<any>(null);
   const { setLoading, setAlert } = useAppContext();
 
-  const [loading, setLoading2] = useState(true);
 
   // update function to check CAPA data status
   const checkCapaDataStatus = (data: any[]) => {
@@ -512,6 +511,18 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
   };
 
+  const getSeverity = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'IN PROGRESS':
+        return 'warning';
+      case 'COMPLETED':
+        return 'success';
+      case 'PENDING':
+        return 'info';
+      default:
+        return 'info'; // Default severity if needed
+    }
+  };
 
   const handleCheckboxChange = (item: any) => {
     // setSelectedCriteria((prev) => {
@@ -539,20 +550,10 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
       <div className="min-w-[800px]">
         <div className='flex justify-content-start'>
-
-          {/* {isEvaluatedData ? <Badge value="Evaluated" severity="success"></Badge> : ''} */}
-
-          <Badge value="Rules Status" severity="success" className='mr-3'></Badge>
-          <Badge value={criteriaCount} severity="danger"></Badge>/
-          <Badge value={evaluatedCriteriaCount} severity="danger"></Badge>
-          <div className='mx-2'>
-            |
-          </div>
-          <Badge value="CAPA Status" severity="success" className='mr-3'></Badge>
-          <Badge value={capaDataCount} severity="warning"></Badge>/
-          <Badge value={capaDataCompletedCount} severity="warning"></Badge>
-
+          <Badge value={isCompleted.toUpperCase()} severity={getSeverity(isCompleted)} className="mr-3 mb-2" />
         </div>
+
+
 
         <table className="min-w-full bg-white border">
           <thead>
@@ -597,7 +598,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                         </td>
                       )}
 
-                      <td className="px-4 py-2 text-md text-gray-500"><Checkbox onChange={e => handleCheckboxChange(section)} checked={score < 5} className='mx-2'></Checkbox>
+                      <td className="px-4 py-2 text-md text-gray-500">
+                        {/* <Checkbox onChange={e => handleCheckboxChange(section)} checked={score < 5} className='mx-2'></Checkbox> */}
                         {criteria.criteriaName}</td>
 
                       {
@@ -615,6 +617,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                           </td>
                       }
 
+                 
                       <td className="px-4 py-2">
                         <Dropdown
                           ref={dropdownRef}
@@ -630,6 +633,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                           placeholder="-- Select an Evaluation --"
                           className="w-full md:w-14rem"
                           showClear
+                          disabled={isCompleted.toLowerCase() === 'completed'}
                         // pt={{
                         //   item: ({ selected }: any) => ({
                         //     className: selected ? 'bg-primary-100' : undefined
@@ -639,7 +643,8 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                         />
 
                       </td>
-
+                        
+                    
                       <td className="px-4 py-2">
                         {score === 'NA' ? (
                           <InputText type="text" size={1} value={score} readOnly className="m-auto bg-gray-400 font-bold border-none text-white text-center" />
@@ -655,6 +660,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
                           <InputText type="text" size={1} value={score} readOnly className="m-auto critical font-bold border-none text-white text-center" />
                         )}
                       </td>
+                
                     </tr>
                   );
                 })}
@@ -711,11 +717,11 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
       {
         isEvaluatedData ?
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} isEvaluatedData setCapaDataCount={setCapaDataCount} />}
+            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} isEvaluatedData setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} />}
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} isEvaluatedData={false} setCapaDataCount={setCapaDataCount} />}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} isEvaluatedData={false} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} />}
           </div>
 
       }
@@ -724,7 +730,7 @@ const SupplierEvaluationTable = ({ rules, category, evaluationPeriod, categoryNa
 
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
-        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} />
+        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted.toLowerCase() === 'completed'}/>
 
       </div>
     </div>

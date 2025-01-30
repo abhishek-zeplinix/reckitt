@@ -19,7 +19,7 @@ const AppMenu = () => {
     const router = useRouter();
     const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
     const {  setLoader } = useLoaderContext();
-    const { hasPermission, hasAnyPermission } = useAuth();
+    const { hasPermission, hasAnyPermission, isSupplier } = useAuth();
 
     const handleMenuClick = ({ originalEvent, item }: any) => {
         if (originalEvent) {
@@ -44,6 +44,7 @@ const AppMenu = () => {
                 {
                     label: 'Dashboard',
                     icon: 'pi pi-th-large',
+                    // url: isSupplier() ? '/sup' : '/',
                     url: '/',
                     command: handleMenuClick
                 },

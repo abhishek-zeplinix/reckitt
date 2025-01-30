@@ -17,6 +17,7 @@ import { Dialog } from 'primereact/dialog';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import SupplierScoreboardPDF from '@/components/pdf/supplier-scoreboard/SupplierScoreboardPDF';
 import html2canvas from 'html2canvas';
+import { useAuth } from '@/layout/context/authContext';
 
 
 const SupplierScoreboardTables = () => {
@@ -39,24 +40,24 @@ const SupplierScoreboardTables = () => {
 
     const [chartImage, setChartImage] = useState<string | null>(null);
     const [pdfReady, setPdfReady] = useState(false);
-
+    const { hasPermission } = useAuth();
 
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
             if (!chartRef.current || pdfReady) return;
-            
+
             await new Promise(resolve => requestAnimationFrame(resolve));
             const canvas = await html2canvas(chartRef.current, {
-              scale: 2,
-              useCORS: true,
-              backgroundColor: "#ffffff",
-              logging: false,
+                scale: 2,
+                useCORS: true,
+                backgroundColor: "#ffffff",
+                logging: false,
             });
-            
+
             setChartImage(canvas.toDataURL("image/png"));
-          }, 1000); // Add debounce delay
-        
-          return () => clearTimeout(captureTimer);
+        }, 1000); // Add debounce delay
+
+        return () => clearTimeout(captureTimer);
     }, [ratingsData, selectedYear, pdfReady]);
 
     useEffect(() => {
@@ -76,8 +77,8 @@ const SupplierScoreboardTables = () => {
         try {
             const params = {
                 filters: {
-                    supplierCategoryId: catId,
-                    procurementCategoryId: subCatId,
+                    // supplierCategoryId: catId,
+                    // procurementCategoryId: subCatId,
                     supId
                 },
                 pagination: false
@@ -410,11 +411,16 @@ const SupplierScoreboardTables = () => {
                     <Dropdown id="role" value={selectedYear} options={years} onChange={(e) => setSelectedYear(e.value)} placeholder="Select Year" className="w-full" />
                 </div>
 
-                <div className="flex-1 ml-5">
-                    <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
-                        <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                    </Link>
-                </div>
+                {
+                    hasPermission('add_input') &&
+
+                    <div className="flex-1 ml-5">
+                        <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                            <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                        </Link>
+                    </div>
+                }
+
 
                 <div className="flex justify-content-end">
                     {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
@@ -431,7 +437,7 @@ const SupplierScoreboardTables = () => {
                             icon="pi pi-download"
                             size="small"
                             label='Donwload PDF'
-                           className="default-button"
+                            className="default-button"
                             aria-label="Donwload PDF"
                             disabled={!pdfReady}
                         />
@@ -509,7 +515,7 @@ const SupplierScoreboardTables = () => {
     const renderDataPanel = dataPanel();
 
     const memoizedOptions = React.useMemo(() => ({
-        
+
         responsive: true,
 
         plugins: {
@@ -538,8 +544,8 @@ const SupplierScoreboardTables = () => {
                 }
             }
         }
-    }), []);    
-    
+    }), []);
+
     const memoizedBarOptions = React.useMemo(() => ({
         responsive: true,
 

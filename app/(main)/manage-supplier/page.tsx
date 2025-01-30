@@ -101,11 +101,13 @@ const ManageSupplierPage = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [chooseBlockOption, setChooseBlockOption] = useState('');
     const [date, setDate] = useState<Date | null>(null);
+
     useEffect(() => {
         setScroll(true);
         fetchData();
         return () => {};
     }, []);
+
     useEffect(() => {
         fetchFactory();
         fetchCategory();
@@ -114,6 +116,7 @@ const ManageSupplierPage = () => {
         fetchSubLocation();
         fetchsupplierCategories();
     }, []);
+    
     const limitOptions = [
         { label: '10', value: 10 },
         { label: '20', value: 20 },
