@@ -75,8 +75,8 @@ const ManageSupplierAddEditPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
     const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
-    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({}); 
-    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({}); 
+    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({});
+    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
 
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
@@ -220,7 +220,7 @@ const ManageSupplierAddEditPage = () => {
                     if (wordCount > 250) {
                         setWordMaxLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Word limit exceeded!',
+                            [name]: 'Word limit exceeded!'
                         }));
                         return;
                     } else {
@@ -233,7 +233,8 @@ const ManageSupplierAddEditPage = () => {
                     }
                 }
                 if (name === 'supplierNumber' || name === 'Zip') {
-                    if (!/^\d+$/.test(val)) { // Check if value is not a valid number
+                    if (!/^\d+$/.test(val)) {
+                        // Check if value is not a valid number
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Only numbers are allowed!'
@@ -460,9 +461,7 @@ const ManageSupplierAddEditPage = () => {
                                         Factory Name
                                     </label>
                                     <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full mb-1" />
-                                    {formErrors.factoryName && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.factoryName}</p> 
-                                        )}
+                                    {formErrors.factoryName && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.factoryName}</p>}
                                     {/* Display word limit errors separately */}
                                     {wordLimitErrors.factoryName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordLimitErrors.factoryName}</p>}
                                 </div>
@@ -477,13 +476,11 @@ const ManageSupplierAddEditPage = () => {
                                         options={category}
                                         optionLabel="categoryName"
                                         optionValue="categoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} 
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                         placeholder="Select Procurement Category"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.supplierCategoryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.supplierCategoryId}</p> 
-                                        )}
+                                    {formErrors.supplierCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.supplierCategoryId}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="procurementCategory" className="font-semibold">
@@ -503,9 +500,7 @@ const ManageSupplierAddEditPage = () => {
                                     ) : (
                                         <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
                                     )}
-                                    {formErrors.procurementCategoryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.procurementCategoryId}</p> 
-                                        )}
+                                    {formErrors.procurementCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.procurementCategoryId}</p>}
                                 </div>
 
                                 <div className="field col-3">
@@ -513,9 +508,7 @@ const ManageSupplierAddEditPage = () => {
                                         Email Address
                                     </label>
                                     <InputText id="email" value={get(form, 'email')} type="text" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
-                                    {formErrors.email && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.email}</p> 
-                                        )}
+                                    {formErrors.email && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.email}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="supplierNumber" className="font-semibold">
@@ -529,12 +522,8 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Enter Phone Number "
                                         className="p-inputtext w-full mb-1"
                                     />
-                                    {formErrors.supplierNumber && (
-                                        <p style={{ color: "red", fontSize:'10px'}}>{formErrors.supplierNumber}</p>
-                                        )}
-                                    {numberErrors.supplierNumber && ( 
-                                        <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.supplierNumber}</p>
-                                    )}
+                                    {formErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.supplierNumber}</p>}
+                                    {numberErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px' }}>{numberErrors.supplierNumber}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="countryId" className="font-semibold">
@@ -550,9 +539,7 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Select Country"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.countryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.countryId}</p> 
-                                        )}
+                                    {formErrors.countryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.countryId}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="state" className="font-semibold">
@@ -568,30 +555,22 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Select state"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.stateId && (
-                                        <p style={{ color: "red" ,fontSize:'10px'}}>{formErrors.stateId}</p> 
-                                        )}
+                                    {formErrors.stateId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.stateId}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
                                     <Dropdown id="cityId" value={get(form, 'cityId')} options={allCity} optionLabel="name" optionValue="cityId" onChange={(e) => onInputChange('cityId', e.value)} placeholder="Select city" className="w-full mb-1" />
-                                    {formErrors.cityId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.cityId}</p> 
-                                        )}
+                                    {formErrors.cityId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.cityId}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="Zip" className="font-semibold">
                                         ZipCode
                                     </label>
                                     <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full mb-1" />
-                                    {formErrors.Zip && (
-                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.Zip}</p> 
-                                        )}
-                                        {numberErrors.Zip && ( 
-                                            <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.Zip}</p>
-                                        )}
+                                    {formErrors.Zip && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.Zip}</p>}
+                                    {numberErrors.Zip && <p style={{ color: 'red', fontSize: '10px' }}>{numberErrors.Zip}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="siteAddress" className="font-semibold">
@@ -599,12 +578,10 @@ const ManageSupplierAddEditPage = () => {
                                     </label>
                                     <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full mb-1" placeholder="Enter Site Address" />
                                     {formErrors.siteAddress && (
-                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.siteAddress}</p> // Display error message
-                                        )}
-                                        {/* Display word limit errors separately */}
-                                    {wordMaxLimitErrors.siteAddress && (
-                                        <p style={{ color: "red", fontSize: "10px" }}>{wordMaxLimitErrors.siteAddress}</p>
+                                        <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.siteAddress}</p> // Display error message
                                     )}
+                                    {/* Display word limit errors separately */}
+                                    {wordMaxLimitErrors.siteAddress && <p style={{ color: 'red', fontSize: '10px' }}>{wordMaxLimitErrors.siteAddress}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="warehouseLocation" className="font-semibold">
@@ -619,12 +596,10 @@ const ManageSupplierAddEditPage = () => {
                                         className="p-inputtext w-full mb-1"
                                     />
                                     {formErrors.warehouseLocation && (
-                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.warehouseLocation}</p> // Display error message
-                                        )}
-                                        {/* Display word limit errors separately */}
-                                    {wordMaxLimitErrors.warehouseLocation && (
-                                        <p style={{ color: "red", fontSize: "10px" }}>{wordMaxLimitErrors.warehouseLocation}</p>
+                                        <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.warehouseLocation}</p> // Display error message
                                     )}
+                                    {/* Display word limit errors separately */}
+                                    {wordMaxLimitErrors.warehouseLocation && <p style={{ color: 'red', fontSize: '10px' }}>{wordMaxLimitErrors.warehouseLocation}</p>}
                                 </div>
                             </div>
                         </div>
