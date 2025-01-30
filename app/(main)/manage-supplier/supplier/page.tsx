@@ -226,7 +226,7 @@ const ManageSupplierAddEditPage = () => {
                     if (!/^\+?\d+$/.test(val) || (val.includes('+') && val.indexOf('+') !== 0)) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: "Only '+'numbers are allowed!"
+                            [name]: 'Only numbers are allowed!'
                         }));
                         return;
                     } else if (val.length > 12) {
