@@ -13,7 +13,6 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { EmptySupplier } from '@/types/forms';
 import Stepper from '@/components/Stepper';
-import { z } from 'zod';
 
 const defaultForm: EmptySupplier = {
     supId: null,
@@ -76,7 +75,9 @@ const ManageSupplierAddEditPage = () => {
     const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
     const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
     const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({}); 
-    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({}); 
+    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
+    const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});  
+
 
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
@@ -188,7 +189,7 @@ const ManageSupplierAddEditPage = () => {
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
         if (typeof name !== 'string') return;
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId' && name !== 'email') {
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
@@ -226,13 +227,13 @@ const ManageSupplierAddEditPage = () => {
                     if (!/^\+?\d+$/.test(val) || (val.includes('+') && val.indexOf('+') !== 0)) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: "Only '+'numbers are allowed!"
+                            [name]: "Only numbers are allowed!"
                         }));
                         return;
                     } else if (val.length > 12) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Number exceeds limit!'
+                            [name]: 'Maximum number limit 12!'
                         }));
                         return;
                     } else {
@@ -243,6 +244,35 @@ const ManageSupplierAddEditPage = () => {
                         });
                     }
                 }
+
+                if (name === 'email') {
+                    if (!/^[a-zA-Z0-9-@.]+$/.test(val)){
+                        setEmailErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Please enter a valid email address (e.g., example@domain.com).'
+                        }));
+                        return;
+                    }else if(!val.includes('@')){
+                        setEmailErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Please enter a valid email address (e.g., example@domain.com).'
+                        }));
+                    }
+                     else if (val.length > 80) {
+                        setEmailErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Maximum Word limit 80! '
+                        }));
+                        return;
+                    } else {
+                        setEmailErrors((prevNumErrors) => {
+                            const updatedErrors = { ...prevNumErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
+                    }
+                }
+                
 
                 if (name === 'Zip') {
                     if (!/^[a-zA-Z0-9\s-]+$/.test(val)){
@@ -255,7 +285,7 @@ const ManageSupplierAddEditPage = () => {
                     } else if (val.length > 10) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Zip Code numbers exceeds '
+                            [name]: 'Maximum Word limit 10! '
                         }));
                         return;
                     } else {
@@ -473,9 +503,12 @@ const ManageSupplierAddEditPage = () => {
                                     <label htmlFor="email" className="font-semibold">
                                         Email Address
                                     </label>
-                                    <InputText id="email" value={get(form, 'email')} type="text" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
+                                    <InputText id="email" value={get(form, 'email')} type="email" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
                                     {formErrors.email && (
                                         <p style={{ color: "red",fontSize:'10px' }}>{formErrors.email}</p> 
+                                        )}
+                                        {emailErrors.email && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{emailErrors.email}</p> 
                                         )}
                                 </div>
                                 <div className="field col-3">
