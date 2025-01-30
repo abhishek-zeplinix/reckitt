@@ -4,50 +4,50 @@ import { z } from 'zod';
 export const formSchemaSupplier = z.object({
     supplierName: z
         .string()
-        .min(1, 'Supplier name cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Supplier name must be in proper format'),
+        .min(3, 'Supplier name cannot be empty')
+        .regex(/^[a-zA-Z\s]+$/, 'Supplier name cannot be empty'),
     supplierManufacturerName: z
         .string()
-        .min(1, 'Supplier manufacturer cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Supplier manufacturer must be in proper format'),
+        .min(3, 'Supplier manufacturer cannot be empty')
+        .regex(/^[a-zA-Z\s]+$/, 'Supplier manufacturer cannot be empty'),
     factoryName: z
         .string()
-        .min(1, 'Factory name cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Factory name must be in proper format'),
-    email: z.string().email('Email must be in proper format'),
-    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number must be in proper format'),
-    Zip: z.string().regex(/^\d{4,6}$/, 'Zip must be in proper format'),
+        .min(3, 'Factory name cannot be empty')
+        .regex(/^[a-zA-Z\s]+$/, 'Factory name cannot be empty'),
+    email: z.string().email('Email cannot be empty'),
+    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number cannot be empty'),
+    Zip: z.string().regex(/^\d{4,6}$/, 'Zip cannot be empty'),
     siteAddress: z.string().min(1, 'Site address cannot be empty'),
     warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
     procurementCategoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Procurement category must not be empty'
+            message: 'Procurement category cannot be empty'
         }),
     supplierCategoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Supplier category must not be empty'
+            message: 'Supplier category cannot be empty'
         }),
     countryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Country must not be empty'
+            message: 'Country cannot not be empty'
         }),
     cityId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'City must not be empty'
+            message: 'City cannot not be empty'
         }),
     stateId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'State must not be empty'
+            message: 'State cannot not be empty'
         })
 });
 
