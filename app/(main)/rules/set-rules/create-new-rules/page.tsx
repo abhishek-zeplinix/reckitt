@@ -8,7 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, Field } from '@/types';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
-import { validateField } from '@/utils/utils';
+import { validateFormRuleData } from '@/utils/utils';
 import { Calendar } from 'primereact/calendar';
 import { z } from 'zod';
 
@@ -32,6 +32,7 @@ const CreateNewRulesPage = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [date, setDate] = useState<Date | null>(null);
     const router = useRouter();
     // Adjust title based on edit mode
@@ -65,31 +66,7 @@ useEffect(() => {
     selectedratiosRawpack,
     selectedratiosCopack,
   ]);
-  const fieldsSchema = z.object({
-    effectiveFrom: z.date().nullable().refine((val) => val !== null, {
-      message: 'Effective date must be in date format',
-    }),
-    departmentId: z.string().min(1, 'Department ID must not be empty'),
-    orderBy: z
-      .number({ invalid_type_error: 'Order By must be a number' })
-      .refine((val) => val > 0, { message: 'Order By must not be empty' }),
-    section: z.string().min(1, 'Section must not be empty'),
-    categoryId: z.string().min(1, 'Category ID must not be empty'),
-    subCategoryId: z.string().min(1, 'Subcategory ID must not be empty'),
-    ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
-    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
-    ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
-    criteriaEvaluation: z
-      .array(z.string().min(1, 'Criteria Evaluation must not be empty')),
-    score: z.array(
-      z
-        .string()
-        .min(1, 'Score must not be empty')
-        .refine((val) => !isNaN(Number(val)), {
-          message: 'Score must be a number',
-        })
-    ),
-  });
+  
 
       const handleChange = (
         index: number,
@@ -102,8 +79,7 @@ useEffect(() => {
           return { ...prev, [key]: updatedArray };
         });
       };
-// Helper function to ensure all objects in the fields array have common fields updated
-// Update common fields when they change
+
 const updateCommonFields = () => {
     setFields((prev) => ({
       ...prev,
@@ -142,17 +118,20 @@ const handleRemoveField = (index: number) => {
       score: prev.score.filter((_, i) => i !== index),
     }));
   };
-console.log('118',fields)
+const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        handleSubmit(fields);
+    };
   
-const handleSubmit = async () => {
+const handleSubmit = async (fields: Record<string, unknown>) => {
+  const { valid, errors } = validateFormRuleData(fields);
+          if (!valid) {
+              setFormErrors(errors);
+              return;
+          }
+  
+          setFormErrors({});
     try {
-      const parsedFields = {
-        ...fields,
-        orderBy: fields.orderBy ? Number(fields.orderBy) : null,
-      };
-  
-      // Validate fields
-      fieldsSchema.parse(parsedFields);
   
       if (isEditMode) {
         const endpoint = `/company/rules/${ruleId}`;
@@ -228,12 +207,11 @@ const handleSubmit = async () => {
             setLoading(false);
         }
     };
-    console.log('243',ruleSetId)
     const renderNewRuleFooter = () => {
         return (
             <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
                 <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3" onClick={() => router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`)} />
-                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleSubmit} />
+                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleButtonClick} />
             </div>
         );
     };
@@ -272,67 +250,6 @@ const handleSubmit = async () => {
     };
 
     const onNewAdd = async (userForm: any) => {
-        // for (const field of fields) {
-        //     const {
-        //         effectiveFrom,
-        //         departmentId,
-        //         orderBy,
-        //         section,
-        //         categoryId,
-        //         subCategoryId,
-        //         ratedCriteria,
-        //         criteriaEvaluation,
-        //         score,
-        //         ratiosRawpack,
-        //         ratiosCopack,
-        //     } = field;
-    
-        //     if (!validateField(effectiveFrom)) {
-        //         setAlert('error', 'effective From cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(orderBy)) {
-        //         setAlert('error', 'OrderBy cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(departmentId)) {
-        //         setAlert('error', 'Department cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(categoryId)) {
-        //         setAlert('error', 'Supplier Category cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(subCategoryId)) {
-        //         setAlert('error', 'Procurement Category cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(section)) {
-        //         setAlert('error', 'Section cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(ratedCriteria)) {
-        //         setAlert('error', 'Criteria cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(criteriaEvaluation)) {
-        //         setAlert('error', 'Criteria evaluation cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(score)) {
-        //         setAlert('error', 'Score cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(ratiosCopack)) {
-        //         setAlert('error', 'Ratios copack cannot be empty');
-        //         return;
-        //     }
-        //     if (!validateField(ratiosRawpack)) {
-        //         setAlert('error', 'Ratios rawpack cannot be empty');
-        //         return;
-        //     }
-        // }
-    
         setIsDetailLoading(true);
         const response: CustomResponse = await PostCall(`/company/rules/${ruleSetId}`, fields);
         setIsDetailLoading(false);
@@ -360,10 +277,16 @@ const handleSubmit = async () => {
                                     Select Effective Date:
                                 </label>
                                 <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                {formErrors.effectiveFrom && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.effectiveFrom}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
                                 <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
+                                {formErrors.orderBy && (
+                                        <p style={{ color: "red",fontSize:'10px' ,marginTop: '1px'}}>{formErrors.orderBy}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="departmentId">Department</label>
@@ -377,6 +300,9 @@ const handleSubmit = async () => {
                                     optionValue="departmentId"
                                     className="w-full"
                                 />
+                                {formErrors.departmentId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.departmentId}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="categoryId">Procurement Category</label>
@@ -390,6 +316,9 @@ const handleSubmit = async () => {
                                     optionValue="categoryId"
                                     className="w-full"
                                 />
+                                {formErrors.categoryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.categoryId}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="subCategoryId">Supplier Category</label>
@@ -403,10 +332,16 @@ const handleSubmit = async () => {
                                     placeholder="Select Supplier Category"
                                     className="w-full"
                                 />
+                                {formErrors.subCategoryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.subCategoryId}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="section">Section</label>
                                 <input id="section" type="text" value={selectedsection} onChange={(e) => setSelectedsection(e.target.value)} className="p-inputtext w-full" placeholder="Enter Section Name" />
+                                {formErrors.section && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.section}</p> 
+                                        )}
                             </div>
                             
                                 
@@ -419,6 +354,9 @@ const handleSubmit = async () => {
                                     onChange={(e) => setCriteria( e.target.value)}
                                     className="p-inputtext w-full"
                                 />
+                                 {formErrors.ratedCriteria && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.ratedCriteria}</p> 
+                                        )}
                                 </div>
                                
                                 <div className="field col-4">
@@ -430,6 +368,9 @@ const handleSubmit = async () => {
                                     onChange={(e) => setratiosRawpack( e.target.value)}
                                     className="p-inputtext w-full"
                                 />
+                                {formErrors.ratiosRawpack && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.ratiosRawpack}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-4">
                                 <label htmlFor="ratiosCopack">Ratio Co Pack</label>
@@ -440,6 +381,9 @@ const handleSubmit = async () => {
                                     onChange={(e) => setratiosCopack(e.target.value)}
                                     className="p-inputtext w-full"
                                 />
+                                {formErrors.ratiosCopack && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.ratiosCopack}</p> 
+                                        )}
                                 </div>
                                 {fields.criteriaEvaluation.map((_, index) => (
                             <React.Fragment key={index}>
@@ -453,6 +397,9 @@ const handleSubmit = async () => {
                                         onChange={(e) => handleChange(index, "criteriaEvaluation", e.target.value)}
                                         className="p-inputtext w-full"
                                     />
+                                    {formErrors.criteriaEvaluation && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.criteriaEvaluation}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-4">
                                     <label htmlFor={`score-${index}`}>Score</label>
@@ -464,8 +411,11 @@ const handleSubmit = async () => {
                                         onChange={(e) => handleChange(index, "score", e.target.value)}
                                         className="p-inputtext w-full"
                                     />
+                                     {formErrors.score && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.score}</p> 
+                                        )}
                                 </div>
-                                {fields.criteriaEvaluation.length>1 && (
+                                {fields.score.length>1 && (
                                 <div className="field col-4">
                                 <Button
                                     className="p-button-rounded p-button-danger mt-4"
@@ -479,7 +429,6 @@ const handleSubmit = async () => {
                             <div className="field col-4 mt-4">
                             <Button
                                 icon="pi pi-plus"
-                                // label="Add"
                                 onClick={handleAddFields}
                                 className="p-button-sm p-button-secondary mb-4 col-2 ml-2"
                             />
@@ -507,12 +456,3 @@ const handleSubmit = async () => {
 };
 
 export default CreateNewRulesPage;
-{/* {fields.length>1 && ( */}
-{/* <Button
-className="p-button-rounded p-button-red-400 mt-4"
-// label="Remove"
-icon="pi pi-trash"
-// className="p-button-danger"
-onClick={() => handleRemoveField(index)}
-/> */}
-{/* )} */}

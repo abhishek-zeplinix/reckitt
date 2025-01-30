@@ -96,13 +96,6 @@ const ManageSupplierAddEditPage = () => {
             try {
                 // Fetch independent data first
                 await Promise.all([fetchCategory(), fetchAllCountry(), isEditMode && fetchSupplierData()]);
-                console.log('97', form);
-
-                // Fetch dependent data sequentially
-                // const states = await fetchAllSatate(); // Dependent on fetchAllCountry
-                // if (states) {
-                //     await fetchAllCity(); // Dependent on fetchAllState
-                // }
             } catch (error) {
                 console.error('Error fetching initial data:', error);
             } finally {
@@ -194,21 +187,19 @@ const ManageSupplierAddEditPage = () => {
     console.log('192', wordLimitErrors);
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (typeof name !== 'string') return; // Ensure `name` is always a string
-        let errors = { ...formErrors }; // Clone the existing errors object
+        if (typeof name !== 'string') return;
         if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId' && name !== 'email') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
                 if (name !== 'siteAddress' && name !== 'warehouseLocation') {
-                    if (wordCount > 70) {
+                    if (wordCount > 50) {
                         setWordLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Word limit exceeded!'
+                            [name]: 'Maximum Word limit 50!'
                         }));
                         return;
                     } else {
-                        // Clear word limit error if condition is no longer met
                         setWordLimitErrors((prevWordErrors) => {
                             const updatedErrors = { ...prevWordErrors };
                             delete updatedErrors[name];
@@ -220,11 +211,10 @@ const ManageSupplierAddEditPage = () => {
                     if (wordCount > 250) {
                         setWordMaxLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Word limit exceeded!'
+                            [name]: 'Maximum Word limit 250!'
                         }));
                         return;
                     } else {
-                        // Clear word limit error if condition is no longer met
                         setWordMaxLimitErrors((prevWordErrors) => {
                             const updatedErrors = { ...prevWordErrors };
                             delete updatedErrors[name];
@@ -232,16 +222,14 @@ const ManageSupplierAddEditPage = () => {
                         });
                     }
                 }
-                if (name === 'supplierNumber' || name === 'Zip') {
-                    if (!/^\d+$/.test(val)) {
-                        // Check if value is not a valid number
+                if (name === 'supplierNumber') {
+                    if (!/^\+?\d+$/.test(val) || (val.includes('+') && val.indexOf('+') !== 0)) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Only numbers are allowed!'
+                            [name]: "Only '+'numbers are allowed!"
                         }));
                         return;
-                    } else if (val.length > 15) {
-                        // Ensure supplierNumber does not exceed 15 digits
+                    } else if (val.length > 12) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Number exceeds limit!'
@@ -257,15 +245,14 @@ const ManageSupplierAddEditPage = () => {
                 }
 
                 if (name === 'Zip') {
-                    if (!/^[\d-]*$/.test(val)) {
+                    if (!/^[a-zA-Z0-9\s-]+$/.test(val)) {
                         // Ensure only numbers and dash are allowed
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Only numbers and a dash (-) are allowed!'
+                            [name]: 'Only letters,numbers,spaces and hyphens are allowed!'
                         }));
                         return;
-                    } else if (val.length > 9) {
-                        // Ensure Zip does not exceed 8 characters (0000-0000 is 9 chars including the dash)
+                    } else if (val.length > 10) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Zip Code numbers exceeds '
@@ -295,21 +282,6 @@ const ManageSupplierAddEditPage = () => {
                         });
                     }
                 }
-                // if (name === 'supplierManufacturerName') {
-                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
-                //     if (!isAlphabet) {
-                //         setAlert('error', 'Supplier Manufacturer Name must contain only alphabets');
-                //         return;
-                //     }
-                // }
-
-                // if (name === 'factoryName') {
-                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
-                //     if (!isAlphabet) {
-                //         setAlert('error', 'factory Name must contain only alphabets');
-                //         return;
-                //     }
-                // }
             }
         }
         setForm((prevForm) => {
@@ -367,7 +339,6 @@ const ManageSupplierAddEditPage = () => {
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
         const { valid, errors } = validateFormData(form);
-        console.log('287', valid);
         if (!valid) {
             setFormErrors(errors);
             return;
@@ -392,17 +363,6 @@ const ManageSupplierAddEditPage = () => {
                 return newSteps;
             });
             setCurrentStep((prev) => prev - 1);
-        }
-    };
-    const onNewAdd = async (userForm: any) => {
-        setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/supplier`, userForm);
-        setIsDetailLoading(false);
-        if (response.code == 'SUCCESS') {
-            router.push(`/manage-supplier`);
-            setAlert('success', 'Successfully Added');
-        } else {
-            setAlert('error', response.message);
         }
     };
 
@@ -580,7 +540,6 @@ const ManageSupplierAddEditPage = () => {
                                     {formErrors.siteAddress && (
                                         <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.siteAddress}</p> // Display error message
                                     )}
-                                    {/* Display word limit errors separately */}
                                     {wordMaxLimitErrors.siteAddress && <p style={{ color: 'red', fontSize: '10px' }}>{wordMaxLimitErrors.siteAddress}</p>}
                                 </div>
                                 <div className="field col-3">
