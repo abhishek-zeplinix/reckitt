@@ -1,7 +1,7 @@
 import { CONFIG } from '@/config/config';
 import { z } from 'zod';
 
-export const formSchema = z.object({
+export const formSchemaSupplier = z.object({
   supplierName: z
     .string()
     .min(1, "Supplier name cannot be empty")
@@ -55,7 +55,7 @@ stateId: z
 
 export const validateFormData = (data: unknown) => {
     try {
-      formSchema.parse(data);
+        formSchemaSupplier.parse(data);
       return { valid: true, errors: {} };
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -69,8 +69,63 @@ export const validateFormData = (data: unknown) => {
     }
   };
   
+  const fieldsSchemaRules = z.object({
+    effectiveFrom: z.date().nullable().refine((val) => val !== null, {
+      message: 'Effective date must be in date format',
+    }),
+    departmentId: z
+    .number()
+    .nullable()
+    .refine(val => val !== null, {
+        message: "Department must not be empty",
+    }),
+    orderBy: z
+      .number({ invalid_type_error: 'Order By must be a number' })
+      .refine((val) => val > 0, { message: 'Order By must not be empty' }),
+    section: z.string().min(1, 'Section must not be empty'),
+    categoryId: z
+    .number()
+    .nullable()
+    .refine(val => val !== null, {
+        message: "Procurement category must not be empty",
+    }),
+    subCategoryId: z
+    .number()
+    .nullable()
+    .refine(val => val !== null, {
+        message: "Supplier category must not be empty",
+    }),
+    ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
+    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
+    ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
+    criteriaEvaluation: z
+      .array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    score: z.array(
+      z
+        .string()
+        .min(1, 'Score must not be empty')
+        .refine((val) => !isNaN(Number(val)), {
+          message: 'Score must be a number',
+        })
+    ),
+  });
 
 
+  export const validateFormRuleData = (data: unknown) => {
+    try {
+        fieldsSchemaRules.parse(data);
+      return { valid: true, errors: {} };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.errors.reduce((acc, curr) => {
+          acc[curr.path[0]] = curr.message;
+          return acc;
+        }, {} as Record<string, string>);
+        return { valid: false, errors };
+      }
+      return { valid: false, errors: { general: "Unexpected error occurred" } };
+    }
+  };
 
 export const validateSubdomain = (subdomain: string) => {
     const subdomainLower = subdomain.toLowerCase();
