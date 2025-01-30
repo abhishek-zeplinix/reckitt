@@ -196,7 +196,7 @@ const ManageSupplierAddEditPage = () => {
                     if (wordCount > 50) {
                         setWordLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Maximum Word limit 50!'
+                            [name]: 'Maximum 50 characters allowed!'
                         }));
                         return;
                     } else {
@@ -211,7 +211,7 @@ const ManageSupplierAddEditPage = () => {
                     if (wordCount > 250) {
                         setWordMaxLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Maximum Word limit 250!'
+                            [name]: 'Maximum 250 characters allowed!'
                         }));
                         return;
                     } else {
@@ -226,13 +226,13 @@ const ManageSupplierAddEditPage = () => {
                     if (!/^\+?\d+$/.test(val) || (val.includes('+') && val.indexOf('+') !== 0)) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Only numbers are allowed!'
+                            [name]: 'Only numbers  allowed!'
                         }));
                         return;
                     } else if (val.length > 12) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Number exceeds limit!'
+                            [name]: 'Maximum 12 numbers allowed!'
                         }));
                         return;
                     } else {
@@ -255,7 +255,7 @@ const ManageSupplierAddEditPage = () => {
                     } else if (val.length > 10) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Zip Code numbers exceeds '
+                            [name]: 'Maximum 10 characters  allowed!'
                         }));
                         return;
                     } else {
