@@ -74,10 +74,9 @@ const ManageSupplierAddEditPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
     const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
-    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({}); 
+    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({});
     const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
-    const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});  
-
+    const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});
 
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
@@ -227,13 +226,13 @@ const ManageSupplierAddEditPage = () => {
                     if (!/^\+?\d+$/.test(val) || (val.includes('+') && val.indexOf('+') !== 0)) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: "Only numbers are allowed!"
+                            [name]: 'Only numbers are allowed!'
                         }));
                         return;
                     } else if (val.length > 12) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Maximum number limit 12!'
+                            [name]: 'Maximum 12 number allowed!'
                         }));
                         return;
                     } else {
@@ -246,22 +245,21 @@ const ManageSupplierAddEditPage = () => {
                 }
 
                 if (name === 'email') {
-                    if (!/^[a-zA-Z0-9-@.]+$/.test(val)){
+                    if (!/^[a-zA-Z0-9-@.]+$/.test(val)) {
                         setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Please enter a valid email address (e.g., example@domain.com).'
                         }));
                         return;
-                    }else if(!val.includes('@')){
+                    } else if (!val.includes('@')) {
                         setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Please enter a valid email address (e.g., example@domain.com).'
                         }));
-                    }
-                     else if (val.length > 80) {
+                    } else if (val.length > 80) {
                         setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Maximum Word limit 80! '
+                            [name]: 'Maximum 80 characters allowed! '
                         }));
                         return;
                     } else {
@@ -272,7 +270,6 @@ const ManageSupplierAddEditPage = () => {
                         });
                     }
                 }
-                
 
                 if (name === 'Zip') {
                     if (!/^[a-zA-Z0-9\s-]+$/.test(val)) {
@@ -285,7 +282,7 @@ const ManageSupplierAddEditPage = () => {
                     } else if (val.length > 10) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Maximum Word limit 10! '
+                            [name]: 'Maximum 10 characters allowed! '
                         }));
                         return;
                     } else {
@@ -498,12 +495,8 @@ const ManageSupplierAddEditPage = () => {
                                         Email Address
                                     </label>
                                     <InputText id="email" value={get(form, 'email')} type="email" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
-                                    {formErrors.email && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.email}</p> 
-                                        )}
-                                        {emailErrors.email && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{emailErrors.email}</p> 
-                                        )}
+                                    {formErrors.email && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.email}</p>}
+                                    {emailErrors.email && <p style={{ color: 'red', fontSize: '10px' }}>{emailErrors.email}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="supplierNumber" className="font-semibold">

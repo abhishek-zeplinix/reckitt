@@ -16,7 +16,7 @@ export const formSchemaSupplier = z.object({
         .regex(/^[a-zA-Z\s]+$/, 'Factory name must be in proper format'),
     email: z.string().email('Email must be in proper format'),
     supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number must be in proper format'),
-    //   Zip: z.string().regex(/^\d{4,6}$/, "Zip must be in proper format"),
+    Zip: z.string().regex(/^\d{4,6}$/, 'Zip must be in proper format'),
     siteAddress: z.string().min(1, 'Site address cannot be empty'),
     warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
     procurementCategoryId: z
