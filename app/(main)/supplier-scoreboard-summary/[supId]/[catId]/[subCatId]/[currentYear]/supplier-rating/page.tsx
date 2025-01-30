@@ -3,6 +3,7 @@ import { GetCall } from '@/app/api-config/ApiKit';
 import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
+import { withAuth } from '@/layout/context/authContext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
@@ -29,7 +30,7 @@ const SupplierRatingPage = () => {
     const { departments } = useFetchDepartments();
     // const currentYear = 2024;
     // console.log(supplierData);
-
+    
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
         copack: 'ratiosCopack'
@@ -39,7 +40,7 @@ const SupplierRatingPage = () => {
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-
+    
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
@@ -362,10 +363,11 @@ const SupplierRatingPage = () => {
                     <div className="flex justify-content-between">
                         <Dropdown value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.value)} options={periodOptions} optionLabel="label" placeholder="Select Period" className="w-full md:w-14rem" />
 
-                        <div className="flex justify-content-end">
+                        {/* <div className="flex justify-content-end">
                             <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
                             <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
-                        </div>
+                        </div> */}
+
                     </div>
 
                   
@@ -381,6 +383,7 @@ const SupplierRatingPage = () => {
                             department={activeTab}
                             isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
                             onSuccess={() => setReload(!reload)}
+                            selectedPeriod={selectedPeriod}
                             totalScoreEvaluated={
                                 supplierData?.supplierScores?.find(
                                     (score: any) =>
@@ -410,4 +413,4 @@ const SupplierRatingPage = () => {
     );
 };
 
-export default SupplierRatingPage;
+export default withAuth(SupplierRatingPage, undefined, 'add_input');

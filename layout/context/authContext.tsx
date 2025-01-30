@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { get, intersection } from 'lodash';
+import AccessDenied from '@/components/access-denied/AccessDenied';
 
 // Simple role definition
 export const USER_ROLES = {
@@ -40,14 +41,12 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
     console.log(userPermissions);
 
     // Check if user has a specific role
-    const hasRole = useCallback(
-        (role: UserRole): boolean => {
-            if (!user) return false;
-            if (get(user, 'isSuperAdmin', false)) return true;
-            return get(user, 'userRole') === role;
-        },
-        [user]
-    );
+    const hasRole = useCallback((role: UserRole): boolean => {
+        if (!user) return false;
+        // if (get(user, 'isSuperAdmin', false)) return true;
+        return get(user, 'userRole') === role;
+    }, [user]);    
+    
 
     // Check if user has a specific permission
     const hasPermission = useCallback(
@@ -108,11 +107,11 @@ export const withAuth = (WrappedComponent: React.ComponentType<any>, requiredRol
         const { hasRole, hasPermission } = useAuth();
 
         if (requiredRole && !hasRole(requiredRole)) {
-            return <div>Access Denied</div>;
+            return <AccessDenied />
         }
 
         if (requiredPermission && !hasPermission(requiredPermission)) {
-            return <div>Access Denied</div>;
+            return <AccessDenied />
         }
 
         return <WrappedComponent {...props} />;

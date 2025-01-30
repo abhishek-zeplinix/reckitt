@@ -1,12 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { InputText } from 'primereact/inputtext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
@@ -16,7 +14,7 @@ import { CustomResponse, Rules, Scores } from '@/types';
 import ScoreTiles from '@/components/supplier-score/score-tiles';
 import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
-import useFetchSuppliers from '@/hooks/useFetchSuppliers';
+import { withAuth } from '@/layout/context/authContext';
 
 const ACTIONS = {
     ADD: 'add',
@@ -311,4 +309,4 @@ const ManageSupplierScorePage = () => {
     );
 };
 
-export default ManageSupplierScorePage;
+export default withAuth(ManageSupplierScorePage, undefined, 'manage_supplier_score');

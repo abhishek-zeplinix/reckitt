@@ -114,6 +114,7 @@ const ManageSupplierPage = () => {
         fetchData();
         return () => {};
     }, []);
+
     useEffect(() => {
         fetchFactory();
         fetchCategory();
@@ -122,6 +123,7 @@ const ManageSupplierPage = () => {
         fetchSubLocation();
         fetchsupplierCategories();
     }, []);
+    
     const limitOptions = [
         { label: '10', value: 10 },
         { label: '20', value: 20 },

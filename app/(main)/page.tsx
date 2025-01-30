@@ -741,7 +741,7 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                                 <div className="pr-3 ">{BarGraphSupplierTiers}</div>
-                                <div className="pr-3 ">{BarGraph}</div>
+                             <div className="pr-3 ">{BarGraph}</div>
                             </div>
                         </div>
 
