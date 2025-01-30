@@ -2,21 +2,12 @@ import { CONFIG } from '@/config/config';
 import { z } from 'zod';
 
 export const formSchemaSupplier = z.object({
-    supplierName: z
-        .string()
-        .min(3, 'Supplier name cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Supplier name cannot be empty'),
-    supplierManufacturerName: z
-        .string()
-        .min(3, 'Supplier manufacturer cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Supplier manufacturer cannot be empty'),
-    factoryName: z
-        .string()
-        .min(3, 'Factory name cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Factory name cannot be empty'),
-    email: z.string().email('Email cannot be empty'),
-    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number cannot be empty'),
-    Zip: z.string().regex(/^\d{4,6}$/, 'Zip cannot be empty'),
+    supplierName: z.string().min(3, 'Supplier name cannot be empty'),
+    supplierManufacturerName: z.string().min(3, 'Supplier manufacturer cannot be empty'),
+    factoryName: z.string().min(3, 'Factory name cannot be empty'),
+    email: z.string().min(3, 'Email cannot be empty'),
+    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number must be in format'),
+    Zip: z.string().regex(/^\d{4,6}$/, 'Zip must be in format'),
     siteAddress: z.string().min(1, 'Site address cannot be empty'),
     warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
     procurementCategoryId: z
@@ -41,7 +32,7 @@ export const formSchemaSupplier = z.object({
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'City cannot not be empty'
+            message: 'State cannot not be empty'
         }),
     stateId: z
         .number()
