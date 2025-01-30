@@ -1,4 +1,76 @@
 import { CONFIG } from '@/config/config';
+import { z } from 'zod';
+
+export const formSchema = z.object({
+  supplierName: z
+    .string()
+    .min(1, "Supplier name cannot be empty")
+    .regex(/^[a-zA-Z\s]+$/, "Supplier name must be in proper format"),
+  supplierManufacturerName: z
+    .string()
+    .min(1, "Supplier manufacturer cannot be empty")
+    .regex(/^[a-zA-Z\s]+$/, "Supplier manufacturer must be in proper format"),
+  factoryName: z
+    .string()
+    .min(1, "Factory name cannot be empty")
+    .regex(/^[a-zA-Z\s]+$/, "Factory name must be in proper format"),
+  email: z.string().email("Email must be in proper format"),
+  supplierNumber: z
+    .string()
+    .regex(/^\d{10,12}$/, "Phone number must be in proper format"),
+  Zip: z.string().regex(/^\d{4,6}$/, "Zip must be in proper format"),
+  siteAddress: z.string().min(1, "Site address cannot be empty"),
+  warehouseLocation: z.string().min(1, "Warehouse location cannot be empty"),
+  procurementCategoryId: z
+  .number()
+  .nullable()
+  .refine(val => val !== null, {
+    message: "Procurement category must not be empty",
+  }),
+supplierCategoryId: z
+  .number()
+  .nullable()
+  .refine(val => val !== null, {
+    message: "Supplier category must not be empty",
+  }),
+countryId: z
+  .number()
+  .nullable()
+  .refine(val => val !== null, {
+    message: "Country must not be empty",
+  }),
+cityId: z
+  .number()
+  .nullable()
+  .refine(val => val !== null, {
+    message: "City must not be empty",
+  }),
+stateId: z
+  .number()
+  .nullable()
+  .refine(val => val !== null, {
+    message: "State must not be empty",
+  }),
+});
+
+export const validateFormData = (data: unknown) => {
+    try {
+      formSchema.parse(data);
+      return { valid: true, errors: {} };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.errors.reduce((acc, curr) => {
+          acc[curr.path[0]] = curr.message;
+          return acc;
+        }, {} as Record<string, string>);
+        return { valid: false, errors };
+      }
+      return { valid: false, errors: { general: "Unexpected error occurred" } };
+    }
+  };
+  
+
+
 
 export const validateSubdomain = (subdomain: string) => {
     const subdomainLower = subdomain.toLowerCase();

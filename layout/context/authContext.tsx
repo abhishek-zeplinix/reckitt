@@ -11,7 +11,7 @@ export const USER_ROLES = {
     USER: 'User'
 } as const;
 
-type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
 //permissions by role
 // const ROLE_PERMISSIONS = {
@@ -24,7 +24,6 @@ type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
 
 // Simple context type
 type AuthContextType = {
-
     hasRole: (role: UserRole) => boolean;
     hasPermission: (permission: string) => boolean;
     hasAnyPermission: (requiredPermissions: string[]) => boolean;
@@ -36,12 +35,11 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Provider component
-export const AuthProvider = ({user,children}: {user: any | null; children: React.ReactNode;}) => {
-
+export const AuthProvider = ({ user, children }: { user: any | null; children: React.ReactNode }) => {
     // Extract user permissions from the user object
     const userPermissions = useMemo(() => get(user, 'permissions.permissions', []) as string[], [user]);
     console.log(userPermissions);
-    
+
     // Check if user has a specific role
     const hasRole = useCallback((role: UserRole): boolean => {
         if (!user) return false;
@@ -51,33 +49,33 @@ export const AuthProvider = ({user,children}: {user: any | null; children: React
     
 
     // Check if user has a specific permission
-    const hasPermission = useCallback((permission: string): boolean => {
+    const hasPermission = useCallback(
+        (permission: string): boolean => {
+            if (!user) return false;
 
-        if (!user) return false;
+            //if user is Super Admin, he will get all permissions by default
+            //remove this line if you want to assign custom permission to the superAdmin
+            if (get(user, 'isSuperAdmin', false)) return true;
 
-        //if user is Super Admin, he will get all permissions by default
-        //remove this line if you want to assign custom permission to the superAdmin
-        if (get(user, 'isSuperAdmin', false)) return true;
+            // //retrieve userRole of logged in user to check his permission
+            // const userRole = get(user, 'userRole') as UserRole;
 
-        // //retrieve userRole of logged in user to check his permission
-        // const userRole = get(user, 'userRole') as UserRole;
+            // //here you will get all assigned permission to the logged in user
+            // const permissions: any = ROLE_PERMISSIONS[userRole] || [];
 
-        // //here you will get all assigned permission to the logged in user
-        // const permissions: any = ROLE_PERMISSIONS[userRole] || [];
+            //return boolen if passed permission is available in above permissions..
+            return userPermissions.includes(permission);
+        },
+        [user, userPermissions]
+    );
 
-        //return boolen if passed permission is available in above permissions..
-        return userPermissions.includes(permission);
-        
-
-    }, [user, userPermissions]);
-
-
-     // Check if the user has any of the required permissions
-     const hasAnyPermission = useCallback((requiredPermissions: string[]): boolean => {
-        return intersection(requiredPermissions, userPermissions).length > 0;
-    }, [userPermissions]);
-
-
+    // Check if the user has any of the required permissions
+    const hasAnyPermission = useCallback(
+        (requiredPermissions: string[]): boolean => {
+            return intersection(requiredPermissions, userPermissions).length > 0;
+        },
+        [userPermissions]
+    );
 
     // Common role checks
     const isSuperAdmin = useCallback(() => hasRole(USER_ROLES.SUPER_ADMIN), [hasRole]);
@@ -92,13 +90,8 @@ export const AuthProvider = ({user,children}: {user: any | null; children: React
         userPermissions
     };
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
@@ -109,11 +102,7 @@ export const useAuth = () => {
 };
 
 // simple HOC for protected components
-export const withAuth = (
-    WrappedComponent: React.ComponentType<any>,
-    requiredRole?: UserRole,
-    requiredPermission?: string
-) => {
+export const withAuth = (WrappedComponent: React.ComponentType<any>, requiredRole?: UserRole, requiredPermission?: string) => {
     return function WithAuthComponent(props: any) {
         const { hasRole, hasPermission } = useAuth();
 

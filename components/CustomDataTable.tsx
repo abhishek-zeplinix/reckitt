@@ -219,7 +219,7 @@ interface CustomTableOption extends DataTableBaseProps<DataTableValueArray> {
     isEdit?: boolean;
     isDelete?: boolean;
     isView?: boolean;
-    extraButtons?: ExtraButton[];
+    extraButtons?: (item: any) => ExtraButton[]; // Changed to a function
     onLoad?: (item: any) => void;
     onView?: (item: any) => void;
     onEdit?: (item: any) => void;
@@ -253,9 +253,14 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
         return (
             <div className="flex gap-1">
                 {props?.extraButtons &&
-                    props?.extraButtons?.length > 0 &&
-                    props.extraButtons.map((btn: ExtraButton, index: any) => (
-                        <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " onClick={() => btn.onClick && btn.onClick(item)} />
+                    props.extraButtons(item).map((btn: ExtraButton, index: number) => (
+                        <Button
+                            key={`ExtraButton${index}`}
+                            type="button"
+                            icon={btn.icon}
+                            className="p-button-md p-button-text hover:bg-primary-main text-primary-main"
+                            onClick={() => btn.onClick && btn.onClick(item)}
+                        />
                     ))}
                 {props.isView && <Button type="button" icon={'pi pi-eye'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " onClick={() => props.onView && props.onView(item)} />}
                 {props.isEdit && <Button type="button" icon={'pi pi-user-edit'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " onClick={() => props.onEdit && props.onEdit(item)} />}

@@ -60,6 +60,7 @@ const SupplierScoreboardTables = () => {
         return () => clearTimeout(captureTimer);
     }, [ratingsData, selectedYear, pdfReady]);
 
+
     useEffect(() => {
         if (chartImage) {
             setPdfReady(!!chartImage);
@@ -164,7 +165,10 @@ const SupplierScoreboardTables = () => {
         }
     }, [supplierScore, departments]);
 
-    useEffect(() => {
+
+    // Add cleanup for chart image
+
+  useEffect(() => {
         return () => {
             setChartImage(null);
             setPdfReady(false);
@@ -730,6 +734,7 @@ const SupplierScoreboardTables = () => {
     // const { ratingData, lineData } = prepareChartData();
 
     const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
+
 
     const GraphsPanel: any = React.memo(() => {
         return (

@@ -6,13 +6,14 @@ import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { CustomResponse } from '@/types';
-import { buildQueryParams, validateEmail, validateFullName, validateName, validatePhoneNumber, validateSiteAddress, validateString, validateText, validateZipCode } from '@/utils/utils';
+import { buildQueryParams, validateFormData } from '@/utils/utils';
 import { InputText } from 'primereact/inputtext';
 import { get } from 'lodash';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { EmptySupplier } from '@/types/forms';
 import Stepper from '@/components/Stepper';
+import { z } from 'zod';
 
 const defaultForm: EmptySupplier = {
     supId: null,
@@ -70,6 +71,12 @@ const ManageSupplierAddEditPage = () => {
     const [allState, setAllState] = useState<any>([]);
     const [allCity, setAllCity] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+    const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
+    const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
+    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({}); 
+    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({}); 
 
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
@@ -83,7 +90,6 @@ const ManageSupplierAddEditPage = () => {
             supplierCategoryId: incomingData.supplierCategoryId || get(incomingData, 'category.categoryId')
         };
     };
-
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
@@ -185,25 +191,124 @@ const ManageSupplierAddEditPage = () => {
             setLoading(false);
         }
     };
+    console.log('192', wordLimitErrors);
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
+        if (typeof name !== 'string') return; // Ensure `name` is always a string
+        let errors = { ...formErrors }; // Clone the existing errors object
         if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId' && name !== 'email') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
                 if (name !== 'siteAddress' && name !== 'warehouseLocation') {
-                    if (wordCount > 25) {
-                        setAlert('error', 'Word limit exceeded!');
+                    if (wordCount > 70) {
+                        setWordLimitErrors((prevWordErrors) => ({
+                            ...prevWordErrors,
+                            [name]: 'Word limit exceeded!'
+                        }));
                         return;
+                    } else {
+                        // Clear word limit error if condition is no longer met
+                        setWordLimitErrors((prevWordErrors) => {
+                            const updatedErrors = { ...prevWordErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
                     }
                 }
-                if (name === 'supplierNumber') {
-                    const typeValue = typeof val;
-                    if (isNaN(Number(val)) || typeValue !== 'string') {
-                        setAlert('error', 'Phone must be a valid number');
+                if (name === 'siteAddress' || name === 'warehouseLocation') {
+                    if (wordCount > 250) {
+                        setWordMaxLimitErrors((prevWordErrors) => ({
+                            ...prevWordErrors,
+                            [name]: 'Word limit exceeded!',
+                        }));
                         return;
+                    } else {
+                        // Clear word limit error if condition is no longer met
+                        setWordMaxLimitErrors((prevWordErrors) => {
+                            const updatedErrors = { ...prevWordErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
                     }
                 }
+                if (name === 'supplierNumber' || name === 'Zip') {
+                    if (!/^\d+$/.test(val)) { // Check if value is not a valid number
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Only numbers are allowed!'
+                        }));
+                        return;
+                    } else if (val.length > 15) {
+                        // Ensure supplierNumber does not exceed 15 digits
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Number exceeds limit!'
+                        }));
+                        return;
+                    } else {
+                        setNumberErrors((prevNumErrors) => {
+                            const updatedErrors = { ...prevNumErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
+                    }
+                }
+
+                if (name === 'Zip') {
+                    if (!/^[\d-]*$/.test(val)) {
+                        // Ensure only numbers and dash are allowed
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Only numbers and a dash (-) are allowed!'
+                        }));
+                        return;
+                    } else if (val.length > 9) {
+                        // Ensure Zip does not exceed 8 characters (0000-0000 is 9 chars including the dash)
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Zip Code numbers exceeds '
+                        }));
+                        return;
+                    } else {
+                        setNumberErrors((prevNumErrors) => {
+                            const updatedErrors = { ...prevNumErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
+                    }
+                }
+                if (name === 'supplierName') {
+                    const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
+                    if (!isAlphabet) {
+                        setAlphabetErrors((prevAlphaErrors) => ({
+                            ...prevAlphaErrors,
+                            [name]: 'Must contain only alphabets!'
+                        }));
+                        return;
+                    } else {
+                        setAlphabetErrors((prevAlphaErrors) => {
+                            const updatedErrors = { ...prevAlphaErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
+                    }
+                }
+                // if (name === 'supplierManufacturerName') {
+                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
+                //     if (!isAlphabet) {
+                //         setAlert('error', 'Supplier Manufacturer Name must contain only alphabets');
+                //         return;
+                //     }
+                // }
+
+                // if (name === 'factoryName') {
+                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
+                //     if (!isAlphabet) {
+                //         setAlert('error', 'factory Name must contain only alphabets');
+                //         return;
+                //     }
+                // }
             }
         }
         setForm((prevForm) => {
@@ -249,47 +354,25 @@ const ManageSupplierAddEditPage = () => {
             setLoading(false);
         }
     };
+    const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        handleNext(form);
+    };
 
     const handleCheckboxChange = (event: any) => {
         const { name, checked } = event.target;
         setChecked((prev) => ({ ...prev, [name]: checked }));
     };
     // navigation Handlers
-    const handleNext = () => {
-        console.log('235', form);
-        if (!validateFullName(form.supplierName)) {
-            setAlert('error', 'Supplier name must be in proper format');
-            return;
-        }
-        if (!validateFullName(form.supplierManufacturerName)) {
-            setAlert('error', 'Supplier manufacturer must be in proper format');
-            return;
-        }
-        if (!validateFullName(form.factoryName)) {
-            setAlert('error', 'Factory must be in proper format');
-            return;
-        }
-        if (!validateEmail(form.email)) {
-            setAlert('error', 'Email must be in proper format');
-            return;
-        }
-        if (!validatePhoneNumber(form.supplierNumber)) {
-            setAlert('error', 'Phone number must be in proper format');
-            return;
-        }
-        if (!validateZipCode(form.Zip)) {
-            setAlert('error', 'Zip must be in proper format');
-            return;
-        }
-        if (!validateSiteAddress(form.siteAddress)) {
-            setAlert('error', 'Site address cannot be empty');
-            return;
-        }
-        if (!validateText(form.warehouseLocation)) {
-            setAlert('error', 'Warehouse location cannot be empty');
+    const handleNext = (form: Record<string, unknown>) => {
+        const { valid, errors } = validateFormData(form);
+        console.log('287', valid);
+        if (!valid) {
+            setFormErrors(errors);
             return;
         }
 
+        setFormErrors({});
         if (currentStep < totalSteps) {
             setCompletedSteps((prev) => {
                 const newSteps = [...prev];
@@ -308,6 +391,17 @@ const ManageSupplierAddEditPage = () => {
                 return newSteps;
             });
             setCurrentStep((prev) => prev - 1);
+        }
+    };
+    const onNewAdd = async (userForm: any) => {
+        setIsDetailLoading(true);
+        const response: CustomResponse = await PostCall(`/company/supplier`, userForm);
+        setIsDetailLoading(false);
+        if (response.code == 'SUCCESS') {
+            router.push(`/manage-supplier`);
+            setAlert('success', 'Successfully Added');
+        } else {
+            setAlert('error', response.message);
         }
     };
 
@@ -331,10 +425,16 @@ const ManageSupplierAddEditPage = () => {
                                         type="text"
                                         value={get(form, 'supplierName')}
                                         onChange={(e) => onInputChange('supplierName', e.target.value)}
-                                        className="p-inputtext w-full "
+                                        className="p-inputtext w-full mb-1"
                                         placeholder="Enter Supplier Name"
                                         required
                                     />
+                                    {formErrors.supplierName && (
+                                        <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.supplierName}</p> // Display error message
+                                    )}
+                                    {/* Display word limit errors separately */}
+                                    {wordLimitErrors.supplierName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordLimitErrors.supplierName}</p>}
+                                    {alphabetErrors.supplierName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{alphabetErrors.supplierName}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="manufacturerName" className="font-semibold">
@@ -345,15 +445,26 @@ const ManageSupplierAddEditPage = () => {
                                         type="text"
                                         value={get(form, 'supplierManufacturerName')}
                                         onChange={(e) => onInputChange('supplierManufacturerName', e.target.value)}
-                                        className="p-inputtext w-full"
+                                        className="p-inputtext w-full mb-1"
                                         placeholder="Enter Manufacturer Name"
                                     />
+                                    {formErrors.supplierManufacturerName && (
+                                        <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.supplierManufacturerName}</p> // Display error message
+                                    )}
+                                    {/* Display word limit errors separately */}
+                                    {wordLimitErrors.supplierManufacturerName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordLimitErrors.supplierManufacturerName}</p>}
+                                    {alphabetErrors.supplierManufacturerName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{alphabetErrors.supplierManufacturerName}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="factoryName" className="font-semibold">
                                         Factory Name
                                     </label>
-                                    <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full" />
+                                    <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full mb-1" />
+                                    {formErrors.factoryName && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.factoryName}</p> 
+                                        )}
+                                    {/* Display word limit errors separately */}
+                                    {wordLimitErrors.factoryName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordLimitErrors.factoryName}</p>}
                                 </div>
 
                                 <div className="field col-3">
@@ -366,10 +477,13 @@ const ManageSupplierAddEditPage = () => {
                                         options={category}
                                         optionLabel="categoryName"
                                         optionValue="categoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} // map subCategoryId to supplierCategoryId
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} 
                                         placeholder="Select Procurement Category"
-                                        className="w-full"
+                                        className="w-full mb-1"
                                     />
+                                    {formErrors.supplierCategoryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.supplierCategoryId}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="procurementCategory" className="font-semibold">
@@ -384,63 +498,113 @@ const ManageSupplierAddEditPage = () => {
                                             optionValue="subCategoryId"
                                             onChange={(e) => onInputChange('procurementCategoryId', e.value)}
                                             placeholder="Select Supplier Category"
-                                            className="w-full"
+                                            className="w-full mb-1"
                                         />
                                     ) : (
                                         <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
                                     )}
+                                    {formErrors.procurementCategoryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.procurementCategoryId}</p> 
+                                        )}
                                 </div>
 
                                 <div className="field col-3">
                                     <label htmlFor="email" className="font-semibold">
                                         Email Address
                                     </label>
-                                    <InputText id="email" value={get(form, 'email')} type="text" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full" />
+                                    <InputText id="email" value={get(form, 'email')} type="text" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
+                                    {formErrors.email && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.email}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="supplierNumber" className="font-semibold">
                                         Phone Number
                                     </label>
-                                    <InputText id="supplierNumber" value={get(form, 'supplierNumber')} type="text" onChange={(e) => onInputChange('supplierNumber', e.target.value)} placeholder="Enter Phone Number " className="p-inputtext w-full" />
+                                    <InputText
+                                        id="supplierNumber"
+                                        value={get(form, 'supplierNumber')}
+                                        type="text"
+                                        onChange={(e) => onInputChange('supplierNumber', e.target.value)}
+                                        placeholder="Enter Phone Number "
+                                        className="p-inputtext w-full mb-1"
+                                    />
+                                    {formErrors.supplierNumber && (
+                                        <p style={{ color: "red", fontSize:'10px'}}>{formErrors.supplierNumber}</p>
+                                        )}
+                                    {numberErrors.supplierNumber && ( 
+                                        <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.supplierNumber}</p>
+                                    )}
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="country" className="font-semibold">
+                                    <label htmlFor="countryId" className="font-semibold">
                                         Country
                                     </label>
                                     <Dropdown
-                                        id="country"
+                                        id="countryId"
                                         value={get(form, 'countryId')}
                                         options={allCountry}
                                         optionLabel="name"
                                         optionValue="countryId"
                                         onChange={(e) => onInputChange('countryId', e.value)}
                                         placeholder="Select Country"
-                                        className="w-full"
+                                        className="w-full mb-1"
                                     />
+                                    {formErrors.countryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.countryId}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="state" className="font-semibold">
                                         State
                                     </label>
-                                    <Dropdown id="stateId" value={get(form, 'stateId')} options={allState} optionLabel="name" optionValue="stateId" onChange={(e) => onInputChange('stateId', e.value)} placeholder="Select state" className="w-full" />
+                                    <Dropdown
+                                        id="stateId"
+                                        value={get(form, 'stateId')}
+                                        options={allState}
+                                        optionLabel="name"
+                                        optionValue="stateId"
+                                        onChange={(e) => onInputChange('stateId', e.value)}
+                                        placeholder="Select state"
+                                        className="w-full mb-1"
+                                    />
+                                    {formErrors.stateId && (
+                                        <p style={{ color: "red" ,fontSize:'10px'}}>{formErrors.stateId}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
-                                    <Dropdown id="cityId" value={get(form, 'cityId')} options={allCity} optionLabel="name" optionValue="cityId" onChange={(e) => onInputChange('cityId', e.value)} placeholder="Select city" className="w-full" />
+                                    <Dropdown id="cityId" value={get(form, 'cityId')} options={allCity} optionLabel="name" optionValue="cityId" onChange={(e) => onInputChange('cityId', e.value)} placeholder="Select city" className="w-full mb-1" />
+                                    {formErrors.cityId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.cityId}</p> 
+                                        )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="Zip" className="font-semibold">
                                         ZipCode
                                     </label>
-                                    <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full" />
+                                    <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full mb-1" />
+                                    {formErrors.Zip && (
+                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.Zip}</p> 
+                                        )}
+                                        {numberErrors.Zip && ( 
+                                            <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.Zip}</p>
+                                        )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="siteAddress" className="font-semibold">
                                         Site Address
                                     </label>
-                                    <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full" placeholder="Enter Site Address" />
+                                    <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full mb-1" placeholder="Enter Site Address" />
+                                    {formErrors.siteAddress && (
+                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.siteAddress}</p> // Display error message
+                                        )}
+                                        {/* Display word limit errors separately */}
+                                    {wordMaxLimitErrors.siteAddress && (
+                                        <p style={{ color: "red", fontSize: "10px" }}>{wordMaxLimitErrors.siteAddress}</p>
+                                    )}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="warehouseLocation" className="font-semibold">
@@ -452,8 +616,15 @@ const ManageSupplierAddEditPage = () => {
                                         value={get(form, 'warehouseLocation')}
                                         onChange={(e) => onInputChange('warehouseLocation', e.target.value)}
                                         placeholder="Enter Warehouse Location"
-                                        className="p-inputtext w-full"
+                                        className="p-inputtext w-full mb-1"
                                     />
+                                    {formErrors.warehouseLocation && (
+                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.warehouseLocation}</p> // Display error message
+                                        )}
+                                        {/* Display word limit errors separately */}
+                                    {wordMaxLimitErrors.warehouseLocation && (
+                                        <p style={{ color: "red", fontSize: "10px" }}>{wordMaxLimitErrors.warehouseLocation}</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -574,7 +745,7 @@ const ManageSupplierAddEditPage = () => {
                 <div className="p-card-body">{renderStepContent()}</div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleNext} />}
+                    {currentStep === 1 && <Button label="Next" icon="pi pi-arrow-right" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleButtonClick} />}
                     {currentStep === 2 && (
                         <>
                             <Button label="Back" icon="pi pi-arrow-left" className="text-primary-main bg-white border-primary-main hover:text-primary-main hover:bg-white transition-colors duration-150 mb-3" onClick={handlePrevious} />

@@ -891,30 +891,30 @@
   }
 
   .p-checkbox .p-checkbox-box.p-highlight {
-    border-color: #EC4899;
-    background: #EC4899;
+    border-color: #DF1740;
+    background: #DF1740;
   }
 
   .p-checkbox .p-checkbox-box.p-highlight:not(.p-disabled):hover {
-    border-color: #EC4899;;
-    background: #EC4899;;
+    border-color: #DF1740;;
+    background: #DF1740;;
     color: #ffffff;
   }
 
   .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:hover {
-    border-color: #EC4899;;
+    border-color: #DF1740;;
   }
 
   .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-focus {
     outline: 0 none;
     outline-offset: 0;
     /* box-shadow: 0 0 0 0.2rem #C7D2FE; */
-    border-color: #EC4899;
+    border-color: #DF1740;
   }
 
   .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover {
-    border-color: #EC4899;;
-    background: #EC4899;;
+    border-color: #DF1740;;
+    background: #DF1740;;
     color: #ffffff;
   }
 

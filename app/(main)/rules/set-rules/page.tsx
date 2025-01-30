@@ -440,11 +440,11 @@ const SetRulesPage = () => {
                                 totalRecords={totalRecords} // total records from api response
                                 // isEdit={true} // show edit button
                                 isDelete={true} // show delete button
-                                extraButtons={[
+                                extraButtons={(item) => [
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, e.ruleId); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId, item.ruleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
