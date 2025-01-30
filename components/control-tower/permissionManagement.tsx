@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import CustomDataTable from '../CustomDataTable';
-import { getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -43,7 +43,13 @@ const PermissionManagement = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/settings/permissions');
+            if (!params) {
+                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: "permissionId" };
+            }
+
+            const queryString = buildQueryParams(params);
+
+            const response = await GetCall(`/settings/permissions?${queryString}`);
             setAllPermissions(response.data);
             setTotalRecords(response.total);
         } catch (err) {
