@@ -17,7 +17,6 @@ import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
-import { useLoaderContext } from '@/layout/context/LoaderContext';
 
 const ACTIONS = {
     ADD: 'add',
@@ -88,6 +87,7 @@ const SetRulesPage = () => {
             }
         });
     };
+
     // Handle limit change
     const onSubCategorychange = (e: any) => {
         setSelectedSubCategory(e.value); // Update limit
@@ -115,6 +115,7 @@ const SetRulesPage = () => {
         fetchsupplierCategories();
         fetchsupplierDepartment();
     }, [limit, page]);
+
     const handleCreateNavigation = () => {
         router.push(`/rules/set-rules/create-new-rules?ruleSetId=${ruleSetId}`);
     };
@@ -247,7 +248,7 @@ const SetRulesPage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories,categories,department', sortOrder: 'asc' };
+                params = { limit: limit, page: page, include: 'subCategories, categories, department', sortOrder: 'asc' };
             }
 
             setPage(params.page);
@@ -411,6 +412,25 @@ const SetRulesPage = () => {
         }
     };
 
+    const expandedData = rules.flatMap((item: any) => {
+        // Create a row for each criteriaEvaluation and score pair
+        return item.criteriaEvaluation.map((criteria: string, index: number) => ({
+            ruleId: item.ruleId,
+            department: item.department?.name,
+            category: item.categories?.categoryName,
+            subCategories: item.subCategories?.subCategoryName,
+            section: item.section,
+            ratedCriteria: item.ratedCriteria,
+            criteriaEvaluation: criteria,
+            score: item.score[index],
+            ratiosCopack: item.ratiosCopack,
+            ratiosRawpack: item.ratiosRawpack,
+            // add a unique identifier for each expanded row
+            expandedRowId: `${item.ruleId}-${index}`
+        }));
+    });
+
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -431,8 +451,7 @@ const SetRulesPage = () => {
                                     <div className="mt-2">{dropdownFieldSubCategory}</div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
-                            </div>
-
+                            </div>  
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -448,18 +467,19 @@ const SetRulesPage = () => {
                                         }
                                     }
                                 ]}
-                                data={rules.map((item: any) => ({
-                                    ruleId: item.ruleId,
-                                    department: item.department?.name,
-                                    category: item.categories?.categoryName,
-                                    subCategories: item.subCategories?.subCategoryName,
-                                    section: item.section,
-                                    ratedCriteria: item.ratedCriteria,
-                                    criteriaEvaluation: item.criteriaEvaluation,
-                                    score: item.score,
-                                    ratiosCopack: item.ratiosCopack,
-                                    ratiosRawpack: item.ratiosRawpack
-                                }))}
+                                // data={rules.map((item: any) => ({
+                                //     ruleId: item.ruleId,
+                                //     department: item.department?.name,
+                                //     category: item.categories?.categoryName,
+                                //     subCategories: item.subCategories?.subCategoryName,
+                                //     section: item.section,
+                                //     ratedCriteria: item.ratedCriteria,
+                                //     criteriaEvaluation: item.criteriaEvaluation,
+                                //     score: item.score,
+                                //     ratiosCopack: item.ratiosCopack,
+                                //     ratiosRawpack: item.ratiosRawpack
+                                // }))}
+                                data={expandedData}
                                 columns={[
                                     {
                                         header: 'Sr. No',
