@@ -4,19 +4,16 @@ import { z } from 'zod';
 export const formSchemaSupplier = z.object({
     supplierName: z
         .string()
-        .min(1, 'Supplier name cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Supplier name must be in proper format'),
+        .min(1, 'Supplier name cannot be empty'),
     supplierManufacturerName: z
         .string()
-        .min(1, 'Supplier manufacturer cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Supplier manufacturer must be in proper format'),
+        .min(1, 'Supplier manufacturer cannot be empty'),
     factoryName: z
         .string()
-        .min(1, 'Factory name cannot be empty')
-        .regex(/^[a-zA-Z\s]+$/, 'Factory name must be in proper format'),
-    email: z.string().email('Email must be in proper format'),
-    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number must be in proper format'),
-    // Zip: z.string().regex(/^\d{4,6}$/, "Zip must be in proper format"),
+        .min(1, 'Factory name cannot be empty'),
+    email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
+    supplierNumber: z.string().min(1, 'Phone number cannot be empty'),
+    Zip: z.string().min(1, 'Zip code cannot be empty'),
     siteAddress: z.string().min(1, 'Site address cannot be empty'),
     warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
     procurementCategoryId: z
@@ -63,7 +60,7 @@ const fieldsSchemaRules = z.object({
         .date()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Effective date must be in date format'
+            message: 'Effective date must not be empty'
         }),
     departmentId: z
         .number()
@@ -71,7 +68,11 @@ const fieldsSchemaRules = z.object({
         .refine((val) => val !== null, {
             message: 'Department must not be empty'
         }),
-    orderBy: z.number({ invalid_type_error: 'Order By must be a number' }).refine((val) => val > 0, { message: 'Order By must not be empty' }),
+    orderBy: z.number()
+    .nullable()
+    .refine((val) => val !== null, {
+        message: 'OrderBy must not be empty'
+    }),
     section: z.string().min(1, 'Section must not be empty'),
     categoryId: z
         .number()
@@ -120,7 +121,7 @@ const fieldsSchemaCapaRules = z.object({
         .date()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Effective date must be in date format'
+            message: 'Effective date must not be empty'
         }),
     departmentId: z
         .number()
@@ -128,23 +129,23 @@ const fieldsSchemaCapaRules = z.object({
         .refine((val) => val !== null, {
             message: 'Department must not be empty'
         }),
-    orderBy: z.number({ invalid_type_error: 'Order By must be a number' }).refine((val) => val > 0, { message: 'Order By must not be empty' }),
-    // section: z.string().min(1, 'Section must not be empty'),
-    // categoryId: z
-    //     .number()
-    //     .nullable()
-    //     .refine((val) => val !== null, {
-    //         message: 'Procurement category must not be empty'
-    //     }),
-    // subCategoryId: z
-    //     .number()
-    //     .nullable()
-    //     .refine((val) => val !== null, {
-    //         message: 'Supplier category must not be empty'
-    //     }),
-    // ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
-    // ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
-    // ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
+        categoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Procurement Category must not be empty'
+        }),
+        subCategoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Supplier Category must not be empty'
+        }),
+    orderBy: z.number()
+    .nullable()
+    .refine((val) => val !== null, {
+        message: 'OrderBy must not be empty'
+    }),
     capaRulesName: z.array(z.string().min(1, 'Criteria Evaluation must not be empty')),
     status: z.array(
         z
