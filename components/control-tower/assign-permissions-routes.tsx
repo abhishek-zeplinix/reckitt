@@ -24,7 +24,8 @@ const Routes = () => {
     const [routeList, setRoutesList] = useState<any>([]);
     const [routeId, setSelectedRouteId] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    // const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
+    const [limit, setLimit] = useState<number>(500);
     const [totalRecords, setTotalRecords] = useState<any>();
     const [permissions, setPermissions] = useState<any>([]); //store fetched permissions
     const [selectedPermissions, setSelectedPermissions] = useState<any>([]); // store selected permissionIds
