@@ -229,7 +229,7 @@ const ManageCapaRulesPage = () => {
                         </div>
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Capa Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
