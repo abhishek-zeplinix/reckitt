@@ -31,30 +31,54 @@ const LoginPage = () => {
     const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value);
 
     const toggleInputType = () => setIsPhoneNumber(!isPhoneNumber);
-    const handleEmail = (event: any) => {
-        setEmail(event.target.value);
-    };
+    
     const handleRoleChange = (e: any) => {
         setRole(e.target.value); // Update role based on selected radio button
         setOtpSent(false); // Reset OTP state when switching roles
     };
 
-    const handleSendOtp = () => {
-        // Logic to send OTP (e.g., API call) can be added here
-        setOtpSent(true); // Mark OTP as sent
-    };
+   
     const handlePassword = (event: any) => {
         setPassword(event.target.value);
     };
-    const sendOtp = () => {
+
+
+   
+
+    const sendOtp = async() => {
+
         if (!email) return alert('Please enter your email.');
 
         setLoading(true);
-        setTimeout(() => {
-            setIsOtpSent(true); // Show OTP field after sending OTP
+
+        const payload = { email }
+        
+        try{
+           
+            const response = await PostCall('/auth/supplier/login', payload);
+            console.log(response?.otp);
+            
+            if (response?.otp) {
+                setIsOtpSent(true)
+            }else{
+                setAlert("error", "OTP generation failed")
+            }
+
+        }catch(error){
+            
+        }finally{
+
             setLoading(false);
-        }, 1000);
+        }
+
     };
+
+      // setTimeout(() => {
+        //     setIsOtpSent(true); // Show OTP field after sending OTP
+        //     setLoading(false);
+        // }, 1000);
+
+
     const loginClick = async () => {
         if (isLoading) {
             return;
@@ -83,6 +107,58 @@ const LoginPage = () => {
             }
         }
     };
+
+    
+    const loginOTPClick = async () => {
+        if (isLoading) {
+            return;
+        }
+
+        if (email && otp) {
+            setLoading(true);
+
+            const payload = {email, otp}
+            const response: any = await PostCall('/auth/supplier/verify-otp', payload);
+
+            setLoading(false);
+
+            if (response?.code === 'SUCCESS') {
+                console.log('login success');
+                setAlert('success', response.message);
+                setUser(response.data);
+                setAuthToken(response.token);
+                setAuthData(response.token, response.refreshToken, response.data);
+                setUserDetails(response.data);
+            // } else if (response.code == 'RESET_PASSWORD') {
+            //     console.log('res', response);
+            //     setDisplayName(response.name);
+            //     setAlert('success', 'Please reset you password');
+            //     router.push(`/reset-password?resetToken=${response.resetToken}`);
+            } else {
+                setAlert('error', response.message);
+            }
+
+            // if (response.code == 'SUCCESS') {
+            //     console.log('login success');
+            //     setAlert('success', 'Login success!');
+            //     setUser(response.data);
+            //     setAuthToken(response.token);
+            //     setAuthData(response.token, response.refreshToken, response.data);
+            //     setUserDetails(response.data);
+            // } else if (response.code == 'RESET_PASSWORD') {
+            //     console.log('res', response);
+            //     setDisplayName(response.name);
+            //     setAlert('success', 'Please reset you password');
+            //     router.push(`/reset-password?resetToken=${response.resetToken}`);
+            // } else {
+            //     setAlert('error', response.message);
+            // }
+        }
+    };
+
+
+
+
 
     const handleCheckboxChange = (e: any) => {
         setChecked(e.checked); // Update checked state
@@ -142,6 +218,7 @@ const LoginPage = () => {
                                     ) : (
                                         <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
                                     )}
+
                                     {!isOtpSent && <Button label="Get OTP" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={sendOtp} />}
                                     {isOtpSent && (
                                         <div>
@@ -150,7 +227,7 @@ const LoginPage = () => {
                                             </label>
                                             <InputText id="otp" value={otp} type="text" placeholder="Enter OTP" className="w-full mb-3" onChange={handleOtpChange} />
 
-                                            <Button label="Login" icon="pi pi-user" className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={() => alert('Logging in...')} />
+                                            <Button label="Login" icon="pi pi-user" className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginOTPClick} />
                                         </div>
                                     )}
                                 </div>

@@ -13,9 +13,18 @@ import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 
 
-const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPeriod, categoryName, departmentId, department, totalScoreEvaluated, onSuccess, supplierScoreData, isEvaluatedData }: any) => {
+const SupplierEvaluationTable = ({ rules,
+  selectedPeriod,
+  category,
+  evaluationPeriod,
+  departmentId,
+  department,
+  totalScoreEvaluated,
+  onSuccess,
+  supplierScoreData,
+  isEvaluatedData }: any) => {
 
-  const [tableData, setTableData] = useState(rules);
+  const [tableData, setTableData] = useState<any>(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
   const [originalPercentages, setOriginalPercentages] = useState<any>({});
   const [currentPercentages, setCurrentPercentages] = useState<any>({});
@@ -30,11 +39,13 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
   const [defaultPercentages, setDefaultPercentages] = useState<any>({});
   const [isCompleted, setIsCompleted] = useState<any>('pending');
   const [loading, setLoading2] = useState(true);
-
+  const [initializing, setInitializing] = useState(true);
+  const [noData, setNoData] = useState(false);
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
 
   const dropdownRef = useRef<any>(null);
+
   const { setLoading, setAlert } = useAppContext();
 
 
@@ -54,30 +65,72 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
   };
 
 
-  // reset initialization when category changes
   useEffect(() => {
 
-    setIsCompleted('pending');
+    setTableData([])
+    const initialize = async () => {
+      setInitializing(true);
+      setIsCompleted('pending');
 
-    if (rules && category && supplierScoreData) {
-      if (supplierScoreData[0]?.status) {
-        setIsCompleted(supplierScoreData[0]?.status);
+      try {
+          
+        if (supplierScoreData) {
+          const status = supplierScoreData[0]?.status;
+          status === undefined ? setIsCompleted('pending') : setIsCompleted(status);
+            
+          // if (status?.toLowerCase() === 'completed' || (!rules?.sections && supplierScoreData[0]?.sections)) {
+            if (status?.toLowerCase() === 'completed') {
+
+              setNoData(false)
+
+            setTableData(supplierScoreData[0]);
+             
+            console.log('insiderrrrrrrrr');
+            
+
+            await initializeCompletedData();
+            
+            const totalCriteria = supplierScoreData[0]?.sections?.reduce((total: any, section: any) => {
+              return total + section.ratedCriteria.length;
+            }, 0) || 0;
+
+            setCriteriaCount(totalCriteria);
+          } else if (rules?.sections) {
+           setNoData (false)
+            setTableData(rules);
+            await initializeData();
+            const totalCriteria = rules.sections.reduce((total: any, section: any) => {
+              return total + section.ratedCriteria.length;
+            }, 0);
+            setCriteriaCount(totalCriteria);
+          }else{
+            setNoData(true)
+          }
+          
+          setTotalScore(totalScoreEvaluated);
+        }
+      } catch (error) {
+        console.error('Initialization error:', error);
+      } finally {
+        setInitializing(false);
       }
-      setTableData(rules);
-      initializeData();
-      setTotalScore(totalScoreEvaluated)
-      const totalCriteria = rules?.sections?.reduce((total: any, section: any) => {
-        return total + section.ratedCriteria.length;
-      }, 0);
+    };
 
-      setCriteriaCount(totalCriteria);
-    }
-
+    initialize();
   }, [rules, category, supplierScoreData]);
 
 
+
   useEffect(() => {
+
+    if (supplierScoreData){
+      const status = supplierScoreData[0]?.status;
+      if (status?.toLowerCase() === 'completed'){
+        return;
+      }
+    }
     setLoading2(true)
+
     if (rules) {
       setTimeout(() => {
         if (dropdownRef.current) {
@@ -87,11 +140,11 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
           if (options && options.length > 1) {
             const originalValue = dropdownInstance.props.value;
 
-            // Step 1: Simulate selecting the second option
-            const newValue = options[1].value; // Pick second value from options
+            // simulate selecting the second option
+            const newValue = options[1].value; // pick second value from options
             dropdownInstance.props.onChange({ value: newValue });
 
-            // Step 2: Restore the original value after 50ms
+            // restore the original value after 50ms
             setTimeout(() => {
               dropdownInstance.props.onChange({ value: originalValue });
               setTimeout(() => setLoading2(false), 100);
@@ -107,6 +160,7 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
 
 
   }, [rules]);
+
   //capa rule visibility logic
   //it is based on selectedEvaluations
   const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
@@ -208,6 +262,40 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
 
   };
 
+  const initializeCompletedData = () => {
+    if (!supplierScoreData[0]?.sections) return;
+
+    const initialEvals: any = {};
+    const initialPercentages: any = {};
+    let initialEvaluatedCount = 0;
+
+    supplierScoreData[0].sections.forEach((section: any, sIndex: number) => {
+      section.ratedCriteria.forEach((criteria: any, cIndex: number) => {
+        const key = `${sIndex}-${cIndex}`;
+        
+        if (criteria.evaluations?.[0]) {
+          initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
+          initialPercentages[key] = criteria.evaluations[0][category] ?? 0;
+          
+          if (criteria.evaluations[0].criteriaEvaluation !== '') {
+            initialEvaluatedCount++;
+          }
+        }
+      });
+    });
+
+    setEvaluatedCriteriaCount(initialEvaluatedCount);
+    setSelectedEvaluations(initialEvals);
+    setOriginalPercentages(initialPercentages);
+    setCurrentPercentages(initialPercentages);
+    setDisplayPercentages(distributeRoundedPercentages(initialPercentages));
+    setComments(supplierScoreData[0]?.comments || '');
+    
+    if (supplierScoreData[0]?.capa) {
+      setCapaData(supplierScoreData[0].capa);
+      checkCapaDataStatus(supplierScoreData[0].capa);
+    }
+  };
 
 
   const distributeRoundedPercentages = (percentages: any) => {
@@ -504,6 +592,9 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
 
 
   const handleCapaDataChange = (data: any[]) => {
+    if (totalScore > 50) {
+      setCapaData([]);
+    }
     setCapaData(data);
     checkCapaDataStatus(data);
 
@@ -512,7 +603,7 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
   };
 
   const getSeverity = (status: string) => {
-    switch (status.toUpperCase()) {
+    switch (status?.toUpperCase()) {
       case 'IN PROGRESS':
         return 'warning';
       case 'COMPLETED':
@@ -541,7 +632,32 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
     // });
   };
 
+  console.log(isCompleted);
 
+  
+  if (initializing || !tableData) {
+    return (
+      <div className="w-full p-4">
+        <div className="mb-2">
+          <Skeleton width="100px" height="30px" className="mb-2"/>
+        </div>
+        <div className="border rounded-lg p-4">
+          <Skeleton width="100%" height="400px"/>
+        </div>
+      </div>
+    );
+  }
+  console.log(tableData?.sections?.length);
+  
+
+  if (noData) {
+    return (
+      <div className="w-full p-4 text-center">
+        <div className="text-gray-500">No evaluation data available</div>
+      </div>
+    );
+  }
+  
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
 
@@ -550,7 +666,7 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
 
       <div className="min-w-[800px]">
         <div className='flex justify-content-start'>
-          <Badge value={isCompleted.toUpperCase()} severity={getSeverity(isCompleted)} className="mr-3 mb-2" />
+          <Badge value={isCompleted?.toUpperCase()} severity={getSeverity(isCompleted)} className="mr-3 mb-2" />
         </div>
 
 
@@ -617,7 +733,7 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
                           </td>
                       }
 
-                 
+
                       <td className="px-4 py-2">
                         <Dropdown
                           ref={dropdownRef}
@@ -633,7 +749,7 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
                           placeholder="-- Select an Evaluation --"
                           className="w-full md:w-14rem"
                           showClear
-                          disabled={isCompleted.toLowerCase() === 'completed'}
+                          disabled={isCompleted?.toLowerCase() === 'completed'}
                         // pt={{
                         //   item: ({ selected }: any) => ({
                         //     className: selected ? 'bg-primary-100' : undefined
@@ -643,8 +759,8 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
                         />
 
                       </td>
-                        
-                    
+
+
                       <td className="px-4 py-2">
                         {score === 'NA' ? (
                           <InputText type="text" size={1} value={score} readOnly className="m-auto bg-gray-400 font-bold border-none text-white text-center" />
@@ -660,22 +776,12 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
                           <InputText type="text" size={1} value={score} readOnly className="m-auto critical font-bold border-none text-white text-center" />
                         )}
                       </td>
-                
+
                     </tr>
                   );
                 })}
               </>
             ))}
-
-            {/* {isEvaluatedData ? */}
-            {/*             
-            {isEvaluatedData ?
-              <tr style={{ backgroundColor: totalScore <= 50 ? '#FBC1C1' : '#B6E4C9' }}>
-                <td colSpan={4} className="px-4 py-3 text-right text-black font-bold">
-                  Total Score:
-                </td>
-                <td className="px-4 py-3 font-bold text-lg">{totalScore}</td>
-              </tr> : */}
 
             <tr style={{ backgroundColor: getBackgroundColor(totalScore) }}>
               <td colSpan={4} className="px-4 py-3 text-right text-white font-bold">
@@ -705,7 +811,11 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
           <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
 
 
-          <InputTextarea rows={5} cols={30} onChange={(e) => setComments(e.target.value)} value={comments}
+          <InputTextarea
+            rows={5}
+            cols={30}
+            onChange={(e) => setComments(e.target.value)} value={comments}
+            disabled={isCompleted?.toLowerCase() === 'completed'}
           />
 
 
@@ -717,11 +827,11 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
       {
         isEvaluatedData ?
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} isEvaluatedData setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} />}
+            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} isEvaluatedData={false} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} />}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
           </div>
 
       }
@@ -730,7 +840,7 @@ const SupplierEvaluationTable = ({ rules, selectedPeriod,category, evaluationPer
 
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
-        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted.toLowerCase() === 'completed'}/>
+        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
 
       </div>
     </div>

@@ -37,6 +37,40 @@ const ManageRequestsPage = () => {
         </div>
     );
 
+    // const formatRequestedData = (data: any) => {
+    //     if (!data) return '';
+    //     if (typeof data === 'string') return data;
+    //     if (typeof data !== 'object') return '';
+
+    //     return Object.entries(data)
+    //         .filter(([key, value]) => value !== null)
+    //         .map(([key, value]) => {
+    //             const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+    //             return `${formattedKey}: ${value}`;
+    //         })
+    //         .join('\n');
+    // };
+
+    // // Updated function to show only corresponding old data
+    // const formatOldData = (requestedData: any, oldData: any) => {
+    //     if (!requestedData || !oldData || typeof requestedData !== 'object' || typeof oldData !== 'object') return '';
+
+    //     // Get keys from requested data
+    //     const requestedKeys = Object.keys(requestedData);
+
+    //     return Object.entries(oldData)
+    //         .filter(([key, value]) => {
+    //             // Only include fields that are in the requested changes
+    //             return requestedKeys.includes(key) && value !== null;
+    //         })
+    //         .map(([key, value]) => {
+    //             const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+    //             return `${formattedKey}: ${value}`;
+    //         })
+    //         .join('\n');
+    // };
+
+
     const formatRequestedData = (data: any) => {
         if (!data) return '';
         if (typeof data === 'string') return data;
@@ -44,32 +78,31 @@ const ManageRequestsPage = () => {
 
         return Object.entries(data)
             .filter(([key, value]) => value !== null)
-            .map(([key, value]) => {
+            .map(([key, value], index, array) => {
                 const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-                return `${formattedKey}: ${value}`;
+                const isLastItem = index === array.length - 1;
+                return `${formattedKey}: ${value}${isLastItem ? '' : '\n───────────────\n'}`;
             })
-            .join('\n');
+            .join('');
     };
 
-    // Updated function to show only corresponding old data
     const formatOldData = (requestedData: any, oldData: any) => {
         if (!requestedData || !oldData || typeof requestedData !== 'object' || typeof oldData !== 'object') return '';
 
-        // Get keys from requested data
         const requestedKeys = Object.keys(requestedData);
+        const filteredEntries = Object.entries(oldData)
+            .filter(([key, value]) => requestedKeys.includes(key) && value !== null);
 
-        return Object.entries(oldData)
-            .filter(([key, value]) => {
-                // Only include fields that are in the requested changes
-                return requestedKeys.includes(key) && value !== null;
-            })
-            .map(([key, value]) => {
+        return filteredEntries
+            .map(([key, value], index) => {
                 const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-                return `${formattedKey}: ${value}`;
+                const isLastItem = index === filteredEntries.length - 1;
+                return `${formattedKey}: ${value}${isLastItem ? '' : '\n───────────────\n'}`;
             })
-            .join('\n');
+            .join('');
     };
-
+   
+   
     const fetchData = async (params?: any) => {
         try {
             setLoading(true);
@@ -188,12 +221,105 @@ const ManageRequestsPage = () => {
         );
     };
 
+    // const requestedDataBody = (rowData: any) => {
+    //     return <div style={{ whiteSpace: 'pre-line' }}>{formatRequestedData(rowData.requestedData)}</div>;
+    // };
+
+    // const oldDataBody = (rowData: any) => {
+    //     return <div style={{ whiteSpace: 'pre-line' }}>{formatOldData(rowData.requestedData, rowData.oldData)}</div>;
+    // };
+
+
+    const formatKeyName = (key: string) => {
+        return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+    };
+
+    // const requestedDataBody = (rowData: any) => {
+    //     return (
+    //         <div 
+    //             style={{ 
+    //                 whiteSpace: 'pre-line',
+    //                 padding: '8px',
+    //                 borderRadius: '4px'
+    //             }}
+    //         >
+    //             {formatRequestedData(rowData.requestedData)}
+    //         </div>
+    //     );
+    // };
+
+    // const oldDataBody = (rowData: any) => {
+    //     return (
+    //         <div 
+    //             style={{ 
+    //                 whiteSpace: 'pre-line',
+    //                 padding: '8px',
+    //                 borderRadius: '4px'
+    //             }}
+    //         >
+    //             {formatOldData(rowData.requestedData, rowData.oldData)}
+    //         </div>
+    //     );
+    // };
+
     const requestedDataBody = (rowData: any) => {
-        return <div style={{ whiteSpace: 'pre-line' }}>{formatRequestedData(rowData.requestedData)}</div>;
+        if (!rowData.requestedData || typeof rowData.requestedData !== 'object') {
+            return <div>No data available</div>;
+        }
+
+        const data = Object.entries(rowData.requestedData)
+            .filter(([_, value]) => value !== null);
+
+        return (
+            <div className="border rounded-md overflow-hidden">
+                <table className="w-full">
+                    <tbody>
+                        {data.map(([key, value], index) => (
+                            <tr key={key} className={index !== data.length - 1 ? 'border-b' : ''}>
+                                <td className="p-2 bg-gray-50 font-medium" style={{ width: '40%' }}>
+                                    {formatKeyName(key)}
+                                </td>
+                                <td className="p-2">
+                                    {String(value)}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
     };
 
     const oldDataBody = (rowData: any) => {
-        return <div style={{ whiteSpace: 'pre-line' }}>{formatOldData(rowData.requestedData, rowData.oldData)}</div>;
+        if (!rowData.requestedData || !rowData.oldData || 
+            typeof rowData.requestedData !== 'object' || 
+            typeof rowData.oldData !== 'object') {
+            return <div>No data available</div>;
+        }
+
+        // Only show old data for fields that are in requestedData
+        const requestedKeys = Object.keys(rowData.requestedData);
+        const data = Object.entries(rowData.oldData)
+            .filter(([key, value]) => requestedKeys.includes(key) && value !== null);
+
+        return (
+            <div className="border rounded-md overflow-hidden">
+                <table className="w-full">
+                    <tbody>
+                        {data.map(([key, value], index) => (
+                            <tr key={key} className={index !== data.length - 1 ? 'border-b' : ''}>
+                                <td className="p-2 bg-gray-50 font-medium" style={{ width: '40%' }}>
+                                    {formatKeyName(key)}
+                                </td>
+                                <td className="p-2">
+                                    {String(value)}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
     };
 
     return (
@@ -212,6 +338,7 @@ const ManageRequestsPage = () => {
                                 data={requests?.map((item: any) => ({
                                     id: item.manageRequestId,
                                     supplierId: item.supplierId,
+                                    supplierName: item.supplierName,
                                     requestedData: item.requestedData,
                                     oldData: item.oldData,
                                     requestedDate: formatDate(item.requestedDate),
@@ -230,8 +357,8 @@ const ManageRequestsPage = () => {
                                         bodyStyle: { width: '120px' }
                                     },
                                     {
-                                        header: 'Supplier ID',
-                                        field: 'supplierId',
+                                        header: 'Supplier Name',
+                                        field: 'supplierName',
                                         filter: true,
                                         bodyStyle: { width: '120px' }
                                     },

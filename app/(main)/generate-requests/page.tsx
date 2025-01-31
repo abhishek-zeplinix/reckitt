@@ -9,6 +9,7 @@ import { InputText } from 'primereact/inputtext';
 import { get } from 'lodash';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
+import { buildQueryParams } from '@/utils/utils';
 
 const GenerateRequestPage = () => {
     const router = useRouter();
@@ -73,15 +74,22 @@ const GenerateRequestPage = () => {
         }
     };
 
-    const fetchSupplierData = async () => {
+    const fetchSupplierData = async (params?: any) => {
         try {
+
             const supId = get(user, 'supplierId');
-            const response = await GetCall(`/company/supplier?filters[supId]=${supId}`);
+
+            const params = { filters: { supId }, pagination: false };
+            
+            const queryString = buildQueryParams(params);
+            console.log(params);
+            
+            const response = await GetCall(`/company/supplier?${queryString}`);
 
             if (response.data?.[0]) {
                 const data = response.data[0];
 
-                // Pre-select category and fetch subcategories if available
+                // pre-select category and fetch subcategories if available
                 if (data.supplierCategoryId) {
                     await fetchSubCategories(data.supplierCategoryId);
                 }
@@ -209,14 +217,14 @@ const GenerateRequestPage = () => {
 
             console.log(apiData);
 
-            const response = await PostCall('/company/manageRequest', apiData);
+            // const response = await PostCall('/company/manageRequest', apiData);
 
-            if (response.code === 'SUCCESS') {
-                setAlert('success', 'Request submitted successfully');
-                router.push('/manage-requests');
-            } else {
-                setAlert('error', response.message);
-            }
+            // if (response.code === 'SUCCESS') {
+            //     setAlert('success', 'Request submitted successfully');
+            //     router.push('/manage-requests');
+            // } else {
+            //     setAlert('error', response.message);
+            // }
         } catch (error) {
             setAlert('error', 'Failed to submit request');
         } finally {

@@ -99,9 +99,10 @@ const SupplierRatingPage = () => {
         if (!selectedPeriod || !selectedDepartment) return;
 
         try {
-            const rulesParams = { effectiveFrom: selectedPeriod, pagination: false };
+            // const rulesParams = { effectiveFrom: selectedPeriod, pagination: false };
+            const rulesParams = { pagination: false };
             const queryString = buildQueryParams(rulesParams);
-            const response = await GetCall(`/company/rules/${catId}/${subCatId}/${selectedDepartment}?${queryString}`);
+            const response = await GetCall(`/company/rules/${catId}/${subCatId}/${selectedDepartment}`);
             setRules(response.data);
             return response.data;
         } catch (error) {
@@ -372,7 +373,6 @@ const SupplierRatingPage = () => {
 
                   
 
-                    {rules && (
                         <SupplierEvaluationTable
                             rules={rules} // Always pass rules
                             supplierScoreData={supplierScoreData} // Pass the score data separately
@@ -392,7 +392,6 @@ const SupplierRatingPage = () => {
                                 )?.totalScore
                             }
                         />
-                    )}
 
                 </div>
             </>
