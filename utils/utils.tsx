@@ -23,13 +23,13 @@ export const formSchemaSupplier = z.object({
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Procurement category must not be empty'
+            message: 'Procurement category cannot be empty'
         }),
     supplierCategoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Supplier category must not be empty'
+            message: 'Supplier category cannot be empty'
         }),
     country: z
     .string()
