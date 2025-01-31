@@ -548,7 +548,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
-                                            style: { minWidth: 150, maxWidth: 150 }
+                                            style: { minWidth: 150 }
                                         },
                                         {
                                             header: 'Procurement Category',
@@ -563,7 +563,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Manufacturer Name',
                                             field: 'supplierManufacturerName',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                            bodyStyle: { minWidth: 200 }
                                         },
                                         {
                                             header: 'Email',
@@ -578,7 +578,7 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Factory Name',
                                             field: 'factoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            bodyStyle: { minWidth: 150 }
                                         },
                                         {
                                             header: 'Warehouse Location',
