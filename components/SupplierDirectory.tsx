@@ -242,6 +242,7 @@ const SupplierDirectory = () => {
                         header: 'Status',
                         field: 'status',
                         style: { minWidth: 120, maxWidth: 120 }
+                        // body: (rowData) => <span style={{ color: rowData.isActive ? '#15B097' : 'red' }}>{rowData.isActive ? 'Active' : 'Inactive'}</span>
                     },
                     {
                         header: 'Warehouse Location',
