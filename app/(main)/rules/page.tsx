@@ -131,6 +131,11 @@ const MainRules = () => {
             return;
         }
 
+        if (!rulesGroup) {
+            setAlert('error', 'Please enter a valid name for the Rules Group.');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
 
@@ -141,15 +146,16 @@ const MainRules = () => {
             return `${year}-${month}-${day}`;
         };
 
-        // In the handleFileUpload function
-        if (date) {
-            formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
-        }
+        formData.append('effectiveFrom', formatDate(date)); // Add formatted date
+        formData.append('set', rulesGroup); // Add rules group name
+
+        // Determine API endpoint based on selected rule type
+        const apiEndpoint = chooseRules === 'Capa Rules' ? '/company/caparule/bulk/capa-rules' : '/company/bulk-rules';
 
         setIsDetailLoading(true);
         try {
             // Use the existing PostCall function
-            const response: CustomResponse = await PostCall('/company/bulk-rule', formData);
+            const response: CustomResponse = await PostCall(apiEndpoint, formData);
 
             setIsDetailLoading(false);
 
@@ -166,6 +172,7 @@ const MainRules = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
+
     const handleEditRules = (e: any) => {
         if (e.ruleType === 'rule') {
             router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
