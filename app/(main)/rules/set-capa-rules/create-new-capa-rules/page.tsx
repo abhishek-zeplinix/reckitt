@@ -71,13 +71,22 @@ const CreateNewRulesPage = () => {
                   updateCommonFields();
                 }, [date, selectedProcurementDepartment, orderBy, selectedProcurementCategory, selectedSupplierCategory,selectcapaRulesName]);
              // Add new set of criteriaEvaluation and score
-const handleAddFields = () => {
-    setFields((prev) => ({
-      ...prev,
-    //   capaRulesName: [...prev.capaRulesName, ""],
-      status: [...prev.status, ""],
-    }));
-  };  
+             const handleAddFields = () => {
+              setFields((prev) => {
+                // Check if the last field has a value
+                if (prev.status.length === 0 || prev.status[prev.status.length - 1].trim() !== "") {
+                  return {
+                    ...prev,
+                    status: [...prev.status, ""], // Add a new field only if the last field is filled
+                  };
+                } else {
+                  alert("Please fill the previous field before adding a new one!");
+                  return prev; // Prevent adding a new field if the last one is empty
+                }
+              });
+            };
+            console.log('88',fields)
+            
   const handleChange = (
     index: number,
     key: "status",
@@ -93,7 +102,6 @@ const handleAddFields = () => {
 const handleRemoveField = (index: number) => {
     setFields((prev) => ({
       ...prev,
-    //   capaRulesName: prev.capaRulesName.filter((_, i) => i !== index),
       status: prev.status.filter((_, i) => i !== index),
     }));
   }; 
@@ -108,7 +116,6 @@ const handleRemoveField = (index: number) => {
                 setFormErrors(errors);
                 return;
             }
-    
             setFormErrors({});
     try {
       let endpoint: string;
@@ -292,7 +299,7 @@ const handleRemoveField = (index: number) => {
                             <label htmlFor="effectiveFrom">
                                             Select Effective Date:
                                         </label>
-                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black'}} inputStyle={{ height: '28px', fontSize: '14px', padding: '2px 8px' }} />
                                 {formErrors.effectiveFrom && (
                                         <p style={{ color: "red",fontSize:'10px' }}>{formErrors.effectiveFrom}</p> 
                                         )}
@@ -301,7 +308,7 @@ const handleRemoveField = (index: number) => {
                                 <label htmlFor="orderBy">Order By</label>
                                 <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
                                 {formErrors.orderBy && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.orderBy}</p> 
+                                        <p style={{ color: "red",fontSize:'10px',marginBottom:'0px' }}>{formErrors.orderBy}</p> 
                                         )}
                                 {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
                             </div>
@@ -365,7 +372,7 @@ const handleRemoveField = (index: number) => {
                                                                     className="p-inputtext w-full"
                                                                 />
                                                                 {formErrors.capaRulesName && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.capaRulesName}</p> 
+                                        <p style={{ color: "red",fontSize:'10px' ,marginBottom:'0px'}}>{formErrors.capaRulesName}</p> 
                                         )}
                                                                 {errors.capaRulesName && <span className="text-red-500 text-xs">{errors.capaRulesName}</span>}
                                                             </div>
