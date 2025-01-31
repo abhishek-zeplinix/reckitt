@@ -2,12 +2,21 @@ import { CONFIG } from '@/config/config';
 import { z } from 'zod';
 
 export const formSchemaSupplier = z.object({
-    supplierName: z.string().min(3, 'Supplier name cannot be empty'),
-    supplierManufacturerName: z.string().min(3, 'Supplier manufacturer cannot be empty'),
-    factoryName: z.string().min(3, 'Factory name cannot be empty'),
-    email: z.string().min(3, 'Email cannot be empty'),
-    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number must be in format'),
-    Zip: z.string().regex(/^\d{4,6}$/, 'Zip must be in format'),
+    supplierName: z
+        .string()
+        .min(1, 'Supplier name cannot be empty')
+        .regex(/^[a-zA-Z\s]+$/, 'Supplier name must be in proper format'),
+    supplierManufacturerName: z
+        .string()
+        .min(1, 'Supplier manufacturer cannot be empty')
+        .regex(/^[a-zA-Z\s]+$/, 'Supplier manufacturer must be in proper format'),
+    factoryName: z
+        .string()
+        .min(1, 'Factory name cannot be empty')
+        .regex(/^[a-zA-Z\s]+$/, 'Factory name must be in proper format'),
+    email: z.string().email('Email must be in proper format'),
+    supplierNumber: z.string().regex(/^\d{10,12}$/, 'Phone number must be in proper format'),
+    // Zip: z.string().regex(/^\d{4,6}$/, "Zip must be in proper format"),
     siteAddress: z.string().min(1, 'Site address cannot be empty'),
     warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
     procurementCategoryId: z
@@ -22,24 +31,15 @@ export const formSchemaSupplier = z.object({
         .refine((val) => val !== null, {
             message: 'Supplier category cannot be empty'
         }),
-    countryId: z
-        .number()
-        .nullable()
-        .refine((val) => val !== null, {
-            message: 'Country cannot not be empty'
-        }),
-    cityId: z
-        .number()
-        .nullable()
-        .refine((val) => val !== null, {
-            message: 'State cannot not be empty'
-        }),
-    stateId: z
-        .number()
-        .nullable()
-        .refine((val) => val !== null, {
-            message: 'State cannot not be empty'
-        })
+    country: z
+    .string()
+    .min(1, 'country cannot be empty'),
+    city: z
+    .string()
+    .min(1, 'city cannot be empty'),
+    state: z
+    .string()
+    .min(1, 'state cannot be empty'),
 });
 
 export const validateFormData = (data: unknown) => {
@@ -102,6 +102,63 @@ const fieldsSchemaRules = z.object({
 export const validateFormRuleData = (data: unknown) => {
     try {
         fieldsSchemaRules.parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
+
+const fieldsSchemaCapaRules = z.object({
+    effectiveFrom: z
+        .date()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Effective date must be in date format'
+        }),
+    departmentId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Department must not be empty'
+        }),
+    orderBy: z.number({ invalid_type_error: 'Order By must be a number' }).refine((val) => val > 0, { message: 'Order By must not be empty' }),
+    // section: z.string().min(1, 'Section must not be empty'),
+    // categoryId: z
+    //     .number()
+    //     .nullable()
+    //     .refine((val) => val !== null, {
+    //         message: 'Procurement category must not be empty'
+    //     }),
+    // subCategoryId: z
+    //     .number()
+    //     .nullable()
+    //     .refine((val) => val !== null, {
+    //         message: 'Supplier category must not be empty'
+    //     }),
+    // ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
+    // ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
+    // ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
+    capaRulesName: z.array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    status: z.array(
+        z
+            .string()
+            .min(1, 'Score must not be empty')
+            .refine((val) => !isNaN(Number(val)), {
+                message: 'Score must be a number'
+            })
+    )
+});
+
+export const validateFormCapaRuleData = (data: unknown) => {
+    try {
+        fieldsSchemaCapaRules.parse(data);
         return { valid: true, errors: {} };
     } catch (error) {
         if (error instanceof z.ZodError) {

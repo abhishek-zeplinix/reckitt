@@ -28,6 +28,7 @@ const CreateNewRulesPage = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
     const [date, setDate] = useState<Date | null>(null);
+    const [errors, setErrors] = useState<{ orderBy?: string; capaRulesName?: string }>({});
     const router = useRouter();
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Capa Rules' : 'New Capa Rules';
@@ -119,9 +120,7 @@ const handleRemoveField = (index: number) => {
         }
       } else {
         try {
-          // Submit data for new addition
           onNewAdd(fields);
-          setAlert('success', 'CAPA Rules added successfully.');
         } catch (error) {
           setAlert('error', 'Failed to add CAPA Rules. Please try again.');
         }
@@ -220,9 +219,9 @@ const handleRemoveField = (index: number) => {
     };
     const onNewAdd = async (userForm: any) => {
         
-        const response: CustomResponse = await PostCall(`/company/caparule`, userForm);
+        const response: CustomResponse = await PostCall(`/company/caparule/${ruleSetId}`, userForm);
         if (response.code == 'SUCCESS') {
-            router.push('rules/set-capa-rules');
+            router.push(`/rules/set-capa-rules?ruleSetId=${ruleSetId}`);
             setAlert('success', 'Successfully Added');
         } else {
             setAlert('error', response.message);
@@ -232,6 +231,34 @@ const handleRemoveField = (index: number) => {
         setSelectedSupplierCategory(value); // Update the selected value
         fetchprocurementCategories(value); // Call the API with the selected value
     };
+    const validateFields = (name: string, value: string) => {
+      let error = '';
+  
+      if (name === 'orderBy') {
+          if (!/^\d*$/.test(value)) {  // Allows only numbers
+              error = 'Only numbers are allowed!';
+          }
+      }
+  
+      if (name === 'capaRulesName') {
+          if (!/^[A-Za-z\s]*$/.test(value)) {  // Allows only letters and spaces
+              error = 'Only letters are allowed!';
+          }
+      }
+  
+      setErrors((prevErrors) => ({
+          ...prevErrors,
+          [name]: error
+      }));
+  };
+    const handleInputChange = (name: string, value: string) => {
+      if (name === 'orderBy') {
+          setorderBy(value);
+      } else if (name === 'capaRulesName') {
+          setcapaRulesName(value);
+      }
+      validateFields(name, value);
+  };
     const renderContentbody = () => {
         return (
             <div className="grid">
@@ -247,7 +274,8 @@ const handleRemoveField = (index: number) => {
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
-                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
+                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
+                                {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="departmentId">Department</label>
@@ -296,9 +324,10 @@ const handleRemoveField = (index: number) => {
                                                                     type="text"
                                                                     placeholder="Capa Rules Name"
                                                                     value={selectcapaRulesName}
-                                                                    onChange={(e) => setcapaRulesName( e.target.value)}
+                                                                    onChange={(e) => handleInputChange('capaRulesName', e.target.value)}
                                                                     className="p-inputtext w-full"
                                                                 />
+                                                                {errors.capaRulesName && <span className="text-red-500 text-xs">{errors.capaRulesName}</span>}
                                                             </div>
                                                             {fields.status.map((_, index) => (
                                                         <React.Fragment key={index}>
