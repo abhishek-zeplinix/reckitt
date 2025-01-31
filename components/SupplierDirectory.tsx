@@ -84,7 +84,7 @@ const SupplierDirectory = () => {
         }
     };
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
-        console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId);
+        console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId, 'Abhishek');
 
         const selectedSupplier = suppliers.find((supplier) => supplier.supId === supId);
 
@@ -109,7 +109,7 @@ const SupplierDirectory = () => {
         </span>
     );
 
-    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
+    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
 
     const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
 
