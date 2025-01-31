@@ -198,7 +198,7 @@ const ManageSupplierAddEditPage = () => {
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
         if (typeof name !== 'string') return;
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId') {
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'country' && name !== 'state' && name !== 'city') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
@@ -389,7 +389,6 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
-        console.log('411',form)
         const { valid, errors } = validateFormData(form);
         if (!valid) {
             setFormErrors(errors);
@@ -553,7 +552,7 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Select Country"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.countryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.countryId}</p>}
+                                    {formErrors.country && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.country}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="state" className="font-semibold">
@@ -570,14 +569,14 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Select state"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.stateId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.stateId}</p>}
+                                    {formErrors.state && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.state}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
                                     <Dropdown id="city" value={get(form, 'city')} options={allCity} optionLabel="name" optionValue="name"  filter onChange={(e) => onInputChange('city', e.value)} placeholder="Select city" className="w-full mb-1" />
-                                    {formErrors.cityId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.cityId}</p>}
+                                    {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="Zip" className="font-semibold">

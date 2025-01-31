@@ -587,17 +587,17 @@ const ManageSupplierPage = () => {
                                         },
                                         {
                                             header: 'Country',
-                                            field: 'countries.name',
+                                            field: 'country',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'State',
-                                            field: 'states.name',
+                                            field: 'state',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'City',
-                                            field: 'cities.name',
+                                            field: 'city',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
