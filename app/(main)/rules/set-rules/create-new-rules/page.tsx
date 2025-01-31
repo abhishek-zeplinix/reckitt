@@ -149,7 +149,6 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
       } else {
         try {
           onNewAdd(fields); // Submit data for new addition
-          setAlert('success', 'Rules added successfully.');
         } catch (error) {
           setAlert('error', 'Failed to add rules. Please try again.');
         }
@@ -261,8 +260,8 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
         }
     };
     const handleCategoryChange = (value: any) => {
-        setSelectedSupplierCategory(value); // Update the selected value
-        fetchprocurementCategories(value); // Call the API with the selected value
+        setSelectedSupplierCategory(value); 
+        fetchprocurementCategories(value); 
     };
 
     const renderContentbody = () => {

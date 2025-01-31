@@ -13,7 +13,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { EmptySupplier } from '@/types/forms';
 import Stepper from '@/components/Stepper';
-
+import { Country, State, City } from "country-state-city";
 const defaultForm: EmptySupplier = {
     supId: null,
     supplierName: '',
@@ -21,9 +21,9 @@ const defaultForm: EmptySupplier = {
     supplierManufacturerName: '',
     siteAddress: '',
     procurementCategoryId: null,
-    stateId: null,
-    countryId: null,
-    cityId: null,
+    state: '',
+    country: '',
+    city: '',
     email: '',
     Zip: '',
     supplierCategoryId: null,
@@ -79,6 +79,41 @@ const ManageSupplierAddEditPage = () => {
     const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});  
 
 
+
+    // Fetch all countries on component mount
+    useEffect(() => {
+        const fetchCountries = async () => {
+            const countries = await Country.getAllCountries();
+            setAllCountry(countries);
+        };
+        fetchCountries();
+    }, []);
+
+    // Fetch states based on selected country
+    useEffect(() => {
+        const fetchStates = async () => {
+            if (form.country) {
+                const states = await State.getStatesOfCountry(form.country);
+                setAllState(states);
+            } else {
+                setAllState([]); // Reset states if no country is selected
+            }
+        };
+        fetchStates();
+    }, [form.country]);
+
+    // Fetch cities based on selected state
+    useEffect(() => {
+        const fetchCities = async () => {
+            if (form.state) {
+                const cities = await City.getCitiesOfState(form.country, form.state);
+                setAllCity(cities);
+            } else {
+                setAllCity([]); // Reset cities if no state is selected
+            }
+        };
+        fetchCities();
+    }, [form.state]);
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
         if (!incomingData) return defaultForm;
@@ -96,7 +131,7 @@ const ManageSupplierAddEditPage = () => {
             setLoading(true);
             try {
                 // Fetch independent data first
-                await Promise.all([fetchCategory(), fetchAllCountry(), isEditMode && fetchSupplierData()]);
+                await Promise.all([fetchCategory(), isEditMode && fetchSupplierData()]);
             } catch (error) {
                 console.error('Error fetching initial data:', error);
             } finally {
@@ -116,17 +151,10 @@ const ManageSupplierAddEditPage = () => {
             if (response.data && response.data[0]) {
                 const mappedForm = mapToForm(response.data[0]);
                 setForm(mappedForm);
-                console.log('123', mappedForm);
 
                 // Fetch subcategories dynamically based on the selected category
                 if (mappedForm.supplierCategoryId) {
                     await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
-                }
-                if (mappedForm.supplierCategoryId && mappedForm.countries) {
-                    await fetchAllSatate(mappedForm.countryId);
-                }
-                if (mappedForm.supplierCategoryId && mappedForm.countries && mappedForm.states) {
-                    await fetchAllCity(mappedForm.stateId);
                 }
                 // set checkbox states based on file existence
                 setChecked({
@@ -145,24 +173,6 @@ const ManageSupplierAddEditPage = () => {
         const response: CustomResponse = await GetCall(`/company/category`);
         if (response.code === 'SUCCESS') {
             setCategory(response.data);
-        }
-    };
-    const fetchAllCountry = async () => {
-        const response: CustomResponse = await GetCall(`/company/supplier/countries`);
-        if (response.code === 'SUCCESS') {
-            setAllCountry(response.data);
-        }
-    };
-    const fetchAllSatate = async (countryId: any) => {
-        const response: CustomResponse = await GetCall(`/company/supplier/states/${countryId}`);
-        if (response.code === 'SUCCESS') {
-            setAllState(response.data.states);
-        }
-    };
-    const fetchAllCity = async (stateId: any) => {
-        const response: CustomResponse = await GetCall(`/company/supplier/city/${stateId}`);
-        if (response.code === 'SUCCESS') {
-            setAllCity(response.data.city);
         }
     };
 
@@ -258,10 +268,16 @@ const ManageSupplierAddEditPage = () => {
                             [name]: 'Please enter a valid email address (e.g., example@domain.com).'
                         }));
                     }
+                    else if(!val.includes('.com')){
+                        setEmailErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Please enter a valid email address (e.g., example@domain.com).'
+                        }));
+                    }
                      else if (val.length > 80) {
                         setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Maximum Word limit 80! '
+                            [name]: 'Maximum Word limit 80!'
                         }));
                         return;
                     } else {
@@ -288,7 +304,14 @@ const ManageSupplierAddEditPage = () => {
                             [name]: 'Maximum Word limit 10! '
                         }));
                         return;
-                    } else {
+                        
+                    } else if (val.length < 1) {
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Zip must not be empty'
+                        }));
+                        return;
+                    }else {
                         setNumberErrors((prevNumErrors) => {
                             const updatedErrors = { ...prevNumErrors };
                             delete updatedErrors[name];
@@ -323,14 +346,14 @@ const ManageSupplierAddEditPage = () => {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-            if (name === 'countryId') {
-                fetchAllSatate(val);
-                updatedForm.stateId = null;
-            }
-            if (name === 'stateId') {
-                fetchAllCity(val);
-                updatedForm.cityId = null;
-            }
+            // if (name === 'countryId') {
+            //     fetchAllSatate(val);
+            //     updatedForm.state = null;
+            // }
+            // if (name === 'stateId') {
+            //     fetchAllCity(val);
+            //     updatedForm.cityId = null;
+            // }
             return updatedForm;
         });
     };
@@ -368,6 +391,7 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
+        console.log('411',form)
         const { valid, errors } = validateFormData(form);
         if (!valid) {
             setFormErrors(errors);
@@ -521,16 +545,17 @@ const ManageSupplierAddEditPage = () => {
                                     {numberErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px' }}>{numberErrors.supplierNumber}</p>}
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="countryId" className="font-semibold">
+                                    <label htmlFor="country" className="font-semibold">
                                         Country
                                     </label>
                                     <Dropdown
-                                        id="countryId"
-                                        value={get(form, 'countryId')}
+                                        id="country"
+                                        value={get(form, 'country')}
                                         options={allCountry}
                                         optionLabel="name"
-                                        optionValue="countryId"
-                                        onChange={(e) => onInputChange('countryId', e.value)}
+                                        optionValue="isoCode" 
+                                        filter
+                                        onChange={(e) => onInputChange('country', e.value)}
                                         placeholder="Select Country"
                                         className="w-full mb-1"
                                     />
@@ -541,12 +566,13 @@ const ManageSupplierAddEditPage = () => {
                                         State
                                     </label>
                                     <Dropdown
-                                        id="stateId"
-                                        value={get(form, 'stateId')}
+                                        id="state"
+                                        value={get(form, 'state')}
                                         options={allState}
                                         optionLabel="name"
-                                        optionValue="stateId"
-                                        onChange={(e) => onInputChange('stateId', e.value)}
+                                        optionValue="isoCode" 
+                                        filter
+                                        onChange={(e) => onInputChange('state', e.value)}
                                         placeholder="Select state"
                                         className="w-full mb-1"
                                     />
@@ -556,7 +582,7 @@ const ManageSupplierAddEditPage = () => {
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
-                                    <Dropdown id="cityId" value={get(form, 'cityId')} options={allCity} optionLabel="name" optionValue="cityId" onChange={(e) => onInputChange('cityId', e.value)} placeholder="Select city" className="w-full mb-1" />
+                                    <Dropdown id="city" value={get(form, 'city')} options={allCity} optionLabel="name" optionValue="name"  filter onChange={(e) => onInputChange('city', e.value)} placeholder="Select city" className="w-full mb-1" />
                                     {formErrors.cityId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.cityId}</p>}
                                 </div>
                                 <div className="field col-3">
