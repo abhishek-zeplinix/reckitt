@@ -1,6 +1,5 @@
 import { GetCall } from "@/app/api-config/ApiKit";
 import { useAppContext } from "@/layout/AppWrapper";
-import { buildQueryParams } from "@/utils/utils";
 import { useParams } from "next/navigation";
 import { Dropdown } from "primereact/dropdown";
 import { useState, useEffect } from "react";
@@ -9,140 +8,129 @@ interface CapaRule {
   capaRulesName: string;
   orderBy: number;
   status: string[];
-  effectiveFrom: string;
-  subCategory: string;
-  category: string;
-  department: string;
 }
 
 interface CapaRuleResponse {
   capaRuleId: number;
   selectedStatus: string;
-}
-
-interface GroupedData {
-  id: string;
-  capaRuleId: number;
-  capaQuestion: string;
-  status: {
-    options: string[];
-  };
-  orderBy: number;
+  capaRulesName: string;
 }
 
 interface CapaRequiredTableProps {
   onDataChange: (data: CapaRuleResponse[]) => void;
   depId: string;
   existingSelections?: CapaRuleResponse[];
-  isEvaluatedData: boolean;
   setCapaDataCount: (count: number) => void;
   selectedPeriod: string;
+  isCompleted: string;
 }
 
-const CapaRequiredTable = ({ onDataChange, depId, existingSelections, setCapaDataCount, selectedPeriod}: CapaRequiredTableProps) => {
+const CapaRequiredTable = ({ 
+  onDataChange, 
+  depId, 
+  existingSelections, 
+  setCapaDataCount,
+  isCompleted
+}: CapaRequiredTableProps) => {
   const { setLoading, setAlert } = useAppContext();
-  const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
+  const [rules, setRules] = useState<CapaRule[]>([]);
   const [selectedValues, setSelectedValues] = useState<Record<number, string>>({});
-  const [isInitialized, setIsInitialized] = useState(false);
   
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
+  
+  // Initialize with existing selections even before API call
+  useEffect(() => {
+    if (existingSelections?.length) {
+      const initialValues = existingSelections.reduce((acc, selection) => {
+        acc[selection.capaRuleId] = selection.selectedStatus;
+        return acc;
+      }, {} as Record<number, string>);
+      
+      setSelectedValues(initialValues);
 
-  const transformApiData = (rules: CapaRule[]) => {
-    return rules.map((rule, index) => ({
-      id: rule.capaRulesName,
-      capaRuleId: index + 1, // Using index+1 as ID since the new API doesn't provide IDs
-      capaQuestion: rule.capaRulesName,
-      status: {
-        options: rule.status,
-      },
-      orderBy: rule.orderBy
-    }));
-  };
+      // if no rules from API yet, create rules from existing selections
+      if (rules.length === 0) {
+        const rulesFromSelections = existingSelections.map((selection, index) => ({
+          capaRulesName: selection.capaRulesName,
+          orderBy: index + 1,
+          status: [selection.selectedStatus] // use the selected status as the only option initially
+        }));
+        setRules(rulesFromSelections);
+        setCapaDataCount(rulesFromSelections.length);
+      }
+    }
+  }, [existingSelections]);
 
   useEffect(() => {
     if (depId) {
-      setIsInitialized(false);
       fetchCapaRules();
     }
   }, [depId]);
 
-  useEffect(() => {
-    setIsInitialized(false);
-  }, [existingSelections]);
-
-  useEffect(() => {
-    if (existingSelections && groupedData.length > 0 && !isInitialized) {
-      const existingValues = existingSelections.reduce((acc, item) => {
-        acc[item.capaRuleId] = item.selectedStatus;
-        return acc;
-      }, {} as Record<number, string>);
-      
-      setSelectedValues(existingValues);
-      setIsInitialized(true);
-    }
-  }, [existingSelections, groupedData, isInitialized]);
-
   const fetchCapaRules = async () => {
     setLoading(true);
     try {
-      const params = {
-        filters: {
-          effectiveFrom: selectedPeriod
-        },
-        pagination: false
-      };
-      const queryString = buildQueryParams(params);
-      const response = await GetCall(`/company/caparule/${catId}/${subCatId}/${depId}?effectiveFrom=${selectedPeriod}`);
+      const response = await GetCall(`/company/caparule/${catId}/${subCatId}/${depId}`);
+      
+      if (response.code === "SUCCESS" && response.data.rules.length > 0) {
+        const sortedRules = response.data.rules.sort((a: CapaRule, b: CapaRule) => 
+          a.orderBy - b.orderBy
+        );
+        setRules(sortedRules);
+        setCapaDataCount(sortedRules.length);
 
-      if (response.code === "SUCCESS") {
-        const formattedData = transformApiData(response.data?.rules);
-
-        // sort by orderBy field
-        formattedData.sort((a, b) => a.orderBy - b.orderBy);
-        console.log(formattedData);
-        
-        setGroupedData(formattedData);
-        setCapaDataCount(formattedData.length);
-
+        // preserve existing selections when updating rules
         if (!existingSelections) {
-          const initialValues = formattedData.reduce((acc, item) => {
-            acc[item.capaRuleId] = "";
+          const emptyValues = sortedRules.reduce((acc:any, _:any, index:any) => {
+            acc[index + 1] = "";
             return acc;
           }, {} as Record<number, string>);
-          setSelectedValues(initialValues);
+          setSelectedValues(emptyValues);
         }
+
+      } else if (existingSelections?.length) {
+        // if API returns no rules but we have existing selections, keep using those
+        const rulesFromSelections = existingSelections.map((selection, index) => ({
+          capaRulesName: selection.capaRulesName,
+          orderBy: index + 1,
+          status: [selection.selectedStatus] // Use the selected status as the only option
+        }));
+        setRules(rulesFromSelections);
+        setCapaDataCount(rulesFromSelections.length);
       }
     } catch (error) {
-      setAlert('error', 'Something went wrongg!');
+      // On API error, fallback to existing selections if available
+      if (existingSelections?.length) {
+        const rulesFromSelections = existingSelections.map((selection, index) => ({
+          capaRulesName: selection.capaRulesName,
+          orderBy: index + 1,
+          status: [selection.selectedStatus]
+        }));
+        setRules(rulesFromSelections);
+        setCapaDataCount(rulesFromSelections.length);
+      }
+      setAlert('error', 'Something went wrong!');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDropdownChange = (itemId: string, capaRuleId: number, value: string) => {
-    setSelectedValues((prevState) => {
-      if (prevState[capaRuleId] === value) {
-        return prevState;
-      }
-
-      const newState = {
-        ...prevState,
-        [capaRuleId]: value
-      };
+  const handleDropdownChange = (ruleIndex: number, ruleName: string, value: string) => {
+    setSelectedValues(prev => {
+      const newValues = { ...prev, [ruleIndex]: value };
       
-      const apiData: CapaRuleResponse[] = groupedData.map(item => ({
-        capaRuleId: item.capaRuleId,
-        selectedStatus: newState[item.capaRuleId] || ""
+      // Create response data with capaRulesName included
+      const responseData = rules.map((rule, index) => ({
+        capaRuleId: index + 1,
+        selectedStatus: newValues[index + 1] || "",
+        capaRulesName: rule.capaRulesName
       }));
       
-      onDataChange(apiData);
-      return newState;
+      onDataChange(responseData);
+      return newValues;
     });
   };
-
-  console.log(selectedValues);
-  
 
   return (
     <div className="w-full">
@@ -164,23 +152,24 @@ const CapaRequiredTable = ({ onDataChange, depId, existingSelections, setCapaDat
           </tr>
         </thead>
         <tbody>
-          {groupedData.map((item) => (
-            <tr key={item.id} className="border-b hover:bg-gray-50">
+          {rules.map((rule, index) => (
+            <tr key={index} className="border-b hover:bg-gray-50">
               <td className="px-4 py-2 break-words">
-                {item.capaQuestion}
+                {rule.capaRulesName}
               </td>
               <td className="px-4 py-2">
                 <Dropdown
-                  options={item.status.options.map((option) => ({
+                  options={rule.status.map(option => ({
                     label: option,
                     value: option,
                   }))}
-                  value={selectedValues[item.capaRuleId] || ""}
-                  onChange={(e) => handleDropdownChange(item.id, item.capaRuleId, e.value)}
+                  value={selectedValues[index + 1] || ""}
+                  onChange={(e) => handleDropdownChange(index + 1, rule.capaRulesName, e.value)}
                   placeholder="Select Status"
                   className="w-full"
+                  disabled={isCompleted?.toLowerCase() === 'completed'}
                 />
-              </td>
+              </td> 
             </tr>
           ))}
         </tbody>

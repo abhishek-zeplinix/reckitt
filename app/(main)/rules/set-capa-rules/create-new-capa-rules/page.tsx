@@ -85,7 +85,6 @@ const CreateNewRulesPage = () => {
                 }
               });
             };
-            console.log('88',fields)
             
   const handleChange = (
     index: number,
