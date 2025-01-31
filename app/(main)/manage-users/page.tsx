@@ -136,7 +136,7 @@ const ManageUsersPage = () => {
                                     {
                                         header: 'Email',
                                         field: 'email',
-                                        style: { minWidth: 150, maxWidth: 150 }
+                                        style: { minWidth: 150 }
                                     },
                                     {
                                         header: 'Phone Number',

@@ -84,7 +84,7 @@ const SupplierDirectory = () => {
         }
     };
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
-        console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId);
+        console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId, 'Abhishek');
 
         const selectedSupplier = suppliers.find((supplier) => supplier.supId === supId);
 
@@ -109,7 +109,7 @@ const SupplierDirectory = () => {
         </span>
     );
 
-    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
+    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
 
     const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
 
@@ -211,16 +211,7 @@ const SupplierDirectory = () => {
                 limit={limit}
                 totalRecords={totalRecords}
                 // extraButtons={getExtraButtons}
-                data={suppliers?.map((item: any) => ({
-                    supId: item.supId,
-                    supplierName: item.supplierName,
-                    status: item.status,
-                    warehouseLocation: item.warehouseLocation,
-                    categoryName: item.category.categoryName,
-                    subCategoryName: item.subCategories.subCategoryName,
-                    categoryId: item.category?.categoryId,
-                    subCategoryId: item.subCategories?.subCategoryId
-                }))}
+                data={suppliers}
                 columns={[
                     {
                         header: 'Sr. No',
@@ -235,29 +226,30 @@ const SupplierDirectory = () => {
                     {
                         header: 'Supplier Name',
                         field: 'supplierName',
-                        bodyStyle: { minWidth: 120, maxWidth: 150 },
+                        bodyStyle: { minWidth: 120 },
                         filterPlaceholder: 'Search Supplier Name'
                     },
                     {
                         header: 'Status',
                         field: 'status',
-                        style: { minWidth: 120, maxWidth: 120 }
+                        bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
+                        body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                     },
                     {
                         header: 'Warehouse Location',
                         field: 'warehouseLocation',
-                        style: { minWidth: 120, maxWidth: 180 }
+                        style: { minWidth: 120 }
                     },
 
                     {
                         header: 'Procurement Category',
-                        field: 'categoryName',
+                        field: 'category.categoryName',
                         style: { minWidth: 120, maxWidth: 120 }
                     },
 
                     {
                         header: 'Supplier Category',
-                        field: 'subCategoryName',
+                        field: 'subCategories.subCategoryName',
                         style: { minWidth: 120, maxWidth: 180 }
                     },
                     {

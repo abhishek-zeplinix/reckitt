@@ -1,76 +1,177 @@
 import { CONFIG } from '@/config/config';
 import { z } from 'zod';
 
-export const formSchema = z.object({
-  supplierName: z
+export const formSchemaSupplier = z.object({
+    supplierName: z
+        .string()
+        .min(1, 'Supplier name cannot be empty'),
+    supplierManufacturerName: z
+        .string()
+        .min(1, 'Supplier manufacturer cannot be empty'),
+    factoryName: z
+        .string()
+        .min(1, 'Factory name cannot be empty'),
+    email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
+    supplierNumber: z.string().min(1, 'Phone number cannot be empty'),
+    Zip: z.string().min(1, 'Zip code cannot be empty'),
+    siteAddress: z.string().min(1, 'Site address cannot be empty'),
+    warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
+    procurementCategoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Procurement category cannot be empty'
+        }),
+    supplierCategoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Supplier category cannot be empty'
+        }),
+    country: z
     .string()
-    .min(1, "Supplier name cannot be empty")
-    .regex(/^[a-zA-Z\s]+$/, "Supplier name must be in proper format"),
-  supplierManufacturerName: z
+    .min(1, 'country cannot be empty'),
+    city: z
     .string()
-    .min(1, "Supplier manufacturer cannot be empty")
-    .regex(/^[a-zA-Z\s]+$/, "Supplier manufacturer must be in proper format"),
-  factoryName: z
+    .min(1, 'city cannot be empty'),
+    state: z
     .string()
-    .min(1, "Factory name cannot be empty")
-    .regex(/^[a-zA-Z\s]+$/, "Factory name must be in proper format"),
-  email: z.string().email("Email must be in proper format"),
-  supplierNumber: z
-    .string()
-    .regex(/^\d{10,12}$/, "Phone number must be in proper format"),
-  Zip: z.string().regex(/^\d{4,6}$/, "Zip must be in proper format"),
-  siteAddress: z.string().min(1, "Site address cannot be empty"),
-  warehouseLocation: z.string().min(1, "Warehouse location cannot be empty"),
-  procurementCategoryId: z
-  .number()
-  .nullable()
-  .refine(val => val !== null, {
-    message: "Procurement category must not be empty",
-  }),
-supplierCategoryId: z
-  .number()
-  .nullable()
-  .refine(val => val !== null, {
-    message: "Supplier category must not be empty",
-  }),
-countryId: z
-  .number()
-  .nullable()
-  .refine(val => val !== null, {
-    message: "Country must not be empty",
-  }),
-cityId: z
-  .number()
-  .nullable()
-  .refine(val => val !== null, {
-    message: "City must not be empty",
-  }),
-stateId: z
-  .number()
-  .nullable()
-  .refine(val => val !== null, {
-    message: "State must not be empty",
-  }),
+    .min(1, 'state cannot be empty'),
 });
 
 export const validateFormData = (data: unknown) => {
     try {
-      formSchema.parse(data);
-      return { valid: true, errors: {} };
+        formSchemaSupplier.parse(data);
+        return { valid: true, errors: {} };
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        const errors = error.errors.reduce((acc, curr) => {
-          acc[curr.path[0]] = curr.message;
-          return acc;
-        }, {} as Record<string, string>);
-        return { valid: false, errors };
-      }
-      return { valid: false, errors: { general: "Unexpected error occurred" } };
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
     }
-  };
-  
+};
 
+const fieldsSchemaRules = z.object({
+    effectiveFrom: z
+        .date()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Effective date must not be empty'
+        }),
+    departmentId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Department must not be empty'
+        }),
+    orderBy: z.number()
+    .nullable()
+    .refine((val) => val !== null, {
+        message: 'OrderBy must not be empty'
+    }),
+    section: z.string().min(1, 'Section must not be empty'),
+    categoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Procurement category must not be empty'
+        }),
+    subCategoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Supplier category must not be empty'
+        }),
+    ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
+    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
+    ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
+    criteriaEvaluation: z.array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    score: z.array(
+        z
+            .string()
+            .min(1, 'Score must not be empty')
+            .refine((val) => !isNaN(Number(val)), {
+                message: 'Score must be a number'
+            })
+    )
+});
 
+export const validateFormRuleData = (data: unknown) => {
+    try {
+        fieldsSchemaRules.parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
+
+const fieldsSchemaCapaRules = z.object({
+    effectiveFrom: z
+        .date()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Effective date must not be empty'
+        }),
+    departmentId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Department must not be empty'
+        }),
+        categoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Procurement Category must not be empty'
+        }),
+        subCategoryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Supplier Category must not be empty'
+        }),
+    orderBy: z.number()
+    .nullable()
+    .refine((val) => val !== null, {
+        message: 'OrderBy must not be empty'
+    }),
+    capaRulesName: z.array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    status: z.array(
+        z
+            .string()
+            .min(1, 'Score must not be empty')
+            .refine((val) => !isNaN(Number(val)), {
+                message: 'Score must be a number'
+            })
+    )
+});
+
+export const validateFormCapaRuleData = (data: unknown) => {
+    try {
+        fieldsSchemaCapaRules.parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
 
 export const validateSubdomain = (subdomain: string) => {
     const subdomainLower = subdomain.toLowerCase();
@@ -343,7 +444,6 @@ export const validateZipCode = (zip: string): boolean => {
     return zipPattern.test(zip);
 };
 
-
 export const validateFullName = (fullName: string): boolean => {
     const fullNamePattern = /^[a-zA-Z]+( [a-zA-Z]+)*$/; // Validates full name format (case-insensitive)
     if (typeof fullName !== 'string' || fullName.trim() === '') {
@@ -352,15 +452,14 @@ export const validateFullName = (fullName: string): boolean => {
     return fullNamePattern.test(fullName);
 };
 
-
 export const getBackgroundColor = (percentage: any) => {
     if (percentage >= 90) {
         return '#2196F3';
     } else if (percentage >= 70) {
         return '#4CAF50';
     } else if (percentage >= 50) {
-        return '#FF9800'; 
+        return '#FF9800';
     } else {
-        return '#F44336'; 
+        return '#F44336';
     }
 };

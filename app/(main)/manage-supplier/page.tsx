@@ -35,9 +35,9 @@ const defaultForm: EmptySupplier = {
     siteAddress: '',
     procurementCategoryId: null,
     supplierCategoryId: null,
-    stateId: null,
-    countryId: null,
-    cityId: null,
+    state: '',
+    country: '',
+    city: '',
     warehouseLocation: '',
     factoryId: null,
     gmpFile: '',
@@ -102,11 +102,11 @@ const ManageSupplierPage = () => {
     const [chooseBlockOption, setChooseBlockOption] = useState('');
     const [date, setDate] = useState<Date | null>(null);
     const [isDialogVisible, setIsDialogVisible] = useState(false);
-    const [blockOption, setBlockOption] = useState<"Permanent Block" | "Temporary Block" | "UnBlock"| null>(null);
-    const [reason, setReason] = useState("");
+    const [blockOption, setBlockOption] = useState<'Permanent Block' | 'Temporary Block' | 'UnBlock' | null>(null);
+    const [reason, setReason] = useState('');
     const [dateRange, setDateRange] = useState<{ startDate: Date | null; endDate: Date | null }>({
         startDate: null,
-        endDate: null,
+        endDate: null
     });
     const [selectedBlock, setSelectedBlock] = useState<any>(null);
     useEffect(() => {
@@ -123,7 +123,7 @@ const ManageSupplierPage = () => {
         fetchSubLocation();
         fetchsupplierCategories();
     }, []);
-    
+
     const limitOptions = [
         { label: '10', value: 10 },
         { label: '20', value: 20 },
@@ -296,7 +296,7 @@ const ManageSupplierPage = () => {
             setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Rules imported successfully');
+                setAlert('success', 'Suppliers imported successfully');
                 setVisible(false);
                 fetchData();
             } else {
@@ -437,65 +437,63 @@ const ManageSupplierPage = () => {
     const openDialog = (items: any) => {
         setSelectedBlock(items);
         setIsDialogVisible(true);
-    }
+    };
     const closeDialog = () => {
         setIsDialogVisible(false);
         setBlockOption(null);
-        setReason("");
+        setReason('');
         setDateRange({ startDate: null, endDate: null });
     };
     const handleSave = async () => {
         let payload = null; // Initialize payload as null
         setIsDetailLoading(true); // Set loading state at the start
-    
+
         try {
-            if (blockOption === "Permanent Block") {
+            if (blockOption === 'Permanent Block') {
                 payload = {
-                    blockType: "permanent",
-                    blockReason: reason,
+                    blockType: 'permanent',
+                    blockReason: reason
                 };
-            } else if (blockOption === "Temporary Block" && dateRange.startDate && dateRange.endDate) {
+            } else if (blockOption === 'Temporary Block' && dateRange.startDate && dateRange.endDate) {
                 payload = {
-                    blockType: "temporary",
-                    blockStartDate: dateRange.startDate.toISOString().split("T")[0], // Format as YYYY-MM-DD
-                    blockEndDate: dateRange.endDate.toISOString().split("T")[0],
-                    blockReason: reason,
+                    blockType: 'temporary',
+                    blockStartDate: dateRange.startDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+                    blockEndDate: dateRange.endDate.toISOString().split('T')[0],
+                    blockReason: reason
                 };
-            } else if (blockOption === "UnBlock") {
+            } else if (blockOption === 'UnBlock') {
                 const response: CustomResponse = await PostCall(`/company/${selectedBlock.supId}/unblocksupplier`);
-                if (response.code === "SUCCESS") {
-                    setAlert("success", "Supplier Unblocked Successfully");
+                if (response.code === 'SUCCESS') {
+                    setAlert('success', 'Supplier Unblocked Successfully');
                     fetchData();
                 } else {
-                    setAlert("error", response.message);
+                    setAlert('error', response.message);
                 }
                 closeDialog(); // Close dialog after UnBlock API
                 return; // Exit the function
             } else {
-                console.warn("Invalid data for saving.");
+                console.warn('Invalid data for saving.');
                 setIsDetailLoading(false); // Reset loading state
                 return; // Exit the function
             }
-    
+
             if (payload) {
                 const response: CustomResponse = await PostCall(`/company/${selectedBlock.supId}/blocksupplier`, payload);
-                if (response.code === "SUCCESS") {
-                    setAlert("success", "Supplier Blocked Successfully");
+                if (response.code === 'SUCCESS') {
+                    setAlert('success', 'Supplier Blocked Successfully');
                     fetchData();
                 } else {
-                    setAlert("error", response.message);
+                    setAlert('error', response.message);
                 }
             }
         } catch (error) {
-            console.error("Error during API call:", error);
-            setAlert("error", "An unexpected error occurred.");
+            console.error('Error during API call:', error);
+            setAlert('error', 'An unexpected error occurred.');
         } finally {
             setIsDetailLoading(false); // Ensure loading state is reset
             closeDialog(); // Close dialog in all cases
         }
     };
-    
-    
 
     return (
         <div className="grid">
@@ -540,72 +538,72 @@ const ManageSupplierPage = () => {
                                                 const srNo = (page - 1) * limit + normalizedRowIndex + 1;
                                                 return <span>{srNo}</span>;
                                             },
-                                            bodyStyle: { minWidth: 50, maxWidth: 50 },
+                                            bodyStyle: { minWidth: 50, maxWidth: 50 }
                                         },
                                         {
                                             header: 'Block Type',
                                             field: 'blockType',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
-                                            style: { minWidth: 150, maxWidth: 150 },
+                                            style: { minWidth: 150 }
                                         },
                                         {
                                             header: 'Procurement Category',
                                             field: 'category.categoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Supplier Category',
                                             field: 'subCategories.subCategoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Manufacturer Name',
                                             field: 'supplierManufacturerName',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 },
+                                            bodyStyle: { minWidth: 200 }
                                         },
                                         {
                                             header: 'Email',
                                             field: 'email',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 },
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         },
                                         {
                                             header: 'Site Address',
                                             field: 'siteAddress',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Factory Name',
                                             field: 'factoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150 }
                                         },
                                         {
                                             header: 'Warehouse Location',
                                             field: 'warehouseLocation',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 },
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         },
                                         {
                                             header: 'Country',
-                                            field: 'countries.name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            field: 'country',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'State',
-                                            field: 'states.name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            field: 'state',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'City',
-                                            field: 'cities.name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            field: 'city',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Zip',
                                             field: 'Zip',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         // New Columns
                                         {
@@ -618,7 +616,7 @@ const ManageSupplierPage = () => {
                                                 }
                                                 return; // Default value if the date is not available
                                             },
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Block End Date',
@@ -628,23 +626,21 @@ const ManageSupplierPage = () => {
                                                     const date = new Date(data.blockEndDate);
                                                     return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
                                                 }
-                                                return ; // Default value if the date is not available
+                                                return; // Default value if the date is not available
                                             },
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
-                                        
+
                                         {
                                             header: 'Block Reason',
                                             field: 'blockReason',
                                             // body: (data: any) => data.blockReason || 'N/A',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 },
-                                        },
-                                        
+                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                        }
                                     ]}
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 />
-
                             </div>
                         </div>
                     </div>
@@ -658,7 +654,13 @@ const ManageSupplierPage = () => {
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDialog} />
-                        <Button label="Save" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={handleSave} disabled={!blockOption || (blockOption === "Temporary Block" && (!dateRange.startDate || !dateRange.endDate))} />
+                        <Button
+                            label="Save"
+                            style={{ backgroundColor: '#DF1740', border: 'none' }}
+                            className="px-7 hover:text-white"
+                            onClick={handleSave}
+                            disabled={!blockOption || (blockOption === 'Temporary Block' && (!dateRange.startDate || !dateRange.endDate))}
+                        />
                     </div>
                 }
                 onHide={closeDialog}
@@ -670,39 +672,36 @@ const ManageSupplierPage = () => {
                 )}
                 <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
                     <div className="flex flex-wrap gap-3 mt-2 mb-1 justify-content-center">
-                    {selectedBlock?.blockType !== "permanent" && (
-                        <div className="flex align-items-center flex-column gap-3">
-                            <div className="flex align-items-center">
-                                <RadioButton inputId="block" name="block" value="Permanent Block" onChange={(e) => setBlockOption(e.value)}
-                                checked={blockOption === "Permanent Block"}/>
-                                <label htmlFor="block" className="ml-2">
-                                    Permanent Block
-                                </label>
+                        {selectedBlock?.blockType !== 'permanent' && (
+                            <div className="flex align-items-center flex-column gap-3">
+                                <div className="flex align-items-center">
+                                    <RadioButton inputId="block" name="block" value="Permanent Block" onChange={(e) => setBlockOption(e.value)} checked={blockOption === 'Permanent Block'} />
+                                    <label htmlFor="block" className="ml-2">
+                                        Permanent Block
+                                    </label>
+                                </div>
                             </div>
-                        </div>
                         )}
-                        {selectedBlock?.blockType !== "temporary" && (
-                        <div className="flex align-items-center flex-column gap-3">
-                            <div className="flex align-items-center">
-                                <RadioButton inputId="tempBlock" name="tempBlock" value="Temporary Block" onChange={(e) => setBlockOption(e.value)}
-                                checked={blockOption === "Temporary Block"} />
+                        {selectedBlock?.blockType !== 'temporary' && (
+                            <div className="flex align-items-center flex-column gap-3">
+                                <div className="flex align-items-center">
+                                    <RadioButton inputId="tempBlock" name="tempBlock" value="Temporary Block" onChange={(e) => setBlockOption(e.value)} checked={blockOption === 'Temporary Block'} />
 
-                                <label htmlFor="tempBlock" className="ml-2">
-                                    Temporary Block
-                                </label>
+                                    <label htmlFor="tempBlock" className="ml-2">
+                                        Temporary Block
+                                    </label>
+                                </div>
                             </div>
-                        </div>
                         )}
-                        {selectedBlock?.blockType !== "unblock" && selectedBlock?.blockType !== null &&(
-                        <div className="flex align-items-center flex-column gap-3">
-                            <div className="flex align-items-center">
-                                <RadioButton inputId="unblock" name="unblock" value="UnBlock" onChange={(e) => setBlockOption(e.value)}
-                                checked={blockOption === "UnBlock"}/>
-                                <label htmlFor="unblock" className="ml-2">
-                                     UnBlock
-                                </label>
+                        {selectedBlock?.blockType !== 'unblock' && selectedBlock?.blockType !== null && (
+                            <div className="flex align-items-center flex-column gap-3">
+                                <div className="flex align-items-center">
+                                    <RadioButton inputId="unblock" name="unblock" value="UnBlock" onChange={(e) => setBlockOption(e.value)} checked={blockOption === 'UnBlock'} />
+                                    <label htmlFor="unblock" className="ml-2">
+                                        UnBlock
+                                    </label>
+                                </div>
                             </div>
-                        </div>
                         )}
                     </div>
                     {/* <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
@@ -714,11 +713,7 @@ const ManageSupplierPage = () => {
                     <div className="flex flex-column align-items-center gap-1">
                         {blockOption === 'Permanent Block' && (
                             <div className="w-full">
-                                <InputTextarea
-                                   onChange={(e) => setReason(e.target.value)}
-                                   placeholder="Enter Reason"
-                                   className="p-inputtext w-full"
-                                />
+                                <InputTextarea onChange={(e) => setReason(e.target.value)} placeholder="Enter Reason" className="p-inputtext w-full" />
                             </div>
                         )}
                         {blockOption === 'Temporary Block' && (
@@ -735,20 +730,24 @@ const ManageSupplierPage = () => {
                                         Select Period of Block:
                                     </label>
                                     <div className="flex gap-4">
-                                        <Calendar  id="startDate"
-                                        value={dateRange.startDate}
-                                        onChange={(e) => setDateRange((prev) => ({ ...prev, startDate: e.value as Date }))}
-                                        dateFormat="yy-mm-dd"
-                                        placeholder="Start Date"
-                                        showIcon
-                                        style={{ borderRadius: "5px", borderColor: "black" }} />
-                                        <Calendar id="endDate"
-                                        value={dateRange.endDate}
-                                        onChange={(e) => setDateRange((prev) => ({ ...prev, endDate: e.value as Date }))}
-                                        dateFormat="yy-mm-dd"
-                                        placeholder="End Date"
-                                        showIcon
-                                        style={{ borderRadius: "5px", borderColor: "black" }} />
+                                        <Calendar
+                                            id="startDate"
+                                            value={dateRange.startDate}
+                                            onChange={(e) => setDateRange((prev) => ({ ...prev, startDate: e.value as Date }))}
+                                            dateFormat="yy-mm-dd"
+                                            placeholder="Start Date"
+                                            showIcon
+                                            style={{ borderRadius: '5px', borderColor: 'black' }}
+                                        />
+                                        <Calendar
+                                            id="endDate"
+                                            value={dateRange.endDate}
+                                            onChange={(e) => setDateRange((prev) => ({ ...prev, endDate: e.value as Date }))}
+                                            dateFormat="yy-mm-dd"
+                                            placeholder="End Date"
+                                            showIcon
+                                            style={{ borderRadius: '5px', borderColor: 'black' }}
+                                        />
                                     </div>
                                 </div>
                             </div>

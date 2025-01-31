@@ -13,8 +13,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { EmptySupplier } from '@/types/forms';
 import Stepper from '@/components/Stepper';
-import { z } from 'zod';
-
+import { Country, State, City } from "country-state-city";
 const defaultForm: EmptySupplier = {
     supId: null,
     supplierName: '',
@@ -22,9 +21,9 @@ const defaultForm: EmptySupplier = {
     supplierManufacturerName: '',
     siteAddress: '',
     procurementCategoryId: null,
-    stateId: null,
-    countryId: null,
-    cityId: null,
+    state: '',
+    country: '',
+    city: '',
     email: '',
     Zip: '',
     supplierCategoryId: null,
@@ -75,9 +74,45 @@ const ManageSupplierAddEditPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
     const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
-    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({}); 
-    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({}); 
+    const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({});
+    const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
+    const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});
 
+
+    // Fetch all countries on component mount
+    useEffect(() => {
+        const fetchCountries = async () => {
+            const countries = await Country.getAllCountries();
+            setAllCountry(countries);
+        };
+        fetchCountries();
+    }, []);
+
+    // Fetch states based on selected country
+    useEffect(() => {
+        const fetchStates = async () => {
+            if (form.country) {
+                const states = await State.getStatesOfCountry(form.country);
+                setAllState(states);
+            } else {
+                setAllState([]); // Reset states if no country is selected
+            }
+        };
+        fetchStates();
+    }, [form.country]);
+
+    // Fetch cities based on selected state
+    useEffect(() => {
+        const fetchCities = async () => {
+            if (form.state) {
+                const cities = await City.getCitiesOfState(form.country, form.state);
+                setAllCity(cities);
+            } else {
+                setAllCity([]); // Reset cities if no state is selected
+            }
+        };
+        fetchCities();
+    }, [form.state]);
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
         if (!incomingData) return defaultForm;
@@ -95,14 +130,7 @@ const ManageSupplierAddEditPage = () => {
             setLoading(true);
             try {
                 // Fetch independent data first
-                await Promise.all([fetchCategory(), fetchAllCountry(), isEditMode && fetchSupplierData()]);
-                console.log('97', form);
-
-                // Fetch dependent data sequentially
-                // const states = await fetchAllSatate(); // Dependent on fetchAllCountry
-                // if (states) {
-                //     await fetchAllCity(); // Dependent on fetchAllState
-                // }
+                await Promise.all([fetchCategory(), isEditMode && fetchSupplierData()]);
             } catch (error) {
                 console.error('Error fetching initial data:', error);
             } finally {
@@ -122,17 +150,10 @@ const ManageSupplierAddEditPage = () => {
             if (response.data && response.data[0]) {
                 const mappedForm = mapToForm(response.data[0]);
                 setForm(mappedForm);
-                console.log('123', mappedForm);
 
                 // Fetch subcategories dynamically based on the selected category
                 if (mappedForm.supplierCategoryId) {
                     await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
-                }
-                if (mappedForm.supplierCategoryId && mappedForm.countries) {
-                    await fetchAllSatate(mappedForm.countryId);
-                }
-                if (mappedForm.supplierCategoryId && mappedForm.countries && mappedForm.states) {
-                    await fetchAllCity(mappedForm.stateId);
                 }
                 // set checkbox states based on file existence
                 setChecked({
@@ -151,24 +172,6 @@ const ManageSupplierAddEditPage = () => {
         const response: CustomResponse = await GetCall(`/company/category`);
         if (response.code === 'SUCCESS') {
             setCategory(response.data);
-        }
-    };
-    const fetchAllCountry = async () => {
-        const response: CustomResponse = await GetCall(`/company/supplier/countries`);
-        if (response.code === 'SUCCESS') {
-            setAllCountry(response.data);
-        }
-    };
-    const fetchAllSatate = async (countryId: any) => {
-        const response: CustomResponse = await GetCall(`/company/supplier/states/${countryId}`);
-        if (response.code === 'SUCCESS') {
-            setAllState(response.data.states);
-        }
-    };
-    const fetchAllCity = async (stateId: any) => {
-        const response: CustomResponse = await GetCall(`/company/supplier/city/${stateId}`);
-        if (response.code === 'SUCCESS') {
-            setAllCity(response.data.city);
         }
     };
 
@@ -194,21 +197,19 @@ const ManageSupplierAddEditPage = () => {
     console.log('192', wordLimitErrors);
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        if (typeof name !== 'string') return; // Ensure `name` is always a string
-        let errors = { ...formErrors }; // Clone the existing errors object
-        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'countryId' && name !== 'stateId' && name !== 'cityId' && name !== 'email') {
+        if (typeof name !== 'string') return;
+        if (name !== 'procurementCategoryId' && name !== 'supplierCategoryId' && name !== 'country' && name !== 'state' && name !== 'city') {
             if (val) {
                 const trimmedValue = val.trim();
                 const wordCount = trimmedValue.length;
                 if (name !== 'siteAddress' && name !== 'warehouseLocation') {
-                    if (wordCount > 70) {
+                    if (wordCount > 50) {
                         setWordLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Word limit exceeded!'
+                            [name]: 'Maximum 50 characters allowed!'
                         }));
                         return;
                     } else {
-                        // Clear word limit error if condition is no longer met
                         setWordLimitErrors((prevWordErrors) => {
                             const updatedErrors = { ...prevWordErrors };
                             delete updatedErrors[name];
@@ -220,11 +221,10 @@ const ManageSupplierAddEditPage = () => {
                     if (wordCount > 250) {
                         setWordMaxLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
-                            [name]: 'Word limit exceeded!',
+                            [name]: 'Maximum 250 characters allowed!'
                         }));
                         return;
                     } else {
-                        // Clear word limit error if condition is no longer met
                         setWordMaxLimitErrors((prevWordErrors) => {
                             const updatedErrors = { ...prevWordErrors };
                             delete updatedErrors[name];
@@ -232,18 +232,17 @@ const ManageSupplierAddEditPage = () => {
                         });
                     }
                 }
-                if (name === 'supplierNumber' || name === 'Zip') {
-                    if (!/^\d+$/.test(val)) { // Check if value is not a valid number
+                if (name === 'supplierNumber') {
+                    if (!/^\+?\d+$/.test(val) || (val.includes('+') && val.indexOf('+') !== 0)) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Only numbers are allowed!'
                         }));
                         return;
-                    } else if (val.length > 15) {
-                        // Ensure supplierNumber does not exceed 15 digits
+                    } else if (val.length > 12) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Number exceeds limit!'
+                            [name]: 'Maximum 12 number allowed!'
                         }));
                         return;
                     } else {
@@ -255,22 +254,62 @@ const ManageSupplierAddEditPage = () => {
                     }
                 }
 
-                if (name === 'Zip') {
-                    if (!/^[\d-]*$/.test(val)) {
-                        // Ensure only numbers and dash are allowed
-                        setNumberErrors((prevNumErrors) => ({
+                if (name === 'email') {
+                    if (!/^[a-zA-Z0-9-@.]+$/.test(val)) {
+                        setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Only numbers and a dash (-) are allowed!'
+                            [name]: 'Please enter a valid email address (e.g., example@domain.com).'
                         }));
                         return;
-                    } else if (val.length > 9) {
-                        // Ensure Zip does not exceed 8 characters (0000-0000 is 9 chars including the dash)
-                        setNumberErrors((prevNumErrors) => ({
+                    } else if (!val.includes('@')) {
+                        setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
-                            [name]: 'Zip Code numbers exceeds '
+                            [name]: 'Please enter a valid email address (e.g., example@domain.com).'
+                        }));
+                    }
+                    else if(!val.includes('.com')){
+                        setEmailErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Please enter a valid email address (e.g., example@domain.com).'
+                        }));
+                    }
+                     else if (val.length > 80) {
+                        setEmailErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Maximum Word limit 80!'
                         }));
                         return;
                     } else {
+                        setEmailErrors((prevNumErrors) => {
+                            const updatedErrors = { ...prevNumErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
+                    }
+                }
+
+                if (name === 'Zip') {
+                    if (!/^[a-zA-Z0-9\s-]+$/.test(val)) {
+                        // Ensure only numbers and dash are allowed
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Only letters,numbers,spaces and hyphens are allowed!'
+                        }));
+                        return;
+                    } else if (val.length > 10) {
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Maximum 10 characters allowed! '
+                        }));
+                        return;
+                        
+                    } else if (val.length < 1) {
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Zip must not be empty'
+                        }));
+                        return;
+                    }else {
                         setNumberErrors((prevNumErrors) => {
                             const updatedErrors = { ...prevNumErrors };
                             delete updatedErrors[name];
@@ -294,21 +333,6 @@ const ManageSupplierAddEditPage = () => {
                         });
                     }
                 }
-                // if (name === 'supplierManufacturerName') {
-                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
-                //     if (!isAlphabet) {
-                //         setAlert('error', 'Supplier Manufacturer Name must contain only alphabets');
-                //         return;
-                //     }
-                // }
-
-                // if (name === 'factoryName') {
-                //     const isAlphabet = /^[a-zA-Z\s]+$/.test(val);
-                //     if (!isAlphabet) {
-                //         setAlert('error', 'factory Name must contain only alphabets');
-                //         return;
-                //     }
-                // }
             }
         }
         setForm((prevForm) => {
@@ -320,14 +344,14 @@ const ManageSupplierAddEditPage = () => {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-            if (name === 'countryId') {
-                fetchAllSatate(val);
-                updatedForm.stateId = null;
-            }
-            if (name === 'stateId') {
-                fetchAllCity(val);
-                updatedForm.cityId = null;
-            }
+            // if (name === 'countryId') {
+            //     fetchAllSatate(val);
+            //     updatedForm.state = null;
+            // }
+            // if (name === 'stateId') {
+            //     fetchAllCity(val);
+            //     updatedForm.cityId = null;
+            // }
             return updatedForm;
         });
     };
@@ -366,7 +390,6 @@ const ManageSupplierAddEditPage = () => {
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
         const { valid, errors } = validateFormData(form);
-        console.log('287', valid);
         if (!valid) {
             setFormErrors(errors);
             return;
@@ -391,17 +414,6 @@ const ManageSupplierAddEditPage = () => {
                 return newSteps;
             });
             setCurrentStep((prev) => prev - 1);
-        }
-    };
-    const onNewAdd = async (userForm: any) => {
-        setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/supplier`, userForm);
-        setIsDetailLoading(false);
-        if (response.code == 'SUCCESS') {
-            router.push(`/manage-supplier`);
-            setAlert('success', 'Successfully Added');
-        } else {
-            setAlert('error', response.message);
         }
     };
 
@@ -460,9 +472,7 @@ const ManageSupplierAddEditPage = () => {
                                         Factory Name
                                     </label>
                                     <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full mb-1" />
-                                    {formErrors.factoryName && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.factoryName}</p> 
-                                        )}
+                                    {formErrors.factoryName && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.factoryName}</p>}
                                     {/* Display word limit errors separately */}
                                     {wordLimitErrors.factoryName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordLimitErrors.factoryName}</p>}
                                 </div>
@@ -477,13 +487,11 @@ const ManageSupplierAddEditPage = () => {
                                         options={category}
                                         optionLabel="categoryName"
                                         optionValue="categoryId"
-                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)} 
+                                        onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                         placeholder="Select Procurement Category"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.supplierCategoryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.supplierCategoryId}</p> 
-                                        )}
+                                    {formErrors.supplierCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.supplierCategoryId}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="procurementCategory" className="font-semibold">
@@ -503,19 +511,16 @@ const ManageSupplierAddEditPage = () => {
                                     ) : (
                                         <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
                                     )}
-                                    {formErrors.procurementCategoryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.procurementCategoryId}</p> 
-                                        )}
+                                    {formErrors.procurementCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.procurementCategoryId}</p>}
                                 </div>
 
                                 <div className="field col-3">
                                     <label htmlFor="email" className="font-semibold">
                                         Email Address
                                     </label>
-                                    <InputText id="email" value={get(form, 'email')} type="text" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
-                                    {formErrors.email && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.email}</p> 
-                                        )}
+                                    <InputText id="email" value={get(form, 'email')} type="email" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
+                                    {formErrors.email && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.email}</p>}
+                                    {emailErrors.email && <p style={{ color: 'red', fontSize: '10px' }}>{emailErrors.email}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="supplierNumber" className="font-semibold">
@@ -529,69 +534,57 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Enter Phone Number "
                                         className="p-inputtext w-full mb-1"
                                     />
-                                    {formErrors.supplierNumber && (
-                                        <p style={{ color: "red", fontSize:'10px'}}>{formErrors.supplierNumber}</p>
-                                        )}
-                                    {numberErrors.supplierNumber && ( 
-                                        <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.supplierNumber}</p>
-                                    )}
+                                    {formErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.supplierNumber}</p>}
+                                    {numberErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px' }}>{numberErrors.supplierNumber}</p>}
                                 </div>
                                 <div className="field col-3">
-                                    <label htmlFor="countryId" className="font-semibold">
+                                    <label htmlFor="country" className="font-semibold">
                                         Country
                                     </label>
                                     <Dropdown
-                                        id="countryId"
-                                        value={get(form, 'countryId')}
+                                        id="country"
+                                        value={get(form, 'country')}
                                         options={allCountry}
                                         optionLabel="name"
-                                        optionValue="countryId"
-                                        onChange={(e) => onInputChange('countryId', e.value)}
+                                        optionValue="isoCode" 
+                                        filter
+                                        onChange={(e) => onInputChange('country', e.value)}
                                         placeholder="Select Country"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.countryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.countryId}</p> 
-                                        )}
+                                    {formErrors.country && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.country}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="state" className="font-semibold">
                                         State
                                     </label>
                                     <Dropdown
-                                        id="stateId"
-                                        value={get(form, 'stateId')}
+                                        id="state"
+                                        value={get(form, 'state')}
                                         options={allState}
                                         optionLabel="name"
-                                        optionValue="stateId"
-                                        onChange={(e) => onInputChange('stateId', e.value)}
+                                        optionValue="isoCode" 
+                                        filter
+                                        onChange={(e) => onInputChange('state', e.value)}
                                         placeholder="Select state"
                                         className="w-full mb-1"
                                     />
-                                    {formErrors.stateId && (
-                                        <p style={{ color: "red" ,fontSize:'10px'}}>{formErrors.stateId}</p> 
-                                        )}
+                                    {formErrors.state && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.state}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
-                                    <Dropdown id="cityId" value={get(form, 'cityId')} options={allCity} optionLabel="name" optionValue="cityId" onChange={(e) => onInputChange('cityId', e.value)} placeholder="Select city" className="w-full mb-1" />
-                                    {formErrors.cityId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.cityId}</p> 
-                                        )}
+                                    <Dropdown id="city" value={get(form, 'city')} options={allCity} optionLabel="name" optionValue="name"  filter onChange={(e) => onInputChange('city', e.value)} placeholder="Select city" className="w-full mb-1" />
+                                    {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="Zip" className="font-semibold">
                                         ZipCode
                                     </label>
                                     <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full mb-1" />
-                                    {formErrors.Zip && (
-                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.Zip}</p> 
-                                        )}
-                                        {numberErrors.Zip && ( 
-                                            <p style={{ color: "red", fontSize: "10px" }}>{numberErrors.Zip}</p>
-                                        )}
+                                    {formErrors.Zip && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.Zip}</p>}
+                                    {numberErrors.Zip && <p style={{ color: 'red', fontSize: '10px' }}>{numberErrors.Zip}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="siteAddress" className="font-semibold">
@@ -599,12 +592,9 @@ const ManageSupplierAddEditPage = () => {
                                     </label>
                                     <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full mb-1" placeholder="Enter Site Address" />
                                     {formErrors.siteAddress && (
-                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.siteAddress}</p> // Display error message
-                                        )}
-                                        {/* Display word limit errors separately */}
-                                    {wordMaxLimitErrors.siteAddress && (
-                                        <p style={{ color: "red", fontSize: "10px" }}>{wordMaxLimitErrors.siteAddress}</p>
+                                        <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.siteAddress}</p> // Display error message
                                     )}
+                                    {wordMaxLimitErrors.siteAddress && <p style={{ color: 'red', fontSize: '10px' }}>{wordMaxLimitErrors.siteAddress}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="warehouseLocation" className="font-semibold">
@@ -619,12 +609,10 @@ const ManageSupplierAddEditPage = () => {
                                         className="p-inputtext w-full mb-1"
                                     />
                                     {formErrors.warehouseLocation && (
-                                        <p style={{ color: "red", fontSize:'10px' }}>{formErrors.warehouseLocation}</p> // Display error message
-                                        )}
-                                        {/* Display word limit errors separately */}
-                                    {wordMaxLimitErrors.warehouseLocation && (
-                                        <p style={{ color: "red", fontSize: "10px" }}>{wordMaxLimitErrors.warehouseLocation}</p>
+                                        <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.warehouseLocation}</p> // Display error message
                                     )}
+                                    {/* Display word limit errors separately */}
+                                    {wordMaxLimitErrors.warehouseLocation && <p style={{ color: 'red', fontSize: '10px' }}>{wordMaxLimitErrors.warehouseLocation}</p>}
                                 </div>
                             </div>
                         </div>

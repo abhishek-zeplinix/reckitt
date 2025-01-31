@@ -300,16 +300,16 @@ type EmptySupplier = {
     supplierName: string;
     supplierManufacturerName: string;
     siteAddress: string;
-    countryId:number | null;
+    country:string;
     procurementCategoryId?: number | null;
-    stateId:number | null;
+    state:string;
     email:string;
     supplierNumber:string,
     Zip:string;
     supplierCategoryId?: number | null;
     warehouseLocation: string;
     factoryId?: number | null;
-    cityId:number | null;
+    city:string;
     gmpFile?: any;
     gdpFile?: any;
     reachFile: any;

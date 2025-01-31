@@ -287,12 +287,19 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                 // scrollDirection="both" // Enables both horizontal and vertical scrolling
                 tableStyle={{ minWidth: '30rem' }}
                 onPage={(event: DataTablePageEvent) => {
-                    setLazyParams({
+                    const newLazyParams = {
                         ...lazyParams,
                         first: event.first,
                         rows: event.rows,
                         page: event.page ? event.page + 1 : 1
-                    });
+                    };
+                
+                    setLazyParams(newLazyParams);
+                
+                    // Call the parent function to fetch new data based on pagination
+                    if (props.onLoad) {
+                        props.onLoad(newLazyParams);
+                    }
                 }}
                 onFilter={(event: DataTableFilterEvent) => {
                     setLazyParams({

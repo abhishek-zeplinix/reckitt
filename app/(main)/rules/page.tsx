@@ -47,7 +47,7 @@ const MainRules = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [filterCategories, setCategories] = useState([]);
     const [supplierDepartment, setSupplierDepartment] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
+    const [rulesGroup, setRulesGroup] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [chooseRules, setChooseRules] = useState('');
@@ -131,6 +131,11 @@ const MainRules = () => {
             return;
         }
 
+        if (!rulesGroup) {
+            setAlert('error', 'Please enter a valid name for the Rules Group.');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
 
@@ -141,15 +146,16 @@ const MainRules = () => {
             return `${year}-${month}-${day}`;
         };
 
-        // In the handleFileUpload function
-        if (date) {
-            formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
-        }
+        formData.append('effectiveFrom', formatDate(date)); // Add formatted date
+        formData.append('set', rulesGroup); // Add rules group name
+
+        // Determine API endpoint based on selected rule type
+        const apiEndpoint = chooseRules === 'Capa Rules' ? '/company/caparule/bulk/capa-rules' : '/company/bulk-rules';
 
         setIsDetailLoading(true);
         try {
             // Use the existing PostCall function
-            const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
+            const response: CustomResponse = await PostCall(apiEndpoint, formData);
 
             setIsDetailLoading(false);
 
@@ -166,6 +172,7 @@ const MainRules = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
+
     const handleEditRules = (e: any) => {
         if (e.ruleType === 'rule') {
             router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
@@ -249,7 +256,7 @@ const MainRules = () => {
                                         <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
                                             Enter Name for Rules Group:
                                         </label>
-                                        <InputText id="email" type="text" onChange={(e) => {}} placeholder="Enter Email Address " className="p-inputtext w-full py-2" />
+                                        <InputText id="email" type="text" onChange={(e) => setRulesGroup(e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full py-2" />
                                     </div>
                                 </div>
                             </div>

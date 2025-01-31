@@ -9,7 +9,7 @@ import { CustomResponse } from '@/types';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { Calendar } from 'primereact/calendar';
-import { validateField } from '@/utils/utils';
+import { validateField, validateFormCapaRuleData } from '@/utils/utils';
 import { z } from 'zod';
 
 const CreateNewRulesPage = () => {
@@ -28,6 +28,8 @@ const CreateNewRulesPage = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
     const [date, setDate] = useState<Date | null>(null);
+    const [errors, setErrors] = useState<{ orderBy?: string; capaRulesName?: string }>({});
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const router = useRouter();
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Capa Rules' : 'New Capa Rules';
@@ -95,12 +97,20 @@ const handleRemoveField = (index: number) => {
       status: prev.status.filter((_, i) => i !== index),
     }));
   }; 
-  const handleSubmit = async () => {
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+          event.preventDefault();
+          handleSubmit(fields);
+      };
+    
+  const handleSubmit = async (fields: Record<string, unknown>) => {
+    const { valid, errors } = validateFormCapaRuleData(fields);
+            if (!valid) {
+                setFormErrors(errors);
+                return;
+            }
+    
+            setFormErrors({});
     try {
-      console.log('100',fields)
-      // Validate fields using Zod schema
-    //   fieldsSchema.parse(fields);
-  
       let endpoint: string;
       let response: CustomResponse;
   
@@ -119,9 +129,7 @@ const handleRemoveField = (index: number) => {
         }
       } else {
         try {
-          // Submit data for new addition
           onNewAdd(fields);
-          setAlert('success', 'CAPA Rules added successfully.');
         } catch (error) {
           setAlert('error', 'Failed to add CAPA Rules. Please try again.');
         }
@@ -181,7 +189,7 @@ const handleRemoveField = (index: number) => {
         return (
             <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
                 <Button label="Cancel" className="text-primary-main bg-white border-primary-main hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3" onClick={() => router.push(`/rules/set-capa-rules?ruleSetId=${ruleSetId}`)} />
-                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-primary-main border-primary-main hover:bg-pink-400 mb-3" onClick={handleSubmit} />
+                <Button label={submitButtonLabel} icon="pi pi-check" className="bg-primary-main border-primary-main hover:bg-pink-400 mb-3" onClick={handleButtonClick} />
             </div>
         );
     };
@@ -220,9 +228,9 @@ const handleRemoveField = (index: number) => {
     };
     const onNewAdd = async (userForm: any) => {
         
-        const response: CustomResponse = await PostCall(`/company/caparule`, userForm);
+        const response: CustomResponse = await PostCall(`/company/caparule/${ruleSetId}`, userForm);
         if (response.code == 'SUCCESS') {
-            router.push('rules/set-capa-rules');
+            router.push(`/rules/set-capa-rules?ruleSetId=${ruleSetId}`);
             setAlert('success', 'Successfully Added');
         } else {
             setAlert('error', response.message);
@@ -232,6 +240,47 @@ const handleRemoveField = (index: number) => {
         setSelectedSupplierCategory(value); // Update the selected value
         fetchprocurementCategories(value); // Call the API with the selected value
     };
+    const handleInputChange = (name: string, value: string) => {
+      if (name === 'orderBy') {
+        if (!/^\d*$/.test(value)) {
+          setErrors((prevAlphaErrors) => ({
+              ...prevAlphaErrors,
+              [name]: 'Only numbers are allowed!'
+          }));
+          return;
+      }else if (value.length > 2) {
+        setErrors((prevAlphaErrors) => ({
+          ...prevAlphaErrors,
+          [name]: 'Only 2 digits are allowed!'
+      }));
+      return;
+      } 
+      else {
+        setErrors((prevAlphaErrors) => {
+              const updatedErrors = { ...prevAlphaErrors };
+              delete updatedErrors[name];
+              return updatedErrors;
+          });
+      }
+          setorderBy(value);
+      } else if (name === 'capaRulesName') {
+        if (!/^[A-Za-z\s]*$/.test(value)) {
+          setErrors((prevAlphaErrors) => ({
+              ...prevAlphaErrors,
+              [name]: 'Only letters are allowed!'
+          }));
+          return;
+      } else {
+        setErrors((prevAlphaErrors) => {
+              const updatedErrors = { ...prevAlphaErrors };
+              delete updatedErrors[name];
+              return updatedErrors;
+          });
+    };
+          setcapaRulesName(value);
+      }
+      // validateFields(name, value);
+  };
     const renderContentbody = () => {
         return (
             <div className="grid">
@@ -244,10 +293,17 @@ const handleRemoveField = (index: number) => {
                                             Select Effective Date:
                                         </label>
                                 <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                {formErrors.effectiveFrom && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.effectiveFrom}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
-                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
+                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
+                                {formErrors.orderBy && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.orderBy}</p> 
+                                        )}
+                                {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="departmentId">Department</label>
@@ -261,6 +317,9 @@ const handleRemoveField = (index: number) => {
                                     optionValue="departmentId"
                                     className="w-full"
                                 />
+                                {formErrors.departmentId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.departmentId}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="categoryId">Procurement Category</label>
@@ -274,6 +333,9 @@ const handleRemoveField = (index: number) => {
                                     optionValue="categoryId"
                                     className="w-full"
                                 />
+                                {formErrors.categoryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.categoryId}</p> 
+                                        )}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="subCategoryId">Supplier Category</label>
@@ -287,6 +349,9 @@ const handleRemoveField = (index: number) => {
                                     placeholder="Select Supplier Category"
                                     className="w-full"
                                 />
+                                {formErrors.subCategoryId && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.subCategoryId}</p> 
+                                        )}
                             </div>
                              
                                                             <div className="field col-4">
@@ -296,9 +361,13 @@ const handleRemoveField = (index: number) => {
                                                                     type="text"
                                                                     placeholder="Capa Rules Name"
                                                                     value={selectcapaRulesName}
-                                                                    onChange={(e) => setcapaRulesName( e.target.value)}
+                                                                    onChange={(e) => handleInputChange('capaRulesName', e.target.value)}
                                                                     className="p-inputtext w-full"
                                                                 />
+                                                                {formErrors.capaRulesName && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.capaRulesName}</p> 
+                                        )}
+                                                                {errors.capaRulesName && <span className="text-red-500 text-xs">{errors.capaRulesName}</span>}
                                                             </div>
                                                             {fields.status.map((_, index) => (
                                                         <React.Fragment key={index}>
@@ -312,6 +381,9 @@ const handleRemoveField = (index: number) => {
                                                                     onChange={(e) => handleChange(index, "status", e.target.value)}
                                                                     className="p-inputtext w-full"
                                                                 />
+                                                                {formErrors.status && (
+                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.status}</p> 
+                                        )}
                                                             </div>
                                                             
                                                             {fields.status.length>1 && (
