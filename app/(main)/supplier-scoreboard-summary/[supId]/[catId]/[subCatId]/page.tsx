@@ -44,7 +44,7 @@ const SupplierScoreboardTables = () => {
 
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
-            if (!chartRef.current ) return;
+            if (!chartRef.current) return;
 
             await new Promise(resolve => requestAnimationFrame(resolve));
             const canvas = await html2canvas(chartRef.current, {

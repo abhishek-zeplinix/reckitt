@@ -211,20 +211,20 @@ const GenerateRequestPage = () => {
         try {
             setLoading(true);
             const apiData = {
-                supplierId: get(formData, 'supplierId'),
+                supId: get(formData, 'supplierId'),
                 requestedData
             };
 
             console.log(apiData);
 
-            // const response = await PostCall('/company/manageRequest', apiData);
+            const response = await PostCall('/company/manageRequest', apiData);
 
-            // if (response.code === 'SUCCESS') {
-            //     setAlert('success', 'Request submitted successfully');
-            //     router.push('/manage-requests');
-            // } else {
-            //     setAlert('error', response.message);
-            // }
+            if (response.code === 'SUCCESS') {
+                setAlert('success', 'Request submitted successfully');
+                router.push('/manage-requests');
+            } else {
+                setAlert('error', response.message);
+            }
         } catch (error) {
             setAlert('error', 'Failed to submit request');
         } finally {
@@ -254,7 +254,7 @@ const GenerateRequestPage = () => {
             return updated;
         });
     };
-
+    
     const toggleField = (fieldName: any) => {
         setSelectedFields((prev: any) => ({
             ...prev,

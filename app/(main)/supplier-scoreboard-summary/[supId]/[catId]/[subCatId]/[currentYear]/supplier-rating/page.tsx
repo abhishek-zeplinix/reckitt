@@ -22,6 +22,8 @@ const SupplierRatingPage = () => {
     const [reload, setReload] = useState<boolean>(false);
     const [isApprover, setIsApprover] = useState(false)
     
+    const [supplierScoreLoading, setSupplierScoreLoading] = useState(false);
+
 
     const urlParams = useParams();
     const { supId, catId, subCatId, currentYear } = urlParams;
@@ -67,6 +69,9 @@ const SupplierRatingPage = () => {
 
     // Fetch supplier score data
     const fetchSupplierScore = async () => {
+
+        setSupplierScoreLoading(true); 
+
         try {
             const params = {
                 filters: {
@@ -84,13 +89,15 @@ const SupplierRatingPage = () => {
             const response = await GetCall(`/company/supplier-score?${queryString}`);
 
             // setSupplierScoreData(response.data[0]);
-
+            
             setSupplierScoreData(response.data);
 
 
             return response.data;
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier score data');
+        }finally{
+            setSupplierScoreLoading(false);
         }
     };
 
@@ -117,11 +124,12 @@ const SupplierRatingPage = () => {
             try {
                 const supplierDetails = await fetchSupplierData();
 
-
-
                 // Check if supplier has been evaluated for the selected department
                 const isDepartmentEvaluated = supplierDetails?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment);
-
+                console.log(isDepartmentEvaluated);
+                console.log(supplierDetails?.isEvaluated);
+                
+                
                 if (supplierDetails?.isEvaluated && isDepartmentEvaluated) {
                     await fetchSupplierScore();
                 }
@@ -255,6 +263,7 @@ const SupplierRatingPage = () => {
         { label: 'Supplier Id :', value: `${supplierData?.supId}` },
         { label: 'Warehouse Location :', value: `${supplierData?.warehouseLocation}` }
     ];
+    
 
     const summoryCards = () => {
         return (
@@ -330,8 +339,11 @@ const SupplierRatingPage = () => {
 
     const renderSummoryInfo = summoryCards();
 
-    // console.log(departments);
-   
+    // // console.log(departments);
+    // useEffect(() => {
+    //     // Clear existing score data when period changes
+    //     setSupplierScoreData(null);
+    //   }, [selectedPeriod]);
 
     const dataPanel = () => {
         return (
@@ -352,6 +364,7 @@ const SupplierRatingPage = () => {
                                         onClick={() => {
                                             setActiveTab(department.name); // Set activeTab state
                                             setSelectedDepartment(department.departmentId); // Set departmentID state
+                                            // setSupplierScoreData(null);
                                         }}
                                     >
                                         {department.name.toUpperCase()}
@@ -375,7 +388,8 @@ const SupplierRatingPage = () => {
 
                         <SupplierEvaluationTable
                             rules={rules} // Always pass rules
-                            supplierScoreData={supplierScoreData} // Pass the score data separately
+                            // supplierScoreData={supplierScoreData} // Pass the score data separately
+                            supplierScoreData={supplierScoreData}
                             category={category}
                             evaluationPeriod={selectedPeriod}
                             categoryName={categoryName}
@@ -391,6 +405,8 @@ const SupplierRatingPage = () => {
                                         score.evalutionPeriod === selectedPeriod
                                 )?.totalScore
                             }
+                            // key={`${selectedDepartment}-${selectedPeriod}`}
+                           
                         />
 
                 </div>
