@@ -745,3 +745,9 @@ background-color: #3A60F8;
 .text-active{
   color: #15B097;
 }
+.no-background-tooltip::before {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: black; /* Adjust text color */
+}

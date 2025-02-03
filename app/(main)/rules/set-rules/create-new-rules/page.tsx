@@ -34,6 +34,8 @@ const CreateNewRulesPage = () => {
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [date, setDate] = useState<Date | null>(null);
+    const [errors, setErrors] = useState<{ orderBy?: string; ratiosCopack?: string ,ratiosRawpack?: string,}>({});
+    const [scoreerrors, setScoreErrors] = useState<{ [key: string]: string }>({});
     const router = useRouter();
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Rules' : 'Add Rules';
@@ -68,17 +70,34 @@ useEffect(() => {
   ]);
   
 
-      const handleChange = (
-        index: number,
-        key: "criteriaEvaluation" | "score",
-        value: string
-      ) => {
-        setFields((prev) => {
-          const updatedArray = [...prev[key]];
-          updatedArray[index] = value;
-          return { ...prev, [key]: updatedArray };
+  const handleChange = (
+    index: number,
+    key: "criteriaEvaluation" | "score",
+    value: string
+  ) => {
+    // Validation for "score" field
+    if (key === "score") {
+      if (!/^\d*$/.test(value)) {
+        setScoreErrors((prevErrors) => ({
+          ...prevErrors,
+          [`${key}-${index}`]: "Only numbers are allowed!",
+        }));
+        return; // Do not update the state if invalid input
+      } else {
+        // Remove error when valid input is entered
+        setScoreErrors((prevErrors) => {
+          const updatedErrors = { ...prevErrors };
+          delete updatedErrors[`${key}-${index}`];
+          return updatedErrors;
         });
-      };
+      }
+    }
+    setFields((prev) => {
+      const updatedArray = [...prev[key]];
+      updatedArray[index] = value;
+      return { ...prev, [key]: updatedArray };
+    });
+  };
 
 const updateCommonFields = () => {
     setFields((prev) => ({
@@ -94,22 +113,28 @@ const updateCommonFields = () => {
       ratiosCopack: selectedratiosCopack || '',
     }));
   };
-
+console.log('117',fields)
   // Update common fields when they change
 useEffect(() => {
     updateCommonFields();
   }, [date, selectedProcurementDepartment, orderBy, selectedsection, selectedProcurementCategory, selectedSupplierCategory,selectedCriteria,selectedratiosRawpack,selectedratiosCopack]);
   
+  const handleAddFields = () => {
+    setFields((prev) => {
+        const lastCriteria = prev.criteriaEvaluation[prev.criteriaEvaluation.length - 1]?.trim();
+        const lastScore = prev.score[prev.score.length - 1]?.trim();
+        if (!lastCriteria || !lastScore) {
+            alert("Please fill in the previous field before adding a new one.");
+            return prev; 
+        }
+        return {
+            ...prev,
+            criteriaEvaluation: [...prev.criteriaEvaluation, ""],
+            score: [...prev.score, ""],
+        };
+    });
+};
 
-  // Add new set of fields at the end
-// Add new set of criteriaEvaluation and score
-const handleAddFields = () => {
-    setFields((prev) => ({
-      ...prev,
-      criteriaEvaluation: [...prev.criteriaEvaluation, ""],
-      score: [...prev.score, ""],
-    }));
-  };
 // Remove a field
 const handleRemoveField = (index: number) => {
     setFields((prev) => ({
@@ -263,6 +288,63 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
         setSelectedSupplierCategory(value); 
         fetchprocurementCategories(value); 
     };
+    const handleInputChange = (name: string, value: string) => {
+      if (name === 'orderBy' ) {
+        if (!/^\d*$/.test(value)) {
+          setErrors((prevAlphaErrors) => ({
+              ...prevAlphaErrors,
+              [name]: 'Only numbers are allowed!'
+          }));
+          return;
+      }else if (value.length > 2) {
+        setErrors((prevAlphaErrors) => ({
+          ...prevAlphaErrors,
+          [name]: 'Only 2 digits are allowed!'
+      }));
+      return;
+      } 
+      else {
+        setErrors((prevAlphaErrors) => {
+              const updatedErrors = { ...prevAlphaErrors };
+              delete updatedErrors[name];
+              return updatedErrors;
+          });
+      }
+          setorderBy(value);
+      } else if (name === 'ratiosRawpack') {
+        if (!/^\d*$/.test(value)) {
+          setErrors((prevAlphaErrors) => ({
+              ...prevAlphaErrors,
+              [name]: 'Only letters are allowed!'
+          }));
+          return;
+      } else {
+        setErrors((prevAlphaErrors) => {
+              const updatedErrors = { ...prevAlphaErrors };
+              delete updatedErrors[name];
+              return updatedErrors;
+          });
+    };
+      setratiosRawpack(value);
+      }
+      else if (name === 'ratiosCopack') {
+        if (!/^\d*$/.test(value)) {
+          setErrors((prevAlphaErrors) => ({
+              ...prevAlphaErrors,
+              [name]: 'Only letters are allowed!'
+          }));
+          return;
+      } else {
+        setErrors((prevAlphaErrors) => {
+              const updatedErrors = { ...prevAlphaErrors };
+              delete updatedErrors[name];
+              return updatedErrors;
+          });
+    };
+    setratiosCopack(value);
+      }
+      // validateFields(name, value);
+  };
 
     const renderContentbody = () => {
         return (
@@ -282,10 +364,11 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
-                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => setorderBy(e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
+                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
                                 {formErrors.orderBy && (
-                                        <p style={{ color: "red",fontSize:'10px' ,marginTop: '1px'}}>{formErrors.orderBy}</p> 
+                                        <p style={{ color: "red",fontSize:'10px' ,marginTop: '1px',marginBottom:'0px'}}>{formErrors.orderBy}</p> 
                                         )}
+                                        {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="departmentId">Department</label>
@@ -364,12 +447,13 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
                                     type="text"
                                     placeholder="Ratios Raw & Pack"
                                     value={selectedratiosRawpack}
-                                    onChange={(e) => setratiosRawpack( e.target.value)}
+                                    onChange={(e) => handleInputChange('ratiosRawpack', e.target.value)}
                                     className="p-inputtext w-full"
                                 />
                                 {formErrors.ratiosRawpack && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.ratiosRawpack}</p> 
+                                        <p style={{ color: "red",fontSize:'10px',marginBottom:'0px' }}>{formErrors.ratiosRawpack}</p> 
                                         )}
+                                        {errors.ratiosRawpack && <span className="text-red-500 text-xs">{errors.ratiosRawpack}</span>}
                                 </div>
                                 <div className="field col-4">
                                 <label htmlFor="ratiosCopack">Ratio Co Pack</label>
@@ -377,12 +461,13 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
                                     type="text"
                                     placeholder="Ratio Co Pack"
                                     value={selectedratiosCopack}
-                                    onChange={(e) => setratiosCopack(e.target.value)}
+                                    onChange={(e) => handleInputChange('ratiosCopack', e.target.value)}
                                     className="p-inputtext w-full"
                                 />
                                 {formErrors.ratiosCopack && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.ratiosCopack}</p> 
+                                        <p style={{ color: "red",fontSize:'10px',marginBottom:'0px' }}>{formErrors.ratiosCopack}</p> 
                                         )}
+                                        {errors.ratiosCopack && <span className="text-red-500 text-xs">{errors.ratiosCopack}</span>}
                                 </div>
                                 {fields.criteriaEvaluation.map((_, index) => (
                             <React.Fragment key={index}>
@@ -412,6 +497,9 @@ const handleSubmit = async (fields: Record<string, unknown>) => {
                                     />
                                      {formErrors.score && (
                                         <p style={{ color: "red",fontSize:'10px' }}>{formErrors.score}</p> 
+                                        )}
+                                        {scoreerrors[`score-${index}`] && (
+                                          <p className="text-red-500 text-xs">{scoreerrors[`score-${index}`]}</p>
                                         )}
                                 </div>
                                 {fields.score.length>1 && (

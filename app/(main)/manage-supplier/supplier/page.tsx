@@ -13,7 +13,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { EmptySupplier } from '@/types/forms';
 import Stepper from '@/components/Stepper';
-import { Country, State, City } from "country-state-city";
+import { Country, State, City } from 'country-state-city';
 const defaultForm: EmptySupplier = {
     supId: null,
     supplierName: '',
@@ -77,7 +77,6 @@ const ManageSupplierAddEditPage = () => {
     const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({});
     const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
     const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});
-
 
     // Fetch all countries on component mount
     useEffect(() => {
@@ -266,14 +265,12 @@ const ManageSupplierAddEditPage = () => {
                             ...prevNumErrors,
                             [name]: 'Please enter a valid email address (e.g., example@domain.com).'
                         }));
-                    }
-                    else if(!val.includes('.com')){
+                    } else if (!val.includes('.com')) {
                         setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Please enter a valid email address (e.g., example@domain.com).'
                         }));
-                    }
-                     else if (val.length > 80) {
+                    } else if (val.length > 80) {
                         setEmailErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Maximum Word limit 80!'
@@ -302,14 +299,13 @@ const ManageSupplierAddEditPage = () => {
                             [name]: 'Maximum 10 characters allowed! '
                         }));
                         return;
-                        
                     } else if (val.length < 1) {
                         setNumberErrors((prevNumErrors) => ({
                             ...prevNumErrors,
                             [name]: 'Zip must not be empty'
                         }));
                         return;
-                    }else {
+                    } else {
                         setNumberErrors((prevNumErrors) => {
                             const updatedErrors = { ...prevNumErrors };
                             delete updatedErrors[name];
@@ -546,7 +542,7 @@ const ManageSupplierAddEditPage = () => {
                                         value={get(form, 'country')}
                                         options={allCountry}
                                         optionLabel="name"
-                                        optionValue="isoCode" 
+                                        optionValue="isoCode"
                                         filter
                                         onChange={(e) => onInputChange('country', e.value)}
                                         placeholder="Select Country"
@@ -563,7 +559,7 @@ const ManageSupplierAddEditPage = () => {
                                         value={get(form, 'state')}
                                         options={allState}
                                         optionLabel="name"
-                                        optionValue="isoCode" 
+                                        optionValue="isoCode"
                                         filter
                                         onChange={(e) => onInputChange('state', e.value)}
                                         placeholder="Select state"
@@ -575,7 +571,7 @@ const ManageSupplierAddEditPage = () => {
                                     <label htmlFor="city" className="font-semibold">
                                         City
                                     </label>
-                                    <Dropdown id="city" value={get(form, 'city')} options={allCity} optionLabel="name" optionValue="name"  filter onChange={(e) => onInputChange('city', e.value)} placeholder="Select city" className="w-full mb-1" />
+                                    <Dropdown id="city" value={get(form, 'city')} options={allCity} optionLabel="name" optionValue="name" filter onChange={(e) => onInputChange('city', e.value)} placeholder="Select city" className="w-full mb-1" />
                                     {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
                                 </div>
                                 <div className="field col-3">
@@ -717,6 +713,8 @@ const ManageSupplierAddEditPage = () => {
                                     />
                                 </div>
                             </div>
+
+                            <p className="mx-2 font-italic text-sm text-primary-main">* Files should be in pdf, doc, jpg, png format, (2mb only)</p>
                         </div>
                     </div>
                 );

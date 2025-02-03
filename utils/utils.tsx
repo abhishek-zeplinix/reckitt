@@ -60,40 +60,40 @@ const fieldsSchemaRules = z.object({
         .date()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Effective date must not be empty'
+            message: 'Effective date cannot be empty'
         }),
     departmentId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Department must not be empty'
+            message: 'Department cannot be empty'
         }),
     orderBy: z.number()
     .nullable()
     .refine((val) => val !== null, {
-        message: 'OrderBy must not be empty'
+        message: 'OrderBy cannot be empty'
     }),
-    section: z.string().min(1, 'Section must not be empty'),
+    section: z.string().min(1, 'Section cannot be empty'),
     categoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Procurement category must not be empty'
+            message: 'Procurement category cannot be empty'
         }),
     subCategoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Supplier category must not be empty'
+            message: 'Supplier category cannot be empty'
         }),
-    ratedCriteria: z.string().min(1, 'Rated Criteria must not be empty'),
-    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack must not be empty'),
-    ratiosCopack: z.string().min(1, 'Ratios Co Pack must not be empty'),
-    criteriaEvaluation: z.array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    ratedCriteria: z.string().min(1, 'Rated Criteria cannot be empty'),
+    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack cannot be empty'),
+    ratiosCopack: z.string().min(1, 'Ratios Co Pack cannot be empty'),
+    criteriaEvaluation: z.array(z.string().min(1, 'Criteria Evaluation cannot be empty')),
     score: z.array(
         z
             .string()
-            .min(1, 'Score must not be empty')
+            .min(1, 'Score cannot be empty')
             .refine((val) => !isNaN(Number(val)), {
                 message: 'Score must be a number'
             })
@@ -121,36 +121,36 @@ const fieldsSchemaCapaRules = z.object({
         .date()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Effective date must not be empty'
+            message: 'Effective date cannot be empty'
         }),
     departmentId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Department must not be empty'
+            message: 'Department cannot be empty'
         }),
         categoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Procurement Category must not be empty'
+            message: 'Procurement Category cannot be empty'
         }),
         subCategoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
-            message: 'Supplier Category must not be empty'
+            message: 'Supplier Category cannot be empty'
         }),
     orderBy: z.number()
     .nullable()
     .refine((val) => val !== null, {
-        message: 'OrderBy must not be empty'
+        message: 'OrderBy cannot be empty'
     }),
-    capaRulesName: z.array(z.string().min(1, 'Criteria Evaluation must not be empty')),
+    capaRulesName: z.string().min(1, 'Rapa rules name cannot be empty'),
     status: z.array(
         z
             .string()
-            .min(1, 'Score must not be empty')
+            .min(1, 'Score cannot be empty')
             .refine((val) => !isNaN(Number(val)), {
                 message: 'Score must be a number'
             })
