@@ -51,9 +51,16 @@ const SupplierEvaluationTable = ({ rules,
 
   // update function to check CAPA data status
   const checkCapaDataStatus = (data: any[]) => {
+
+    console.log(data);
+    
     if (!data || data.length === 0) return { count: 0, completedCount: 0 };
 
     const totalCapaRules = data.length;
+
+    console.log(totalCapaRules);
+    
+
     const completedCapaRules = data.filter(
       item => item.selectedStatus && item.selectedStatus !== ''
     ).length;
@@ -63,6 +70,14 @@ const SupplierEvaluationTable = ({ rules,
 
     return { count: totalCapaRules, completedCount: completedCapaRules };
   };
+
+  useEffect(() => {
+    if (supplierScoreData && supplierScoreData[0]?.capa) {
+      setCapaData(supplierScoreData[0].capa);
+    } else {
+      setCapaData([]);
+    }
+  }, [supplierScoreData, departmentId, selectedPeriod]);
 
 
   useEffect(() => {
@@ -419,8 +434,6 @@ const SupplierEvaluationTable = ({ rules,
       }
     }
 
-    console.log(newPercentages);
-
     return newPercentages;
   };
 
@@ -469,7 +482,6 @@ const SupplierEvaluationTable = ({ rules,
     const updatedPercentages = recalculateAllPercentages(updatedEvals);
     const roundedPercentages = distributeRoundedPercentages(updatedPercentages);
 
-    console.log(updatedEvals);
 
     setSelectedEvaluations(updatedEvals);
     setCurrentPercentages(updatedPercentages);
@@ -538,6 +550,11 @@ const SupplierEvaluationTable = ({ rules,
           ? 'In Progress'
           : 'In Progress';
     }
+
+    console.log(capaDataCompletedCount);
+    console.log(capaDataCount);
+    
+    
 
     // Combine overall status
     const overallStatus = totalScore <= 50
@@ -632,8 +649,6 @@ const SupplierEvaluationTable = ({ rules,
     // });
   };
 
-  console.log(isCompleted);
-
   
   if (initializing || !tableData) {
     return (
@@ -647,7 +662,6 @@ const SupplierEvaluationTable = ({ rules,
       </div>
     );
   }
-  console.log(tableData?.sections?.length);
   
 
   if (noData) {
@@ -657,6 +671,9 @@ const SupplierEvaluationTable = ({ rules,
       </div>
     );
   }
+
+
+  
   
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
@@ -822,16 +839,14 @@ const SupplierEvaluationTable = ({ rules,
         </div>
 
       </div>
-
-
       {
-        isEvaluatedData ?
+        (isEvaluatedData) ?
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
             {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
           </div>
 
       }

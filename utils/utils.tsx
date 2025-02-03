@@ -364,6 +364,8 @@ export const buildQueryParams = (params: any) => {
         query.append('include', params.include.join(','));
     } else if (typeof params.include == 'string') {
         query.append('include', params.include);
+    }else if (Array.isArray(params.include)) {
+        query.append('include', params.include.map((i: any) => i.trim()).join(','));
     }
 
     // if another parameter passed apart from above ...

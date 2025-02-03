@@ -256,11 +256,17 @@ const MainRules = () => {
                                         <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
                                             Enter Name for Rules Group:
                                         </label>
-                                        <InputText id="email" type="text" onChange={(e) => setRulesGroup(e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full py-2" />
+                                        <InputText id="email" type="text" onChange={(e) => setRulesGroup(e.target.value)} placeholder="Enter Rules Name " className="p-inputtext w-full py-2" />
                                     </div>
                                 </div>
                             </div>
-                            <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                            {isDetailLoading ? (
+                                <div className="flex justify-center mb-3">
+                                    <ProgressSpinner style={{ width: '30px' }} />
+                                </div>
+                            ) : (
+                                <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                            )}
                         </div>
                     </Dialog>
                     {/* <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} /> */}
@@ -538,6 +544,12 @@ const MainRules = () => {
                                     {
                                         header: 'RULES TYPE ',
                                         field: 'ruleType',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'EFFECTIVE FROM ',
+                                        field: 'effectiveFrom',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },

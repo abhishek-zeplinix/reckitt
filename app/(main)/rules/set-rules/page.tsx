@@ -257,6 +257,9 @@ const SetRulesPage = () => {
 
             const queryString = buildQueryParams(params);
 
+            console.log(queryString);
+            
+
             const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
@@ -418,9 +421,9 @@ const SetRulesPage = () => {
         // Create a row for each criteriaEvaluation and score pair
         return item.criteriaEvaluation.map((criteria: string, index: number) => ({
             ruleId: item.ruleId,
-            department: item.department?.name,
-            category: item.categories?.categoryName,
-            subCategories: item.subCategories?.subCategoryName,
+            department: item?.department?.name,
+            category: item?.categories?.categoryName,
+            subCategories: item?.subCategories?.subCategoryName,
             section: item.section,
             ratedCriteria: item.ratedCriteria,
             criteriaEvaluation: criteria,

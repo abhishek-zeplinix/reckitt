@@ -305,6 +305,8 @@ const ManageSupplierPage = () => {
         } catch (error) {
             setIsDetailLoading(false);
             setAlert('error', 'An unexpected error occurred during file upload');
+        } finally {
+            setIsDetailLoading(false);
         }
     };
 
@@ -425,7 +427,13 @@ const ManageSupplierPage = () => {
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={5000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                        {isDetailLoading ? (
+                            <div className="flex justify-center mb-3">
+                                <ProgressSpinner style={{ width: '30px' }} />
+                            </div>
+                        ) : (
+                            <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={5000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
+                        )}
                     </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Supplier" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                 </div>
@@ -587,17 +595,17 @@ const ManageSupplierPage = () => {
                                         },
                                         {
                                             header: 'Country',
-                                            field: 'country',
+                                            field: 'countries.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'State',
-                                            field: 'state',
+                                            field: 'states.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'City',
-                                            field: 'city',
+                                            field: 'cities.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
@@ -737,6 +745,7 @@ const ManageSupplierPage = () => {
                                             dateFormat="yy-mm-dd"
                                             placeholder="Start Date"
                                             showIcon
+                                            minDate={new Date()}
                                             style={{ borderRadius: '5px', borderColor: 'black' }}
                                         />
                                         <Calendar
@@ -746,6 +755,7 @@ const ManageSupplierPage = () => {
                                             dateFormat="yy-mm-dd"
                                             placeholder="End Date"
                                             showIcon
+                                            minDate={new Date()}
                                             style={{ borderRadius: '5px', borderColor: 'black' }}
                                         />
                                     </div>
