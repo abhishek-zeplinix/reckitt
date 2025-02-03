@@ -515,7 +515,7 @@ const SetRulesPage = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'CRITERIA EVALUATION LIST',
+                                        header: 'CRITERIA EVALUATION',
                                         field: 'criteriaEvaluation',
                                         body: (data: any, options: ColumnBodyOptions) => { 
                                             const rowIndex = options.rowIndex; 

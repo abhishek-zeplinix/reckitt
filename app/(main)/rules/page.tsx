@@ -174,7 +174,7 @@ const MainRules = () => {
     };
 
     const handleEditRules = (e: any) => {
-        if (e.ruleType === 'rule') {
+        if (e.ruleType === 'main rule') {
             router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
         } else {
             router.push(`/rules/set-capa-rules?ruleSetId=${e.ruleSetId}`);
