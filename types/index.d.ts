@@ -111,6 +111,10 @@ interface Supplier {
     gdpFile?: any;
     reachFile: any;
     isoFile: any;
+    blockType:any;
+    blockReason:any;
+    blockStartDate:any;
+    blockEndDate:any;
     category?: {
         categoryId: number;
         categoryName: string;

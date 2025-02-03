@@ -109,6 +109,8 @@ const ManageSupplierPage = () => {
         endDate: null
     });
     const [selectedBlock, setSelectedBlock] = useState<any>(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [selectedViewSupplier, setSelectedViewSupplier] = useState<any>(null);
     useEffect(() => {
         setScroll(true);
         fetchData();
@@ -159,6 +161,10 @@ const ManageSupplierPage = () => {
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ search: e.target?.value });
+    };
+    const openDetailsDialog = (supplier: React.SetStateAction<null>) => {
+        setSelectedViewSupplier(supplier);
+        setDialogVisible(true);
     };
 
     const fetchData = async (params?: any) => {
@@ -536,6 +542,10 @@ const ManageSupplierPage = () => {
                                         {
                                             icon: supplier.blockType === null ? 'pi pi-ban' : 'pi pi-unlock',
                                             onClick: () => openDialog(supplier)
+                                        },
+                                        {
+                                            icon: supplier.blockType !== null ? 'pi pi-eye' : '',
+                                            onClick: () => openDetailsDialog(supplier) // Open dialog on click
                                         }
                                     ]}
                                     columns={[
@@ -547,12 +557,6 @@ const ManageSupplierPage = () => {
                                             },
                                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                                         },
-                                        
-                                        // {
-                                        //     header: 'Block Type',
-                                        //     field: 'blockType',
-                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        // },
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
@@ -584,16 +588,6 @@ const ManageSupplierPage = () => {
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
-                                            header: 'Factory Name',
-                                            field: 'factoryName',
-                                            bodyStyle: { minWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Warehouse Location',
-                                            field: 'warehouseLocation',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
-                                        },
-                                        {
                                             header: 'Country',
                                             field: 'countries.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
@@ -613,42 +607,12 @@ const ManageSupplierPage = () => {
                                             field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
-                                        // New Columns
-                                        {
-                                            header: 'Block Start Date',
-                                            field: 'blockStartDate',
-                                            body: (data: any) => {
-                                                if (data.blockStartDate) {
-                                                    const date = new Date(data.blockStartDate);
-                                                    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                                }
-                                                return; // Default value if the date is not available
-                                            },
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        // {
-                                        //     header: 'Block End Date',
-                                        //     field: 'blockEndDate',
-                                        //     body: (data: any) => {
-                                        //         if (data.blockEndDate) {
-                                        //             const date = new Date(data.blockEndDate);
-                                        //             return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                        //         }
-                                        //         return; // Default value if the date is not available
-                                        //     },
-                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        // },
-
-                                        // {
-                                        //     header: 'Block Reason',
-                                        //     field: 'blockReason',
-                                        //     // body: (data: any) => data.blockReason || 'N/A',
-                                        //     bodyStyle: { minWidth: 200, maxWidth: 200 }
-                                        // }
                                     ]}
+                                    rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 />
+
                             </div>
                         </div>
                     </div>
@@ -765,6 +729,27 @@ const ManageSupplierPage = () => {
                     </div>
                 </div>
             </Dialog>
+
+<Dialog 
+    visible={dialogVisible} 
+    onHide={() => setDialogVisible(false)}
+    header={selectedViewSupplier?.blockType} 
+    style={{ width: '400px' }}
+>
+    {selectedViewSupplier && (
+        <div>
+            {selectedViewSupplier.blockType === "temporary" ? (
+                <>
+                    <p><strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}</p>
+                    <p><strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}</p>
+                    <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
+                </>
+            ) : (
+                <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
+            )}
+        </div>
+    )}
+</Dialog>
         </div>
     );
 };

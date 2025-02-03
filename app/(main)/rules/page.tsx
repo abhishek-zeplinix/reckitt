@@ -51,6 +51,7 @@ const MainRules = () => {
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [chooseRules, setChooseRules] = useState('');
+    const [selectedRuleType, setSelectedRuleType] = useState<string | null>(null);
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -62,7 +63,10 @@ const MainRules = () => {
         { label: '70', value: 70 },
         { label: '100', value: 100 }
     ];
-
+    const ruleTypeOptions = [
+        { label: "CAPA RULE", value: "capa rule" },
+        { label: "MAIN RULE", value: "main rule" }
+    ];
     // Handle limit change
     // const onCategorychange = (e: any) => {
     //     setSelectedCategory(e.value); // Update limit
@@ -297,7 +301,6 @@ const MainRules = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-
             const response = await GetCall(`company/rules-set?${queryString}`);
 
             setTotalRecords(response.total);
@@ -473,6 +476,11 @@ const MainRules = () => {
             }
         }
     };
+    // Handle rule type selection and fetch data
+    const onRuleTypeChange = (e: any) => {
+        setSelectedRuleType(e.value);
+        fetchData({ limit, page, sortBy: 'ruleSetId', filters: { ruleType: e.value } });
+    };
 
     return (
         <div className="grid">
@@ -489,9 +497,16 @@ const MainRules = () => {
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
                                 </div>
                                 <div className="flex  gap-2">
-                                    {/* <div className="mt-2">{dropdownFieldDeparment}</div>
-                                    <div className="mt-2">{dropdownFieldCategory}</div>
-                                    <div className="mt-2">{dropdownFieldSubCategory}</div> */}
+                                <div>
+                                <Dropdown 
+                                    className="mt-2" 
+                                    value={selectedRuleType} 
+                                    options={ruleTypeOptions} 
+                                    onChange={onRuleTypeChange} 
+                                    placeholder="Select Rule Type" 
+                                    style={{ width: '150px', height: '30px' }} 
+                                />
+                                </div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
