@@ -17,6 +17,7 @@ import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { sortBy } from 'lodash';
 
 const ACTIONS = {
     ADD: 'add',
@@ -247,13 +248,14 @@ const SetRulesPage = () => {
 
     const fetchData = async (params?: any) => {
         try {
-            if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories, categories, department', sortOrder: 'asc' };
-            }
-
+              params = { limit: limit, page: page, include: ['subCategories', 'categories', 'department'], sortOrder: 'asc/desc', sortBy: 'ruleId' };
+        
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
+
+            console.log(queryString);
+            
 
             const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
@@ -416,9 +418,9 @@ const SetRulesPage = () => {
         // Create a row for each criteriaEvaluation and score pair
         return item.criteriaEvaluation.map((criteria: string, index: number) => ({
             ruleId: item.ruleId,
-            department: item.department?.name,
-            category: item.categories?.categoryName,
-            subCategories: item.subCategories?.subCategoryName,
+            department: item?.department?.name,
+            category: item?.categories?.categoryName,
+            subCategories: item?.subCategories?.subCategoryName,
             section: item.section,
             ratedCriteria: item.ratedCriteria,
             criteriaEvaluation: criteria,

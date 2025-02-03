@@ -2,7 +2,7 @@ import { GetCall } from "@/app/api-config/ApiKit";
 import { useAppContext } from "@/layout/AppWrapper";
 import { useParams } from "next/navigation";
 import { Dropdown } from "primereact/dropdown";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface CapaRule {
   capaRulesName: string;
@@ -25,33 +25,43 @@ interface CapaRequiredTableProps {
   isCompleted: string;
 }
 
-const CapaRequiredTable = ({ 
-  onDataChange, 
-  depId, 
-  existingSelections, 
+const CapaRequiredTable = ({
+  onDataChange,
+  depId,
+  existingSelections,
   setCapaDataCount,
-  isCompleted
+  isCompleted,
+  selectedPeriod
 }: CapaRequiredTableProps) => {
+
   const { setLoading, setAlert } = useAppContext();
   const [rules, setRules] = useState<CapaRule[]>([]);
-  const [selectedValues, setSelectedValues] = useState<Record<number, string>>({});
-  
+  const [selectedValues, setSelectedValues] = useState<any>(() => {
+    return existingSelections?.reduce((acc, selection) => {
+      acc[selection.capaRuleId] = selection.selectedStatus;
+      return acc;
+    }, {} as Record<number, string>) || {};
+  });
+
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
-  
-  // Initialize with existing selections even before API call
+
+
   useEffect(() => {
-    if (existingSelections?.length) {
-      const initialValues = existingSelections.reduce((acc, selection) => {
+    
+    setSelectedValues({});
+    if ((existingSelections || []).length > 0) {
+
+      const initialValues = existingSelections?.reduce((acc, selection) => {
         acc[selection.capaRuleId] = selection.selectedStatus;
         return acc;
       }, {} as Record<number, string>);
-      
+
       setSelectedValues(initialValues);
 
       // if no rules from API yet, create rules from existing selections
       if (rules.length === 0) {
-        const rulesFromSelections = existingSelections.map((selection, index) => ({
+        const rulesFromSelections: any = existingSelections?.map((selection, index) => ({
           capaRulesName: selection.capaRulesName,
           orderBy: index + 1,
           status: [selection.selectedStatus] // use the selected status as the only option initially
@@ -60,7 +70,7 @@ const CapaRequiredTable = ({
         setCapaDataCount(rulesFromSelections.length);
       }
     }
-  }, [existingSelections]);
+  }, [selectedPeriod, existingSelections]);
 
   useEffect(() => {
     if (depId) {
@@ -68,13 +78,20 @@ const CapaRequiredTable = ({
     }
   }, [depId]);
 
+
+  // useEffect(() => {
+  //   setSelectedValues({}); 
+
+  // }, [selectedPeriod]);
+
+
   const fetchCapaRules = async () => {
     setLoading(true);
     try {
       const response = await GetCall(`/company/caparule/${catId}/${subCatId}/${depId}`);
-      
+
       if (response.code === "SUCCESS" && response.data.rules.length > 0) {
-        const sortedRules = response.data.rules.sort((a: CapaRule, b: CapaRule) => 
+        const sortedRules = response.data.rules.sort((a: CapaRule, b: CapaRule) =>
           a.orderBy - b.orderBy
         );
         setRules(sortedRules);
@@ -82,7 +99,7 @@ const CapaRequiredTable = ({
 
         // preserve existing selections when updating rules
         if (!existingSelections) {
-          const emptyValues = sortedRules.reduce((acc:any, _:any, index:any) => {
+          const emptyValues = sortedRules.reduce((acc: any, _: any, index: any) => {
             acc[index + 1] = "";
             return acc;
           }, {} as Record<number, string>);
@@ -98,6 +115,16 @@ const CapaRequiredTable = ({
         }));
         setRules(rulesFromSelections);
         setCapaDataCount(rulesFromSelections.length);
+
+        
+      // Call onDataChange with the initial values from existing selections
+      const responseData = rulesFromSelections.map((rule: any, index: number) => ({
+        capaRuleId: index + 1,
+        selectedStatus: existingSelections[index].selectedStatus || "",
+        capaRulesName: rule.capaRulesName
+      }));
+      onDataChange(responseData);
+  
       }
     } catch (error) {
       // On API error, fallback to existing selections if available
@@ -109,6 +136,16 @@ const CapaRequiredTable = ({
         }));
         setRules(rulesFromSelections);
         setCapaDataCount(rulesFromSelections.length);
+
+        // Call onDataChange with the initial values from existing selections
+        const responseData = rulesFromSelections.map((rule: any, index: number) => ({
+          capaRuleId: index + 1,
+          selectedStatus: existingSelections[index].selectedStatus || "",
+          capaRulesName: rule.capaRulesName
+        }));
+        onDataChange(responseData);
+
+
       }
       setAlert('error', 'Something went wrong!');
     } finally {
@@ -116,17 +153,18 @@ const CapaRequiredTable = ({
     }
   };
 
+
   const handleDropdownChange = (ruleIndex: number, ruleName: string, value: string) => {
-    setSelectedValues(prev => {
+    setSelectedValues((prev: any) => {
       const newValues = { ...prev, [ruleIndex]: value };
-      
+
       // Create response data with capaRulesName included
       const responseData = rules.map((rule, index) => ({
         capaRuleId: index + 1,
         selectedStatus: newValues[index + 1] || "",
         capaRulesName: rule.capaRulesName
       }));
-      
+
       onDataChange(responseData);
       return newValues;
     });
@@ -169,7 +207,7 @@ const CapaRequiredTable = ({
                   className="w-full"
                   disabled={isCompleted?.toLowerCase() === 'completed'}
                 />
-              </td> 
+              </td>
             </tr>
           ))}
         </tbody>
