@@ -17,6 +17,7 @@ import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { ColumnBodyOptions } from 'primereact/column';
 
 const ACTIONS = {
     ADD: 'add',
@@ -49,6 +50,7 @@ const SetRulesPage = () => {
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const searchParams = useSearchParams();
+    const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
     const ruleSetId = searchParams.get('ruleSetId');
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
@@ -248,7 +250,7 @@ const SetRulesPage = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, include: 'subCategories, categories, department', sortOrder: 'asc' };
+                params = { limit: limit, page: page, include: 'subCategories,department,categories', sortOrder: 'asc' };
             }
 
             setPage(params.page);
@@ -467,22 +469,10 @@ const SetRulesPage = () => {
                                         }
                                     }
                                 ]}
-                                // data={rules.map((item: any) => ({
-                                //     ruleId: item.ruleId,
-                                //     department: item.department?.name,
-                                //     category: item.categories?.categoryName,
-                                //     subCategories: item.subCategories?.subCategoryName,
-                                //     section: item.section,
-                                //     ratedCriteria: item.ratedCriteria,
-                                //     criteriaEvaluation: item.criteriaEvaluation,
-                                //     score: item.score,
-                                //     ratiosCopack: item.ratiosCopack,
-                                //     ratiosRawpack: item.ratiosRawpack
-                                // }))}
                                 data={expandedData}
                                 columns={[
                                     {
-                                        header: 'Sr. No',
+                                        header: 'SR. NO',
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
@@ -524,6 +514,35 @@ const SetRulesPage = () => {
                                     {
                                         header: 'CRITERIA EVALUATION LIST',
                                         field: 'criteriaEvaluation',
+                                        body: (data: any, options: ColumnBodyOptions) => { 
+                                            const rowIndex = options.rowIndex; 
+                                            const isExpanded = expandedRows[rowIndex] || false;
+                    
+                                            const words = data.criteriaEvaluation.split(' ');
+                                            const isLongText = words.length > 5;
+                                            const displayText = isExpanded ? data.criteriaEvaluation : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                    
+                                            const toggleExpand = () => {
+                                                setExpandedRows((prev) => ({
+                                                    ...prev,
+                                                    [rowIndex]: !isExpanded,
+                                                }));
+                                            };
+                    
+                                            return (
+                                                <span>
+                                                    {displayText}
+                                                    {isLongText && (
+                                                        <button 
+                                                            onClick={toggleExpand} 
+                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
+                                                        >
+                                                            {isExpanded ? 'Read Less' : 'Read More'}
+                                                        </button>
+                                                    )}
+                                                </span>
+                                            );
+                                        },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },

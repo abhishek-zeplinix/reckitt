@@ -73,15 +73,14 @@ const CreateNewRulesPage = () => {
              // Add new set of criteriaEvaluation and score
              const handleAddFields = () => {
               setFields((prev) => {
-                // Check if the last field has a value
                 if (prev.status.length === 0 || prev.status[prev.status.length - 1].trim() !== "") {
                   return {
                     ...prev,
-                    status: [...prev.status, ""], // Add a new field only if the last field is filled
+                    status: [...prev.status, ""],
                   };
                 } else {
                   alert("Please fill the previous field before adding a new one!");
-                  return prev; // Prevent adding a new field if the last one is empty
+                  return prev;
                 }
               });
             };

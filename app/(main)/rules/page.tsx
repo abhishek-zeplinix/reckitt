@@ -430,7 +430,7 @@ const MainRules = () => {
                 setLoading(false);
             }
         } else {
-            if (selectedRuleSetId.ruleType === 'rule') {
+            if (selectedRuleSetId.ruleType === 'main rule') {
                 try {
                     const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
 
@@ -508,11 +508,12 @@ const MainRules = () => {
                                 data={rules.map((item: any) => ({
                                     ruleSetId: item.ruleSetId,
                                     value: item.value,
-                                    ruleType: item.ruleType
+                                    ruleType: item.ruleType,
+                                    effectiveFrom:item.effectiveFrom
                                 }))}
                                 columns={[
                                     {
-                                        header: 'Sr. No',
+                                        header: 'SR. NO',
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
@@ -520,6 +521,19 @@ const MainRules = () => {
                                             return <span>{srNo}</span>;
                                         },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
+                                    },
+                                    {
+                                        header: 'EFFECTIVE FROM',
+                                        field: 'effectiveFrom',
+                                        body: (data: any) => {
+                                                    if (data.effectiveFrom) {
+                                                        const date = new Date(data.effectiveFrom);
+                                                        return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                                    }
+                                                    return;
+                                                },
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'RULES TYPE ',

@@ -534,17 +534,17 @@ const ManageSupplierPage = () => {
                                         {
                                             header: 'Sr. No',
                                             body: (data: any, options: any) => {
-                                                const normalizedRowIndex = options.rowIndex % limit;
-                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                const srNo = (page - 1) * limit + options.rowIndex + 1 - (page - 1) * 10;
                                                 return <span>{srNo}</span>;
                                             },
                                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                                         },
-                                        {
-                                            header: 'Block Type',
-                                            field: 'blockType',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
+                                        
+                                        // {
+                                        //     header: 'Block Type',
+                                        //     field: 'blockType',
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        // },
                                         {
                                             header: 'Name',
                                             field: 'supplierName',
@@ -618,25 +618,25 @@ const ManageSupplierPage = () => {
                                             },
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
-                                        {
-                                            header: 'Block End Date',
-                                            field: 'blockEndDate',
-                                            body: (data: any) => {
-                                                if (data.blockEndDate) {
-                                                    const date = new Date(data.blockEndDate);
-                                                    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                                }
-                                                return; // Default value if the date is not available
-                                            },
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
+                                        // {
+                                        //     header: 'Block End Date',
+                                        //     field: 'blockEndDate',
+                                        //     body: (data: any) => {
+                                        //         if (data.blockEndDate) {
+                                        //             const date = new Date(data.blockEndDate);
+                                        //             return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                        //         }
+                                        //         return; // Default value if the date is not available
+                                        //     },
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        // },
 
-                                        {
-                                            header: 'Block Reason',
-                                            field: 'blockReason',
-                                            // body: (data: any) => data.blockReason || 'N/A',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
-                                        }
+                                        // {
+                                        //     header: 'Block Reason',
+                                        //     field: 'blockReason',
+                                        //     // body: (data: any) => data.blockReason || 'N/A',
+                                        //     bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                        // }
                                     ]}
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
