@@ -44,6 +44,8 @@ const Dashboard = () => {
 
     const [totalDonut, setTotalDonut] = useState<any>();
 
+    const totalDonutt = 0;
+
     useEffect(() => {
         fetchData();
         fetchTopData();
@@ -741,7 +743,7 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                                 <div className="pr-3 ">{BarGraphSupplierTiers}</div>
-                             <div className="pr-3 ">{BarGraph}</div>
+                                <div className="pr-3 ">{BarGraph}</div>
                             </div>
                         </div>
 

@@ -2,15 +2,9 @@ import { CONFIG } from '@/config/config';
 import { z } from 'zod';
 
 export const formSchemaSupplier = z.object({
-    supplierName: z
-        .string()
-        .min(1, 'Supplier name cannot be empty'),
-    supplierManufacturerName: z
-        .string()
-        .min(1, 'Supplier manufacturer cannot be empty'),
-    factoryName: z
-        .string()
-        .min(1, 'Factory name cannot be empty'),
+    supplierName: z.string().min(1, 'Supplier name cannot be empty'),
+    supplierManufacturerName: z.string().min(1, 'Supplier manufacturer cannot be empty'),
+    factoryName: z.string().min(1, 'Factory name cannot be empty'),
     email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
     supplierNumber: z.string().min(1, 'Phone number cannot be empty'),
     Zip: z.string().min(1, 'Zip code cannot be empty'),
@@ -28,15 +22,9 @@ export const formSchemaSupplier = z.object({
         .refine((val) => val !== null, {
             message: 'Supplier category cannot be empty'
         }),
-    country: z
-    .string()
-    .min(1, 'country cannot be empty'),
-    city: z
-    .string()
-    .min(1, 'city cannot be empty'),
-    state: z
-    .string()
-    .min(1, 'state cannot be empty'),
+    country: z.string().min(1, 'country cannot be empty'),
+    city: z.string().min(1, 'city cannot be empty'),
+    state: z.string().min(1, 'state cannot be empty')
 });
 
 export const validateFormData = (data: unknown) => {
@@ -68,11 +56,12 @@ const fieldsSchemaRules = z.object({
         .refine((val) => val !== null, {
             message: 'Department cannot be empty'
         }),
-    orderBy: z.number()
-    .nullable()
-    .refine((val) => val !== null, {
-        message: 'OrderBy cannot be empty'
-    }),
+    orderBy: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'OrderBy cannot be empty'
+        }),
     section: z.string().min(1, 'Section cannot be empty'),
     categoryId: z
         .number()
@@ -129,23 +118,24 @@ const fieldsSchemaCapaRules = z.object({
         .refine((val) => val !== null, {
             message: 'Department cannot be empty'
         }),
-        categoryId: z
+    categoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
             message: 'Procurement Category cannot be empty'
         }),
-        subCategoryId: z
+    subCategoryId: z
         .number()
         .nullable()
         .refine((val) => val !== null, {
             message: 'Supplier Category cannot be empty'
         }),
-    orderBy: z.number()
-    .nullable()
-    .refine((val) => val !== null, {
-        message: 'OrderBy cannot be empty'
-    }),
+    orderBy: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'OrderBy cannot be empty'
+        }),
     capaRulesName: z.string().min(1, 'Rapa rules name cannot be empty'),
     status: z.array(
         z
@@ -364,7 +354,7 @@ export const buildQueryParams = (params: any) => {
         query.append('include', params.include.join(','));
     } else if (typeof params.include == 'string') {
         query.append('include', params.include);
-    }else if (Array.isArray(params.include)) {
+    } else if (Array.isArray(params.include)) {
         query.append('include', params.include.map((i: any) => i.trim()).join(','));
     }
 
@@ -464,4 +454,13 @@ export const getBackgroundColor = (percentage: any) => {
     } else {
         return '#F44336';
     }
+};
+
+// Quarterly and Halfyearly to Q and H
+
+export const formatEvaluationPeriod = (period: string): string => {
+    return period
+        .replace('Quarterly-', 'Q')
+        .replace('Halfyearly-', 'H')
+        .replace(/-(\d{4})$/, ' $1'); // Adds space before the year
 };
