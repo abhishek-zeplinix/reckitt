@@ -1968,6 +1968,7 @@
   }
   .p-fluid .p-button-icon-only {
     width: 3rem;
+    height: 34px;
   }
   .p-fluid .p-buttonset {
     display: flex;

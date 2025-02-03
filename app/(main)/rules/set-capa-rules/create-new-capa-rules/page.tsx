@@ -34,161 +34,147 @@ const CreateNewRulesPage = () => {
     // Adjust title based on edit mode
     const pageTitle = isEditMode ? 'Edit Capa Rules' : 'New Capa Rules';
     const submitButtonLabel = isEditMode ? 'Save' : 'Add Capa Rules';
-     const [fields, setFields] = useState({
-            effectiveFrom: null as Date | null,
-            departmentId: null,
-            orderBy: null as number | null,
-            categoryId: null,
-            subCategoryId: null,
-            capaRulesName:'',
-            status:[''],  
-          });
-          // Update common fields on dependency change
-          useEffect(() => {
-              updateCommonFields();
-            }, [
-              date,
-              selectedProcurementDepartment,
-              orderBy,
-              selectedProcurementCategory,
-              selectedSupplierCategory,
-              selectcapaRulesName,
-            ]);
-
-              const updateCommonFields = () => {
-                setFields((prev) => ({
-                  ...prev,
-                  effectiveFrom: date || null,
-                  departmentId: selectedProcurementDepartment || null,
-                  orderBy: parseInt(orderBy) || null,
-                  categoryId: selectedProcurementCategory || null,
-                  subCategoryId: selectedSupplierCategory || null,
-                  capaRulesName:selectcapaRulesName || '',
-                }));
-              };
-              // Update common fields when they change
-              useEffect(() => {
-                  updateCommonFields();
-                }, [date, selectedProcurementDepartment, orderBy, selectedProcurementCategory, selectedSupplierCategory,selectcapaRulesName]);
-             // Add new set of criteriaEvaluation and score
-             const handleAddFields = () => {
-              setFields((prev) => {
-                if (prev.status.length === 0 || prev.status[prev.status.length - 1].trim() !== "") {
-                  return {
-                    ...prev,
-                    status: [...prev.status, ""],
-                  };
-                } else {
-                  alert("Please fill the previous field before adding a new one!");
-                  return prev;
-                }
-              });
-            };
-            
-  const handleChange = (
-    index: number,
-    key: "status",
-    value: string
-  ) => {
-    setFields((prev) => {
-      const updatedArray = [...prev[key]];
-      updatedArray[index] = value;
-      return { ...prev, [key]: updatedArray };
+    const [fields, setFields] = useState({
+        effectiveFrom: null as Date | null,
+        departmentId: null,
+        orderBy: null as number | null,
+        categoryId: null,
+        subCategoryId: null,
+        capaRulesName: '',
+        status: ['']
     });
-  };
-  // Remove a field
-const handleRemoveField = (index: number) => {
-    setFields((prev) => ({
-      ...prev,
-      status: prev.status.filter((_, i) => i !== index),
-    }));
-  }; 
-  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-          event.preventDefault();
-          handleSubmit(fields);
-      };
-    
-  const handleSubmit = async (fields: Record<string, unknown>) => {
-    const { valid, errors } = validateFormCapaRuleData(fields);
-            if (!valid) {
-                setFormErrors(errors);
-                return;
-            }
-            setFormErrors({});
-    try {
-      let endpoint: string;
-      let response: CustomResponse;
-  
-      if (isEditMode) {
-        endpoint = `/company/caparule/${capaRuleId}`;
-        try {
-          response = await PutCall(endpoint, fields); // Call PUT API
-          if (response.code === 'SUCCESS') {
-            router.push(`/rules/set-capa-rules&ruleSetId=${ruleSetId}`);
-            setAlert('success', 'CAPA Rules updated.');
-          } else {
-            setAlert('error', response.message);
-          }
-        } catch (error) {
-          setAlert('error', 'Failed to update CAPA Rules. Please try again.');
-        }
-      } else {
-        try {
-          onNewAdd(fields);
-        } catch (error) {
-          setAlert('error', 'Failed to add CAPA Rules. Please try again.');
-        }
-      }
-    } catch (validationError) {
-      if (validationError instanceof z.ZodError) {
-        // Handle validation errors
-        const errors = validationError.errors.map((err) => err.message).join(', ');
-        setAlert('error', `Validation failed: ${errors}`);
-      } else {
-        setAlert('error', 'Unexpected error during validation.');
-      }
-    }
-  };
-  
+    // Update common fields on dependency change
     useEffect(() => {
-            fetchprocurementDepartment();
-            fetchsupplierCategories();
-            return () => {
-                setScroll(true);
-            };
-        }, []);
-        useEffect(() => {
-                    if (isEditMode && capaRuleId) {
-                        fetchUserDetails(); // Fetch and pre-fill data in edit mode
+        updateCommonFields();
+    }, [date, selectedProcurementDepartment, orderBy, selectedProcurementCategory, selectedSupplierCategory, selectcapaRulesName]);
+
+    const updateCommonFields = () => {
+        setFields((prev) => ({
+            ...prev,
+            effectiveFrom: date || null,
+            departmentId: selectedProcurementDepartment || null,
+            orderBy: parseInt(orderBy) || null,
+            categoryId: selectedProcurementCategory || null,
+            subCategoryId: selectedSupplierCategory || null,
+            capaRulesName: selectcapaRulesName || ''
+        }));
+    };
+    // Update common fields when they change
+    useEffect(() => {
+        updateCommonFields();
+    }, [date, selectedProcurementDepartment, orderBy, selectedProcurementCategory, selectedSupplierCategory, selectcapaRulesName]);
+    // Add new set of criteriaEvaluation and score
+    const handleAddFields = () => {
+        if (fields.status.length > 0 && fields.status[fields.status.length - 1].trim() === '') {
+            setAlert('Error', 'Please fill the previous field before adding a new one!');
+            return;
+        }
+
+        setFields((prev) => ({
+            ...prev,
+            status: [...prev.status, '']
+        }));
+    };
+
+    const handleChange = (index: number, key: 'status', value: string) => {
+        setFields((prev) => {
+            const updatedArray = [...prev[key]];
+            updatedArray[index] = value;
+            return { ...prev, [key]: updatedArray };
+        });
+    };
+    // Remove a field
+    const handleRemoveField = (index: number) => {
+        setFields((prev) => ({
+            ...prev,
+            status: prev.status.filter((_, i) => i !== index)
+        }));
+    };
+    const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        handleSubmit(fields);
+    };
+
+    const handleSubmit = async (fields: Record<string, unknown>) => {
+        const { valid, errors } = validateFormCapaRuleData(fields);
+        if (!valid) {
+            setFormErrors(errors);
+            return;
+        }
+        setFormErrors({});
+        try {
+            let endpoint: string;
+            let response: CustomResponse;
+
+            if (isEditMode) {
+                endpoint = `/company/caparule/${capaRuleId}`;
+                try {
+                    response = await PutCall(endpoint, fields); // Call PUT API
+                    if (response.code === 'SUCCESS') {
+                        router.push(`/rules/set-capa-rules&ruleSetId=${ruleSetId}`);
+                        setAlert('success', 'CAPA Rules updated.');
+                    } else {
+                        setAlert('error', response.message);
                     }
-                }, []);
-                
-                const fetchUserDetails = async () => {
-                    setLoading(true);
-                    try {
-                        const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
-                        if (response.code === 'SUCCESS' && response.data.length > 0) {
-                            const userDetails = response.data[0]; // Assuming the API returns an array of users
-                            setorderBy(userDetails.orderBy || '');
-                            setSelectedProcurementDepartment(userDetails.departmentId || null);
-                            setSelectedProcurementCategory(userDetails.categoryId || '');
-                            fetchprocurementCategories(userDetails.categoryId),
-                            setSelectedSupplierCategory(userDetails.subCategoryId || '');
-                            setcapaRulesName(userDetails.capaRulesName || '');
-                            setstatus(userDetails.status || '');
-                            // Parse the date string into a Date object
-                            const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
-                            setDate(parsedDate);
-                        } else {
-                            setAlert('error', 'User details not found.');
-                        }
-                    } catch (error) {
-                        console.error('Error fetching user details:', error);
-                        setAlert('error', 'Failed to fetch user details.');
-                    } finally {
-                        setLoading(false);
-                    }
-                };
+                } catch (error) {
+                    setAlert('error', 'Failed to update CAPA Rules. Please try again.');
+                }
+            } else {
+                try {
+                    onNewAdd(fields);
+                } catch (error) {
+                    setAlert('error', 'Failed to add CAPA Rules. Please try again.');
+                }
+            }
+        } catch (validationError) {
+            if (validationError instanceof z.ZodError) {
+                // Handle validation errors
+                const errors = validationError.errors.map((err) => err.message).join(', ');
+                setAlert('error', `Validation failed: ${errors}`);
+            } else {
+                setAlert('error', 'Unexpected error during validation.');
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchprocurementDepartment();
+        fetchsupplierCategories();
+        return () => {
+            setScroll(true);
+        };
+    }, []);
+    useEffect(() => {
+        if (isEditMode && capaRuleId) {
+            fetchUserDetails(); // Fetch and pre-fill data in edit mode
+        }
+    }, []);
+
+    const fetchUserDetails = async () => {
+        setLoading(true);
+        try {
+            const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
+            if (response.code === 'SUCCESS' && response.data.length > 0) {
+                const userDetails = response.data[0]; // Assuming the API returns an array of users
+                setorderBy(userDetails.orderBy || '');
+                setSelectedProcurementDepartment(userDetails.departmentId || null);
+                setSelectedProcurementCategory(userDetails.categoryId || '');
+                fetchprocurementCategories(userDetails.categoryId), setSelectedSupplierCategory(userDetails.subCategoryId || '');
+                setcapaRulesName(userDetails.capaRulesName || '');
+                setstatus(userDetails.status || '');
+                // Parse the date string into a Date object
+                const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
+                setDate(parsedDate);
+            } else {
+                setAlert('error', 'User details not found.');
+            }
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            setAlert('error', 'Failed to fetch user details.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const renderNewRuleFooter = () => {
         return (
@@ -232,7 +218,6 @@ const handleRemoveField = (index: number) => {
         }
     };
     const onNewAdd = async (userForm: any) => {
-        
         const response: CustomResponse = await PostCall(`/company/caparule/${ruleSetId}`, userForm);
         if (response.code == 'SUCCESS') {
             router.push(`/rules/set-capa-rules?ruleSetId=${ruleSetId}`);
@@ -246,46 +231,45 @@ const handleRemoveField = (index: number) => {
         fetchprocurementCategories(value); // Call the API with the selected value
     };
     const handleInputChange = (name: string, value: string) => {
-      if (name === 'orderBy') {
-        if (!/^\d*$/.test(value)) {
-          setErrors((prevAlphaErrors) => ({
-              ...prevAlphaErrors,
-              [name]: 'Only numbers are allowed!'
-          }));
-          return;
-      }else if (value.length > 2) {
-        setErrors((prevAlphaErrors) => ({
-          ...prevAlphaErrors,
-          [name]: 'Only 2 digits are allowed!'
-      }));
-      return;
-      } 
-      else {
-        setErrors((prevAlphaErrors) => {
-              const updatedErrors = { ...prevAlphaErrors };
-              delete updatedErrors[name];
-              return updatedErrors;
-          });
-      }
-          setorderBy(value);
-      } else if (name === 'capaRulesName') {
-        if (!/^[A-Za-z\s]*$/.test(value)) {
-          setErrors((prevAlphaErrors) => ({
-              ...prevAlphaErrors,
-              [name]: 'Only letters are allowed!'
-          }));
-          return;
-      } else {
-        setErrors((prevAlphaErrors) => {
-              const updatedErrors = { ...prevAlphaErrors };
-              delete updatedErrors[name];
-              return updatedErrors;
-          });
+        if (name === 'orderBy') {
+            if (!/^\d*$/.test(value)) {
+                setErrors((prevAlphaErrors) => ({
+                    ...prevAlphaErrors,
+                    [name]: 'Only numbers are allowed!'
+                }));
+                return;
+            } else if (value.length > 2) {
+                setErrors((prevAlphaErrors) => ({
+                    ...prevAlphaErrors,
+                    [name]: 'Only 2 digits are allowed!'
+                }));
+                return;
+            } else {
+                setErrors((prevAlphaErrors) => {
+                    const updatedErrors = { ...prevAlphaErrors };
+                    delete updatedErrors[name];
+                    return updatedErrors;
+                });
+            }
+            setorderBy(value);
+        } else if (name === 'capaRulesName') {
+            if (!/^[A-Za-z\s]*$/.test(value)) {
+                setErrors((prevAlphaErrors) => ({
+                    ...prevAlphaErrors,
+                    [name]: 'Only letters are allowed!'
+                }));
+                return;
+            } else {
+                setErrors((prevAlphaErrors) => {
+                    const updatedErrors = { ...prevAlphaErrors };
+                    delete updatedErrors[name];
+                    return updatedErrors;
+                });
+            }
+            setcapaRulesName(value);
+        }
+        // validateFields(name, value);
     };
-          setcapaRulesName(value);
-      }
-      // validateFields(name, value);
-  };
     const renderContentbody = () => {
         return (
             <div className="grid">
@@ -293,21 +277,24 @@ const handleRemoveField = (index: number) => {
                     <div className="flex flex-column gap-3 pt-2">
                         <h2 className="text-center font-bold ">{pageTitle}</h2>
                         <div className="p-fluid grid md:mx-7 pt-2">
-                        <div className="field col-4">
-                            <label htmlFor="effectiveFrom">
-                                            Select Effective Date:
-                                        </label>
-                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black'}} inputStyle={{ height: '28px', fontSize: '14px', padding: '2px 8px' }} />
-                                {formErrors.effectiveFrom && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.effectiveFrom}</p> 
-                                        )}
+                            <div className="field col-4">
+                                <label htmlFor="effectiveFrom">Select Effective Date:</label>
+                                <Calendar
+                                    id="effectiveFrom"
+                                    value={date}
+                                    onChange={(e) => setDate(e.value as Date)}
+                                    dateFormat="dd-mm-yy"
+                                    placeholder="Select a date"
+                                    showIcon
+                                    style={{ borderRadius: '5px', borderColor: 'black' }}
+                                    inputStyle={{ fontSize: '14px', padding: '2px 8px' }}
+                                />
+                                {formErrors.effectiveFrom && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.effectiveFrom}</p>}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="orderBy">Order By</label>
                                 <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter orderBy" />
-                                {formErrors.orderBy && (
-                                        <p style={{ color: "red",fontSize:'10px',marginBottom:'0px' }}>{formErrors.orderBy}</p> 
-                                        )}
+                                {formErrors.orderBy && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.orderBy}</p>}
                                 {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
                             </div>
                             <div className="field col-4">
@@ -322,9 +309,7 @@ const handleRemoveField = (index: number) => {
                                     optionValue="departmentId"
                                     className="w-full"
                                 />
-                                {formErrors.departmentId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.departmentId}</p> 
-                                        )}
+                                {formErrors.departmentId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.departmentId}</p>}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="categoryId">Procurement Category</label>
@@ -338,9 +323,7 @@ const handleRemoveField = (index: number) => {
                                     optionValue="categoryId"
                                     className="w-full"
                                 />
-                                {formErrors.categoryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.categoryId}</p> 
-                                        )}
+                                {formErrors.categoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.categoryId}</p>}
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="subCategoryId">Supplier Category</label>
@@ -354,67 +337,41 @@ const handleRemoveField = (index: number) => {
                                     placeholder="Select Supplier Category"
                                     className="w-full"
                                 />
-                                {formErrors.subCategoryId && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.subCategoryId}</p> 
-                                        )}
+                                {formErrors.subCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.subCategoryId}</p>}
                             </div>
-                             
-                                                            <div className="field col-4">
-                                                                <label htmlFor='capaRulesName'>Capa Rules Name</label>
-                                                                <input
-                                                                    id='capaRulesName'
-                                                                    type="text"
-                                                                    placeholder="Capa Rules Name"
-                                                                    value={selectcapaRulesName}
-                                                                    onChange={(e) => handleInputChange('capaRulesName', e.target.value)}
-                                                                    className="p-inputtext w-full"
-                                                                />
-                                                                {formErrors.capaRulesName && (
-                                        <p style={{ color: "red",fontSize:'10px' ,marginBottom:'0px'}}>{formErrors.capaRulesName}</p> 
-                                        )}
-                                                                {errors.capaRulesName && <span className="text-red-500 text-xs">{errors.capaRulesName}</span>}
-                                                            </div>
-                                                            {fields.status.map((_, index) => (
-                                                        <React.Fragment key={index}>
-                                                            <div className="field col-4">
-                                                                <label htmlFor={`status-${index}`}>Status</label>
-                                                                <input
-                                                                    id={`status-${index}`}
-                                                                    type="text"
-                                                                    placeholder="Status"
-                                                                    value={fields.status[index]}
-                                                                    onChange={(e) => handleChange(index, "status", e.target.value)}
-                                                                    className="p-inputtext w-full"
-                                                                />
-                                                                {formErrors.status && (
-                                        <p style={{ color: "red",fontSize:'10px' }}>{formErrors.status}</p> 
-                                        )}
-                                                            </div>
-                                                            
-                                                            {fields.status.length>1 && (
-                                                              <>
-                                                            <div className="field col-4">
-                                                            <Button
-                                                                className="p-button-rounded p-button-danger mt-4"
-                                                                icon="pi pi-trash"
-                                                                onClick={() => handleRemoveField(index)}
-                                                            />
-                                                            </div>
-                                                            <div className="field col-4"></div>
-                                                            </>
-                                                            
-                                                            )}
-                                                        </React.Fragment>
-                                                        ))}
-                                                        <div className="field col-4 mt-4">
-                                                        <Button
-                                                            icon="pi pi-plus"
-                                                            // label="Add"
-                                                            onClick={handleAddFields}
-                                                            className="p-button-sm p-button-secondary mb-4 col-2 ml-2"
-                                                        />
-                                                        </div>
-                    
+
+                            <div className="field col-4">
+                                <label htmlFor="capaRulesName">Capa Rules Name</label>
+                                <input id="capaRulesName" type="text" placeholder="Capa Rules Name" value={selectcapaRulesName} onChange={(e) => handleInputChange('capaRulesName', e.target.value)} className="p-inputtext w-full" />
+                                {formErrors.capaRulesName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.capaRulesName}</p>}
+                                {errors.capaRulesName && <span className="text-red-500 text-xs">{errors.capaRulesName}</span>}
+                            </div>
+                            {fields.status.map((_, index) => (
+                                <React.Fragment key={index}>
+                                    <div className="field col-4">
+                                        <label htmlFor={`status-${index}`}>Status</label>
+                                        <input id={`status-${index}`} type="text" placeholder="Status" value={fields.status[index]} onChange={(e) => handleChange(index, 'status', e.target.value)} className="p-inputtext w-full" />
+                                        {formErrors.status && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.status}</p>}
+                                    </div>
+
+                                    {fields.status.length > 1 && (
+                                        <>
+                                            <div className="field col-4">
+                                                <Button className="p-button-rounded p-button-danger mt-4" icon="pi pi-trash" onClick={() => handleRemoveField(index)} />
+                                            </div>
+                                            <div className="field col-4"></div>
+                                        </>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                            <div className="field col-4 mt-4">
+                                <Button
+                                    icon="pi pi-plus"
+                                    // label="Add"
+                                    onClick={handleAddFields}
+                                    className="p-button-sm p-button-secondary mb-4 col-2 ml-2"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
