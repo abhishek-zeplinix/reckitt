@@ -259,8 +259,10 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                             <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main" onClick={() => btn.onClick && btn.onClick(item)} />
                         ))}
                 {props.isView && <Button type="button" icon={'pi pi-eye'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " onClick={() => props.onView && props.onView(item)} />}
-                {props.isEdit && <Button type="button" icon={'pi pi-user-edit'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " onClick={() => props.onEdit && props.onEdit(item)} />}
-                {props.isDelete && <Button type="button" icon={'pi pi-trash'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " style={{ color: 'red' }} onClick={() => props.onDelete && props.onDelete(item)} />}
+                {props.isEdit && <Button type="button" icon={'pi pi-user-edit'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " title="Edit" onClick={() => props.onEdit && props.onEdit(item)} />}
+                {props.isDelete && (
+                    <Button type="button" icon={'pi pi-trash'} className="p-button-md p-button-text hover:bg-primary-main text-primary-main " title="Delete" style={{ color: 'red' }} onClick={() => props.onDelete && props.onDelete(item)} />
+                )}
             </div>
         );
     };

@@ -174,7 +174,7 @@ const MainRules = () => {
     };
 
     const handleEditRules = (e: any) => {
-        if (e.ruleType === 'main rule') {
+        if (e.ruleType === 'MAIN RULE') {
             router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
         } else {
             router.push(`/rules/set-capa-rules?ruleSetId=${e.ruleSetId}`);
@@ -436,7 +436,7 @@ const MainRules = () => {
                 setLoading(false);
             }
         } else {
-            if (selectedRuleSetId.ruleType === 'main rule') {
+            if (selectedRuleSetId.ruleType === 'MAIN RULE') {
                 try {
                     const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
 
@@ -513,9 +513,9 @@ const MainRules = () => {
                                 ]}
                                 data={rules.map((item: any) => ({
                                     ruleSetId: item.ruleSetId,
-                                    value: item.value,
-                                    ruleType: item.ruleType,
-                                    effectiveFrom:item.effectiveFrom
+                                    value: item.value?.split('_')[2].toUpperCase(),
+                                    ruleType: item.ruleType.toUpperCase(),
+                                    effectiveFrom: item.effectiveFrom?.split('T')[0]
                                 }))}
                                 columns={[
                                     {
@@ -529,30 +529,31 @@ const MainRules = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'EFFECTIVE FROM',
-                                        field: 'effectiveFrom',
-                                        body: (data: any) => {
-                                                    if (data.effectiveFrom) {
-                                                        const date = new Date(data.effectiveFrom);
-                                                        return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                                    }
-                                                    return;
-                                                },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
                                         header: 'RULES TYPE ',
                                         field: 'ruleType',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'EFFECTIVE FROM ',
+                                        header: 'EFFECTIVE FROM',
                                         field: 'effectiveFrom',
+                                        body: (data: any) => {
+                                            if (data.effectiveFrom) {
+                                                const date = new Date(data.effectiveFrom);
+                                                return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                            }
+                                            return;
+                                        },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
+
+                                    // {
+                                    //     header: 'EFFECTIVE FROM ',
+                                    //     field: 'effectiveFrom',
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    // },
                                     {
                                         header: 'RULES NAME ',
                                         field: 'value',
