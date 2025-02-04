@@ -734,20 +734,38 @@ const ManageSupplierPage = () => {
                     <div>
                         {selectedViewSupplier.blockType === 'temporary' ? (
                             <>
-                                <p>
-                                    <strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}
-                                </p>
-                                <p>
-                                    <strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}
-                                </p>
-                                <p>
-                                    <strong>Block Reason:</strong> {selectedViewSupplier.blockReason}
-                                </p>
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="p-3 text-left">Block Start Date:</th>
+                                            <th className="p-3 text-left">Block End Date:</th>
+                                            <th className="p-3 text-left">Block Reason:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className="text-center">{new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}</td>
+                                            <td className="text-center">{new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}</td>
+                                            <td className="text-center">{selectedViewSupplier.blockReason}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </>
                         ) : (
-                            <p>
-                                <strong>Block Reason:</strong> {selectedViewSupplier.blockReason}
-                            </p>
+                            <>
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="p-3 text-left">Block Reason:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className="text-center"> {selectedViewSupplier.blockReason}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </>
                         )}
                     </div>
                 )}

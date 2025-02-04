@@ -20,10 +20,9 @@ const SupplierRatingPage = () => {
     const [periodOptions, setPeriodOptions] = useState<any>([]);
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [reload, setReload] = useState<boolean>(false);
-    const [isApprover, setIsApprover] = useState(false)
-    
-    const [supplierScoreLoading, setSupplierScoreLoading] = useState(false);
+    const [isApprover, setIsApprover] = useState(false);
 
+    const [supplierScoreLoading, setSupplierScoreLoading] = useState(false);
 
     const urlParams = useParams();
     const { supId, catId, subCatId, currentYear } = urlParams;
@@ -32,7 +31,7 @@ const SupplierRatingPage = () => {
     const { departments } = useFetchDepartments();
     // const currentYear = 2024;
     // console.log(supplierData);
-    
+
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
         copack: 'ratiosCopack'
@@ -42,7 +41,6 @@ const SupplierRatingPage = () => {
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-    
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
@@ -69,8 +67,7 @@ const SupplierRatingPage = () => {
 
     // Fetch supplier score data
     const fetchSupplierScore = async () => {
-
-        setSupplierScoreLoading(true); 
+        setSupplierScoreLoading(true);
 
         try {
             const params = {
@@ -89,14 +86,13 @@ const SupplierRatingPage = () => {
             const response = await GetCall(`/company/supplier-score?${queryString}`);
 
             // setSupplierScoreData(response.data[0]);
-            
-            setSupplierScoreData(response.data);
 
+            setSupplierScoreData(response.data);
 
             return response.data;
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier score data');
-        }finally{
+        } finally {
             setSupplierScoreLoading(false);
         }
     };
@@ -128,8 +124,7 @@ const SupplierRatingPage = () => {
                 const isDepartmentEvaluated = supplierDetails?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment);
                 console.log(isDepartmentEvaluated);
                 console.log(supplierDetails?.isEvaluated);
-                
-                
+
                 if (supplierDetails?.isEvaluated && isDepartmentEvaluated) {
                     await fetchSupplierScore();
                 }
@@ -163,7 +158,6 @@ const SupplierRatingPage = () => {
                 // if (!scoreData || scoreData.length === 0) {
                 await fetchRules();
                 // }
-
             } catch (error) {
                 // Error handled in respective fetch functions
             } finally {
@@ -189,7 +183,6 @@ const SupplierRatingPage = () => {
     useEffect(() => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
-
 
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
@@ -263,7 +256,6 @@ const SupplierRatingPage = () => {
         { label: 'Supplier Id :', value: `${supplierData?.supId}` },
         { label: 'Warehouse Location :', value: `${supplierData?.warehouseLocation}` }
     ];
-    
 
     const summoryCards = () => {
         return (
@@ -285,14 +277,14 @@ const SupplierRatingPage = () => {
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
                             {leftPanelData?.map((item, index) => (
                                 <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
                                         <div>
                                             <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
                                                 {item.label}
                                             </div>
                                         </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
+                                        <div className="mt-2 md:mt-0 flex align-items-center " style={{ fontSize: '0.9rem' }}>
+                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0 ">{item.value}</span>
                                         </div>
                                     </li>
                                     {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
@@ -317,7 +309,7 @@ const SupplierRatingPage = () => {
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
                             {RightPanelData?.map((item, index) => (
                                 <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
                                         <div>
                                             <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
                                                 {item.label}
@@ -381,34 +373,23 @@ const SupplierRatingPage = () => {
                             <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
                             <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div> */}
-
                     </div>
 
-                  
-
-                        <SupplierEvaluationTable
-                            rules={rules} // Always pass rules
-                            // supplierScoreData={supplierScoreData} // Pass the score data separately
-                            supplierScoreData={supplierScoreData}
-                            category={category}
-                            evaluationPeriod={selectedPeriod}
-                            categoryName={categoryName}
-                            departmentId={selectedDepartment}
-                            department={activeTab}
-                            isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
-                            onSuccess={() => setReload(!reload)}
-                            selectedPeriod={selectedPeriod}
-                            totalScoreEvaluated={
-                                supplierData?.supplierScores?.find(
-                                    (score: any) =>
-                                        score.departmentId === selectedDepartment &&
-                                        score.evalutionPeriod === selectedPeriod
-                                )?.totalScore
-                            }
-                            // key={`${selectedDepartment}-${selectedPeriod}`}
-                           
-                        />
-
+                    <SupplierEvaluationTable
+                        rules={rules} // Always pass rules
+                        // supplierScoreData={supplierScoreData} // Pass the score data separately
+                        supplierScoreData={supplierScoreData}
+                        category={category}
+                        evaluationPeriod={selectedPeriod}
+                        categoryName={categoryName}
+                        departmentId={selectedDepartment}
+                        department={activeTab}
+                        isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
+                        onSuccess={() => setReload(!reload)}
+                        selectedPeriod={selectedPeriod}
+                        totalScoreEvaluated={supplierData?.supplierScores?.find((score: any) => score.departmentId === selectedDepartment && score.evalutionPeriod === selectedPeriod)?.totalScore}
+                        // key={`${selectedDepartment}-${selectedPeriod}`}
+                    />
                 </div>
             </>
         );
