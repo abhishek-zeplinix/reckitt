@@ -111,6 +111,8 @@ const ManageSupplierPage = () => {
     const [selectedBlock, setSelectedBlock] = useState<any>(null);
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedViewSupplier, setSelectedViewSupplier] = useState<any>(null);
+    const [bulkDialogVisible, setBulkDialogVisible] = useState(false);
+    const [responseData, setResponseData] = useState<any>(null);
     useEffect(() => {
         setScroll(true);
         fetchData();
@@ -305,6 +307,8 @@ const ManageSupplierPage = () => {
                 setAlert('success', 'Suppliers imported successfully');
                 setVisible(false);
                 fetchData();
+                setResponseData(response);
+                setBulkDialogVisible(true);
             } else {
                 setAlert('error', response.message || 'File upload failed');
             }
@@ -508,6 +512,7 @@ const ManageSupplierPage = () => {
             closeDialog(); // Close dialog in all cases
         }
     };
+    console.log('515',responseData)
 
     return (
         <div className="grid">
@@ -750,6 +755,46 @@ const ManageSupplierPage = () => {
         </div>
     )}
 </Dialog>
+{/* Dialog for Response Data */}
+<Dialog 
+            visible={bulkDialogVisible} 
+            onHide={() => setBulkDialogVisible(false)} 
+            header="Upload Summary"
+            style={{ width: '600px' }}
+        >
+            {responseData && (
+                <div>
+                    <p><strong>Already Onboarded Count:</strong> {responseData.alreadyOnboardedCount}</p>
+                    <p><strong>Inserted Count:</strong> {responseData.insertedCount}</p>
+                    <h4>Already Onboarded Suppliers:</h4>
+                    {responseData.alreadyOnboardedSuppliers.length > 0 ? (
+                        <ul>
+                            {responseData.alreadyOnboardedSuppliers.map((supplier: { supplierName: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; supplierNumber: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
+                                <li key={index}>
+                                    <strong>Name:</strong> {supplier.supplierName} | 
+                                    <strong> Email:</strong> {supplier.email} | 
+                                    <strong> Supplier No:</strong> {supplier.supplierNumber}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No onboarded suppliers.</p>
+                    )}
+
+                    <h4>Skipped Data:</h4>
+                    <p><strong>Skipped Count:</strong> {responseData.skippedCount}</p>
+                    {responseData.skippedData.length > 0 ? (
+                        <ul>
+                            {responseData.skippedData.map((skipped: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
+                                <li key={index}>{skipped}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No skipped data.</p>
+                    )}
+                </div>
+            )}
+        </Dialog>
         </div>
     );
 };
