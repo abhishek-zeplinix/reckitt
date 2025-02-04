@@ -515,13 +515,13 @@ const ManageRulesPage = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RATIOS COPACK',
+                                        header: 'RATIOS COPACK (%)',
                                         field: 'ratiosCopack',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RATIOS RAW&PACK',
+                                        header: 'RATIOS RAW&PACK (%)',
                                         field: 'ratiosRawpack',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle

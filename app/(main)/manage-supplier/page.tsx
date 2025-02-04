@@ -611,13 +611,12 @@ const ManageSupplierPage = () => {
                                             header: 'Zip',
                                             field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
+                                        }
                                     ]}
                                     rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 />
-
                             </div>
                         </div>
                     </div>

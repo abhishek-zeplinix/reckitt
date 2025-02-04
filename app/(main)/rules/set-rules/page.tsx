@@ -258,7 +258,6 @@ const SetRulesPage = () => {
             const queryString = buildQueryParams(params);
 
             console.log(queryString);
-            
 
             const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
@@ -435,7 +434,6 @@ const SetRulesPage = () => {
         }));
     });
 
-
     return (
         <div className="grid">
             <div className="col-12">
@@ -456,7 +454,7 @@ const SetRulesPage = () => {
                                     <div className="mt-2">{dropdownFieldSubCategory}</div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
-                            </div>  
+                            </div>
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -517,29 +515,26 @@ const SetRulesPage = () => {
                                     {
                                         header: 'CRITERIA EVALUATION',
                                         field: 'criteriaEvaluation',
-                                        body: (data: any, options: ColumnBodyOptions) => { 
-                                            const rowIndex = options.rowIndex; 
+                                        body: (data: any, options: ColumnBodyOptions) => {
+                                            const rowIndex = options.rowIndex;
                                             const isExpanded = expandedRows[rowIndex] || false;
-                    
+
                                             const words = data.criteriaEvaluation.split(' ');
                                             const isLongText = words.length > 5;
                                             const displayText = isExpanded ? data.criteriaEvaluation : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-                    
+
                                             const toggleExpand = () => {
                                                 setExpandedRows((prev) => ({
                                                     ...prev,
-                                                    [rowIndex]: !isExpanded,
+                                                    [rowIndex]: !isExpanded
                                                 }));
                                             };
-                    
+
                                             return (
                                                 <span>
                                                     {displayText}
                                                     {isLongText && (
-                                                        <button 
-                                                            onClick={toggleExpand} 
-                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
-                                                        >
+                                                        <button onClick={toggleExpand} style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px', fontSize: '10px' }}>
                                                             {isExpanded ? 'Read Less' : 'Read More'}
                                                         </button>
                                                     )}
@@ -556,13 +551,13 @@ const SetRulesPage = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RATIOS COPACK',
+                                        header: 'RATIOS COPACK (%)',
                                         field: 'ratiosCopack',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RATIOS RAW&PACK',
+                                        header: 'RATIOS RAW&PACK (%)',
                                         field: 'ratiosRawpack',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle

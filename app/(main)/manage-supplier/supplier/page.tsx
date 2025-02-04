@@ -731,7 +731,7 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
                             </div>
 
-                            <p className="mx-2 font-italic text-sm text-primary-main">* Files should be in pdf, doc, jpg, png format, (2mb only)</p>
+                            <p className="mx-2 font-italic text-sm text-primary-main">* Only PDF, DOC, JPG, and PNG files are allowed, with a maximum size of 2MB</p>
                         </div>
                     </div>
                 );
