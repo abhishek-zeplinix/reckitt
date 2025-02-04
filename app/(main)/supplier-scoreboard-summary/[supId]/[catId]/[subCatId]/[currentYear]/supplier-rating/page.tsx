@@ -1,9 +1,11 @@
 'use client';
 import { GetCall } from '@/app/api-config/ApiKit';
+import TableSkeleton from '@/components/supplier-rating/skeleton/TableSkeleton';
 import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
+import SupplierEvaluationTableApprover from '@/components/supplier-rating/SupplierRatingTableApprover';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
-import { withAuth } from '@/layout/context/authContext';
+import { useAuth, withAuth } from '@/layout/context/authContext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
@@ -21,17 +23,18 @@ const SupplierRatingPage = () => {
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [reload, setReload] = useState<boolean>(false);
     const [isApprover, setIsApprover] = useState(false)
-    
-    const [supplierScoreLoading, setSupplierScoreLoading] = useState(false);
 
+    const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
 
     const urlParams = useParams();
     const { supId, catId, subCatId, currentYear } = urlParams;
-    const { setLoading, setAlert } = useAppContext();
+    const { isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
+    const { hasPermission, isSuperAdmin } = useAuth();
     // const currentYear = 2024;
     // console.log(supplierData);
+    console.log(isSuperAdmin());
     
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
@@ -42,7 +45,7 @@ const SupplierRatingPage = () => {
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-    
+
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
@@ -70,7 +73,7 @@ const SupplierRatingPage = () => {
     // Fetch supplier score data
     const fetchSupplierScore = async () => {
 
-        setSupplierScoreLoading(true); 
+        setScoreDataLoading(true)
 
         try {
             const params = {
@@ -89,15 +92,15 @@ const SupplierRatingPage = () => {
             const response = await GetCall(`/company/supplier-score?${queryString}`);
 
             // setSupplierScoreData(response.data[0]);
-            
+
             setSupplierScoreData(response.data);
 
 
             return response.data;
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier score data');
-        }finally{
-            setSupplierScoreLoading(false);
+        } finally {
+            setScoreDataLoading(false)
         }
     };
 
@@ -128,8 +131,8 @@ const SupplierRatingPage = () => {
                 const isDepartmentEvaluated = supplierDetails?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment);
                 console.log(isDepartmentEvaluated);
                 console.log(supplierDetails?.isEvaluated);
-                
-                
+
+
                 if (supplierDetails?.isEvaluated && isDepartmentEvaluated) {
                     await fetchSupplierScore();
                 }
@@ -263,7 +266,7 @@ const SupplierRatingPage = () => {
         { label: 'Supplier Id :', value: `${supplierData?.supId}` },
         { label: 'Warehouse Location :', value: `${supplierData?.warehouseLocation}` }
     ];
-    
+
 
     const summoryCards = () => {
         return (
@@ -383,8 +386,36 @@ const SupplierRatingPage = () => {
                         </div> */}
 
                     </div>
+                    {
 
-                  
+                       (hasPermission('approve_score') && !isSuperAdmin()) &&
+                        <SupplierEvaluationTableApprover
+                            rules={rules} // Always pass rules
+                            // supplierScoreData={supplierScoreData} // Pass the score data separately
+                            supplierScoreData={supplierScoreData}
+                            category={category}
+                            evaluationPeriod={selectedPeriod}
+                            categoryName={categoryName}
+                            departmentId={selectedDepartment}
+                            department={activeTab}
+                            isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
+                            onSuccess={() => setReload(!reload)}
+                            selectedPeriod={selectedPeriod}
+                            totalScoreEvaluated={
+                                supplierData?.supplierScores?.find(
+                                    (score: any) =>
+                                        score.departmentId === selectedDepartment &&
+                                        score.evalutionPeriod === selectedPeriod
+                                )?.totalScore
+                            }
+                            isTableLoading={scoreDataLoading}
+                        // key={`${selectedDepartment}-${selectedPeriod}`}
+
+                        />
+                    }
+
+                    {
+                        hasPermission('evaluate_score') &&
 
                         <SupplierEvaluationTable
                             rules={rules} // Always pass rules
@@ -405,9 +436,11 @@ const SupplierRatingPage = () => {
                                         score.evalutionPeriod === selectedPeriod
                                 )?.totalScore
                             }
-                            // key={`${selectedDepartment}-${selectedPeriod}`}
-                           
+                        // key={`${selectedDepartment}-${selectedPeriod}`}
+
                         />
+                    }
+
 
                 </div>
             </>

@@ -60,6 +60,7 @@ const LoginPage = () => {
             
             if (response?.otp) {
                 setIsOtpSent(true)
+                alert(response?.otp)
             }else{
                 setAlert("error", "OTP generation failed")
             }
