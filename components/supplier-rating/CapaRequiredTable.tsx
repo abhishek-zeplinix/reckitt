@@ -46,10 +46,11 @@ const CapaRequiredTable = ({
   const urlParams = useParams();
   const { catId, subCatId } = urlParams;
 
-
+  console.log(existingSelections);
+  
   useEffect(() => {
     
-    setSelectedValues({});
+    // setSelectedValues({});
     if ((existingSelections || []).length > 0) {
 
       const initialValues = existingSelections?.reduce((acc, selection) => {
@@ -66,6 +67,7 @@ const CapaRequiredTable = ({
           orderBy: index + 1,
           status: [selection.selectedStatus] // use the selected status as the only option initially
         }));
+
         setRules(rulesFromSelections);
         setCapaDataCount(rulesFromSelections.length);
       }
@@ -80,8 +82,7 @@ const CapaRequiredTable = ({
 
 
   // useEffect(() => {
-  //   setSelectedValues({}); 
-
+      // setSelectedValues({}); 
   // }, [selectedPeriod]);
 
 
@@ -97,6 +98,8 @@ const CapaRequiredTable = ({
         setRules(sortedRules);
         setCapaDataCount(sortedRules.length);
 
+
+
         // preserve existing selections when updating rules
         if (!existingSelections) {
           const emptyValues = sortedRules.reduce((acc: any, _: any, index: any) => {
@@ -106,8 +109,11 @@ const CapaRequiredTable = ({
           setSelectedValues(emptyValues);
         }
 
+
       } else if (existingSelections?.length) {
         // if API returns no rules but we have existing selections, keep using those
+
+        
         const rulesFromSelections = existingSelections.map((selection, index) => ({
           capaRulesName: selection.capaRulesName,
           orderBy: index + 1,
@@ -144,8 +150,6 @@ const CapaRequiredTable = ({
           capaRulesName: rule.capaRulesName
         }));
         onDataChange(responseData);
-
-
       }
       setAlert('error', 'Something went wrong!');
     } finally {

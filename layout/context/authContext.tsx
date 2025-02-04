@@ -4,7 +4,7 @@ import AccessDenied from '@/components/access-denied/AccessDenied';
 
 // Simple role definition
 export const USER_ROLES = {
-    SUPER_ADMIN: 'Superadmin',
+    SUPER_ADMIN: 'superAdmin',
     SUPPLIER: 'Supplier',
     APPROVER: 'Approver',
     ADMIN: 'Admin',
@@ -101,7 +101,7 @@ export const useAuth = () => {
     return context;
 };
 
-// simple HOC for protected components
+// HOC for protected components
 export const withAuth = (WrappedComponent: React.ComponentType<any>, requiredRole?: UserRole, requiredPermission?: string) => {
     return function WithAuthComponent(props: any) {
         const { hasRole, hasPermission } = useAuth();

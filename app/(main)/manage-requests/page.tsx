@@ -9,11 +9,18 @@ import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall, PutCall } from '@/app/api-config/ApiKit';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { z } from 'zod';
+import { useAuth } from '@/layout/context/authContext';
+import { get } from 'lodash';
 
 const REQUEST_ACTIONS: any = {
     APPROVE: 'approve',
     REJECT: 'reject'
 };
+
+const rejectionSchema = z.object({
+    reason: z.string().max(250, 'Rejection reason cannot exceed 250 characters')
+});
 
 const ManageRequestsPage = () => {
     const { layoutState } = useContext(LayoutContext);
@@ -28,81 +35,13 @@ const ManageRequestsPage = () => {
     const [rejectedReason, setRejectedReason] = useState('');
     const { isLoading, setLoading, setAlert } = useAppContext();
     const [selectedRequest, setSelectedRequest] = useState<any>();
+    const [showRejectInput, setShowRejectInput] = useState(false);
+    const [rejectionError, setRejectionError] = useState('');
+    const [remainingChars, setRemainingChars] = useState(250);
 
-    const renderHeader = () => (
-        <div className="flex justify-content-between">
-            <span className="p-input-icon-left flex align-items-center">
-                <h3 className="mb-0">Request of change information</h3>
-            </span>
-        </div>
-    );
+    const { isSupplier } = useAuth();
+    const { user } = useAppContext();
 
-    // const formatRequestedData = (data: any) => {
-    //     if (!data) return '';
-    //     if (typeof data === 'string') return data;
-    //     if (typeof data !== 'object') return '';
-
-    //     return Object.entries(data)
-    //         .filter(([key, value]) => value !== null)
-    //         .map(([key, value]) => {
-    //             const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-    //             return `${formattedKey}: ${value}`;
-    //         })
-    //         .join('\n');
-    // };
-
-    // // Updated function to show only corresponding old data
-    // const formatOldData = (requestedData: any, oldData: any) => {
-    //     if (!requestedData || !oldData || typeof requestedData !== 'object' || typeof oldData !== 'object') return '';
-
-    //     // Get keys from requested data
-    //     const requestedKeys = Object.keys(requestedData);
-
-    //     return Object.entries(oldData)
-    //         .filter(([key, value]) => {
-    //             // Only include fields that are in the requested changes
-    //             return requestedKeys.includes(key) && value !== null;
-    //         })
-    //         .map(([key, value]) => {
-    //             const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-    //             return `${formattedKey}: ${value}`;
-    //         })
-    //         .join('\n');
-    // };
-
-
-    const formatRequestedData = (data: any) => {
-        if (!data) return '';
-        if (typeof data === 'string') return data;
-        if (typeof data !== 'object') return '';
-
-        return Object.entries(data)
-            .filter(([key, value]) => value !== null)
-            .map(([key, value], index, array) => {
-                const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-                const isLastItem = index === array.length - 1;
-                return `${formattedKey}: ${value}${isLastItem ? '' : '\n───────────────\n'}`;
-            })
-            .join('');
-    };
-
-    const formatOldData = (requestedData: any, oldData: any) => {
-        if (!requestedData || !oldData || typeof requestedData !== 'object' || typeof oldData !== 'object') return '';
-
-        const requestedKeys = Object.keys(requestedData);
-        const filteredEntries = Object.entries(oldData)
-            .filter(([key, value]) => requestedKeys.includes(key) && value !== null);
-
-        return filteredEntries
-            .map(([key, value], index) => {
-                const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-                const isLastItem = index === filteredEntries.length - 1;
-                return `${formattedKey}: ${value}${isLastItem ? '' : '\n───────────────\n'}`;
-            })
-            .join('');
-    };
-   
-   
     const fetchData = async (params?: any) => {
         try {
             setLoading(true);
@@ -110,10 +49,20 @@ const ManageRequestsPage = () => {
             if (!params) {
                 params = { limit: limit, page: page };
             }
+            const supId = get(user, 'supplierId');
             setPage(params.page);
+
+            let apiUrl = 'company/manageRequest';
+
+            if (isSupplier()) {
+                apiUrl = `company/manageRequest/supplier`;
+            }
+
             const queryString = buildQueryParams(params);
-            const response = await GetCall(`company/manageRequest?${queryString}`);
+            const response = await GetCall(`${apiUrl}?${queryString}`);
+
             setRequests(response.data);
+
             setTotalRecords(response.total);
         } catch (error) {
             setAlert('error', 'Something went wrong!');
@@ -122,17 +71,15 @@ const ManageRequestsPage = () => {
         }
     };
 
-    const handleApproveClick = (request: any) => {
-        setSelectedRequest(request);
-        setAction(REQUEST_ACTIONS.APPROVE);
-        setIsDialogVisible(true);
-    };
+    console.log(requests);
 
-    const handleRejectClick = (request: any) => {
+
+    const handleViewClick = (request: any) => {
         setSelectedRequest(request);
-        setAction(REQUEST_ACTIONS.REJECT);
+        setShowRejectInput(false);
         setRejectedReason('');
         setIsDialogVisible(true);
+        setRemainingChars(250)
     };
 
     const closeDialog = () => {
@@ -142,31 +89,40 @@ const ManageRequestsPage = () => {
         setRejectedReason('');
     };
 
-    const handleConfirm = async () => {
+
+    const handleAction = async (action: 'approve' | 'reject') => {
+        if (action === 'reject' && !showRejectInput) {
+            setShowRejectInput(true);
+            return;
+        }
+
+        if (action === 'reject' && !rejectedReason.trim()) {
+            return;
+        }
+
         try {
             setLoading(true);
             const payload = {
-                // supId: selectedRequest?.supplierId,
-                id: selectedRequest?.manageRequestId,
-                requestedData: selectedRequest?.requestedData,
-                status: action === REQUEST_ACTIONS.APPROVE ? 'Approved' : 'Rejected',
-                ...(action === REQUEST_ACTIONS.REJECT && { rejectedReason: rejectedReason })
+                status: action === 'approve' ? 'Approved' : 'Rejected',
+                ...(action === 'reject' && { rejectedReason: rejectedReason })
             };
 
-            console.log(payload);
-
-            const response = await PutCall(`/company/manageRequest/${selectedRequest.manageRequestId}`, payload);
+            const response = await PutCall(`/company/manageRequest/${selectedRequest.manageReqId}`, payload);
             if (response.code === 'SUCCESS') {
-                setAlert('success', `Request ${action === REQUEST_ACTIONS.APPROVE ? 'approved' : 'rejected'} successfully`);
+                setAlert('success', `Request ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
                 fetchData();
+                closeDialog();
+            } else {
+                setAlert('error', 'Something went wrong!')
             }
+
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
             setLoading(false);
-            closeDialog();
         }
     };
+
 
     useEffect(() => {
         fetchData();
@@ -174,152 +130,189 @@ const ManageRequestsPage = () => {
 
     const formatDate = (timestamp: any) => {
         if (!timestamp) return '-';
-        const date = new Date(timestamp);
-        return date
-            .toLocaleString('en-GB', {
+
+        try {
+            // first ensure we have a valid date object
+            const date = new Date(timestamp);
+
+            // check if date is valid
+            if (isNaN(date.getTime())) {
+                return '-';
+            }
+
+            // Format the date
+            return date.toLocaleString('en-GB', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit',
                 hour12: true
-            })
-            .replace(',', '');
+            });
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return '-';
+        }
     };
 
-    const buttonRenderer = (rowData: any) => {
-        if (rowData.status === 'Pending') {
-            return (
-                <>
-                    <Button icon="pi pi-check" className="p-button-success p-button-md p-button-text hover:bg-pink-50" onClick={() => handleApproveClick(rowData)} />
-                    <Button icon="pi pi-times" className="p-button-danger p-button-md p-button-text hover:bg-pink-50" onClick={() => handleRejectClick(rowData)} />
-                </>
-            );
-        }
-        return null;
-    };
-    const renderDialogContent = () => {
-        if (action === REQUEST_ACTIONS.APPROVE) {
-            return (
-                <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
-                    <i className="pi pi-check-circle text-6xl text-green-500"></i>
-                    <div className="flex flex-column align-items-center gap-1">
-                        <span>Are you sure you want to approve this request?</span>
-                    </div>
-                </div>
-            );
-        }
+
+    const CompareDataTable = ({ oldData, requestedData }: any) => {
+        if (!requestedData || typeof requestedData !== 'object') return null;
+
+        const requestedKeys = Object.keys(requestedData);
+        const data = requestedKeys.filter(key => requestedData[key] !== null);
+
         return (
-            <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
-                <i className="pi pi-times-circle text-6xl text-red-500"></i>
-                <div className="flex flex-column align-items-center gap-3">
-                    <span>Are you sure you want to reject this request?</span>
-                    <InputTextarea value={rejectedReason} onChange={(e) => setRejectedReason(e.target.value)} rows={4} placeholder="Enter rejection reason" className="w-full" />
-                </div>
+            <div className="border rounded-md overflow-hidden">
+                <table className="w-full">
+                    <thead>
+                        <tr className="bg-gray-100">
+                            <th className="p-3 text-left">Field</th>
+                            <th className="p-3 text-left">Existing Details</th>
+                            <th className="p-3 text-left">Requested Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.map((key) => (
+                            <tr key={key} className="border-t">
+                                <td className="p-3 bg-gray-50 font-medium">
+                                    {formatKeyName(key)}
+                                </td>
+                                <td className="p-3">
+                                    {oldData[key] ? String(oldData[key]) : '-'}
+                                </td>
+                                <td className="p-3">
+                                    {String(requestedData[key])}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         );
     };
 
-    // const requestedDataBody = (rowData: any) => {
-    //     return <div style={{ whiteSpace: 'pre-line' }}>{formatRequestedData(rowData.requestedData)}</div>;
-    // };
+    const renderHeader = () => (
+        <div className="flex justify-content-between">
+            <span className="p-input-icon-left flex align-items-center">
+                <h3 className="mb-0">Request of change information</h3>
+            </span>
+        </div>
+    );
 
-    // const oldDataBody = (rowData: any) => {
-    //     return <div style={{ whiteSpace: 'pre-line' }}>{formatOldData(rowData.requestedData, rowData.oldData)}</div>;
-    // };
+
+    const renderDialogContent = () => {
+        if (isLoading) {
+            return (
+                <div className="flex justify-content-center">
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex flex-column gap-4">
+                <CompareDataTable
+                    oldData={selectedRequest?.oldData}
+                    requestedData={selectedRequest?.requestedData}
+                />
+
+                {showRejectInput && (
+                    <div className="mt-3">
+                        <div className="relative">
+                            <InputTextarea
+                                value={rejectedReason}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    setRejectedReason(newValue);
+                                    setRemainingChars(250 - newValue.length);
+
+                                    try {
+                                        rejectionSchema.parse({ reason: newValue });
+                                        setRejectionError('');
+                                    } catch (error) {
+                                        if (error instanceof z.ZodError) {
+                                            setRejectionError(error.errors[0].message);
+                                        }
+                                    }
+                                }}
+                                rows={4}
+                                placeholder="Enter rejection reason"
+                                className={`w-full ${rejectionError ? 'p-invalid' : ''}`}
+                            />
+                            <div className="flex justify-between mt-1">
+                                <small className="text-red-500">{rejectionError}</small>
+                                <small className={`${remainingChars < 50 ? 'text-red-500' : 'text-gray-500'}`}>
+                                    {remainingChars > 0 && (
+                                        <small className={`${remainingChars < 50 ? 'text-red-500' : 'text-gray-500'}`}>
+                                            {remainingChars} characters remaining
+                                        </small>
+                                    )}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const renderDialogFooter = () => {
+        if (selectedRequest?.status.toLowerCase() !== 'pending') {
+            return (
+                <Button
+                    label="Close"
+                    className="bg-primary-main text-white hover:bg-pink-600 border-none m-3"
+                    onClick={closeDialog}
+                />
+            );
+        }
+
+        return (
+            <div className="flex justify-content-center gap-2">
+                {/* <Button 
+                    label="Cancel" 
+                    className="bg-primary-main text-white hover:bg-pink-600 border-none m-2" 
+                    onClick={closeDialog} 
+                /> */}
+
+                {isSupplier() ? <></> :
+                    <>
+                        {(!showRejectInput || rejectedReason.trim()) && (
+                            <>
+                                <Button
+                                    label="Approve"
+                                    className="p-button-success m-2"
+                                    onClick={() => handleAction('approve')}
+                                    disabled={remainingChars <= 0}
+                                />
+                                <Button
+                                    label="Reject"
+                                    className="bg-red-600 text-white border-none hover:bg-red-700 m-2"
+                                    onClick={() => handleAction('reject')}
+                                    disabled={remainingChars <= 0}
+                                />
+                            </>
+                        )}
+                    </>
+                }
+            </div>
+        );
+    };
+
+    const buttonRenderer = (rowData: any) => {
+        return (
+            <Button
+                icon="pi pi-eye"
+                className="p-button-rounded p-button-text"
+                onClick={() => handleViewClick(rowData)}
+            />
+        );
+    };
 
 
     const formatKeyName = (key: string) => {
         return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-    };
-
-    // const requestedDataBody = (rowData: any) => {
-    //     return (
-    //         <div 
-    //             style={{ 
-    //                 whiteSpace: 'pre-line',
-    //                 padding: '8px',
-    //                 borderRadius: '4px'
-    //             }}
-    //         >
-    //             {formatRequestedData(rowData.requestedData)}
-    //         </div>
-    //     );
-    // };
-
-    // const oldDataBody = (rowData: any) => {
-    //     return (
-    //         <div 
-    //             style={{ 
-    //                 whiteSpace: 'pre-line',
-    //                 padding: '8px',
-    //                 borderRadius: '4px'
-    //             }}
-    //         >
-    //             {formatOldData(rowData.requestedData, rowData.oldData)}
-    //         </div>
-    //     );
-    // };
-
-    const requestedDataBody = (rowData: any) => {
-        if (!rowData.requestedData || typeof rowData.requestedData !== 'object') {
-            return <div>No data available</div>;
-        }
-
-        const data = Object.entries(rowData.requestedData)
-            .filter(([_, value]) => value !== null);
-
-        return (
-            <div className="border rounded-md overflow-hidden">
-                <table className="w-full">
-                    <tbody>
-                        {data.map(([key, value], index) => (
-                            <tr key={key} className={index !== data.length - 1 ? 'border-b' : ''}>
-                                <td className="p-2 bg-gray-50 font-medium" style={{ width: '40%' }}>
-                                    {formatKeyName(key)}
-                                </td>
-                                <td className="p-2">
-                                    {String(value)}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
-
-    const oldDataBody = (rowData: any) => {
-        if (!rowData.requestedData || !rowData.oldData || 
-            typeof rowData.requestedData !== 'object' || 
-            typeof rowData.oldData !== 'object') {
-            return <div>No data available</div>;
-        }
-
-        // Only show old data for fields that are in requestedData
-        const requestedKeys = Object.keys(rowData.requestedData);
-        const data = Object.entries(rowData.oldData)
-            .filter(([key, value]) => requestedKeys.includes(key) && value !== null);
-
-        return (
-            <div className="border rounded-md overflow-hidden">
-                <table className="w-full">
-                    <tbody>
-                        {data.map(([key, value], index) => (
-                            <tr key={key} className={index !== data.length - 1 ? 'border-b' : ''}>
-                                <td className="p-2 bg-gray-50 font-medium" style={{ width: '40%' }}>
-                                    {formatKeyName(key)}
-                                </td>
-                                <td className="p-2">
-                                    {String(value)}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
     };
 
     return (
@@ -331,19 +324,19 @@ const ManageRequestsPage = () => {
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
                             <CustomDataTable
                                 ref={dataTableRef}
-                                filter
                                 page={page}
                                 limit={limit}
                                 totalRecords={totalRecords}
                                 data={requests?.map((item: any) => ({
                                     id: item.manageRequestId,
                                     supplierId: item.supplierId,
-                                    supplierName: item.supplierName,
+                                    supplierName: item.supplier.supplierName,
                                     requestedData: item.requestedData,
                                     oldData: item.oldData,
-                                    requestedDate: formatDate(item.requestedDate),
+                                    createdAtFormatted: formatDate(item.createdAt),
                                     status: item.status,
                                     rejectedReason: item.rejectedReason || 'No Reason',
+                                    doc: item.doc || 'https//s3.aws.amazon.com/file/e3f923922/proof.pdf',
                                     ...item
                                 }))}
                                 columns={[
@@ -363,22 +356,8 @@ const ManageRequestsPage = () => {
                                         bodyStyle: { width: '120px' }
                                     },
                                     {
-                                        header: 'Requested Changes',
-                                        field: 'requestedData',
-                                        filter: true,
-                                        body: requestedDataBody,
-                                        bodyStyle: { width: '250px' }
-                                    },
-                                    {
-                                        header: 'Old Data',
-                                        field: 'oldData',
-                                        filter: true,
-                                        body: oldDataBody,
-                                        bodyStyle: { width: '250px' }
-                                    },
-                                    {
                                         header: 'Requested At',
-                                        field: 'requestedDate',
+                                        field: 'createdAtFormatted',
                                         filter: true,
                                         bodyStyle: { width: '150px' }
                                     },
@@ -387,15 +366,14 @@ const ManageRequestsPage = () => {
                                         field: 'status',
                                         filter: true,
                                         bodyStyle: { width: '150px' },
-                                        // headerStyle: dataTableHeaderStyle,
                                         body: (rowData: any) => {
                                             const getStatusClass = (status: string) => {
-                                                switch (status) {
-                                                    case 'Approved':
+                                                switch (status.toLowerCase()) {
+                                                    case 'approved':
                                                         return 'bg-green-100 text-green-700 border-round-md';
-                                                    case 'Rejected':
+                                                    case 'rejected':
                                                         return 'bg-red-100 text-red-700 border-round-md';
-                                                    case 'Pending':
+                                                    case 'pending':
                                                         return 'bg-blue-100 text-blue-700 border-round-md';
                                                     default:
                                                         return '';
@@ -403,6 +381,12 @@ const ManageRequestsPage = () => {
                                             };
                                             return <span className={`px-2 py-1 rounded-lg ${getStatusClass(rowData.status)}`}>{rowData.status}</span>;
                                         }
+                                    },
+                                    {
+                                        header: 'Proof Document',
+                                        field: 'doc',
+                                        filter: true,
+                                        bodyStyle: { width: '150px' }
                                     },
                                     {
                                         header: 'Rejected Reason',
@@ -423,30 +407,15 @@ const ManageRequestsPage = () => {
                 </div>
 
                 <Dialog
-                    header={action === REQUEST_ACTIONS.APPROVE ? 'Approve Request' : 'Reject Request'}
+                    header="Request Details"
                     visible={isDialogVisible}
-                    style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
-                    footer={
-                        <div className="flex justify-content-center p-2 gap-2">
-                            <Button label="Cancel" className="bg-primary-main text-white hover:bg-pink-600 border-none" onClick={closeDialog} />
-                            <Button
-                                label={action === REQUEST_ACTIONS.APPROVE ? 'Approve' : 'Reject'}
-                                className={`px-4 ${action === REQUEST_ACTIONS.APPROVE ? 'p-button-success' : 'bg-red-600 text-white border-none hover:bg-red-700'}`}
-                                onClick={handleConfirm}
-                                disabled={action === REQUEST_ACTIONS.REJECT && !rejectedReason.trim()}
-                            />
-                        </div>
-                    }
+                    style={{ width: layoutState.isMobile ? '90vw' : '60vw' }}
+                    footer={renderDialogFooter()}
                     onHide={closeDialog}
                 >
-                    {isLoading ? (
-                        <div className="flex justify-content-center">
-                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                        </div>
-                    ) : (
-                        renderDialogContent()
-                    )}
+                    {renderDialogContent()}
                 </Dialog>
+
             </div>
         </div>
     );

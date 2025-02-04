@@ -34,10 +34,12 @@ const PermissionManagement = () => {
     const [description, setdescription] = useState('');
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
     const [allPermissions, setAllPermissions] = useState<any>([]);
+    
     useEffect(() => {
         fetchData();
-        fetchPermissionData();
+        // fetchPermissionData();
     }, []);
+    
 
     const fetchData = async (params?: any) => {
         setLoading(true);
@@ -47,11 +49,14 @@ const PermissionManagement = () => {
                 params = { limit: limit, page: page, sortOrder: 'desc', sortBy: "permissionId" };
             }
 
+            // setPage(params.page)
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/settings/permissions?${queryString}`);
+
             setAllPermissions(response.data);
             setTotalRecords(response.total);
+
         } catch (err) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -118,8 +123,6 @@ const PermissionManagement = () => {
             permission: permissionData,
             desc: description
         };
-
-        console.log(payload, 'Abhishek');
 
         try {
             const response: CustomResponse = await PostCall('/settings/permissions', payload);
