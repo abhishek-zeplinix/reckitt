@@ -606,13 +606,12 @@ const ManageSupplierPage = () => {
                                             header: 'Zip',
                                             field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
+                                        }
                                     ]}
                                     rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 />
-
                             </div>
                         </div>
                     </div>
@@ -730,26 +729,29 @@ const ManageSupplierPage = () => {
                 </div>
             </Dialog>
 
-<Dialog 
-    visible={dialogVisible} 
-    onHide={() => setDialogVisible(false)}
-    header={selectedViewSupplier?.blockType} 
-    style={{ width: '400px' }}
->
-    {selectedViewSupplier && (
-        <div>
-            {selectedViewSupplier.blockType === "temporary" ? (
-                <>
-                    <p><strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}</p>
-                    <p><strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}</p>
-                    <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
-                </>
-            ) : (
-                <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
-            )}
-        </div>
-    )}
-</Dialog>
+            <Dialog visible={dialogVisible} onHide={() => setDialogVisible(false)} header={selectedViewSupplier?.blockType} style={{ width: '400px' }}>
+                {selectedViewSupplier && (
+                    <div>
+                        {selectedViewSupplier.blockType === 'temporary' ? (
+                            <>
+                                <p>
+                                    <strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}
+                                </p>
+                                <p>
+                                    <strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}
+                                </p>
+                                <p>
+                                    <strong>Block Reason:</strong> {selectedViewSupplier.blockReason}
+                                </p>
+                            </>
+                        ) : (
+                            <p>
+                                <strong>Block Reason:</strong> {selectedViewSupplier.blockReason}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </Dialog>
         </div>
     );
 };
