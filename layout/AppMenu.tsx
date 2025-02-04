@@ -9,7 +9,7 @@ import { AppMenuItem } from '@/types';
 import { get, intersection } from 'lodash';
 import { useAppContext } from './AppWrapper';
 // import { getCompanyLogo } from '@/utils/uitl';
-import {COMPANY_ROLE_MENU,COMPANY  } from '@/config/permissions';
+import { COMPANY_ROLE_MENU, COMPANY } from '@/config/permissions';
 import { classNames } from 'primereact/utils';
 import { useRouter } from 'next/navigation';
 import { useLoaderContext } from './context/LoaderContext';
@@ -18,7 +18,7 @@ import { useAuth } from './context/authContext';
 const AppMenu = () => {
     const router = useRouter();
     const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
-    const {  setLoader } = useLoaderContext();
+    const { setLoader } = useLoaderContext();
     const { hasPermission, hasAnyPermission, isSupplier } = useAuth();
 
     const handleMenuClick = ({ originalEvent, item }: any) => {
@@ -55,7 +55,7 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                         return hasAnyPermission(['manage_faq', 'manage_supply_glossary']);
+                        return hasAnyPermission(['manage_faq', 'manage_supply_glossary']);
                     },
                     items: [
                         {
@@ -65,7 +65,7 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                                 return hasPermission('manage_faq');
+                                return hasPermission('manage_faq');
                             },
                             command: handleMenuClick
                         },
@@ -76,7 +76,7 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                                 return hasPermission('manage_supply_glossary');
+                                return hasPermission('manage_supply_glossary');
                             },
                             command: handleMenuClick
                         }
@@ -227,7 +227,7 @@ const AppMenu = () => {
                                 return hasPermission;
                             },
                             command: handleMenuClick
-                        },
+                        }
                         // {
                         //     label: 'Manage Rule',
                         //     url: '/manage-rules',
@@ -404,6 +404,24 @@ const AppMenu = () => {
                                 return hasPermission;
                             },
                             command: handleMenuClick
+                        },
+                        {
+                            label: 'Marketing Templates',
+                            url: '/marketing-templates',
+                            check: (user: any) => {
+                                // Check if the user is a super admin
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+
+                                // Check if the user has the required permissions
+                                const userPermissions = get(user, 'permissions.permissions', []);
+                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+
+                                // Grant access based on permissions
+                                return hasPermission;
+                            },
+                            command: handleMenuClick
                         }
                     ]
                 },
@@ -414,7 +432,7 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                         return hasAnyPermission(['generate_request', 'manage_request']);
+                        return hasAnyPermission(['generate_request', 'manage_request']);
                     },
                     items: [
                         {
@@ -432,7 +450,6 @@ const AppMenu = () => {
                             label: 'Generate Request',
                             url: '/generate-requests',
                             check: (user: any) => {
-
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
@@ -449,7 +466,7 @@ const AppMenu = () => {
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                         return hasAnyPermission(['generate_feedback', 'manage_feedback']);
+                        return hasAnyPermission(['generate_feedback', 'manage_feedback']);
                     },
                     items: [
                         {
@@ -459,7 +476,7 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                                 return hasPermission('manage_feedback');
+                                return hasPermission('manage_feedback');
                             },
                             command: handleMenuClick
                         },
@@ -470,7 +487,7 @@ const AppMenu = () => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                                 return hasPermission('generate_feedback');
+                                return hasPermission('generate_feedback');
                             },
                             command: handleMenuClick
                         }
