@@ -10,8 +10,7 @@
 //     ASSET_LINK: `https://erp-api-assets.s3.amazonaws.com`
 // }
 //const LOCAL = 'http://13.127.234.119/api';
-// const PROD = 'https://codelabspace.com/api';
-const PROD = 'https://944hdgxp-8080.inc1.devtunnels.ms/api';
+const PROD = 'https://codelabspace.com/api';
 
 const isProd = true;
 export const CONFIG = {
