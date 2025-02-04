@@ -52,6 +52,8 @@ const MainRules = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [chooseRules, setChooseRules] = useState('');
     const [selectedRuleType, setSelectedRuleType] = useState<string | null>(null);
+    const [bulkDialogVisible, setBulkDialogVisible] = useState(false);
+    const [responseData, setResponseData] = useState<any>(null);
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -167,6 +169,8 @@ const MainRules = () => {
                 setAlert('success', 'Rules imported successfully');
                 setVisible(false);
                 fetchData();
+                setResponseData(response);
+                setBulkDialogVisible(true);
             } else {
                 setAlert('error', response.message || 'File upload failed');
             }
@@ -582,6 +586,45 @@ const MainRules = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Dialog for Response Data */}
+                <Dialog 
+    visible={bulkDialogVisible} 
+    onHide={() => setBulkDialogVisible(false)} 
+    header="Upload Summary"
+    style={{ width: '600px' }}
+>
+    {responseData && (
+        <div>
+            {/* Saved Count */}
+            <p><strong>Saved Count:</strong> {responseData.savedCount}</p>
+
+            {/* Skipped Data */}
+            <h4>Skipped Data:</h4>
+            {responseData.skippedData.length > 0 ? (
+                <ul>
+                    {responseData.skippedData.map((skipped: { rule: { criteriaEvaluation: any; }; reason: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
+                        <li key={index}>
+                            <strong>Rule:</strong> {skipped.rule ? JSON.stringify(skipped.rule) : 'N/A'} <br />
+                            <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || 'N/A'} <br />
+                            <strong>Reason:</strong> {skipped.reason}
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No skipped data.</p>
+            )}
+
+            {/* Not Found Data */}
+            <h4>Not Found:</h4>
+            <ul>
+                <li><strong>Departments:</strong> {responseData.notFound?.departments?.filter(Boolean).join(', ') || 'None'}</li>
+                <li><strong>Categories:</strong> {responseData.notFound?.categories?.filter(Boolean).join(', ') || 'None'}</li>
+                <li><strong>SubCategories:</strong> {responseData.notFound?.subCategories?.filter(Boolean).join(', ') || 'None'}</li>
+            </ul>
+        </div>
+    )}
+</Dialog>
 
                 <Dialog
                     header="Delete confirmation"
