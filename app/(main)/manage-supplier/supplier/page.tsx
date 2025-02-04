@@ -331,6 +331,31 @@ const ManageSupplierAddEditPage = () => {
                 }
             }
         }
+
+        setForm((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: val } : name),
+            };
+    
+            if (name === 'supplierCategoryId') {
+                fetchSubCategoryByCategoryId(val);
+                updatedForm.procurementCategoryId = null;
+            }
+    
+            return updatedForm;
+        });
+    
+        // Real-time validation: Remove error if input is valid
+        setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+    
+            if (val && updatedErrors[name]) {
+                delete updatedErrors[name]; // Remove error when the field is filled
+            }
+    
+            return updatedErrors;
+        });
         setForm((prevForm) => {
             const updatedForm = {
                 ...prevForm,
@@ -340,14 +365,6 @@ const ManageSupplierAddEditPage = () => {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-            // if (name === 'countryId') {
-            //     fetchAllSatate(val);
-            //     updatedForm.state = null;
-            // }
-            // if (name === 'stateId') {
-            //     fetchAllCity(val);
-            //     updatedForm.cityId = null;
-            // }
             return updatedForm;
         });
     };
@@ -714,7 +731,7 @@ const ManageSupplierAddEditPage = () => {
                                 </div>
                             </div>
 
-                            <p className="mx-2 font-italic text-sm text-primary-main">* Files should be in pdf, doc, jpg, png format, (2mb only)</p>
+                            <p className="mx-2 font-italic text-sm text-primary-main">* Only PDF, DOC, JPG, and PNG files are allowed, with a maximum size of 2MB</p>
                         </div>
                     </div>
                 );

@@ -26,7 +26,7 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const SetRulesPage = () => {
+const ManageMembersPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
@@ -51,7 +51,7 @@ const SetRulesPage = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const searchParams = useSearchParams();
     const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
-    const ruleSetId = searchParams.get('ruleSetId');
+    const memberId = searchParams.get('memberId');
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -62,6 +62,54 @@ const SetRulesPage = () => {
         { label: '50', value: 50 },
         { label: '70', value: 70 },
         { label: '100', value: 100 }
+    ];
+
+    const membersOptions = [
+        {
+            id: 1,
+            Type: 'Agency',
+            Name: 'Assessor1',
+            Position: 'Account Director',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'jyoti.sahoo@techmahindra.com',
+            Contact: '2314567890'
+        },
+        {
+            id: 2,
+            Type: 'Agency',
+            Name: 'Assessor2',
+            Position: 'Planning and Strategy',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'abhijitp@gmail.com',
+            Contact: '9876543210'
+        },
+        {
+            id: 3,
+            Type: 'Agency',
+            Name: 'Assessor3',
+            Position: 'Agency Account Leadership',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'vidhanc@gmail.com',
+            Contact: '4352671890'
+        },
+        {
+            id: 4,
+            Type: 'Agency',
+            Name: 'Assessor4',
+            Position: 'Planning and Strategy',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'abhijit.patane@gmail.com',
+            Contact: '7878787878'
+        },
+        {
+            id: 5,
+            Type: 'Agency',
+            Name: 'Vidhan',
+            Position: 'Planning and Strategy',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'vidhanchordiya0@gmail.com',
+            Contact: '123456789'
+        }
     ];
 
     // Handle limit change
@@ -119,7 +167,7 @@ const SetRulesPage = () => {
     }, [limit, page]);
 
     const handleCreateNavigation = () => {
-        router.push(`/rules/set-rules/create-new-rules?ruleSetId=${ruleSetId}`);
+        router.push(`/user-groups/manage-members/create-new-members?memberId=${memberId}`);
     };
 
     const handleFileUpload = async (event: { files: File[] }) => {
@@ -169,8 +217,8 @@ const SetRulesPage = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
-    const handleEditRules = (ruleSetId: any, ruleId: any) => {
-        router.push(`/rules/set-rules/create-new-rules?edit=true&ruleSetId=${ruleSetId}&ruleId=${ruleId}`);
+    const handleEditRules = (memberId: any, ruleId: any) => {
+        router.push(`/user-groups/manage-members/create-new-members?edit=true&ruleSetId=${memberId}&ruleId=${ruleId}`);
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -198,7 +246,7 @@ const SetRulesPage = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Manage Rules</h3>
+                    <h3 className="mb-0">Manage Members</h3>
                 </span>
                 <div className="flex justify-content-end">
                     {/* <Button
@@ -228,7 +276,7 @@ const SetRulesPage = () => {
                         </div>
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Members" aria-label="Add Members" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
@@ -259,7 +307,7 @@ const SetRulesPage = () => {
 
             console.log(queryString);
 
-            const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
+            const response = await GetCall(`company/rules/${memberId}?${queryString}`);
 
             setTotalRecords(response.total);
             setRules(response.data);
@@ -416,23 +464,15 @@ const SetRulesPage = () => {
         }
     };
 
-    const expandedData = rules.flatMap((item: any) => {
-        // Create a row for each criteriaEvaluation and score pair
-        return item.criteriaEvaluation.map((criteria: string, index: number) => ({
-            ruleId: item.ruleId,
-            department: item?.department?.name,
-            category: item?.categories?.categoryName,
-            subCategories: item?.subCategories?.subCategoryName,
-            section: item.section,
-            ratedCriteria: item.ratedCriteria,
-            criteriaEvaluation: criteria,
-            score: item.score[index],
-            ratiosCopack: item.ratiosCopack,
-            ratiosRawpack: item.ratiosRawpack,
-            // add a unique identifier for each expanded row
-            expandedRowId: `${item.ruleId}-${index}`
-        }));
-    });
+    const mappedData = membersOptions.map((item) => ({
+        id: item.id,
+        type: item.Type,
+        name: item.Name,
+        position: item.Position,
+        assessorRole: item['Assessor Role'],
+        email: item['E-mail'],
+        contact: item.Contact
+    }));
 
     return (
         <div className="grid">
@@ -466,11 +506,11 @@ const SetRulesPage = () => {
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, item.ruleId); // Pass the userId from the row data
+                                            handleEditRules(memberId, item.ruleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
-                                data={expandedData}
+                                data={mappedData}
                                 columns={[
                                     {
                                         header: 'SR. NO',
@@ -483,82 +523,39 @@ const SetRulesPage = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'DEPARTMENT ',
-                                        field: 'department',
+                                        header: 'Type ',
+                                        field: 'type',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'PROCUREMENT CATEGORY ',
-                                        field: 'category',
+                                        header: 'Name ',
+                                        field: 'name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'SUPPLIER CATEGORY',
-                                        field: 'subCategories',
+                                        header: 'Position',
+                                        field: 'position',
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 150, maxWidth: 150 }
                                     },
                                     {
-                                        header: 'CRITERIA CATEGORY',
-                                        field: 'section',
+                                        header: 'Assesor role',
+                                        field: 'assessorRole',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'CRITERIA',
-                                        field: 'ratedCriteria',
+                                        header: 'Email',
+                                        field: 'email',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
-                                    {
-                                        header: 'CRITERIA EVALUATION',
-                                        field: 'criteriaEvaluation',
-                                        body: (data: any, options: ColumnBodyOptions) => {
-                                            const rowIndex = options.rowIndex;
-                                            const isExpanded = expandedRows[rowIndex] || false;
 
-                                            const words = data.criteriaEvaluation.split(' ');
-                                            const isLongText = words.length > 5;
-                                            const displayText = isExpanded ? data.criteriaEvaluation : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-
-                                            const toggleExpand = () => {
-                                                setExpandedRows((prev) => ({
-                                                    ...prev,
-                                                    [rowIndex]: !isExpanded
-                                                }));
-                                            };
-
-                                            return (
-                                                <span>
-                                                    {displayText}
-                                                    {isLongText && (
-                                                        <button onClick={toggleExpand} style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px', fontSize: '10px' }}>
-                                                            {isExpanded ? 'Read Less' : 'Read More'}
-                                                        </button>
-                                                    )}
-                                                </span>
-                                            );
-                                        },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
                                     {
-                                        header: 'CRITERIA SCORE',
-                                        field: 'score',
-                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'RATIOS COPACK (%)',
-                                        field: 'ratiosCopack',
-                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'RATIOS RAW&PACK (%)',
-                                        field: 'ratiosRawpack',
+                                        header: 'Contact',
+                                        field: 'contact',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     }
@@ -602,4 +599,4 @@ const SetRulesPage = () => {
     );
 };
 
-export default SetRulesPage;
+export default ManageMembersPage;

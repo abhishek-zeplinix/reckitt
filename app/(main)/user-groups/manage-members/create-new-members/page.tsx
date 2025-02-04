@@ -12,12 +12,12 @@ import { validateFormRuleData } from '@/utils/utils';
 import { Calendar } from 'primereact/calendar';
 import { z } from 'zod';
 
-const CreateNewRulesPage = () => {
+const CreateNewMembersPage = () => {
     const { user, isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const searchParams = useSearchParams();
     const isEditMode = searchParams.get('edit') === 'true'; // Check if in edit mode
     const ruleId = searchParams.get('ruleId');
-    const ruleSetId = searchParams.get('ruleSetId');
+    const memberId = searchParams.get('memberId');
     const [orderBy, setorderBy] = useState('');
     const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
     const [selectedsection, setSelectedsection] = useState('');
@@ -38,8 +38,8 @@ const CreateNewRulesPage = () => {
     const [scoreerrors, setScoreErrors] = useState<{ [key: string]: string }>({});
     const router = useRouter();
     // Adjust title based on edit mode
-    const pageTitle = isEditMode ? 'Edit Rules' : 'Add Rules';
-    const submitButtonLabel = isEditMode ? 'Save' : 'Add Rules';
+    const pageTitle = isEditMode ? 'Edit Members' : 'Add Members';
+    const submitButtonLabel = isEditMode ? 'Save' : 'Add Members';
     const [fields, setFields] = useState({
         effectiveFrom: null as Date | null,
         departmentId: null,
@@ -146,7 +146,7 @@ const CreateNewRulesPage = () => {
                 try {
                     const response: CustomResponse = await PutCall(endpoint, fields); // Call PUT API
                     if (response.code === 'SUCCESS') {
-                        router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
+                        router.push(`/rules/set-rules/?memberId=${memberId}`);
                         setAlert('success', 'Rules updated.');
                     } else {
                         setAlert('error', response.message);
@@ -216,7 +216,7 @@ const CreateNewRulesPage = () => {
     const renderNewRuleFooter = () => {
         return (
             <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400 ">
-                <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3" onClick={() => router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`)} />
+                <Button label="Cancel" className="text-pink-500 bg-white border-pink-500 hover:text-white hover:bg-pink-400 transition-colors duration-150 mb-3" onClick={() => router.push(`/user-groups/manage-members/?memberId=${memberId}`)} />
                 <Button label={submitButtonLabel} icon="pi pi-check" className="bg-pink-500 border-pink-500 hover:bg-pink-400 mb-3" onClick={handleButtonClick} />
             </div>
         );
@@ -257,10 +257,10 @@ const CreateNewRulesPage = () => {
 
     const onNewAdd = async (userForm: any) => {
         setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/rules/${ruleSetId}`, fields);
+        const response: CustomResponse = await PostCall(`/company/rules/${memberId}`, fields);
         setIsDetailLoading(false);
         if (response.code == 'SUCCESS') {
-            router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
+            router.push(`/rules/set-rules/?memberId=${memberId}`);
             setAlert('success', 'Successfully Added');
         } else {
             setAlert('error', response.message);
@@ -334,24 +334,13 @@ const CreateNewRulesPage = () => {
                         <h2 className="text-center font-bold ">{pageTitle}</h2>
                         <div className="p-fluid grid md:mx-7 pt-2">
                             <div className="field col-4">
-                                <label htmlFor="effectiveFrom">Select Effective Date:</label>
-                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                {formErrors.effectiveFrom && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.effectiveFrom}</p>}
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="orderBy">Order By</label>
-                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter order by" />
-                                {formErrors.orderBy && <p style={{ color: 'red', fontSize: '10px', marginTop: '1px', marginBottom: '0px' }}>{formErrors.orderBy}</p>}
-                                {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="departmentId">Department</label>
+                                <label htmlFor="departmentId">Assesor Type</label>
                                 <Dropdown
                                     id="departmentId"
                                     value={selectedProcurementDepartment}
                                     options={procurementDepartment}
                                     onChange={(e) => setSelectedProcurementDepartment(e.value)}
-                                    placeholder="Select Department"
+                                    placeholder="Select Assesor Type"
                                     optionLabel="name"
                                     optionValue="departmentId"
                                     className="w-full"
@@ -359,13 +348,19 @@ const CreateNewRulesPage = () => {
                                 {formErrors.departmentId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.departmentId}</p>}
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="categoryId">Procurement Category</label>
+                                <label htmlFor="orderBy">Name</label>
+                                <input id="orderBy" type="text" value={orderBy} onChange={(e) => handleInputChange('orderBy', e.target.value)} className="p-inputtext w-full" placeholder="Enter Name" />
+                                {formErrors.orderBy && <p style={{ color: 'red', fontSize: '10px', marginTop: '1px', marginBottom: '0px' }}>{formErrors.orderBy}</p>}
+                                {errors.orderBy && <span className="text-red-500 text-xs">{errors.orderBy}</span>}
+                            </div>
+                            <div className="field col-4">
+                                <label htmlFor="categoryId">Position</label>
                                 <Dropdown
                                     id="categoryId"
                                     value={selectedSupplierCategory}
                                     options={supplierCategories}
                                     onChange={(e) => handleCategoryChange(e.value)}
-                                    placeholder="Select Procurement Category"
+                                    placeholder="Select Position"
                                     optionLabel="categoryName"
                                     optionValue="categoryId"
                                     className="w-full"
@@ -373,72 +368,30 @@ const CreateNewRulesPage = () => {
                                 {formErrors.categoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.categoryId}</p>}
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="subCategoryId">Supplier Category</label>
+                                <label htmlFor="categoryId">Assessor Role</label>
                                 <Dropdown
-                                    id="subCategoryId"
-                                    value={selectedProcurementCategory}
-                                    options={procurementCategories}
-                                    onChange={(e) => setSelectedProcurementCategory(e.value)}
-                                    optionLabel="subCategoryName"
-                                    optionValue="subCategoryId"
-                                    placeholder="Select Supplier Category"
+                                    id="categoryId"
+                                    value={selectedSupplierCategory}
+                                    options={supplierCategories}
+                                    onChange={(e) => handleCategoryChange(e.value)}
+                                    placeholder="Select Assessor Role"
+                                    optionLabel="categoryName"
+                                    optionValue="categoryId"
                                     className="w-full"
                                 />
-                                {formErrors.subCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.subCategoryId}</p>}
+                                {formErrors.categoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.categoryId}</p>}
                             </div>
+
                             <div className="field col-4">
-                                <label htmlFor="section">Section</label>
-                                <input id="section" type="text" value={selectedsection} onChange={(e) => setSelectedsection(e.target.value)} className="p-inputtext w-full" placeholder="Enter Section Name" />
+                                <label htmlFor="section">Email</label>
+                                <input id="section" type="text" value={selectedsection} onChange={(e) => setSelectedsection(e.target.value)} className="p-inputtext w-full" placeholder="Enter Email" />
                                 {formErrors.section && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.section}</p>}
                             </div>
 
                             <div className="field col-4">
-                                <label htmlFor="ratedCriteria">Criteria</label>
-                                <input type="text" placeholder="Criteria" value={selectedCriteria} onChange={(e) => setCriteria(e.target.value)} className="p-inputtext w-full" />
+                                <label htmlFor="ratedCriteria">Phone Number</label>
+                                <input type="text" placeholder="Enter Phone Number" value={selectedCriteria} onChange={(e) => setCriteria(e.target.value)} className="p-inputtext w-full" />
                                 {formErrors.ratedCriteria && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.ratedCriteria}</p>}
-                            </div>
-
-                            <div className="field col-4">
-                                <label htmlFor="ratiosRawpack">Ratios Raw & Pack</label>
-                                <input type="text" placeholder="Ratios Raw & Pack" value={selectedratiosRawpack} onChange={(e) => handleInputChange('ratiosRawpack', e.target.value)} className="p-inputtext w-full" />
-                                {formErrors.ratiosRawpack && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.ratiosRawpack}</p>}
-                                {errors.ratiosRawpack && <span className="text-red-500 text-xs">{errors.ratiosRawpack}</span>}
-                            </div>
-                            <div className="field col-4">
-                                <label htmlFor="ratiosCopack">Ratio Co Pack</label>
-                                <input type="text" placeholder="Ratio Co Pack" value={selectedratiosCopack} onChange={(e) => handleInputChange('ratiosCopack', e.target.value)} className="p-inputtext w-full" />
-                                {formErrors.ratiosCopack && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.ratiosCopack}</p>}
-                                {errors.ratiosCopack && <span className="text-red-500 text-xs">{errors.ratiosCopack}</span>}
-                            </div>
-                            {fields.criteriaEvaluation.map((_, index) => (
-                                <React.Fragment key={index}>
-                                    <div className="field col-4">
-                                        <label htmlFor={`criteriaEvaluation-${index}`}>Criteria Evaluation</label>
-                                        <input
-                                            id={`criteriaEvaluation-${index}`}
-                                            type="text"
-                                            placeholder="Criteria Evaluation"
-                                            value={fields.criteriaEvaluation[index]}
-                                            onChange={(e) => handleChange(index, 'criteriaEvaluation', e.target.value)}
-                                            className="p-inputtext w-full"
-                                        />
-                                        {formErrors.criteriaEvaluation && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.criteriaEvaluation}</p>}
-                                    </div>
-                                    <div className="field col-4">
-                                        <label htmlFor={`score-${index}`}>Score</label>
-                                        <input id={`score-${index}`} type="text" placeholder="Score" value={fields.score[index]} onChange={(e) => handleChange(index, 'score', e.target.value)} className="p-inputtext w-full" />
-                                        {formErrors.score && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.score}</p>}
-                                        {scoreerrors[`score-${index}`] && <p className="text-red-500 text-xs">{scoreerrors[`score-${index}`]}</p>}
-                                    </div>
-                                    {fields.score.length > 1 && (
-                                        <div className="field col-4">
-                                            <Button className="p-button-rounded p-button-danger mt-4" icon="pi pi-trash" onClick={() => handleRemoveField(index)} />
-                                        </div>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                            <div className="field col-4 mt-4">
-                                <Button icon="pi pi-plus" onClick={handleAddFields} className="p-button-sm p-button-secondary mb-4 col-2 ml-2" />
                             </div>
                         </div>
                     </div>
@@ -462,4 +415,4 @@ const CreateNewRulesPage = () => {
     );
 };
 
-export default CreateNewRulesPage;
+export default CreateNewMembersPage;

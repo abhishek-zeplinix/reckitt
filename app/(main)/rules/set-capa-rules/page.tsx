@@ -17,6 +17,7 @@ import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { ColumnBodyOptions } from 'primereact/column';
 
 const ACTIONS = {
     ADD: 'add',
@@ -53,6 +54,7 @@ const ManageCapaRulesPage = () => {
     const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
     const searchParams = useSearchParams();
     const ruleSetId = searchParams.get('ruleSetId');
+    const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
     const handleCreateNavigation = () => {
         router.push(`/rules/set-capa-rules/create-new-capa-rules?ruleSetId=${ruleSetId}`); // Replace with the route you want to navigate to
     };
@@ -453,6 +455,24 @@ const ManageCapaRulesPage = () => {
     //         setLoading(false);
     //     }
     // };
+    console.log('456',rules)
+    const expandedData = rules.flatMap((item: any) => {
+        // Create a row for each criteriaEvaluation and score pair
+        return item.status.map((criteria: string, index: number) => ({
+            capaRuleId: item.capaRuleId,
+            department: item?.department?.name,
+            category: item?.category?.categoryName,
+            subCategories: item?.subCategory?.subCategoryName,
+            capaRulesName: item.capaRulesName,
+            effectiveFrom: item.effectiveFrom,
+            status: criteria,
+            // score: item.score[index],
+            // ratiosCopack: item.ratiosCopack,
+            // ratiosRawpack: item.ratiosRawpack,
+            // add a unique identifier for each expanded row
+            expandedRowId: `${item.capaRuleId}-${index}`
+        }));
+    });
 
     return (
         <div className="grid">
@@ -492,14 +512,7 @@ const ManageCapaRulesPage = () => {
                                         }
                                     }
                                 ]}
-                                data={rules.map((item: any) => ({
-                                    capaRuleId: item.capaRuleId,
-                                    name: item.department?.name,
-                                    categoryName: item.category?.categoryName,
-                                    subCategoryName: item.subCategory?.subCategoryName,
-                                    capaRulesName: item.capaRulesName,
-                                    status: item.status
-                                }))}
+                                data={expandedData}
                                 columns={[
                                     {
                                         header: 'Sr. No',
@@ -513,14 +526,14 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'DEPARTMENT ',
-                                        field: 'name',
+                                        field: 'department',
                                         // filter: true,
                                         bodyStyle: { minWidth: 100, maxWidth: 100 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'Procurement Category',
-                                        field: 'categoryName',
+                                        header: 'PROCUREMENT CATEGORY',
+                                        field: 'category',
                                         // sortable: true,
                                         // filter: true,
                                         filterPlaceholder: 'Supplier Name',
@@ -529,24 +542,90 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'SUB CATEGORY',
-                                        field: 'subCategoryName',
-                                        // sortable: true,
-                                        // filter: true,
-                                        filterPlaceholder: 'Supplier Name',
+                                        field: 'subCategories',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 180, maxWidth: 180 }
+                                    },
+                                    {
+                                        header: 'EFFECTIVE FROM',
+                                        field: 'effectiveFrom',
+                                        body: (data: any) => {
+                                            if (data.effectiveFrom) {
+                                                const date = new Date(data.effectiveFrom);
+                                                return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                            }
+                                            return;
+                                        },
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 180, maxWidth: 180 }
                                     },
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'capaRulesName',
-                                        // filter: true,
+                                        body: (data: any, options: ColumnBodyOptions) => { 
+                                            const rowIndex = options.rowIndex; 
+                                            const isExpanded = expandedRows[rowIndex] || false;
+                                                            
+                                            const words = data.capaRulesName.split(' ');
+                                            const isLongText = words.length > 5;
+                                            const displayText = isExpanded ? data.capaRulesName : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                                                            
+                                            const toggleExpand = () => {
+                                                setExpandedRows((prev) => ({
+                                                    ...prev,
+                                                    [rowIndex]: !isExpanded,
+                                                }));
+                                            };
+                                                            
+                                            return (
+                                                <span>
+                                                    {displayText}
+                                                    {isLongText && (
+                                                        <button 
+                                                            onClick={toggleExpand} 
+                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
+                                                        >
+                                                            {isExpanded ? 'Read Less' : 'Read More'}
+                                                        </button>
+                                                    )}
+                                                </span>
+                                            );
+                                        },
                                         bodyStyle: { minWidth: 300, maxWidth: 300 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'CRITERIA',
                                         field: 'status',
-                                        // filter: true,
+                                        body: (data: any, options: ColumnBodyOptions) => { 
+                                            const rowIndex = options.rowIndex; 
+                                            const isExpanded = expandedRows[rowIndex] || false;
+                    
+                                            const words = data.status.split(' ');
+                                            const isLongText = words.length > 5;
+                                            const displayText = isExpanded ? data.status : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                    
+                                            const toggleExpand = () => {
+                                                setExpandedRows((prev) => ({
+                                                    ...prev,
+                                                    [rowIndex]: !isExpanded,
+                                                }));
+                                            };
+                    
+                                            return (
+                                                <span>
+                                                    {displayText}
+                                                    {isLongText && (
+                                                        <button 
+                                                            onClick={toggleExpand} 
+                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
+                                                        >
+                                                            {isExpanded ? 'Read Less' : 'Read More'}
+                                                        </button>
+                                                    )}
+                                                </span>
+                                            );
+                                        },
                                         filterPlaceholder: 'Search Supplier Category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle

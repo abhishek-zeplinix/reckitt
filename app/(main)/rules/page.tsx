@@ -51,6 +51,9 @@ const MainRules = () => {
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [chooseRules, setChooseRules] = useState('');
+    const [selectedRuleType, setSelectedRuleType] = useState<string | null>(null);
+    const [bulkDialogVisible, setBulkDialogVisible] = useState(false);
+    const [responseData, setResponseData] = useState<any>(null);
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -62,7 +65,10 @@ const MainRules = () => {
         { label: '70', value: 70 },
         { label: '100', value: 100 }
     ];
-
+    const ruleTypeOptions = [
+        { label: "CAPA RULE", value: "capa rule" },
+        { label: "MAIN RULE", value: "main rule" }
+    ];
     // Handle limit change
     // const onCategorychange = (e: any) => {
     //     setSelectedCategory(e.value); // Update limit
@@ -163,6 +169,8 @@ const MainRules = () => {
                 setAlert('success', 'Rules imported successfully');
                 setVisible(false);
                 fetchData();
+                setResponseData(response);
+                setBulkDialogVisible(true);
             } else {
                 setAlert('error', response.message || 'File upload failed');
             }
@@ -174,7 +182,7 @@ const MainRules = () => {
     };
 
     const handleEditRules = (e: any) => {
-        if (e.ruleType === 'rule') {
+        if (e.ruleType === 'MAIN RULE') {
             router.push(`/rules/set-rules?ruleSetId=${e.ruleSetId}`);
         } else {
             router.push(`/rules/set-capa-rules?ruleSetId=${e.ruleSetId}`);
@@ -297,7 +305,6 @@ const MainRules = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-
             const response = await GetCall(`company/rules-set?${queryString}`);
 
             setTotalRecords(response.total);
@@ -436,7 +443,7 @@ const MainRules = () => {
                 setLoading(false);
             }
         } else {
-            if (selectedRuleSetId.ruleType === 'rule') {
+            if (selectedRuleSetId.ruleType === 'MAIN RULE') {
                 try {
                     const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
 
@@ -473,6 +480,11 @@ const MainRules = () => {
             }
         }
     };
+    // Handle rule type selection and fetch data
+    const onRuleTypeChange = (e: any) => {
+        setSelectedRuleType(e.value);
+        fetchData({ limit, page, sortBy: 'ruleSetId', filters: { ruleType: e.value } });
+    };
 
     return (
         <div className="grid">
@@ -489,9 +501,16 @@ const MainRules = () => {
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
                                 </div>
                                 <div className="flex  gap-2">
-                                    {/* <div className="mt-2">{dropdownFieldDeparment}</div>
-                                    <div className="mt-2">{dropdownFieldCategory}</div>
-                                    <div className="mt-2">{dropdownFieldSubCategory}</div> */}
+                                <div>
+                                <Dropdown 
+                                    className="mt-2" 
+                                    value={selectedRuleType} 
+                                    options={ruleTypeOptions} 
+                                    onChange={onRuleTypeChange} 
+                                    placeholder="Select Rule Type" 
+                                    style={{ width: '150px', height: '30px' }} 
+                                />
+                                </div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
@@ -519,7 +538,7 @@ const MainRules = () => {
                                 }))}
                                 columns={[
                                     {
-                                        header: 'Sr. No',
+                                        header: 'SR. NO',
                                         body: (data: any, options: any) => {
                                             const normalizedRowIndex = options.rowIndex % limit;
                                             const srNo = (page - 1) * limit + normalizedRowIndex + 1;
@@ -535,11 +554,25 @@ const MainRules = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'EFFECTIVE FROM ',
+                                        header: 'EFFECTIVE FROM',
                                         field: 'effectiveFrom',
+                                        body: (data: any) => {
+                                            if (data.effectiveFrom) {
+                                                const date = new Date(data.effectiveFrom);
+                                                return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                            }
+                                            return;
+                                        },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
+
+                                    // {
+                                    //     header: 'EFFECTIVE FROM ',
+                                    //     field: 'effectiveFrom',
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    // },
                                     {
                                         header: 'RULES NAME ',
                                         field: 'value',
@@ -553,6 +586,45 @@ const MainRules = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Dialog for Response Data */}
+                <Dialog 
+    visible={bulkDialogVisible} 
+    onHide={() => setBulkDialogVisible(false)} 
+    header="Upload Summary"
+    style={{ width: '600px' }}
+>
+    {responseData && (
+        <div>
+            {/* Saved Count */}
+            <p><strong>Saved Count:</strong> {responseData.savedCount}</p>
+
+            {/* Skipped Data */}
+            <h4>Skipped Data:</h4>
+            {responseData.skippedData.length > 0 ? (
+                <ul>
+                    {responseData.skippedData.map((skipped: { rule: { criteriaEvaluation: any; }; reason: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
+                        <li key={index}>
+                            <strong>Rule:</strong> {skipped.rule ? JSON.stringify(skipped.rule) : 'N/A'} <br />
+                            <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || 'N/A'} <br />
+                            <strong>Reason:</strong> {skipped.reason}
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No skipped data.</p>
+            )}
+
+            {/* Not Found Data */}
+            <h4>Not Found:</h4>
+            <ul>
+                <li><strong>Departments:</strong> {responseData.notFound?.departments?.filter(Boolean).join(', ') || 'None'}</li>
+                <li><strong>Categories:</strong> {responseData.notFound?.categories?.filter(Boolean).join(', ') || 'None'}</li>
+                <li><strong>SubCategories:</strong> {responseData.notFound?.subCategories?.filter(Boolean).join(', ') || 'None'}</li>
+            </ul>
+        </div>
+    )}
+</Dialog>
 
                 <Dialog
                     header="Delete confirmation"

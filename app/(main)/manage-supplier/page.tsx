@@ -109,6 +109,10 @@ const ManageSupplierPage = () => {
         endDate: null
     });
     const [selectedBlock, setSelectedBlock] = useState<any>(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [selectedViewSupplier, setSelectedViewSupplier] = useState<any>(null);
+    const [bulkDialogVisible, setBulkDialogVisible] = useState(false);
+    const [responseData, setResponseData] = useState<any>(null);
     useEffect(() => {
         setScroll(true);
         fetchData();
@@ -159,6 +163,10 @@ const ManageSupplierPage = () => {
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ search: e.target?.value });
+    };
+    const openDetailsDialog = (supplier: React.SetStateAction<null>) => {
+        setSelectedViewSupplier(supplier);
+        setDialogVisible(true);
     };
 
     const fetchData = async (params?: any) => {
@@ -299,6 +307,8 @@ const ManageSupplierPage = () => {
                 setAlert('success', 'Suppliers imported successfully');
                 setVisible(false);
                 fetchData();
+                setResponseData(response);
+                setBulkDialogVisible(true);
             } else {
                 setAlert('error', response.message || 'File upload failed');
             }
@@ -502,6 +512,7 @@ const ManageSupplierPage = () => {
             closeDialog(); // Close dialog in all cases
         }
     };
+    console.log('515',responseData)
 
     return (
         <div className="grid">
@@ -536,22 +547,20 @@ const ManageSupplierPage = () => {
                                         {
                                             icon: supplier.blockType === null ? 'pi pi-ban' : 'pi pi-unlock',
                                             onClick: () => openDialog(supplier)
+                                        },
+                                        {
+                                            icon: supplier.blockType !== null ? 'pi pi-eye' : '',
+                                            onClick: () => openDetailsDialog(supplier) // Open dialog on click
                                         }
                                     ]}
                                     columns={[
                                         {
                                             header: 'Sr. No',
                                             body: (data: any, options: any) => {
-                                                const normalizedRowIndex = options.rowIndex % limit;
-                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                const srNo = (page - 1) * limit + options.rowIndex + 1 - (page - 1) * 10;
                                                 return <span>{srNo}</span>;
                                             },
                                             bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                        },
-                                        {
-                                            header: 'Block Type',
-                                            field: 'blockType',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
                                             header: 'Name',
@@ -584,16 +593,6 @@ const ManageSupplierPage = () => {
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
                                         },
                                         {
-                                            header: 'Factory Name',
-                                            field: 'factoryName',
-                                            bodyStyle: { minWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Warehouse Location',
-                                            field: 'warehouseLocation',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
-                                        },
-                                        {
                                             header: 'Country',
                                             field: 'countries.name',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
@@ -612,40 +611,9 @@ const ManageSupplierPage = () => {
                                             header: 'Zip',
                                             field: 'Zip',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        // New Columns
-                                        {
-                                            header: 'Block Start Date',
-                                            field: 'blockStartDate',
-                                            body: (data: any) => {
-                                                if (data.blockStartDate) {
-                                                    const date = new Date(data.blockStartDate);
-                                                    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                                }
-                                                return; // Default value if the date is not available
-                                            },
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Block End Date',
-                                            field: 'blockEndDate',
-                                            body: (data: any) => {
-                                                if (data.blockEndDate) {
-                                                    const date = new Date(data.blockEndDate);
-                                                    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                                }
-                                                return; // Default value if the date is not available
-                                            },
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-
-                                        {
-                                            header: 'Block Reason',
-                                            field: 'blockReason',
-                                            // body: (data: any) => data.blockReason || 'N/A',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
                                         }
                                     ]}
+                                    rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 />
@@ -765,6 +733,67 @@ const ManageSupplierPage = () => {
                     </div>
                 </div>
             </Dialog>
+
+<Dialog 
+    visible={dialogVisible} 
+    onHide={() => setDialogVisible(false)}
+    header={selectedViewSupplier?.blockType} 
+    style={{ width: '400px' }}
+>
+    {selectedViewSupplier && (
+        <div>
+            {selectedViewSupplier.blockType === "temporary" ? (
+                <>
+                    <p><strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}</p>
+                    <p><strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}</p>
+                    <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
+                </>
+            ) : (
+                <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
+            )}
+        </div>
+    )}
+</Dialog>
+{/* Dialog for Response Data */}
+<Dialog 
+            visible={bulkDialogVisible} 
+            onHide={() => setBulkDialogVisible(false)} 
+            header="Upload Summary"
+            style={{ width: '600px' }}
+        >
+            {responseData && (
+                <div>
+                    <p><strong>Already Onboarded Count:</strong> {responseData.alreadyOnboardedCount}</p>
+                    <p><strong>Inserted Count:</strong> {responseData.insertedCount}</p>
+                    <h4>Already Onboarded Suppliers:</h4>
+                    {responseData.alreadyOnboardedSuppliers.length > 0 ? (
+                        <ul>
+                            {responseData.alreadyOnboardedSuppliers.map((supplier: { supplierName: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; supplierNumber: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
+                                <li key={index}>
+                                    <strong>Name:</strong> {supplier.supplierName} | 
+                                    <strong> Email:</strong> {supplier.email} | 
+                                    <strong> Supplier No:</strong> {supplier.supplierNumber}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No onboarded suppliers.</p>
+                    )}
+
+                    <h4>Skipped Data:</h4>
+                    <p><strong>Skipped Count:</strong> {responseData.skippedCount}</p>
+                    {responseData.skippedData.length > 0 ? (
+                        <ul>
+                            {responseData.skippedData.map((skipped: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
+                                <li key={index}>{skipped}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No skipped data.</p>
+                    )}
+                </div>
+            )}
+        </Dialog>
         </div>
     );
 };

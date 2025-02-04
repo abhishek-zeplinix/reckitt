@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { buildQueryParams, getBackgroundColor } from '@/utils/utils';
+import { buildQueryParams, formatEvaluationPeriod, getBackgroundColor } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { useParams } from 'next/navigation';
 import { GetCall } from '@/app/api-config/ApiKit';
@@ -18,7 +18,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import SupplierScoreboardPDF from '@/components/pdf/supplier-scoreboard/SupplierScoreboardPDF';
 import html2canvas from 'html2canvas';
 import { useAuth } from '@/layout/context/authContext';
-
+import ReadMoreText from '@/components/read-more-text/ReadMoreText';
 
 const SupplierScoreboardTables = () => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
@@ -28,6 +28,7 @@ const SupplierScoreboardTables = () => {
     const [selectedYear, setSelectedYear] = useState<any>('2025');
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [supplierData, setSupplierData] = useState<any>();
+    const [bottomFlatData, setbottomFlatData] = useState<any>();
     const { departments } = useFetchDepartments();
 
     const { setLoading, setAlert } = useAppContext();
@@ -46,27 +47,25 @@ const SupplierScoreboardTables = () => {
         const captureTimer = setTimeout(async () => {
             if (!chartRef.current) return;
 
-            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise((resolve) => requestAnimationFrame(resolve));
             const canvas = await html2canvas(chartRef.current, {
                 scale: 2,
                 useCORS: true,
-                backgroundColor: "#ffffff",
-                logging: false,
+                backgroundColor: '#ffffff',
+                logging: false
             });
 
-            setChartImage(canvas.toDataURL("image/png"));
+            setChartImage(canvas.toDataURL('image/png'));
         }, 1000); // Add debounce delay
 
         return () => clearTimeout(captureTimer);
     }, [ratingsData, selectedYear, pdfReady]);
-
 
     useEffect(() => {
         if (chartImage) {
             setPdfReady(!!chartImage);
         }
     }, [chartImage]);
-
 
     useEffect(() => {
         fetchData();
@@ -123,18 +122,15 @@ const SupplierScoreboardTables = () => {
     };
 
     const fetchSpecificSupplierWithLessScore = async (depId: any, period: any) => {
-        setLoading(false)
+        setLoading(false);
         try {
             setLoading(true);
-
 
             const response: CustomResponse = await GetCall(`/company/supplier-score-summary/${supId}/department/${depId}/period/${period}`);
             setLoading(false);
 
-
             if (response.code == 'SUCCESS') {
-
-                const flatData = response.data.flatMap((section: any) =>
+                const flatData = response.data.filteredData.flatMap((section: any) =>
                     section.ratedCriteria.map((criteria: any) => ({
                         type: section.sectionName,
                         criteria: criteria.criteriaName,
@@ -143,21 +139,19 @@ const SupplierScoreboardTables = () => {
                         score: criteria.evaluations[0]?.score || 'N/A'
                     }))
                 );
+                const BottomflatData = response.data.supplierScoreData;
+                setbottomFlatData(BottomflatData);
                 setEvaluationData(flatData);
-
-
             } else {
                 setEvaluationData([]);
             }
         } catch (error) {
-            setAlert('error', 'Something went wrong!')
-
+            setAlert('error', 'Something went wrong!');
         } finally {
             setLoading(false);
         }
-
-    }
-
+    };
+    console.log(bottomFlatData);
 
     useEffect(() => {
         if (supplierScore && departments) {
@@ -165,16 +159,14 @@ const SupplierScoreboardTables = () => {
         }
     }, [supplierScore, departments]);
 
-
     // Add cleanup for chart image
 
-  useEffect(() => {
+    useEffect(() => {
         return () => {
             setChartImage(null);
             setPdfReady(false);
         };
     }, [selectedYear]);
-
 
     const processData = () => {
         // sort departments by orderBy
@@ -220,7 +212,6 @@ const SupplierScoreboardTables = () => {
                 q4: scores[3]
             };
         });
-
 
         const ratingsTableData = supplierScore?.ratings?.map((rating: any) => ({
             name: rating.period,
@@ -271,9 +262,7 @@ const SupplierScoreboardTables = () => {
         const handleIconClick = (e: React.MouseEvent) => {
             e.stopPropagation();
 
-            const period = isHalfYearly
-                ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}`
-                : `Quarterly-${field.slice(1)}-${selectedYear}`;
+            const period = isHalfYearly ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}` : `Quarterly-${field.slice(1)}-${selectedYear}`;
 
             const depId = (departments as any[])?.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || '';
 
@@ -282,7 +271,7 @@ const SupplierScoreboardTables = () => {
             if (evaluationData) {
                 setDialogVisible(true);
             }
-
+            console.log(evaluationData, 'selected');
         };
 
         return (
@@ -296,12 +285,7 @@ const SupplierScoreboardTables = () => {
                         textAlign: 'center'
                     }}
                 />
-                {(percentage <= 50 && percentage !== 0) && (
-                    <i
-                        className="pi pi-info-circle text-yellow-500 cursor-pointer"
-                        onClick={handleIconClick}
-                    />
-                )}
+                {percentage <= 50 && percentage !== 0 && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
             </div>
         );
     };
@@ -328,7 +312,7 @@ const SupplierScoreboardTables = () => {
     ];
 
     const rightPanelData = [
-        { label: 'Warehouse Location :', value: supplierData?.warehouseLocation ?? 'N/A' },
+        { label: 'Warehouse Location :', value: <ReadMoreText text={supplierData?.warehouseLocation ?? 'N/A'} charLimit={70} /> },
         { label: 'Assessment Pending :', value: 'No Info' },
         { label: 'On Boarding Date :', value: supplierData?.createdAt ? formatDate(supplierData.createdAt) : 'N/A' },
         { label: 'Supplier Tier :', value: 'No Tier' }
@@ -407,7 +391,6 @@ const SupplierScoreboardTables = () => {
     };
     const renderSummoryInfo = summoryCards();
 
-
     const headerComp = () => {
         return (
             <div className="flex justify-content-between ">
@@ -415,45 +398,44 @@ const SupplierScoreboardTables = () => {
                     <Dropdown id="role" value={selectedYear} options={years} onChange={(e) => setSelectedYear(e.value)} placeholder="Select Year" className="w-full" />
                 </div>
 
-                {
-                    hasPermission('add_input') &&
-
+                {hasPermission('add_input') && (
                     <div className="flex-1 ml-5">
                         <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
                             <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
                         </Link>
                     </div>
-                }
-
+                )}
 
                 <div className="flex justify-content-end">
                     {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     {/* <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }}
                     /> */}
 
-
                     <PDFDownloadLink
                         document={<SupplierScoreboardPDF supplierData={supplierData} ratingsData={ratingsData} selectedYear={selectedYear} chartImage={chartImage} quarterlyData={quarterlyData} halfYearlyData={halfYearlyData} />}
                         fileName={`Supplier-scoreboard-summary-${supId}.pdf`}
                         style={{ color: 'white', marginLeft: 10 }}
                     >
-                        <Button
-                            icon="pi pi-download"
-                            size="small"
-                            label='Donwload PDF'
-                            className="default-button"
-                            aria-label="Donwload PDF"
-                            disabled={!pdfReady}
-                        />
+                        <Button icon="pi pi-download" size="small" label="Donwload PDF" className="default-button" aria-label="Donwload PDF" disabled={!pdfReady} />
                     </PDFDownloadLink>
-
                 </div>
-
             </div>
         );
     };
     const renderHeader = headerComp();
+    console.log(selectedYear, 'selectedYear');
 
+    const valuesPopupHeader = () => {
+        return (
+            <div className="flex justify-content-between">
+                <div className="flex-1">
+                    <div className="text-2xl font-medium text-gray-800">Evaluation Period - {bottomFlatData?.evaluationPeriod ? formatEvaluationPeriod(bottomFlatData.evaluationPeriod) : 'N/A'}</div>
+                    <div className="text-sm text-gray-500 mt-1">Evaluation Score - {bottomFlatData?.totalScore ? Math.round(bottomFlatData.totalScore) : 'N/A'}</div>
+                    <div className="text-sm text-gray-500 mt-1">Department - {bottomFlatData?.department?.name}</div>
+                </div>
+            </div>
+        );
+    };
     const dataPanel = () => {
         return (
             <div className="card">
@@ -495,20 +477,20 @@ const SupplierScoreboardTables = () => {
                         visible={dialogVisible}
                         style={{ width: '80vw' }} // Made wider to accommodate table
                         className="delete-dialog"
-
                         onHide={() => setDialogVisible(false)}
+                        header={valuesPopupHeader}
                     >
                         <div className="flex flex-column w-full surface-border p-1 gap-4">
-
-
-                            <DataTable value={evaluationData} >
-                                <Column field="type" header="Type" style={{ width: '250px' }} />
-                                <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
-                                <Column field="ratio" header="Ratio" style={{ width: '250px' }} />
-                                <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
-                                <Column field="score" header="Score" style={{ width: '250px' }} />
-
-                            </DataTable>
+                            <div></div>
+                            <div>
+                                <DataTable value={evaluationData}>
+                                    <Column field="type" header="Type" style={{ width: '250px' }} />
+                                    <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
+                                    <Column field="ratio" header="Ratio (%)" style={{ width: '250px' }} />
+                                    <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
+                                    <Column field="score" header="Score" style={{ width: '250px' }} />
+                                </DataTable>
+                            </div>
                         </div>
                     </Dialog>
                 </div>
@@ -518,74 +500,78 @@ const SupplierScoreboardTables = () => {
 
     const renderDataPanel = dataPanel();
 
-    const memoizedOptions = React.useMemo(() => ({
+    const memoizedOptions = React.useMemo(
+        () => ({
+            responsive: true,
 
-        responsive: true,
-
-        plugins: {
-            legend: {
-                position: 'none' // Position legend on the left side
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: false // Hide gridlines if not required
-                },
-                ticks: {
-                    autoSkip: true // Automatically skips labels if needed
-                },
-                categoryPercentage: 1.0, // Bars will cover full space
-                barPercentage: 0.8 // Control the width of the bars
+            plugins: {
+                legend: {
+                    position: 'none' // Position legend on the left side
+                }
             },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
-                    max: 100, // Maximum value of y-axis
-                    min: 0 // Minimum value of y-axis
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false // Hide gridlines if not required
+                    },
+                    ticks: {
+                        autoSkip: true // Automatically skips labels if needed
+                    },
+                    categoryPercentage: 1.0, // Bars will cover full space
+                    barPercentage: 0.8 // Control the width of the bars
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
+                        max: 100, // Maximum value of y-axis
+                        min: 0 // Minimum value of y-axis
+                    }
                 }
             }
-        }
-    }), []);
+        }),
+        []
+    );
 
-    const memoizedBarOptions = React.useMemo(() => ({
-        responsive: true,
+    const memoizedBarOptions = React.useMemo(
+        () => ({
+            responsive: true,
 
-        plugins: {
-            legend: {
-                position: 'bottom' // Position legend on the left side
-            },
-            labels: {
-                boxWidth: 20, // Set the width of the legend box
-                boxHeight: 20, // Set the height of the legend box
-                padding: 10 // Adjust the padding between the box and the text
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: false // Hide gridlines if not required
+            plugins: {
+                legend: {
+                    position: 'bottom' // Position legend on the left side
                 },
-                ticks: {
-                    autoSkip: true // Automatically skips labels if needed
-                },
-                categoryPercentage: 1.0, // Bars will cover full space
-                barPercentage: 0.8 // Control the width of the bars
+                labels: {
+                    boxWidth: 20, // Set the width of the legend box
+                    boxHeight: 20, // Set the height of the legend box
+                    padding: 10 // Adjust the padding between the box and the text
+                }
             },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
-                    max: 100, // Maximum value of y-axis
-                    min: 0 // Minimum value of y-axis
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false // Hide gridlines if not required
+                    },
+                    ticks: {
+                        autoSkip: true // Automatically skips labels if needed
+                    },
+                    categoryPercentage: 1.0, // Bars will cover full space
+                    barPercentage: 0.8 // Control the width of the bars
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
+                        max: 100, // Maximum value of y-axis
+                        min: 0 // Minimum value of y-axis
+                    }
                 }
             }
-        }
-    }), []);
-
+        }),
+        []
+    );
 
     const options = {
         responsive: true,
@@ -677,11 +663,11 @@ const SupplierScoreboardTables = () => {
         const periods = [`Q1 ${selectedYear}`, `Q2/H1 ${selectedYear}`, `Q3 ${selectedYear}`, `Q4/H2 ${selectedYear}`];
 
         const departmentColors: any = {
-            'procurement': '#3F5169',
-            'sustainability': '#FFC60C',
-            'planning': '#EC7D31',
-            'quality': '#00AF50',
-            'development': '#00ADF0'
+            procurement: '#3F5169',
+            sustainability: '#FFC60C',
+            planning: '#EC7D31',
+            quality: '#00AF50',
+            development: '#00ADF0'
         };
 
         const datasets: any = [];
@@ -735,7 +721,6 @@ const SupplierScoreboardTables = () => {
 
     const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
 
-
     const GraphsPanel: any = React.memo(() => {
         return (
             <>
@@ -747,11 +732,10 @@ const SupplierScoreboardTables = () => {
                         <h6 className="text-center">Quarters</h6>
                     </div>
 
-
                     {/* second chart */}
                     <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                         <h4 className="mt-2 mb-6">Overall Performance per Function</h4>
-                        <Chart type="bar" data={lineData} options={memoizedBarOptions} className='' />
+                        <Chart type="bar" data={lineData} options={memoizedBarOptions} className="" />
                         <h6 className="text-center">Quarters</h6>
                     </div>
                 </div>
@@ -764,16 +748,16 @@ const SupplierScoreboardTables = () => {
     return (
         <>
             <div className="grid">
-
                 <div className="col-12">
                     <div>{renderSummoryInfo}</div>
                 </div>
                 <div className="col-12">
                     <div>{renderDataPanel}</div>
                 </div>
-                <div className="col-12"><GraphsPanel /></div>
+                <div className="col-12">
+                    <GraphsPanel />
+                </div>
             </div>
-
         </>
     );
 };

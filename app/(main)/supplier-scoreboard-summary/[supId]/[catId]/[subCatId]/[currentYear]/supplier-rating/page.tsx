@@ -93,8 +93,8 @@ const SupplierRatingPage = () => {
 
             // setSupplierScoreData(response.data[0]);
 
-            setSupplierScoreData(response.data);
 
+            setSupplierScoreData(response.data);
 
             return response.data;
         } catch (error) {
@@ -166,7 +166,6 @@ const SupplierRatingPage = () => {
                 // if (!scoreData || scoreData.length === 0) {
                 await fetchRules();
                 // }
-
             } catch (error) {
                 // Error handled in respective fetch functions
             } finally {
@@ -192,7 +191,6 @@ const SupplierRatingPage = () => {
     useEffect(() => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
-
 
             if (currentDepartment) {
                 const options = getPeriodOptions(currentDepartment.evolutionType);
@@ -288,14 +286,14 @@ const SupplierRatingPage = () => {
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
                             {leftPanelData?.map((item, index) => (
                                 <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
                                         <div>
                                             <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
                                                 {item.label}
                                             </div>
                                         </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
+                                        <div className="mt-2 md:mt-0 flex align-items-center " style={{ fontSize: '0.9rem' }}>
+                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0 ">{item.value}</span>
                                         </div>
                                     </li>
                                     {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
@@ -320,7 +318,7 @@ const SupplierRatingPage = () => {
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
                             {RightPanelData?.map((item, index) => (
                                 <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
                                         <div>
                                             <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
                                                 {item.label}
@@ -384,7 +382,6 @@ const SupplierRatingPage = () => {
                             <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
                             <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div> */}
-
                     </div>
                     {
 

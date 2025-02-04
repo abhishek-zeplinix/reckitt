@@ -26,7 +26,7 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const SetRulesPage = () => {
+const MarketingTemplatesPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
@@ -51,7 +51,7 @@ const SetRulesPage = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const searchParams = useSearchParams();
     const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
-    const ruleSetId = searchParams.get('ruleSetId');
+    const memberId = searchParams.get('memberId');
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -62,6 +62,119 @@ const SetRulesPage = () => {
         { label: '50', value: 50 },
         { label: '70', value: 70 },
         { label: '100', value: 100 }
+    ];
+
+    const membersOptions = [
+        {
+            id: 1,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'STRATEGY & PLANNING',
+            criteria: 'STRATEGIC PLANNING',
+            description: 'Client provides a clear and consistent strategic direction with relevant research and data as part of their briefs (open to do more research if needed).',
+            ratingScale: '1 to 5, N/A',
+            weight: 30,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 2,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'STRATEGY & PLANNING',
+            criteria: 'STRATEGIC GROWTH AUDIENCES',
+            description:
+                'Client provides clear target segments, growth audiences / the community(ies) the brand can disproportionately benefit and creative bullseye per brief and is open to new insights from Agency to drive growth with as part of its Fight and Superior Solutions.',
+            ratingScale: '1 to 5, N/A',
+            weight: 40,
+            mandatory: 'no',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 3,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'STRATEGY & PLANNING',
+            criteria: 'BEHAVIOUR CHANGE',
+            description: 'Client is clear on the trigger and motivations that will drive consumer behaviour change.',
+            ratingScale: '1 to 5, N/A',
+            weight: 30,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 4,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'CREATIVE EFFECTIVENESS',
+            criteria: 'CREATIVITY THAT DRIVES EFFECTIVENESS',
+            description: "When briefed to deliver creative, Client greenlights breakthrough ideas in line with Brand's Fight and/or its Superior Solutions worthy of being shortlisted or winning creative and/or effectiveness awards.",
+            ratingScale: '1 to 5, N/A',
+            weight: 25,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 5,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'CREATIVE EFFECTIVENESS',
+            criteria: 'POSITIVE PORTRAYAL IN COMMUNICATIONS',
+            description: 'Client provides clear guidance on representation and portrayal ambitions as part of all projects.',
+            ratingScale: '1 to 5, N/A',
+            weight: 40,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 6,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'CREATIVE EFFECTIVENESS',
+            criteria: 'MEDIA-AGNOSTIC IDEAS',
+            description: 'Client briefs request omnichannel creative ideas or include key channels based on audience and media strategy as part of the brief encouraging work that is activated across a variety of channels beyond TV.',
+            ratingScale: '1 to 5, N/A',
+            weight: 35,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 7,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'OMNI-CHANNEL THINKING',
+            criteria: 'OMNI CHANNEL THINKING',
+            description: 'Client sets up a cross functional team of experts to encourage multi-channel ideas.',
+            ratingScale: '1 to 5, N/A',
+            weight: 100,
+            mandatory: 'no',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 8,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'PRODUCTION',
+            criteria: 'PRODUCTION',
+            description: 'Reckitt and its production director understand the creative ambition and is delivering production advice during the creative process that enables and enhances the creative execution potential.',
+            ratingScale: '1 to 5, N/A',
+            weight: 50,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        },
+        {
+            id: 9,
+            reviewType: 'Creative / Agency to Reckitt',
+            category: 'PRODUCTION',
+            criteria: 'SOW',
+            description:
+                "My Content Demand Management (CDM) is giving Agency the right day to day support, as well as providing Agency with the right project information (timing, output required, etc.) to plan Agency's resource in time to deliver high quality outcome, on time and inside the given target price. CDM and Marketing work in partnership with Agency bringing transparency early to enable corrective actions in case timings or target price cannot be achieved.",
+            ratingScale: '1 to 5, N/A',
+            weight: 25,
+            mandatory: 'yes',
+            reviewers: 2,
+            userGroup: 'Agency'
+        }
     ];
 
     // Handle limit change
@@ -119,7 +232,7 @@ const SetRulesPage = () => {
     }, [limit, page]);
 
     const handleCreateNavigation = () => {
-        router.push(`/rules/set-rules/create-new-rules?ruleSetId=${ruleSetId}`);
+        router.push(`/marketing-templates/template-question?memberId=${memberId}`);
     };
 
     const handleFileUpload = async (event: { files: File[] }) => {
@@ -169,8 +282,8 @@ const SetRulesPage = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
-    const handleEditRules = (ruleSetId: any, ruleId: any) => {
-        router.push(`/rules/set-rules/create-new-rules?edit=true&ruleSetId=${ruleSetId}&ruleId=${ruleId}`);
+    const handleEditRules = (memberId: any, ruleId: any) => {
+        router.push(`/marketing-templates/template-question?edit=true&ruleSetId=${memberId}&ruleId=${ruleId}`);
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -198,25 +311,25 @@ const SetRulesPage = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Manage Rules</h3>
+                    <h3 className="mb-0">Marketing Templates</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    {/* <Button
+                    <Button
                         icon="pi pi-plus"
                         size="small"
-                        label="Import Rules"
-                        aria-label="Add Rules"
+                        label="Import Template Questions"
+                        aria-label="Import Template Questions"
                         className="default-button"
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
-                    /> */}
+                    />
                     <Dialog
                         header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <div className="mb-3">
+                        {/* <div className="mb-3">
                             <div>
                                 <div className="flex justify-center items-center gap-4 ">
                                     <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
@@ -225,10 +338,18 @@ const SetRulesPage = () => {
                                     <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    <Button
+                        icon="pi pi-plus"
+                        size="small"
+                        label="Add Templates Questions"
+                        aria-label="Add Templates Questions"
+                        className="bg-primary-main border-primary-main hover:text-white"
+                        onClick={handleCreateNavigation}
+                        style={{ marginLeft: 10 }}
+                    />
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
@@ -259,7 +380,7 @@ const SetRulesPage = () => {
 
             console.log(queryString);
 
-            const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
+            const response = await GetCall(`company/rules/${memberId}?${queryString}`);
 
             setTotalRecords(response.total);
             setRules(response.data);
@@ -416,23 +537,18 @@ const SetRulesPage = () => {
         }
     };
 
-    const expandedData = rules.flatMap((item: any) => {
-        // Create a row for each criteriaEvaluation and score pair
-        return item.criteriaEvaluation.map((criteria: string, index: number) => ({
-            ruleId: item.ruleId,
-            department: item?.department?.name,
-            category: item?.categories?.categoryName,
-            subCategories: item?.subCategories?.subCategoryName,
-            section: item.section,
-            ratedCriteria: item.ratedCriteria,
-            criteriaEvaluation: criteria,
-            score: item.score[index],
-            ratiosCopack: item.ratiosCopack,
-            ratiosRawpack: item.ratiosRawpack,
-            // add a unique identifier for each expanded row
-            expandedRowId: `${item.ruleId}-${index}`
-        }));
-    });
+    const mappedData = membersOptions.map((item) => ({
+        id: item.id,
+        reviewType: item.reviewType,
+        category: item.category,
+        criteria: item.criteria,
+        description: item.description,
+        ratingScale: item.ratingScale,
+        weight: item.weight,
+        mandatory: item.mandatory,
+        reviewers: item.reviewers,
+        userGroup: item.userGroup
+    }));
 
     return (
         <div className="grid">
@@ -440,10 +556,15 @@ const SetRulesPage = () => {
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
                     <div className="left-panel">
                         <div className="header">{header}</div>
+
                         <div
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
+                            <div>
+                                <h3>Maketing Template Questions</h3>
+                            </div>
+                            <hr />
                             <div className="flex justify-content-between items-center border-b">
                                 <div>
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
@@ -466,11 +587,11 @@ const SetRulesPage = () => {
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, item.ruleId); // Pass the userId from the row data
+                                            handleEditRules(memberId, item.ruleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
-                                data={expandedData}
+                                data={mappedData}
                                 columns={[
                                     {
                                         header: 'SR. NO',
@@ -483,82 +604,52 @@ const SetRulesPage = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'DEPARTMENT ',
-                                        field: 'department',
+                                        header: 'Review Type/Template Type	 ',
+                                        field: 'reviewType',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'PROCUREMENT CATEGORY ',
+                                        header: 'Segment ',
                                         field: 'category',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
+
                                     {
-                                        header: 'SUPPLIER CATEGORY',
-                                        field: 'subCategories',
-                                        headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 150, maxWidth: 150 }
-                                    },
-                                    {
-                                        header: 'CRITERIA CATEGORY',
-                                        field: 'section',
+                                        header: 'Question',
+                                        field: 'description',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'CRITERIA',
-                                        field: 'ratedCriteria',
+                                        header: 'Ratings',
+                                        field: 'ratingScale',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
+
                                     {
-                                        header: 'CRITERIA EVALUATION',
-                                        field: 'criteriaEvaluation',
-                                        body: (data: any, options: ColumnBodyOptions) => {
-                                            const rowIndex = options.rowIndex;
-                                            const isExpanded = expandedRows[rowIndex] || false;
-
-                                            const words = data.criteriaEvaluation.split(' ');
-                                            const isLongText = words.length > 5;
-                                            const displayText = isExpanded ? data.criteriaEvaluation : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-
-                                            const toggleExpand = () => {
-                                                setExpandedRows((prev) => ({
-                                                    ...prev,
-                                                    [rowIndex]: !isExpanded
-                                                }));
-                                            };
-
-                                            return (
-                                                <span>
-                                                    {displayText}
-                                                    {isLongText && (
-                                                        <button onClick={toggleExpand} style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px', fontSize: '10px' }}>
-                                                            {isExpanded ? 'Read Less' : 'Read More'}
-                                                        </button>
-                                                    )}
-                                                </span>
-                                            );
-                                        },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'CRITERIA SCORE',
-                                        field: 'score',
+                                        header: 'Ratio (%)',
+                                        field: 'weight',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RATIOS COPACK (%)',
-                                        field: 'ratiosCopack',
+                                        header: 'Comment Compulsory',
+                                        field: 'mandatory',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'RATIOS RAW&PACK (%)',
-                                        field: 'ratiosRawpack',
+                                        header: 'Comment if rating <=',
+                                        field: 'reviewers',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'User Groups',
+                                        field: 'userGroup',
                                         bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     }
@@ -602,4 +693,4 @@ const SetRulesPage = () => {
     );
 };
 
-export default SetRulesPage;
+export default MarketingTemplatesPage;
