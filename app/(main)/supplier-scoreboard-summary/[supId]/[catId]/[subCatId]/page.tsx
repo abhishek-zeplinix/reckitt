@@ -19,6 +19,7 @@ import SupplierScoreboardPDF from '@/components/pdf/supplier-scoreboard/Supplier
 import html2canvas from 'html2canvas';
 import { useAuth } from '@/layout/context/authContext';
 import ReadMoreText from '@/components/read-more-text/ReadMoreText';
+import { Badge } from 'primereact/badge';
 
 const SupplierScoreboardTables = () => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
@@ -41,8 +42,10 @@ const SupplierScoreboardTables = () => {
 
     const [chartImage, setChartImage] = useState<string | null>(null);
     const [pdfReady, setPdfReady] = useState(false);
-    const { hasPermission } = useAuth();
+    const { hasPermission, isSupplier } = useAuth();
 
+    console.log(evaluationData);
+    
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
             if (!chartRef.current) return;
@@ -134,7 +137,7 @@ const SupplierScoreboardTables = () => {
                     section.ratedCriteria.map((criteria: any) => ({
                         type: section.sectionName,
                         criteria: criteria.criteriaName,
-                        ratio: criteria.evaluations[0]?.ratiosCopack || criteria.evaluations[0]?.ratiosRawPack || 'N/A',
+                        ratio: criteria.evaluations[0]?.ratiosCopack || criteria.evaluations[0]?.ratiosRawpack || 'N/A',
                         evaluation: criteria.evaluations[0]?.criteriaEvaluation || 'N/A',
                         score: criteria.evaluations[0]?.score || 'N/A'
                     }))
@@ -285,7 +288,8 @@ const SupplierScoreboardTables = () => {
                         textAlign: 'center'
                     }}
                 />
-                {percentage <= 50 && percentage !== 0 && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
+                {percentage <= 50 && percentage !== 0 && !isSupplier() && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
+                {percentage <= 50 && percentage !== 0 && isSupplier() && <Badge value="+ Feedback" severity="success" onClick={handleIconClick} className='cursor-pointer'></Badge> }
             </div>
         );
     };
@@ -433,6 +437,12 @@ const SupplierScoreboardTables = () => {
                     <div className="text-sm text-gray-500 mt-1">Evaluation Score - {bottomFlatData?.totalScore ? Math.round(bottomFlatData.totalScore) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Department - {bottomFlatData?.department?.name}</div>
                 </div>
+
+                <div className=''>
+                    <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                        <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                    </Link>
+                </div>
             </div>
         );
     };
@@ -573,72 +583,6 @@ const SupplierScoreboardTables = () => {
         []
     );
 
-    const options = {
-        responsive: true,
-
-        plugins: {
-            legend: {
-                position: 'none' // Position legend on the left side
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: false // Hide gridlines if not required
-                },
-                ticks: {
-                    autoSkip: true // Automatically skips labels if needed
-                },
-                categoryPercentage: 1.0, // Bars will cover full space
-                barPercentage: 0.8 // Control the width of the bars
-            },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
-                    max: 100, // Maximum value of y-axis
-                    min: 0 // Minimum value of y-axis
-                }
-            }
-        }
-    };
-
-    const baroptions = {
-        responsive: true,
-
-        plugins: {
-            legend: {
-                position: 'bottom' // Position legend on the left side
-            },
-            labels: {
-                boxWidth: 20, // Set the width of the legend box
-                boxHeight: 20, // Set the height of the legend box
-                padding: 10 // Adjust the padding between the box and the text
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: false // Hide gridlines if not required
-                },
-                ticks: {
-                    autoSkip: true // Automatically skips labels if needed
-                },
-                categoryPercentage: 1.0, // Bars will cover full space
-                barPercentage: 0.8 // Control the width of the bars
-            },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
-                    max: 100, // Maximum value of y-axis
-                    min: 0 // Minimum value of y-axis
-                }
-            }
-        }
-    };
 
     const prepareChartData = () => {
         //chart 1

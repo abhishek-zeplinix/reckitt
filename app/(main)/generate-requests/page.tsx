@@ -103,8 +103,8 @@ const GenerateRequestPage = () => {
                 setFormData({
                     supplierId: data.supId,
                     supplierName: data.supplierName,
-                    supplierEmail: data.supplierEmail || '',
-                    supplierContact: data.supplierContact || '',
+                    supplierEmail: data.email || '',
+                    supplierContact: data.supplierNumber || '',
                     supplierManufacturerName: data.supplierManufacturerName || '',
                     factoryName: data.factoryName || '',
                     warehouseLocation: data.warehouseLocation || '',

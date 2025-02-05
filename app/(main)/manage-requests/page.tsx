@@ -332,7 +332,7 @@ const ManageRequestsPage = () => {
                                     supplierId: item.supplierId,
                                     supplierName: item.supplier.supplierName,
                                     requestedData: item.requestedData,
-                                    oldData: item.oldData,
+                                    oldData: item?.oldData,
                                     createdAtFormatted: formatDate(item.createdAt),
                                     status: item.status,
                                     rejectedReason: item.rejectedReason || 'No Reason',

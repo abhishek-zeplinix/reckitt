@@ -41,7 +41,8 @@ const SupplierEvaluationTableApprover = ({ rules,
 
   const dropdownRef = useRef<any>(null);
 
-  console.log(checkedCriteria);
+  const urlParams = useParams();
+  const { supId, catId, subCatId } = urlParams;
 
   useEffect(() => {
 
@@ -118,8 +119,6 @@ const SupplierEvaluationTableApprover = ({ rules,
 
     }
 
-
-
   }, [rules]);
 
 
@@ -180,56 +179,13 @@ const SupplierEvaluationTableApprover = ({ rules,
 
     setSelectedEvaluations(initialEvals);
     setCurrentPercentages(initialPercentages);
-    setDisplayPercentages(distributeRoundedPercentages(initialPercentages));
+    setDisplayPercentages(initialPercentages)
+    // setDisplayPercentages(distributeRoundedPercentages(initialPercentages));
     setComments(supplierScoreData[0]?.comments || '');
 
     if (supplierScoreData[0]?.capa) {
       setCapaData(supplierScoreData[0].capa);
     }
-  };
-
-
-  const distributeRoundedPercentages = (percentages: any) => {
-    const displayPercentages: any = {};
-    const nonNAEntries: string[] = [];
-
-    // first, handle NA values and non-NA values
-    Object.entries(percentages).forEach(([key, value]) => {
-      if (value === 'NA') {
-        displayPercentages[key] = value;  // Keep NA values as is
-      } else {
-        nonNAEntries.push(key);
-        // Convert the value to a number and store initially
-        displayPercentages[key] = Number(value);
-      }
-    });
-
-    if (nonNAEntries.length === 0) return displayPercentages;
-
-    // sort entries by their decimal parts
-    const sortedEntries = nonNAEntries
-      .map((key) => ({
-        key,
-        originalValue: Number(percentages[key]),
-        roundedValue: Math.floor(Number(percentages[key])),
-        decimalPart: Number(percentages[key]) % 1
-      }))
-      .sort((a, b) => b.decimalPart - a.decimalPart);
-
-    // first pass: assign floor values
-    let usedPercentage = 0;
-    sortedEntries.forEach((entry) => {
-      displayPercentages[entry.key] = entry.roundedValue;
-      usedPercentage += entry.roundedValue;
-    });
-
-    // second pass: distribute remaining percentage points
-    const remaining = 100 - usedPercentage;
-    for (let i = 0; i < remaining; i++) {
-      displayPercentages[sortedEntries[i % sortedEntries.length].key]++;
-    }
-
-    return displayPercentages;
   };
 
 
@@ -319,6 +275,10 @@ const SupplierEvaluationTableApprover = ({ rules,
     alert("API under construction")
   }
 
+  const handleSubmit = () =>{
+
+  }
+
   // if(isTableLoading){
   //   return(
   //     <div>
@@ -329,13 +289,7 @@ const SupplierEvaluationTableApprover = ({ rules,
 
 
   return (
-    // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
-
-    //changed
-
     <>
-
-{isTableLoading ? 'loading.......' :
 
     <div className=" w-full shadow-sm mt-3 overflow-x-auto">
 
@@ -344,6 +298,7 @@ const SupplierEvaluationTableApprover = ({ rules,
           <Badge value={isCompleted?.toUpperCase()} severity={getSeverity(isCompleted)} className="mr-3 mb-2" />
         </div>
 
+        {isTableLoading ? 'Loading.....' :
 
           <table className="min-w-full bg-white border">
             <thead>
@@ -477,7 +432,7 @@ const SupplierEvaluationTableApprover = ({ rules,
             </tbody>
 
           </table>
-        
+        }
 
 
       </div>
@@ -539,7 +494,7 @@ const SupplierEvaluationTableApprover = ({ rules,
 
 
     </div>
-}
+
     </>
   );
 };

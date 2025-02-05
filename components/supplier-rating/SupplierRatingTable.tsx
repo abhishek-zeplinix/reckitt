@@ -52,8 +52,6 @@ const SupplierEvaluationTable = ({ rules,
   const dropdownRef = useRef<any>(null);
 
   const { setLoading, setAlert } = useAppContext();
-  const { hasPermission } = useAuth();
-
 
 
   // update function to check CAPA data status
@@ -635,42 +633,6 @@ const SupplierEvaluationTable = ({ rules,
   };
 
 
-  const handleCheckboxChange = (section: any, criteria: any, sectionIndex: number, criteriaIndex: number) => {
-    const key = `${sectionIndex}-${criteriaIndex}`;
-    const selectedEval = selectedEvaluations[key];
-    const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
-    const score = evaluation?.score || '';
-    
-    // create criteria data object
-    const criteriaData = {
-      sectionName: section.sectionName,
-      ratedCriteria: criteria.criteriaName,
-      ratio: displayPercentages[key],
-      evaluation: selectedEval,
-      score: score
-    };
-
-    // update checked criteria state
-    setCheckedCriteria(prev => {
-      const exists = prev.some(item => 
-        item.sectionName === criteriaData.sectionName && 
-        item.ratedCriteria === criteriaData.ratedCriteria
-      );
-
-      if (exists) {
-        // Remove if already exists
-        return prev.filter(item => 
-          !(item.sectionName === criteriaData.sectionName && 
-            item.ratedCriteria === criteriaData.ratedCriteria)
-        );
-      } else {
-        // Add if doesn't exist
-        return [...prev, criteriaData];
-      }
-    });
-  };
-
-
   if (initializing || !tableData) {
     return (
       <div className="w-full p-4">
@@ -701,8 +663,6 @@ const SupplierEvaluationTable = ({ rules,
   const handleReject = () => {
     alert("API under construction")
   }
-
-
 
 
   return (
@@ -844,8 +804,6 @@ const SupplierEvaluationTable = ({ rules,
       </div>
 
 
-      {
-        hasPermission("evaluate_score") &&
         <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
           {totalScore > 50 && (
             <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
@@ -865,7 +823,6 @@ const SupplierEvaluationTable = ({ rules,
             />
           </div>
         </div>
-      }
 
 
       {
@@ -875,17 +832,16 @@ const SupplierEvaluationTable = ({ rules,
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
           </div>
 
       }
-      {
-        hasPermission("evaluate_score") && <div className='flex justify-content-end gap-3 mt-1 p-3'>
+     <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
           <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
 
         </div>
-      }
+
 
     </div>
   );
