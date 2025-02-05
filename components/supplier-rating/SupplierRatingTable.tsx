@@ -52,8 +52,6 @@ const SupplierEvaluationTable = ({ rules,
   const dropdownRef = useRef<any>(null);
 
   const { setLoading, setAlert } = useAppContext();
-  const { hasPermission } = useAuth();
-
 
 
   // update function to check CAPA data status
@@ -844,8 +842,6 @@ const SupplierEvaluationTable = ({ rules,
       </div>
 
 
-      {
-        hasPermission("evaluate_score") &&
         <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
           {totalScore > 50 && (
             <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
@@ -865,7 +861,6 @@ const SupplierEvaluationTable = ({ rules,
             />
           </div>
         </div>
-      }
 
 
       {
@@ -875,17 +870,16 @@ const SupplierEvaluationTable = ({ rules,
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
           </div>
 
       }
-      {
-        hasPermission("evaluate_score") && <div className='flex justify-content-end gap-3 mt-1 p-3'>
+     <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
           <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
 
         </div>
-      }
+
 
     </div>
   );

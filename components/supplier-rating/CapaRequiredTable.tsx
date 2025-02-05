@@ -50,7 +50,7 @@ const CapaRequiredTable = ({
   
   useEffect(() => {
     
-    // setSelectedValues({});
+    setSelectedValues({});
     if ((existingSelections || []).length > 0) {
 
       const initialValues = existingSelections?.reduce((acc, selection) => {
@@ -74,15 +74,16 @@ const CapaRequiredTable = ({
     }
   }, [selectedPeriod, existingSelections]);
 
+
   useEffect(() => {
     if (depId) {
       fetchCapaRules();
     }
   }, [depId]);
 
-
-  // useEffect(() => {
-      // setSelectedValues({}); 
+  //  Reset selectedValues when selectedPeriod changes
+  //  useEffect(() => {
+  //   setSelectedValues({});
   // }, [selectedPeriod]);
 
 
@@ -156,6 +157,43 @@ const CapaRequiredTable = ({
       setLoading(false);
     }
   };
+
+  // const fetchCapaRules = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await GetCall(`/company/caparule/${catId}/${subCatId}/${depId}`);
+
+  //     if (response.code === "SUCCESS" && response.data.rules.length > 0) {
+  //       const sortedRules = response.data.rules.sort((a: CapaRule, b: CapaRule) =>
+  //         a.orderBy - b.orderBy
+  //       );
+  //       setRules(sortedRules);
+  //       setCapaDataCount(sortedRules.length);
+
+  //       // Initialize empty selections if no existing data
+  //       if (!existingSelections) {
+  //         const emptyValues = sortedRules.reduce((acc: any, _: any, index: any) => {
+  //           acc[index + 1] = "";
+  //           return acc;
+  //         }, {} as Record<number, string>);
+  //         setSelectedValues(emptyValues);
+  //       }
+  //     } else if (existingSelections?.length) {
+  //       // Fallback to existing selections when API has no data
+  //       const rulesFromSelections = existingSelections.map((selection, index) => ({
+  //         capaRulesName: selection.capaRulesName,
+  //         orderBy: index + 1,
+  //         status: [selection.selectedStatus]
+  //       }));
+  //       setRules(rulesFromSelections);
+  //       setCapaDataCount(rulesFromSelections.length);
+  //     }
+  //   } catch (error) {
+  //     setAlert('error', 'Something went wrong!');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
 
   const handleDropdownChange = (ruleIndex: number, ruleName: string, value: string) => {
