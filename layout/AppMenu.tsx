@@ -426,6 +426,18 @@ const AppMenu = () => {
                     ]
                 },
                 {
+                    label: 'Market Master',
+                    icon: 'pi pi-bolt',
+                    url: '/master',
+                    check: (user: any) => {
+                        if (get(user, 'isSuperAdmin')) {
+                            return true;
+                        }
+                        return hasAnyPermission(['generate_request', 'manage_request']);
+                    }
+                },
+
+                {
                     label: 'Request Management',
                     icon: 'pi pi-bolt',
                     check: (user: any) => {
