@@ -512,7 +512,7 @@ const ManageSupplierPage = () => {
             closeDialog(); // Close dialog in all cases
         }
     };
-    console.log('515',responseData)
+    console.log('515', responseData);
 
     return (
         <div className="grid">
@@ -734,66 +734,100 @@ const ManageSupplierPage = () => {
                 </div>
             </Dialog>
 
-<Dialog 
-    visible={dialogVisible} 
-    onHide={() => setDialogVisible(false)}
-    header={selectedViewSupplier?.blockType} 
-    style={{ width: '400px' }}
->
-    {selectedViewSupplier && (
-        <div>
-            {selectedViewSupplier.blockType === "temporary" ? (
-                <>
-                    <p><strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}</p>
-                    <p><strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}</p>
-                    <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
-                </>
-            ) : (
-                <p><strong>Block Reason:</strong> {selectedViewSupplier.blockReason}</p>
-            )}
-        </div>
-    )}
-</Dialog>
-{/* Dialog for Response Data */}
-<Dialog 
-            visible={bulkDialogVisible} 
-            onHide={() => setBulkDialogVisible(false)} 
-            header="Upload Summary"
-            style={{ width: '600px' }}
-        >
-            {responseData && (
-                <div>
-                    <p><strong>Already Onboarded Count:</strong> {responseData.alreadyOnboardedCount}</p>
-                    <p><strong>Inserted Count:</strong> {responseData.insertedCount}</p>
-                    <h4>Already Onboarded Suppliers:</h4>
-                    {responseData.alreadyOnboardedSuppliers.length > 0 ? (
-                        <ul>
-                            {responseData.alreadyOnboardedSuppliers.map((supplier: { supplierName: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; supplierNumber: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
-                                <li key={index}>
-                                    <strong>Name:</strong> {supplier.supplierName} | 
-                                    <strong> Email:</strong> {supplier.email} | 
-                                    <strong> Supplier No:</strong> {supplier.supplierNumber}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No onboarded suppliers.</p>
-                    )}
+            <Dialog visible={dialogVisible} onHide={() => setDialogVisible(false)} header={selectedViewSupplier?.blockType} style={{ width: '400px' }}>
+                {selectedViewSupplier && (
+                    <div>
+                        {selectedViewSupplier.blockType === 'temporary' ? (
+                            <>
+                                <p>
+                                    <strong>Block Start Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockStartDate))}
+                                </p>
+                                <p>
+                                    <strong>Block End Date:</strong> {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(selectedViewSupplier.blockEndDate))}
+                                </p>
+                                <p>
+                                    <strong>Block Reason:</strong> {selectedViewSupplier.blockReason}
+                                </p>
+                            </>
+                        ) : (
+                            <p>
+                                <strong>Block Reason:</strong> {selectedViewSupplier.blockReason}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </Dialog>
+            {/* Dialog for Response Data */}
+            <Dialog visible={bulkDialogVisible} onHide={() => setBulkDialogVisible(false)} header="Upload Summary" style={{ width: '600px' }}>
+                {responseData && (
+                    <div>
+                        <p>
+                            <strong>Already Onboarded Count:</strong> {responseData.alreadyOnboardedCount}
+                        </p>
+                        <p>
+                            <strong>Inserted Count:</strong> {responseData.insertedCount}
+                        </p>
+                        <h4>Already Onboarded Suppliers:</h4>
+                        {responseData.alreadyOnboardedSuppliers.length > 0 ? (
+                            <ul>
+                                {responseData.alreadyOnboardedSuppliers.map(
+                                    (
+                                        supplier: {
+                                            supplierName:
+                                                | string
+                                                | number
+                                                | boolean
+                                                | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+                                                | Iterable<React.ReactNode>
+                                                | React.ReactPortal
+                                                | React.PromiseLikeOfReactNode
+                                                | null
+                                                | undefined;
+                                            email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined;
+                                            supplierNumber:
+                                                | string
+                                                | number
+                                                | boolean
+                                                | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+                                                | Iterable<React.ReactNode>
+                                                | React.ReactPortal
+                                                | React.PromiseLikeOfReactNode
+                                                | null
+                                                | undefined;
+                                        },
+                                        index: React.Key | null | undefined
+                                    ) => (
+                                        <li key={index}>
+                                            <strong>Name:</strong> {supplier.supplierName} |<strong> Email:</strong> {supplier.email} |<strong> Supplier No:</strong> {supplier.supplierNumber}
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+                        ) : (
+                            <p>No onboarded suppliers.</p>
+                        )}
 
-                    <h4>Skipped Data:</h4>
-                    <p><strong>Skipped Count:</strong> {responseData.skippedCount}</p>
-                    {responseData.skippedData.length > 0 ? (
-                        <ul>
-                            {responseData.skippedData.map((skipped: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
-                                <li key={index}>{skipped}</li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No skipped data.</p>
-                    )}
-                </div>
-            )}
-        </Dialog>
+                        <h4>Skipped Data:</h4>
+                        <p>
+                            <strong>Skipped Count:</strong> {responseData.skippedCount}
+                        </p>
+                        {responseData.skippedData.length > 0 ? (
+                            <ul>
+                                {responseData.skippedData.map(
+                                    (
+                                        skipped: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined,
+                                        index: React.Key | null | undefined
+                                    ) => (
+                                        <li key={index}>{skipped}</li>
+                                    )
+                                )}
+                            </ul>
+                        ) : (
+                            <p>No skipped data.</p>
+                        )}
+                    </div>
+                )}
+            </Dialog>
         </div>
     );
 };
