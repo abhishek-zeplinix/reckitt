@@ -633,42 +633,6 @@ const SupplierEvaluationTable = ({ rules,
   };
 
 
-  const handleCheckboxChange = (section: any, criteria: any, sectionIndex: number, criteriaIndex: number) => {
-    const key = `${sectionIndex}-${criteriaIndex}`;
-    const selectedEval = selectedEvaluations[key];
-    const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
-    const score = evaluation?.score || '';
-    
-    // create criteria data object
-    const criteriaData = {
-      sectionName: section.sectionName,
-      ratedCriteria: criteria.criteriaName,
-      ratio: displayPercentages[key],
-      evaluation: selectedEval,
-      score: score
-    };
-
-    // update checked criteria state
-    setCheckedCriteria(prev => {
-      const exists = prev.some(item => 
-        item.sectionName === criteriaData.sectionName && 
-        item.ratedCriteria === criteriaData.ratedCriteria
-      );
-
-      if (exists) {
-        // Remove if already exists
-        return prev.filter(item => 
-          !(item.sectionName === criteriaData.sectionName && 
-            item.ratedCriteria === criteriaData.ratedCriteria)
-        );
-      } else {
-        // Add if doesn't exist
-        return [...prev, criteriaData];
-      }
-    });
-  };
-
-
   if (initializing || !tableData) {
     return (
       <div className="w-full p-4">
@@ -699,8 +663,6 @@ const SupplierEvaluationTable = ({ rules,
   const handleReject = () => {
     alert("API under construction")
   }
-
-
 
 
   return (

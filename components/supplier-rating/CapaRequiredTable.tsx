@@ -2,7 +2,7 @@ import { GetCall } from "@/app/api-config/ApiKit";
 import { useAppContext } from "@/layout/AppWrapper";
 import { useParams } from "next/navigation";
 import { Dropdown } from "primereact/dropdown";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 interface CapaRule {
   capaRulesName: string;
@@ -75,11 +75,11 @@ const CapaRequiredTable = ({
   }, [selectedPeriod, existingSelections]);
 
 
-  useEffect(() => {
-    if (depId) {
-      fetchCapaRules();
-    }
-  }, [depId]);
+  // useEffect(() => {
+  //   if (depId) {
+  //     fetchCapaRules();
+  //   }
+  // }, [depId]);
 
   //  Reset selectedValues when selectedPeriod changes
   //  useEffect(() => {
@@ -87,7 +87,8 @@ const CapaRequiredTable = ({
   // }, [selectedPeriod]);
 
 
-  const fetchCapaRules = async () => {
+
+  const fetchCapaRules =useCallback(async () => {
     setLoading(true);
     try {
       const response = await GetCall(`/company/caparule/${catId}/${subCatId}/${depId}`);
@@ -156,7 +157,13 @@ const CapaRequiredTable = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [depId])
+
+  
+  useEffect(() => {
+  
+    fetchCapaRules();
+}, [fetchCapaRules]);
 
   // const fetchCapaRules = async () => {
   //   setLoading(true);

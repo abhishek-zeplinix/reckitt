@@ -19,6 +19,8 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { find, get } from 'lodash';
 import { useAppContext } from '@/layout/AppWrapper';
 
+const BASE_URL = process.env.BASE_URL;
+
 const MemoizedItemTemplate = memo(({ file, onFileCheck, selectedFiles, viewImage }: any) => {
     return (
         <div key={`file_${file.assetId}_${file.name}`} className="col-4 sm:col-3 lg:col-2 file-item">
@@ -188,7 +190,7 @@ const MyFileUpload = ({ isVisible, onSelect }: any) => {
                 try {
                     let data: any = await new Promise((resolve, reject) => {
                         const xhr = new XMLHttpRequest();
-                        xhr.open('POST', `${CONFIG.BASE_URL}/upload`);
+                        xhr.open('POST', `${BASE_URL}/upload`);
 
                         xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
 
