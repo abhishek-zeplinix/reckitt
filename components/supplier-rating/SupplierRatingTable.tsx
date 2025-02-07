@@ -11,6 +11,7 @@ import { Badge } from 'primereact/badge';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
+import CustomDialogBox from '../dialog-box/CustomDialogBox';
 
 
 
@@ -23,7 +24,11 @@ const SupplierEvaluationTable = ({ rules,
   totalScoreEvaluated,
   onSuccess,
   supplierScoreData,
-  isEvaluatedData }: any) => {
+  isEvaluatedData,
+  catId,
+  subCatId,
+  supId
+ }: any) => {
 
   const [tableData, setTableData] = useState<any>(rules);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
@@ -42,11 +47,12 @@ const SupplierEvaluationTable = ({ rules,
   const [loading, setLoading2] = useState(true);
   const [initializing, setInitializing] = useState(true);
   const [noData, setNoData] = useState(false);
-  const [checkedCriteria, setCheckedCriteria] = useState<any[]>([]);
+  const [isCompletionDialogVisible, setIsCompletionDialogVisible] = useState(false);
+
 
   const urlParams = useParams();
 
-  const { supId, catId, subCatId } = urlParams;
+  // const { supId } = urlParams;
 
   const dropdownRef = useRef<any>(null);
 
@@ -140,10 +146,10 @@ const SupplierEvaluationTable = ({ rules,
     if (supplierScoreData) {
       const status = supplierScoreData[0]?.status;
       console.log(status);
-      
+
       if (status?.toLowerCase() === 'completed') {
         setLoading2(false)
-      }else{
+      } else {
         setLoading2(true)
       }
     }
@@ -510,7 +516,7 @@ const SupplierEvaluationTable = ({ rules,
             const key = `${sectionIndex}-${criteriaIndex}`;
 
             const selectedEval = selectedEvaluations[key];
-            
+
             const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
 
             if (!evaluation) return null;
@@ -592,29 +598,65 @@ const SupplierEvaluationTable = ({ rules,
     return apiData;
   };
 
+  // const handleSubmit = async () => {
+
+  //   const apiData = prepareApiData();
+  //   console.log(apiData);
+
+  //   try {
+  //     setLoading(true)
+  //     const response = await PostCall('/company/supplier-score', apiData);
+
+  //     if (response.code === 'SUCCESS') {
+
+  //       setAlert('success', "Supplier Score Successfully Submitted!")
+  //       onSuccess();
+  //     } else {
+  //       setAlert('error', response.message)
+  //     }
+  //   } catch (err) {
+  //     setAlert('error', "Something Went Wrong!!")
+  //   } finally {
+  //     setLoading(false)
+
+  //   }
+
+  // };
+
+
   const handleSubmit = async () => {
-
     const apiData = prepareApiData();
-    console.log(apiData);
 
+    if (apiData.status === 'Completed') {
+      setIsCompletionDialogVisible(true);
+      return;
+    }
+
+    await submitData(apiData);
+  };
+
+  const submitData = async (apiData: any) => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await PostCall('/company/supplier-score', apiData);
 
       if (response.code === 'SUCCESS') {
-
-        setAlert('success', "Supplier Score Successfully Submitted!")
+        setAlert('success', "Supplier Score Successfully Submitted!");
         onSuccess();
       } else {
-        setAlert('error', response.message)
+        setAlert('error', response.message);
       }
     } catch (err) {
-      setAlert('error', "Something Went Wrong!!")
+      setAlert('error', "Something Went Wrong!!");
     } finally {
-      setLoading(false)
-
+      setLoading(false);
     }
+  };
 
+  const handleCompletionConfirm = async () => {
+    const apiData = prepareApiData();
+    await submitData(apiData);
+    setIsCompletionDialogVisible(false);
   };
 
 
@@ -663,15 +705,6 @@ const SupplierEvaluationTable = ({ rules,
         <div className="text-gray-500">No evaluation data available</div>
       </div>
     );
-  }
-
-
-  const handleApprove = () => {
-    alert("API under construction")
-  }
-
-  const handleReject = () => {
-    alert("API under construction")
   }
 
 
@@ -814,44 +847,58 @@ const SupplierEvaluationTable = ({ rules,
       </div>
 
 
-        <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
-          {totalScore > 50 && (
-            <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
-              <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
-            </div>
-          )}
-
-          {/* divider */}
-          <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
-          <div>
-            <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
-            <InputTextarea
-              rows={5}
-              cols={30}
-              onChange={(e) => setComments(e.target.value)} value={comments}
-              disabled={isCompleted?.toLowerCase() === 'completed'}
-            />
+      <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
+        {totalScore > 50 && (
+          <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
+            <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
           </div>
+        )}
+
+        {/* divider */}
+        <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
+        <div>
+          <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
+          <InputTextarea
+            rows={5}
+            cols={30}
+            onChange={(e) => setComments(e.target.value)} value={comments}
+            disabled={isCompleted?.toLowerCase() === 'completed'}
+          />
         </div>
+      </div>
 
 
       {
         (isEvaluatedData) ?
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+            {(totalScore <= 50) && <CapaRequiredTable catId={catId} subCatId ={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable catId={catId} subCatId ={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
           </div>
 
       }
-     <div className='flex justify-content-end gap-3 mt-1 p-3'>
+      <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
-          <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
+        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
 
-        </div>
+      </div>
 
+
+      <CustomDialogBox
+        visible={isCompletionDialogVisible}
+        onHide={() => setIsCompletionDialogVisible(false)}
+        onConfirm={handleCompletionConfirm}
+        onCancel={() => setIsCompletionDialogVisible(false)}
+        header="Completion Warning"
+        message="You have completed the evaluation."
+        subMessage="If you save now, you won't be able to re-evaluate until approval is rejected."
+        confirmLabel="Save"
+        cancelLabel="Cancel"
+        icon="pi pi-exclamation-triangle"
+        iconColor="#DF1740"
+      />
 
     </div>
   );

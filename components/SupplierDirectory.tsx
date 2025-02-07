@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Correct import for Next.js router
+import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 // import 'primeicons/primeicons.css';
 // import 'primereact/resources/themes/saga-blue/theme.css';
@@ -13,9 +13,9 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
+import { encodeRouteParams } from '@/utils/base64';
 
 const SupplierDirectory = () => {
-    const router = useRouter();
     const { setLoading } = useAppContext();
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
@@ -26,6 +26,8 @@ const SupplierDirectory = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
+    const router = useRouter();
+
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -84,15 +86,14 @@ const SupplierDirectory = () => {
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
         console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId, 'Abhishek');
 
-        const selectedSupplier = suppliers.find((supplier) => supplier.supId === supId);
+        const params:any = { supId, catId, subCatId };
+       
 
-        if (selectedSupplier) {
-            // uupdate the context with the selected supplier data
+        const encodedParams = encodeRouteParams(params);
 
-            sessionStorage.setItem('supplier-data', JSON.stringify(selectedSupplier));
-        }
-        
-        router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
+        // router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
+        router.push(`/supplier-scoreboard-summary/${encodedParams}`);
+
     };
 
     // Render the status column
@@ -181,27 +182,7 @@ const SupplierDirectory = () => {
                     <div className="">{FieldGlobalSearch}</div>
                 </div>
             </div>
-            {/* <DataTable
-                value={suppliers}
-                scrollable
-                rows={10}
-                paginator
-                // scrollHeight="250px"
-                responsiveLayout="scroll"
-                // onRowClick={(e) => navigateToSummary(e.data.supId)}
-
-                className="supplier-directory"
-            >
-                <Column field="supId" header="#" />
-                <Column field="supplierName" header="Supplier Name" />
-                <Column field="status" header="Status" body={statusBodyTemplate} />
-                <Column field="warehouseLocation" header="Location" />
-                <Column field="category.categoryName" header="Procurement Category" />
-                <Column field="subCategories.subCategoryName" header="Supplier Category" />
-                <Column header="History" body={HistoryBodyTemplate} />
-                <Column header="Evaluate" body={evaluateBodyTemplate} />
-            </DataTable> */}
-
+           
             <CustomDataTable
                 ref={dataTableRef}
                 // filter

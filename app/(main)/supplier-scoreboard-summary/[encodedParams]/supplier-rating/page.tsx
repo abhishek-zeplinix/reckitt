@@ -10,9 +10,17 @@ import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { decode as base64Decode } from 'js-base64';
 
-const SupplierRatingPage = () => {
+
+const SupplierRatingPage = ({
+    params
+}: {
+    params: { 
+        encodedParams: string 
+    }
+}) => {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [activeTab, setActiveTab] = useState('PROCUREMENT');
     const [selectedPeriod, setSelectedPeriod] = useState();
@@ -25,13 +33,35 @@ const SupplierRatingPage = () => {
 
     const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
 
-    const urlParams = useParams();
-    const { supId, catId, subCatId, currentYear } = urlParams;
+    // const urlParams = useParams();
+    // const { supId, catId, subCatId, currentYear } = urlParams;
     
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
     const { hasPermission, isSuperAdmin } = useAuth();
+
+
+    const decodedParams = React.useMemo(() => {
+        try {
+            const decodedStr = base64Decode(params.encodedParams);
+            const parsedParams = JSON.parse(decodedStr);
+            
+            return {
+                supId: String(parsedParams.supId),
+                catId: String(parsedParams.catId),
+                subCatId: String(parsedParams.subCatId),
+                currentYear: String(parsedParams.currentYear)
+            };
+        } catch (error) {
+            console.error('Error decoding parameters:', error);
+            return { supId: '', catId: '', subCatId: '', currentYear: ''};
+        }
+    }, [params.encodedParams]);
+
+    const { supId, catId, subCatId, currentYear } = decodedParams;
+
+
     // const currentYear = 2024;
     // console.log(supplierData);
     console.log(isSuperAdmin());
@@ -403,7 +433,11 @@ const SupplierRatingPage = () => {
                                         score.departmentId === selectedDepartment &&
                                         score.evalutionPeriod === selectedPeriod
                                 )?.totalScore
+                                
                             }
+                            catId={catId}
+                            subCatId={subCatId}
+                            supId={supId}
                         // key={`${selectedDepartment}-${selectedPeriod}`}
 
                         />

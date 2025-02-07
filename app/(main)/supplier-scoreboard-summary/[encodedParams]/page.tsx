@@ -12,7 +12,6 @@ import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { Dropdown } from 'primereact/dropdown';
 import Link from 'next/link';
 import { Button } from 'primereact/button';
-import { Chart } from 'primereact/chart';
 import { Dialog } from 'primereact/dialog';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import SupplierScoreboardPDF from '@/components/pdf/supplier-scoreboard/SupplierScoreboardPDF';
@@ -21,8 +20,18 @@ import { useAuth } from '@/layout/context/authContext';
 import ReadMoreText from '@/components/read-more-text/ReadMoreText';
 import { Badge } from 'primereact/badge';
 import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
+import { useRouter } from 'next/router';
+import { encodeRouteParams, extractRouteParams } from '@/utils/base64';
+import { decode as base64Decode } from 'js-base64';
 
-const SupplierScoreboardTables = () => {
+
+const SupplierScoreboardTables = ({
+    params
+}: {
+    params: {
+        encodedParams: string
+    }
+}) => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
     const [quarterlyData, setQuarterlyData] = useState<any>([]);
     const [ratingsData, setRatingsData] = useState<any>([]);
@@ -34,8 +43,8 @@ const SupplierScoreboardTables = () => {
     const { departments } = useFetchDepartments();
 
     const { setLoading, setAlert } = useAppContext();
-    const params = useParams();
-    const { supId, catId, subCatId } = params;
+    // const params = useParams();
+    // const { supId, catId, subCatId } = params;
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [evaluationData, setEvaluationData] = useState([]);
@@ -44,6 +53,27 @@ const SupplierScoreboardTables = () => {
     const [chartImage, setChartImage] = useState<string | null>(null);
     const [pdfReady, setPdfReady] = useState(false);
     const { hasPermission, isSupplier } = useAuth();
+
+
+
+    // Decode the base64 encoded parameters
+    const decodedParams = React.useMemo(() => {
+        try {
+            const decodedStr = base64Decode(params.encodedParams);
+            const parsedParams = JSON.parse(decodedStr);
+
+            return {
+                supId: String(parsedParams.supId),
+                catId: String(parsedParams.catId),
+                subCatId: String(parsedParams.subCatId)
+            };
+        } catch (error) {
+            console.error('Error decoding parameters:', error);
+            return { supId: '', catId: '', subCatId: '' };
+        }
+    }, [params.encodedParams]);
+
+    const { supId, catId, subCatId } = decodedParams;
 
     console.log(evaluationData);
 
@@ -64,6 +94,8 @@ const SupplierScoreboardTables = () => {
 
         return () => clearTimeout(captureTimer);
     }, [ratingsData, selectedYear, pdfReady]);
+
+
 
     useEffect(() => {
         if (chartImage) {
@@ -403,19 +435,33 @@ const SupplierScoreboardTables = () => {
                     <Dropdown id="role" value={selectedYear} options={years} onChange={(e) => setSelectedYear(e.value)} placeholder="Select Year" className="w-full" />
                 </div>
 
-                {hasPermission('add_input') && (
-                    <div className="flex-1 ml-5">
-                        {hasPermission('approve_score') ? (
-                            <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/approver`}>
-                                <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                            </Link>
-                        ) : (
-                            <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
-                                <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                            </Link>
-                        )}
-                    </div>
-                )}
+                {/* <div className="flex-1 justify-content-start gap-2">
+                    {hasPermission('approve_score') && (
+                        <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/approver`}>
+                            <Button label="View Inputs" outlined className="!font-light text-color-secondary ml-4" />
+                        </Link>
+                    )}
+
+                    {hasPermission('evaluate_score') && (
+                        <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                            <Button label="Add Inputs" outlined className="!font-light text-color-secondary ml-4" />
+                        </Link>
+                    )}
+                </div> */}
+
+                <div className="flex-1 justify-content-start gap-2">
+                    {hasPermission('approve_score') && (
+                        <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, catId, subCatId, currentYear: selectedYear })}/approver`}>
+                            <Button label="View Inputs" outlined className="!font-light text-color-secondary ml-4" />
+                        </Link>
+                    )}
+
+                    {hasPermission('evaluate_score') && (
+                        <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, catId, subCatId, currentYear: selectedYear })}/supplier-rating`}>
+                            <Button label="Add Inputs" outlined className="!font-light text-color-secondary ml-4" />
+                        </Link>
+                    )}
+                </div>
 
 
                 <div className="flex justify-content-end">
@@ -446,8 +492,14 @@ const SupplierScoreboardTables = () => {
                     <div className="text-sm text-gray-500 mt-1">Department - {bottomFlatData?.department?.name}</div>
                 </div>
 
-                <div className=''>
+                {/* <div className=''>
                     <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                        <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                    </Link>
+                </div> */}
+
+                <div className=''>
+                    <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, catId, subCatId, currentYear: selectedYear })}/supplier-rating`}>
                         <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
                     </Link>
                 </div>
@@ -669,11 +721,10 @@ const SupplierScoreboardTables = () => {
 
         return { ratingData, lineData };
     };
-    // const { ratingData, lineData } = prepareChartData();
+
 
     const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
 
-    // const renderGraphsPanel = GraphsPanel;
 
     return (
         <>
@@ -685,7 +736,7 @@ const SupplierScoreboardTables = () => {
                     <div>{renderDataPanel}</div>
                 </div>
                 <div className="col-12">
-                    <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef}/>
+                    <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef} />
                 </div>
             </div>
         </>

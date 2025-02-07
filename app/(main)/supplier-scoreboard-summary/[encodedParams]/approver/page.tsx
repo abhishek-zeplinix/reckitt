@@ -5,23 +5,30 @@ import SupplierEvaluationTableApprover from "@/components/supplier-rating/Suppli
 import useFetchDepartments from "@/hooks/useFetchDepartments";
 import useFetchSingleSupplierDetails from "@/hooks/useFetchSingleSupplierDetails";
 import { useAppContext } from "@/layout/AppWrapper";
-import { useAuth } from "@/layout/context/authContext";
+import { useAuth, withAuth } from "@/layout/context/authContext";
 import { buildQueryParams } from "@/utils/utils";
 import { EvolutionType, getDefaultPeriod, getPeriodOptions } from "@/utils/periodUtils";
 import { useParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { decode as base64Decode } from 'js-base64';
 
-const ApproverPage = () => {
+const ApproverPage = ({
+    params
+}: {
+    params: { 
+        encodedParams: string 
+    }
+}) => {
     const { setAlert } = useAppContext();
     const { hasPermission } = useAuth();
     const urlParams = useParams();
-    const { supId, catId, subCatId, currentYear }: any = urlParams;
+    // const { supId, catId, subCatId, currentYear }: any = urlParams;
 
     // data fetching hooks
     const { departments } = useFetchDepartments();
-    const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
+
 
     // state management
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
@@ -29,6 +36,30 @@ const ApproverPage = () => {
     const [activeTab, setActiveTab] = useState('');
     const [scoreLoading, setScoreLoading] = useState(false);
     const [reload, setReload] = useState<boolean>(false);
+
+    
+    const decodedParams = React.useMemo(() => {
+        try {
+            const decodedStr = base64Decode(params.encodedParams);
+            const parsedParams = JSON.parse(decodedStr);
+            
+            return {
+                supId: String(parsedParams.supId),
+                catId: String(parsedParams.catId),
+                subCatId: String(parsedParams.subCatId),
+                currentYear: String(parsedParams.currentYear)
+            };
+        } catch (error) {
+            console.error('Error decoding parameters:', error);
+            return { supId: '', catId: '', subCatId: '', currentYear: ''};
+        }
+    }, [params.encodedParams]);
+    
+    const { supId, catId, subCatId, currentYear } = decodedParams;
+
+    const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
+
+
 
     //  values
     const sortedDepartments: any = useMemo(() =>
@@ -171,6 +202,8 @@ const ApproverPage = () => {
                                 )?.totalScore
                             }
                             isTableLoading={scoreLoading}
+                            catId={catId}
+                            subCatId={subCatId}
                         />
                     )}
                 </div>
@@ -179,4 +212,4 @@ const ApproverPage = () => {
     );
 };
 
-export default ApproverPage;
+export default withAuth(ApproverPage, undefined, 'approve_score');
