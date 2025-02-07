@@ -509,6 +509,7 @@ const MainRules = () => {
                                     onChange={onRuleTypeChange} 
                                     placeholder="Select Rule Type" 
                                     style={{ width: '150px', height: '30px' }} 
+                                    showClear={!!selectedRuleType}
                                 />
                                 </div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
@@ -603,10 +604,19 @@ const MainRules = () => {
             <h4>Skipped Data:</h4>
             {responseData.skippedData.length > 0 ? (
                 <ul>
-                    {responseData.skippedData.map((skipped: { rule: { criteriaEvaluation: any; }; reason: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
+                    {responseData.skippedData.map((skipped: { rule: {
+                        departmentName: string;
+                        categoryName: string;
+                        subCategoryName: string;
+                        effective_from: string; criteriaEvaluation: any; 
+}; reason: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
                         <li key={index}>
                             <strong>Rule:</strong> {skipped.rule ? JSON.stringify(skipped.rule) : 'N/A'} <br />
                             <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || 'N/A'} <br />
+                            <strong>Department Name:</strong> {skipped.rule?.departmentName || 'N/A'} <br />
+                            <strong>Category Name:</strong> {skipped.rule?.categoryName || 'N/A'} <br />
+                            <strong>SubCategory Name:</strong> {skipped.rule?.subCategoryName || 'N/A'} <br />
+                            <strong>Effective From:</strong> {skipped.rule?.effective_from || 'N/A'} <br />
                             <strong>Reason:</strong> {skipped.reason}
                         </li>
                     ))}
