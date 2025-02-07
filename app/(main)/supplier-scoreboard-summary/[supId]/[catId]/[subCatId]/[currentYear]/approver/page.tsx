@@ -25,7 +25,7 @@ const ApproverPage = () => {
 
     // state management
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
-    const [selectedPeriod, setSelectedPeriod] = useState<string>();
+    const [selectedPeriod, setSelectedPeriod] = useState<string | null >();
     const [activeTab, setActiveTab] = useState('');
     const [scoreLoading, setScoreLoading] = useState(false);
     const [reload, setReload] = useState<boolean>(false);
@@ -63,7 +63,8 @@ const ApproverPage = () => {
                 currentDepartment.evolutionType.toLowerCase() as EvolutionType,
                 currentYear
             );
-            setSelectedPeriod(defaultPeriod);
+            setSelectedPeriod(null);
+            setTimeout(() => setSelectedPeriod(defaultPeriod), 0);
         }
     }, [currentDepartment, currentYear]);
 

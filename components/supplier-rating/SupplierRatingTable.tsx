@@ -11,8 +11,7 @@ import { Badge } from 'primereact/badge';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
-import { useAuth } from '@/layout/context/authContext';
-import { Checkbox } from 'primereact/checkbox';
+
 
 
 const SupplierEvaluationTable = ({ rules,
@@ -140,11 +139,14 @@ const SupplierEvaluationTable = ({ rules,
 
     if (supplierScoreData) {
       const status = supplierScoreData[0]?.status;
+      console.log(status);
+      
       if (status?.toLowerCase() === 'completed') {
-        return;
+        setLoading2(false)
+      }else{
+        setLoading2(true)
       }
     }
-    setLoading2(true)
 
     if (rules) {
       setTimeout(() => {
