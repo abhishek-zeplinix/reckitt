@@ -1,8 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation'; // Correct import for Next.js router
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 // import 'primeicons/primeicons.css';
 // import 'primereact/resources/themes/saga-blue/theme.css';
@@ -93,7 +91,7 @@ const SupplierDirectory = () => {
 
             sessionStorage.setItem('supplier-data', JSON.stringify(selectedSupplier));
         }
-
+        
         router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
     };
 

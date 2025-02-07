@@ -13,6 +13,7 @@ import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 
 
+
 const SupplierEvaluationTable = ({ rules,
   selectedPeriod,
   category,
@@ -41,7 +42,10 @@ const SupplierEvaluationTable = ({ rules,
   const [loading, setLoading2] = useState(true);
   const [initializing, setInitializing] = useState(true);
   const [noData, setNoData] = useState(false);
+  const [checkedCriteria, setCheckedCriteria] = useState<any[]>([]);
+
   const urlParams = useParams();
+
   const { supId, catId, subCatId } = urlParams;
 
   const dropdownRef = useRef<any>(null);
@@ -51,15 +55,10 @@ const SupplierEvaluationTable = ({ rules,
 
   // update function to check CAPA data status
   const checkCapaDataStatus = (data: any[]) => {
-
     console.log(data);
-    
     if (!data || data.length === 0) return { count: 0, completedCount: 0 };
-
     const totalCapaRules = data.length;
-
     console.log(totalCapaRules);
-    
 
     const completedCapaRules = data.filter(
       item => item.selectedStatus && item.selectedStatus !== ''
@@ -67,9 +66,9 @@ const SupplierEvaluationTable = ({ rules,
 
     setCapaDataCount(totalCapaRules);
     setCapaDataCompletedCount(completedCapaRules);
-
     return { count: totalCapaRules, completedCount: completedCapaRules };
   };
+
 
   useEffect(() => {
     if (supplierScoreData && supplierScoreData[0]?.capa) {
@@ -88,40 +87,40 @@ const SupplierEvaluationTable = ({ rules,
       setIsCompleted('pending');
 
       try {
-          
+
         if (supplierScoreData) {
           const status = supplierScoreData[0]?.status;
           status === undefined ? setIsCompleted('pending') : setIsCompleted(status);
-            
-          // if (status?.toLowerCase() === 'completed' || (!rules?.sections && supplierScoreData[0]?.sections)) {
-            if (status?.toLowerCase() === 'completed') {
 
-              setNoData(false)
+          // if (status?.toLowerCase() === 'completed' || (!rules?.sections && supplierScoreData[0]?.sections)) {
+          if (status?.toLowerCase() === 'completed') {
+
+            setNoData(false)
 
             setTableData(supplierScoreData[0]);
-             
+
             console.log('insiderrrrrrrrr');
-            
+
 
             await initializeCompletedData();
-            
+
             const totalCriteria = supplierScoreData[0]?.sections?.reduce((total: any, section: any) => {
               return total + section.ratedCriteria.length;
             }, 0) || 0;
 
             setCriteriaCount(totalCriteria);
           } else if (rules?.sections) {
-           setNoData (false)
+            setNoData(false)
             setTableData(rules);
             await initializeData();
             const totalCriteria = rules.sections.reduce((total: any, section: any) => {
               return total + section.ratedCriteria.length;
             }, 0);
             setCriteriaCount(totalCriteria);
-          }else{
+          } else {
             setNoData(true)
           }
-          
+
           setTotalScore(totalScoreEvaluated);
         }
       } catch (error) {
@@ -138,13 +137,16 @@ const SupplierEvaluationTable = ({ rules,
 
   useEffect(() => {
 
-    if (supplierScoreData){
+    if (supplierScoreData) {
       const status = supplierScoreData[0]?.status;
-      if (status?.toLowerCase() === 'completed'){
-        return;
+      console.log(status);
+      
+      if (status?.toLowerCase() === 'completed') {
+        setLoading2(false)
+      }else{
+        setLoading2(true)
       }
     }
-    setLoading2(true)
 
     if (rules) {
       setTimeout(() => {
@@ -287,11 +289,11 @@ const SupplierEvaluationTable = ({ rules,
     supplierScoreData[0].sections.forEach((section: any, sIndex: number) => {
       section.ratedCriteria.forEach((criteria: any, cIndex: number) => {
         const key = `${sIndex}-${cIndex}`;
-        
+
         if (criteria.evaluations?.[0]) {
           initialEvals[key] = criteria.evaluations[0].criteriaEvaluation;
           initialPercentages[key] = criteria.evaluations[0][category] ?? 0;
-          
+
           if (criteria.evaluations[0].criteriaEvaluation !== '') {
             initialEvaluatedCount++;
           }
@@ -305,7 +307,7 @@ const SupplierEvaluationTable = ({ rules,
     setCurrentPercentages(initialPercentages);
     setDisplayPercentages(distributeRoundedPercentages(initialPercentages));
     setComments(supplierScoreData[0]?.comments || '');
-    
+
     if (supplierScoreData[0]?.capa) {
       setCapaData(supplierScoreData[0].capa);
       checkCapaDataStatus(supplierScoreData[0].capa);
@@ -492,15 +494,23 @@ const SupplierEvaluationTable = ({ rules,
 
 
   const prepareApiData = () => {
-    const sections = tableData?.sections?.map((section: any) => {
-      return {
-        sectionName: section.sectionName,
-        ratedCriteria: section.ratedCriteria
-          .map((criteria: any, criteriaIndex: number) => {
-            const sectionIndex = tableData.sections.indexOf(section);
-            const key = `${sectionIndex}-${criteriaIndex}`;
-            const selectedEval = selectedEvaluations[key];
 
+    const sections = tableData?.sections?.map((section: any) => {
+
+      return {
+
+        sectionName: section.sectionName,
+
+        ratedCriteria: section.ratedCriteria
+
+          .map((criteria: any, criteriaIndex: number) => {
+
+            const sectionIndex = tableData.sections.indexOf(section);
+
+            const key = `${sectionIndex}-${criteriaIndex}`;
+
+            const selectedEval = selectedEvaluations[key];
+            
             const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
 
             if (!evaluation) return null;
@@ -553,8 +563,8 @@ const SupplierEvaluationTable = ({ rules,
 
     console.log(capaDataCompletedCount);
     console.log(capaDataCount);
-    
-    
+
+
 
     // Combine overall status
     const overallStatus = totalScore <= 50
@@ -632,37 +642,20 @@ const SupplierEvaluationTable = ({ rules,
     }
   };
 
-  const handleCheckboxChange = (item: any) => {
-    // setSelectedCriteria((prev) => {
-    //   const isSelected = prev.some((i) => i.criteria === item.criteria);
-    //   if (isSelected) {
-    //     return prev.filter((i) => i.criteria !== item.criteria);
-    //   } else {
-    //     return [...prev, {
-    //       sectionName: item.sectionName,
-    //       criteria: item.criteria,
-    //       ratio: item.ratio,
-    //       selectedEvaluation: item.selectedEvaluation,
-    //       score: item.score
-    //     }];
-    //   }
-    // });
-  };
 
-  
   if (initializing || !tableData) {
     return (
       <div className="w-full p-4">
         <div className="mb-2">
-          <Skeleton width="100px" height="30px" className="mb-2"/>
+          <Skeleton width="100px" height="30px" className="mb-2" />
         </div>
         <div className="border rounded-lg p-4">
-          <Skeleton width="100%" height="400px"/>
+          <Skeleton width="100%" height="400px" />
         </div>
       </div>
     );
   }
-  
+
 
   if (noData) {
     return (
@@ -673,8 +666,15 @@ const SupplierEvaluationTable = ({ rules,
   }
 
 
-  
-  
+  const handleApprove = () => {
+    alert("API under construction")
+  }
+
+  const handleReject = () => {
+    alert("API under construction")
+  }
+
+
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
 
@@ -732,7 +732,6 @@ const SupplierEvaluationTable = ({ rules,
                       )}
 
                       <td className="px-4 py-2 text-md text-gray-500">
-                        {/* <Checkbox onChange={e => handleCheckboxChange(section)} checked={score < 5} className='mx-2'></Checkbox> */}
                         {criteria.criteriaName}</td>
 
                       {
@@ -814,50 +813,46 @@ const SupplierEvaluationTable = ({ rules,
         </table>
       </div>
 
-      <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
-        {totalScore > 50 && (
-          <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
-            <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+
+        <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
+          {totalScore > 50 && (
+            <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
+              <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+            </div>
+          )}
+
+          {/* divider */}
+          <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
+          <div>
+            <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
+            <InputTextarea
+              rows={5}
+              cols={30}
+              onChange={(e) => setComments(e.target.value)} value={comments}
+              disabled={isCompleted?.toLowerCase() === 'completed'}
+            />
           </div>
-        )}
-
-        {/* divider */}
-        <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
-
-        <div>
-          <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
-
-
-          <InputTextarea
-            rows={5}
-            cols={30}
-            onChange={(e) => setComments(e.target.value)} value={comments}
-            disabled={isCompleted?.toLowerCase() === 'completed'}
-          />
-
-
         </div>
 
-      </div>
+
       {
         (isEvaluatedData) ?
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
+            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
           </div>
           :
           <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted}/>}
+            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
           </div>
 
       }
+     <div className='flex justify-content-end gap-3 mt-1 p-3'>
+
+          <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
+
+        </div>
 
 
-
-      <div className='flex justify-content-end gap-3 mt-1 p-3'>
-
-        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} />
-
-      </div>
     </div>
   );
 };

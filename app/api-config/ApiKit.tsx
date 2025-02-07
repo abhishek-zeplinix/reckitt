@@ -18,9 +18,12 @@ class CustomError extends Error {
     }
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+console.log(BASE_URL);
+
 // Create axios client, pre-configured with baseURL
 let APIKit: any = axios.create({
-    baseURL: CONFIG.BASE_URL,
+    baseURL: BASE_URL,
     timeout: 60000,
     transformResponse: (res) => {
         let response;
@@ -141,7 +144,7 @@ const PostPdfCall = async (url: string, payload = {}, headers = {}) => {
     };
 
     try {
-        const response = await axios.post(`${CONFIG.BASE_URL}${url}`, payload, {
+        const response = await axios.post(`${BASE_URL}${url}`, payload, {
             responseType: 'blob',
             ...headers
         });
@@ -174,7 +177,7 @@ const GetPdfCall = async (url: string, headers = {}) => {
     };
 
     try {
-        const response = await axios.get(`${CONFIG.BASE_URL}${url}`, { headers });
+        const response = await axios.get(`${BASE_URL}${url}`, { headers });
 
         // Check if the response.data is a Blob
         if (response.data instanceof Blob) {

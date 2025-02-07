@@ -19,6 +19,8 @@ import SupplierScoreboardPDF from '@/components/pdf/supplier-scoreboard/Supplier
 import html2canvas from 'html2canvas';
 import { useAuth } from '@/layout/context/authContext';
 import ReadMoreText from '@/components/read-more-text/ReadMoreText';
+import { Badge } from 'primereact/badge';
+import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
 
 const SupplierScoreboardTables = () => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
@@ -41,7 +43,9 @@ const SupplierScoreboardTables = () => {
 
     const [chartImage, setChartImage] = useState<string | null>(null);
     const [pdfReady, setPdfReady] = useState(false);
-    const { hasPermission } = useAuth();
+    const { hasPermission, isSupplier } = useAuth();
+
+    console.log(evaluationData);
 
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
@@ -134,7 +138,7 @@ const SupplierScoreboardTables = () => {
                     section.ratedCriteria.map((criteria: any) => ({
                         type: section.sectionName,
                         criteria: criteria.criteriaName,
-                        ratio: criteria.evaluations[0]?.ratiosCopack || criteria.evaluations[0]?.ratiosRawPack || 'N/A',
+                        ratio: criteria.evaluations[0]?.ratiosCopack || criteria.evaluations[0]?.ratiosRawpack || 'N/A',
                         evaluation: criteria.evaluations[0]?.criteriaEvaluation || 'N/A',
                         score: criteria.evaluations[0]?.score || 'N/A'
                     }))
@@ -285,7 +289,8 @@ const SupplierScoreboardTables = () => {
                         textAlign: 'center'
                     }}
                 />
-                {percentage <= 50 && percentage !== 0 && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
+                {percentage <= 50 && percentage !== 0 && !isSupplier() && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
+                {percentage <= 50 && percentage !== 0 && isSupplier() && <Badge value="+ Feedback" severity="success" onClick={handleIconClick} className='cursor-pointer'></Badge>}
             </div>
         );
     };
@@ -400,11 +405,18 @@ const SupplierScoreboardTables = () => {
 
                 {hasPermission('add_input') && (
                     <div className="flex-1 ml-5">
-                        <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
-                            <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                        </Link>
+                        {hasPermission('approve_score') ? (
+                            <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/approver`}>
+                                <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                            </Link>
+                        ) : (
+                            <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                                <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                            </Link>
+                        )}
                     </div>
                 )}
+
 
                 <div className="flex justify-content-end">
                     {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
@@ -432,6 +444,12 @@ const SupplierScoreboardTables = () => {
                     <div className="text-2xl font-medium text-gray-800">Evaluation Period - {bottomFlatData?.evaluationPeriod ? formatEvaluationPeriod(bottomFlatData.evaluationPeriod) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Evaluation Score - {bottomFlatData?.totalScore ? Math.round(bottomFlatData.totalScore) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Department - {bottomFlatData?.department?.name}</div>
+                </div>
+
+                <div className=''>
+                    <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                        <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                    </Link>
                 </div>
             </div>
         );
@@ -573,72 +591,6 @@ const SupplierScoreboardTables = () => {
         []
     );
 
-    const options = {
-        responsive: true,
-
-        plugins: {
-            legend: {
-                position: 'none' // Position legend on the left side
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: false // Hide gridlines if not required
-                },
-                ticks: {
-                    autoSkip: true // Automatically skips labels if needed
-                },
-                categoryPercentage: 1.0, // Bars will cover full space
-                barPercentage: 0.8 // Control the width of the bars
-            },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
-                    max: 100, // Maximum value of y-axis
-                    min: 0 // Minimum value of y-axis
-                }
-            }
-        }
-    };
-
-    const baroptions = {
-        responsive: true,
-
-        plugins: {
-            legend: {
-                position: 'bottom' // Position legend on the left side
-            },
-            labels: {
-                boxWidth: 20, // Set the width of the legend box
-                boxHeight: 20, // Set the height of the legend box
-                padding: 10 // Adjust the padding between the box and the text
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: false // Hide gridlines if not required
-                },
-                ticks: {
-                    autoSkip: true // Automatically skips labels if needed
-                },
-                categoryPercentage: 1.0, // Bars will cover full space
-                barPercentage: 0.8 // Control the width of the bars
-            },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 25, // Set custom step size for ticks (0, 25, 50, 75, 100)
-                    max: 100, // Maximum value of y-axis
-                    min: 0 // Minimum value of y-axis
-                }
-            }
-        }
-    };
 
     const prepareChartData = () => {
         //chart 1
@@ -721,28 +673,6 @@ const SupplierScoreboardTables = () => {
 
     const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
 
-    const GraphsPanel: any = React.memo(() => {
-        return (
-            <>
-                {/* first chart */}
-                <div className="flex justify-content-between align-items-start flex-wrap gap-4" ref={chartRef}>
-                    <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
-                        <h4 className="mt-2 mb-6">Overall Performance Rating per Quarter</h4>
-                        <Chart type="bar" data={ratingData} options={memoizedOptions} />
-                        <h6 className="text-center">Quarters</h6>
-                    </div>
-
-                    {/* second chart */}
-                    <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
-                        <h4 className="mt-2 mb-6">Overall Performance per Function</h4>
-                        <Chart type="bar" data={lineData} options={memoizedBarOptions} className="" />
-                        <h6 className="text-center">Quarters</h6>
-                    </div>
-                </div>
-            </>
-        );
-    });
-
     // const renderGraphsPanel = GraphsPanel;
 
     return (
@@ -755,7 +685,7 @@ const SupplierScoreboardTables = () => {
                     <div>{renderDataPanel}</div>
                 </div>
                 <div className="col-12">
-                    <GraphsPanel />
+                    <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef}/>
                 </div>
             </div>
         </>

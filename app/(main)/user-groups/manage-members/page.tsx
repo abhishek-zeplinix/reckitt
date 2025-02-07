@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
@@ -13,12 +13,11 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules, SetRulesDir } from '@/types';
+import { CustomResponse, Rules } from '@/types';
 import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
-import { useLoaderContext } from '@/layout/context/LoaderContext';
-import { RadioButton } from 'primereact/radiobutton';
+import { ColumnBodyOptions } from 'primereact/column';
 
 const ACTIONS = {
     ADD: 'add',
@@ -27,19 +26,19 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const UserGroups = () => {
+const ManageMembersPage = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const [rules, setRules] = useState<SetRulesDir[]>([]);
+    const [rules, setRules] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
-    const [selectedRuleSetId, setSelectedRuleSetId] = useState<any>([]);
+    const [selectedRuleId, setSelectedRuleId] = useState();
     const [action, setAction] = useState(null);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [isAllDeleteDialogVisible, setIsAllDeleteDialogVisible] = useState(false);
@@ -47,11 +46,12 @@ const UserGroups = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [filterCategories, setCategories] = useState([]);
     const [supplierDepartment, setSupplierDepartment] = useState([]);
-    const [rulesGroup, setRulesGroup] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-    const [chooseRules, setChooseRules] = useState('');
-    const [selectedRuleType, setSelectedRuleType] = useState<string | null>(null);
+    const searchParams = useSearchParams();
+    const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
+    const memberId = searchParams.get('memberId');
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
@@ -63,47 +63,93 @@ const UserGroups = () => {
         { label: '70', value: 70 },
         { label: '100', value: 100 }
     ];
-    const ruleTypeOptions = [
-        { label: 'CAPA RULE', value: 'capa rule' },
-        { label: 'MAIN RULE', value: 'main rule' }
+
+    const membersOptions = [
+        {
+            id: 1,
+            Type: 'Agency',
+            Name: 'Assessor1',
+            Position: 'Account Director',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'jyoti.sahoo@techmahindra.com',
+            Contact: '2314567890'
+        },
+        {
+            id: 2,
+            Type: 'Agency',
+            Name: 'Assessor2',
+            Position: 'Planning and Strategy',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'abhijitp@gmail.com',
+            Contact: '9876543210'
+        },
+        {
+            id: 3,
+            Type: 'Agency',
+            Name: 'Assessor3',
+            Position: 'Agency Account Leadership',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'vidhanc@gmail.com',
+            Contact: '4352671890'
+        },
+        {
+            id: 4,
+            Type: 'Agency',
+            Name: 'Assessor4',
+            Position: 'Planning and Strategy',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'abhijit.patane@gmail.com',
+            Contact: '7878787878'
+        },
+        {
+            id: 5,
+            Type: 'Agency',
+            Name: 'Vidhan',
+            Position: 'Planning and Strategy',
+            'Assessor Role': 'Assessor',
+            'E-mail': 'vidhanchordiya0@gmail.com',
+            Contact: '123456789'
+        }
     ];
+
     // Handle limit change
-    // const onCategorychange = (e: any) => {
-    //     setSelectedCategory(e.value); // Update limit
-    //     // fetchprocurementCategories(e.value);
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             categoryId: e.value
-    //         }
-    //     });
-    // };
-    // // Handle limit change
-    // const onDepartmentChange = (e: any) => {
-    //     setSelectedDepartment(e.value);
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             departmentId: e.value
-    //         }
-    //     });
-    // };
-    // // Handle limit change
-    // const onSubCategorychange = (e: any) => {
-    //     setSelectedSubCategory(e.value); // Update limit
-    //     fetchData({
-    //         limit: limit,
-    //         page: page,
-    //         include: 'subCategories,categories,department',
-    //         filters: {
-    //             subCategoryId: e.value
-    //         }
-    //     });
-    // };
+    const onCategorychange = (e: any) => {
+        setSelectedCategory(e.value); // Update limit
+        fetchprocurementCategories(e.value);
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                categoryId: e.value
+            }
+        });
+    };
+    // Handle limit change
+    const onDepartmentChange = (e: any) => {
+        setSelectedDepartment(e.value);
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                departmentId: e.value
+            }
+        });
+    };
+
+    // Handle limit change
+    const onSubCategorychange = (e: any) => {
+        setSelectedSubCategory(e.value); // Update limit
+        fetchData({
+            limit: limit,
+            page: page,
+            include: 'subCategories,categories,department',
+            filters: {
+                subCategoryId: e.value
+            }
+        });
+    };
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ limit: limit, page: page, include: 'subCategories,categories,department', search: e.target?.value });
@@ -116,12 +162,13 @@ const UserGroups = () => {
     };
     useEffect(() => {
         fetchData();
-        // fetchsupplierCategories();
-        // fetchsupplierDepartment();
+        fetchsupplierCategories();
+        fetchsupplierDepartment();
     }, [limit, page]);
-    // const handleCreateNavigation = () => {
-    //     router.push('/manage-rules/create-new-rules');
-    // };
+
+    const handleCreateNavigation = () => {
+        router.push(`/user-groups/manage-members/create-new-members?memberId=${memberId}`);
+    };
 
     const handleFileUpload = async (event: { files: File[] }) => {
         const file = event.files[0]; // Retrieve the uploaded file
@@ -135,11 +182,6 @@ const UserGroups = () => {
             return;
         }
 
-        if (!rulesGroup) {
-            setAlert('error', 'Please enter a valid name for the Rules Group.');
-            return;
-        }
-
         const formData = new FormData();
         formData.append('file', file);
 
@@ -150,16 +192,15 @@ const UserGroups = () => {
             return `${year}-${month}-${day}`;
         };
 
-        formData.append('effectiveFrom', formatDate(date)); // Add formatted date
-        formData.append('set', rulesGroup); // Add rules group name
-
-        // Determine API endpoint based on selected rule type
-        const apiEndpoint = chooseRules === 'Capa Rules' ? '/company/caparule/bulk/capa-rules' : '/company/bulk-rules';
+        // In the handleFileUpload function
+        if (date) {
+            formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
+        }
 
         setIsDetailLoading(true);
         try {
             // Use the existing PostCall function
-            const response: CustomResponse = await PostCall(apiEndpoint, formData);
+            const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
 
             setIsDetailLoading(false);
 
@@ -176,13 +217,8 @@ const UserGroups = () => {
             setAlert('error', 'An unexpected error occurred during file upload');
         }
     };
-
-    const handleEditRules = (e: any) => {
-        if (e.ruleType === 'MAIN RULE') {
-            router.push(`/user-groups/manage-members`);
-        } else {
-            router.push(`/user-groups/manage-members`);
-        }
+    const handleEditRules = (memberId: any, ruleId: any) => {
+        router.push(`/user-groups/manage-members/create-new-members?edit=true&ruleSetId=${memberId}&ruleId=${ruleId}`);
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -210,7 +246,7 @@ const UserGroups = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Manage User Groups</h3>
+                    <h3 className="mb-0">Manage Members</h3>
                 </span>
                 <div className="flex justify-content-end">
                     {/* <Button
@@ -222,58 +258,25 @@ const UserGroups = () => {
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
                     /> */}
-                    {/* <Dialog
+                    <Dialog
                         header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
                         onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
                     >
-                        <div className="card px-3 py-2">
-                            <label htmlFor="" className="mb-1 font-bold">
-                                Choose Rules
-                            </label>
-                            <div className="flex flex-wrap gap-3 mt-2 mb-3">
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId="rules" name="rules" value="Rules" onChange={(e) => setChooseRules(e.value)} checked={chooseRules === 'Rules'} />
-                                    <label htmlFor="rules" className="ml-2">
-                                        Rules
+                        <div className="mb-3">
+                            <div>
+                                <div className="flex justify-center items-center gap-4 ">
+                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
+                                        Select Effective Date:
                                     </label>
-                                </div>
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId="capaRules" name="capaRules" value="Capa Rules" onChange={(e) => setChooseRules(e.value)} checked={chooseRules === 'Capa Rules'} />
-                                    <label htmlFor="capaRules" className="ml-2">
-                                        Capa Rules
-                                    </label>
+                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
                                 </div>
                             </div>
-                            <div className="mb-3 card flex justify-content-between align-items-center p-4 gap-3">
-                                <div className="col-6">
-                                    <div className="flex flex-column justify-center items-center gap-2 ">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Select Effective Date:
-                                        </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                    </div>
-                                </div>
-                                <div className="col-6">
-                                    <div className="flex flex-column justify-center items-center gap-2 ">
-                                        <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                            Enter Name for Rules Group:
-                                        </label>
-                                        <InputText id="email" type="text" onChange={(e) => setRulesGroup(e.target.value)} placeholder="Enter Rules Name " className="p-inputtext w-full py-2" />
-                                    </div>
-                                </div>
-                            </div>
-                            {isDetailLoading ? (
-                                <div className="flex justify-center mb-3">
-                                    <ProgressSpinner style={{ width: '30px' }} />
-                                </div>
-                            ) : (
-                                <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
-                            )}
                         </div>
+                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog>
-                    {/* <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} /> */}
+                    <Button icon="pi pi-plus" size="small" label="Add Members" aria-label="Add Members" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
@@ -284,7 +287,7 @@ const UserGroups = () => {
                             handleAllDelete();
                         }}
                         style={{ marginLeft: 10 }}
-                    />  */}
+                    /> */}
                 </div>
             </div>
         );
@@ -295,16 +298,19 @@ const UserGroups = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, sortBy: 'ruleSetId' };
+                params = { limit: limit, page: page, include: 'subCategories,department,categories', sortOrder: 'asc' };
             }
 
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-            const response = await GetCall(`company/rules-set?${queryString}`);
+
+            console.log(queryString);
+
+            const response = await GetCall(`company/rules/${memberId}?${queryString}`);
 
             setTotalRecords(response.total);
-            setRules(response.data.rows);
+            setRules(response.data);
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -317,96 +323,96 @@ const UserGroups = () => {
     useEffect(() => {
         fetchData();
     }, []);
-    // const fetchprocurementCategories = async (categoryId: number | null) => {
-    //     if (!categoryId) {
-    //         setprocurementCategories([]); // Clear subcategories if no category is selected
-    //         return;
-    //     }
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setprocurementCategories(response.data);
-    //     } else {
-    //         setprocurementCategories([]);
-    //     }
-    // };
-    // const fetchsupplierCategories = async () => {
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setCategories(response.data);
-    //     } else {
-    //         setCategories([]);
-    //     }
-    // };
-    // const fetchsupplierDepartment = async () => {
-    //     setLoading(true);
-    //     const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setSupplierDepartment(response.data);
-    //     } else {
-    //         setSupplierDepartment([]);
-    //     }
-    // };
+    const fetchprocurementCategories = async (categoryId: number | null) => {
+        if (!categoryId) {
+            setprocurementCategories([]); // Clear subcategories if no category is selected
+            return;
+        }
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setprocurementCategories(response.data);
+        } else {
+            setprocurementCategories([]);
+        }
+    };
+    const fetchsupplierCategories = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setCategories(response.data);
+        } else {
+            setCategories([]);
+        }
+    };
+    const fetchsupplierDepartment = async () => {
+        setLoading(true);
+        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+        setLoading(false);
+        if (response.code == 'SUCCESS') {
+            setSupplierDepartment(response.data);
+        } else {
+            setSupplierDepartment([]);
+        }
+    };
 
-    // const dropdownMenuDepartment = () => {
-    //     return (
-    //         <Dropdown
-    //             value={selectedDepartment}
-    //             onChange={onDepartmentChange}
-    //             options={supplierDepartment}
-    //             optionValue="departmentId"
-    //             placeholder="Select Department"
-    //             optionLabel="name"
-    //             className="w-full md:w-10rem"
-    //             showClear={!!selectedDepartment}
-    //         />
-    //     );
-    // };
+    const dropdownMenuDepartment = () => {
+        return (
+            <Dropdown
+                value={selectedDepartment}
+                onChange={onDepartmentChange}
+                options={supplierDepartment}
+                optionValue="departmentId"
+                placeholder="Select Department"
+                optionLabel="name"
+                className="w-full md:w-10rem"
+                showClear={!!selectedDepartment}
+            />
+        );
+    };
 
-    // const dropdownFieldDeparment = dropdownMenuDepartment();
+    const dropdownFieldDeparment = dropdownMenuDepartment();
 
-    // const dropdownCategory = () => {
-    //     return (
-    //         <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory} />
-    //     );
-    // };
-    // const dropdownFieldCategory = dropdownCategory();
+    const dropdownCategory = () => {
+        return (
+            <Dropdown value={selectedCategory} onChange={onCategorychange} options={filterCategories} optionValue="categoryId" placeholder="Select Category" optionLabel="categoryName" className="w-full md:w-10rem" showClear={!!selectedCategory} />
+        );
+    };
+    const dropdownFieldCategory = dropdownCategory();
 
-    // const dropdownMenuSubCategory = () => {
-    //     return (
-    //         <Dropdown
-    //             value={SelectedSubCategory}
-    //             onChange={onSubCategorychange}
-    //             options={procurementCategories}
-    //             optionLabel="subCategoryName"
-    //             optionValue="subCategoryId"
-    //             placeholder="Select Sub Category"
-    //             className="w-full md:w-10rem"
-    //             showClear={!!SelectedSubCategory}
-    //         />
-    //     );
-    // };
-    // const dropdownFieldSubCategory = dropdownMenuSubCategory();
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown
+                value={SelectedSubCategory}
+                onChange={onSubCategorychange}
+                options={procurementCategories}
+                optionLabel="subCategoryName"
+                optionValue="subCategoryId"
+                placeholder="Select Sub Category"
+                className="w-full md:w-10rem"
+                showClear={!!SelectedSubCategory}
+            />
+        );
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
 
-    const onRowSelect = async (perm: SetRulesDir, action: any) => {
+    const onRowSelect = async (perm: Rules, action: any) => {
         setAction(action);
 
-        setSelectedRuleSetId(perm);
+        setSelectedRuleId(perm.ruleId);
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
         }
     };
 
-    const openDeleteDialog = (items: SetRulesDir) => {
+    const openDeleteDialog = (items: Rules) => {
         setIsDeleteDialogVisible(true);
     };
 
@@ -439,86 +445,34 @@ const UserGroups = () => {
                 setLoading(false);
             }
         } else {
-            if (selectedRuleSetId.ruleType === 'MAIN RULE') {
-                try {
-                    const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
+            try {
+                const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
-                    if (response.code === 'SUCCESS') {
-                        setRules((prevRules) => prevRules.filter((rule) => rule.ruleSetId !== selectedRuleSetId.ruleSetId));
-                        closeDeleteDialog();
-                        setAlert('success', 'Rule successfully deleted!');
-                    } else {
-                        setAlert('error', 'Something went wrong!');
-                        closeDeleteDialog();
-                    }
-                } catch (error) {
+                if (response.code === 'SUCCESS') {
+                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
+                    closeDeleteDialog();
+                    setAlert('success', 'Rule successfully deleted!');
+                } else {
                     setAlert('error', 'Something went wrong!');
-                } finally {
-                    setLoading(false);
+                    closeDeleteDialog();
                 }
-            } else {
-                try {
-                    const response = await DeleteCall(`/company/caparule-set/${selectedRuleSetId.ruleSetId}`);
-
-                    if (response.code === 'SUCCESS') {
-                        setRules((prevRules) => prevRules.filter((rule) => rule.ruleSetId !== selectedRuleSetId.ruleSetId));
-                        closeDeleteDialog();
-                        setAlert('success', 'Rule successfully deleted!');
-                    } else {
-                        setAlert('error', 'Something went wrong!');
-                        closeDeleteDialog();
-                    }
-                } catch (error) {
-                    setAlert('error', 'Something went wrong!');
-                } finally {
-                    setLoading(false);
-                }
+            } catch (error) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
             }
         }
     };
-    // Handle rule type selection and fetch data
-    const onRuleTypeChange = (e: any) => {
-        setSelectedRuleType(e.value);
-        fetchData({ limit, page, sortBy: 'ruleSetId', filters: { ruleType: e.value } });
-    };
 
-    const ManageUserGroups = [
-        {
-            reviewType: 'Creative',
-            templateType: 'Agency to Reckitt',
-            userGroup: 'Agency',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 5
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Agency to Reckitt',
-            userGroup: 'Asset production',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 4
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Reckitt to Agency',
-            userGroup: 'Global Marketing',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 1
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Reckitt to Agency',
-            userGroup: 'Local Marketing',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 0
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Reckitt to Agency',
-            userGroup: 'Procurement',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 3
-        }
-    ];
+    const mappedData = membersOptions.map((item) => ({
+        id: item.id,
+        type: item.Type,
+        name: item.Name,
+        position: item.Position,
+        assessorRole: item['Assessor Role'],
+        email: item['E-mail'],
+        contact: item.Contact
+    }));
 
     return (
         <div className="grid">
@@ -535,13 +489,12 @@ const UserGroups = () => {
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
                                 </div>
                                 <div className="flex  gap-2">
-                                    <div>
-                                        <Dropdown className="mt-2" value={selectedRuleType} options={ruleTypeOptions} onChange={onRuleTypeChange} placeholder="Select Rule Type" style={{ width: '150px', height: '30px' }} />
-                                    </div>
+                                    <div className="mt-2">{dropdownFieldDeparment}</div>
+                                    <div className="mt-2">{dropdownFieldCategory}</div>
+                                    <div className="mt-2">{dropdownFieldSubCategory}</div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
-
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -551,19 +504,13 @@ const UserGroups = () => {
                                 isDelete={true} // show delete button
                                 extraButtons={(item) => [
                                     {
-                                        icon: 'pi pi-eye',
+                                        icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(item); // Pass the item (row data) instead of e
+                                            handleEditRules(memberId, item.ruleId); // Pass the userId from the row data
                                         }
                                     }
                                 ]}
-                                data={ManageUserGroups.map((item: any) => ({
-                                    reviewType: item.reviewType,
-                                    templateType: item.templateType,
-                                    userGroup: item.userGroup,
-                                    whitelistedDomains: item.whitelistedDomains,
-                                    totalMembers: item.totalMembers
-                                }))}
+                                data={mappedData}
                                 columns={[
                                     {
                                         header: 'SR. NO',
@@ -576,40 +523,40 @@ const UserGroups = () => {
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'Review Type ',
-                                        field: 'reviewType',
+                                        header: 'Type ',
+                                        field: 'type',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'Template Type',
-                                        field: 'templateType',
+                                        header: 'Name ',
+                                        field: 'name',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Position',
+                                        field: 'position',
+                                        headerStyle: dataTableHeaderStyle,
+                                        style: { minWidth: 150, maxWidth: 150 }
+                                    },
+                                    {
+                                        header: 'Assesor role',
+                                        field: 'assessorRole',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Email',
+                                        field: 'email',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
 
-                                    // {
-                                    //     header: 'EFFECTIVE FROM ',
-                                    //     field: 'effectiveFrom',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    // },
                                     {
-                                        header: 'User Group',
-                                        field: 'userGroup',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Whitlisted Domains',
-                                        field: 'whitelistedDomains',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Total Members',
-                                        field: 'totalMembers',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        header: 'Contact',
+                                        field: 'contact',
+                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
                                     }
                                 ]}
@@ -652,4 +599,4 @@ const UserGroups = () => {
     );
 };
 
-export default UserGroups;
+export default ManageMembersPage;

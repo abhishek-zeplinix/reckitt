@@ -10,6 +10,10 @@ import { get } from 'lodash';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { buildQueryParams } from '@/utils/utils';
+import { Dialog } from 'primereact/dialog';
+import { FileUpload } from 'primereact/fileupload';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { withAuth } from '@/layout/context/authContext';
 
 const GenerateRequestPage = () => {
     const router = useRouter();
@@ -36,6 +40,8 @@ const GenerateRequestPage = () => {
     const [categories, setCategories] = useState<any>([]);
     const [subCategories, setSubCategories] = useState<any>([]);
     const [selectedFields, setSelectedFields] = useState<any>({});
+    const [visible, setVisible] = useState(false);
+    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
     useEffect(() => {
         fetchInitialData();
@@ -80,10 +86,10 @@ const GenerateRequestPage = () => {
             const supId = get(user, 'supplierId');
 
             const params = { filters: { supId }, pagination: false };
-            
+
             const queryString = buildQueryParams(params);
             console.log(params);
-            
+
             const response = await GetCall(`/company/supplier?${queryString}`);
 
             if (response.data?.[0]) {
@@ -96,9 +102,9 @@ const GenerateRequestPage = () => {
 
                 setFormData({
                     supplierId: data.supId,
-                    supplierName: get(user, 'name', ''),
-                    supplierEmail: data.supplierEmail || '',
-                    supplierContact: data.supplierContact || '',
+                    supplierName: data.supplierName,
+                    supplierEmail: data.email || '',
+                    supplierContact: data.supplierNumber || '',
                     supplierManufacturerName: data.supplierManufacturerName || '',
                     factoryName: data.factoryName || '',
                     warehouseLocation: data.warehouseLocation || '',
@@ -116,92 +122,46 @@ const GenerateRequestPage = () => {
         }
     };
 
-    // const handleSubmit = async () => {
-    //     // Get requested data based on checked fields
-    //     const requestedData: any = {};
-    //     Object.keys(selectedFields).forEach(field => {
-    //         if (selectedFields[field]) {
-    //             requestedData[field] = formData[field];
-    //         }
-    //     });
 
-    //     if (Object.keys(requestedData).length === 0) {
-    //         setAlert('info', 'No fields selected for update');
-    //         return;
-    //     }
+    const handleSubmit = async (event: { files: File[] }) => {
 
-    //     try {
-    //         setLoading(true);
+        // get requested data based on checked fields
+        const file = event.files[0];
 
-    //         // You can choose to send either IDs or names by uncommenting the relevant section
-    //         const apiData = {
-    //             ...formData,
-    //             requestedData,
-    //             // // Option 1: Send category names
-    //             // procurementCategory: formData.procurementCategory,
-    //             // supplierCategory: formData.supplierCategory,
+        if (!file) {
+            setAlert('error', 'Please select a file to upload.');
+            return;
+        }
 
-    //             /* Option 2: Send category IDs
-    //             procurementCategory: formData.procurementCategoryId?.toString(),
-    //             supplierCategory: formData.supplierCategoryId?.toString(),
-    //             */
-    //         };
-    //         console.log(apiData);
+        const requestedData: any = {
+            file,
+        };
 
-    //         const response = await PostCall('/company/manageRequest', apiData);
-
-    //         if (response.code === 'SUCCESS') {
-    //             setAlert('success', 'Request submitted successfully');
-    //             router.push('/manage-requests');
-    //         } else {
-    //             setAlert('error', response.message);
-    //         }
-
-    //     } catch (error) {
-    //         setAlert('error', 'Failed to submit request');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    // const handleInputChange = (name: any, value: any) => {
-    //     setFormData((prev: any) => {
-    //         const updated = { ...prev, [name]: value };
-
-    //         // Handle category selection
-    //         if (name === 'supplierCategoryId') {
-    //             const category = categories.find((c: any) => c.categoryId === value);
-    //             updated.supplierCategory = category?.categoryName || '';
-    //             updated.procurementCategoryId = null;
-    //             updated.procurementCategory = '';
-    //             fetchSubCategories(value);
-    //         }
-
-    //         // Handle subcategory selection
-    //         if (name === 'procurementCategoryId') {
-    //             const subCategory = subCategories.find((sc: any) => sc.subCategoryId === value);
-    //             updated.procurementCategory = subCategory?.subCategoryName || '';
-    //         }
-
-    //         return updated;
-    //     });
-    // };
-
-    const handleSubmit = async () => {
-        // Get requested data based on checked fields
-        const requestedData: any = {};
         Object.keys(selectedFields).forEach((field) => {
             if (selectedFields[field]) {
                 // For categories, send the names instead of IDs
                 if (field === 'supplierCategoryId') {
-                    requestedData['procurementCategory'] = formData.supplierCategory;
+                    requestedData['categoryName'] = formData.supplierCategory;
                 } else if (field === 'procurementCategoryId') {
-                    requestedData['supplierCategory'] = formData.procurementCategory;
+                    requestedData['subCategoryName'] = formData.procurementCategory;
                 } else {
                     requestedData[field] = formData[field];
                 }
             }
         });
+
+        // Object.keys(selectedFields).forEach((field) => {
+        //     if (selectedFields[field]) {
+        //         // For categories, send the names instead of IDs
+        //         if (field === 'supplierCategoryId') {
+        //             requestedData['supplierCategoryId'] = formData.supplierCategoryId;
+        //         } else if (field === 'procurementCategoryId') {
+        //             requestedData['procurementCategoryId'] = formData.procurementCategoryId;
+        //         } else {
+        //             requestedData[field] = formData[field];
+        //         }
+        //     }
+        // });
 
         if (Object.keys(requestedData).length === 0) {
             setAlert('info', 'No fields selected for update');
@@ -210,14 +170,26 @@ const GenerateRequestPage = () => {
 
         try {
             setLoading(true);
-            const apiData = {
-                supId: get(formData, 'supplierId'),
-                requestedData
-            };
 
-            console.log(apiData);
+            const apiData = new FormData();
 
-            const response = await PostCall('/company/manageRequest', apiData);
+            // Append the file separately
+            apiData.append('file', file);
+
+            // Append requested fields to FormData
+            apiData.append(
+                'requestedData',
+                JSON.stringify(
+                    Object.fromEntries(Object.entries(requestedData).filter(([key]) => key !== 'file'))
+                )
+            );           
+
+            const supId = get(formData, 'supplierId');
+
+            console.log(requestedData);
+            
+
+            const response = await PostCall(`/company/manageRequest/supplier/${supId}`, apiData);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Request submitted successfully');
@@ -225,6 +197,7 @@ const GenerateRequestPage = () => {
             } else {
                 setAlert('error', response.message);
             }
+
         } catch (error) {
             setAlert('error', 'Failed to submit request');
         } finally {
@@ -254,13 +227,15 @@ const GenerateRequestPage = () => {
             return updated;
         });
     };
-    
+
     const toggleField = (fieldName: any) => {
         setSelectedFields((prev: any) => ({
             ...prev,
             [fieldName]: !prev[fieldName]
         }));
     };
+
+
 
     const renderField = (fieldName: any, label: any, component: any) => {
         return (
@@ -274,6 +249,19 @@ const GenerateRequestPage = () => {
                         disabled: !selectedFields[fieldName]
                     })}
                 </div>
+            </div>
+        );
+    };
+
+    const dialogHeader = () => {
+        return (
+            <div className="flex justify-content-between align-items-center w-full">
+                <span>Attach valid proof to change information</span>
+                <p className="text-sm text-gray-500 mr-4">
+                    <p> Supported Formats: <span className='text-red-500'>jpg, png, pdf.</span></p>
+                    <p> Max File Size:  <span className='text-red-500'>5 MB</span></p>
+                </p>
+
             </div>
         );
     };
@@ -357,11 +345,37 @@ const GenerateRequestPage = () => {
                 </div>
                 <hr />
                 <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    <Button label="Update" icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSubmit} disabled={Object.keys(selectedFields).length === 0} />
+                    <Button label="Update" icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={() => setVisible(true)} disabled={Object.keys(selectedFields).length === 0} />
                 </div>
             </div>
+
+            <Dialog
+                header={dialogHeader}
+                visible={visible}
+                style={{ width: '50vw' }}
+                onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
+            >
+                <div className="card px-3 py-2">
+                    {isDetailLoading ? (
+                        <div className="flex justify-center mb-3 mt-5">
+                            <ProgressSpinner style={{ width: '30px' }} />
+                        </div>
+                    ) : (
+                        <FileUpload
+                            name="generate request proof"
+                            customUpload multiple={false}
+                            accept=".pdf,image/*"
+                            maxFileSize={5000000}
+                            emptyTemplate={<p className="m-0">Drag and drop file here to upload.</p>}
+                            uploadHandler={handleSubmit}
+                            uploadLabel="Submit"
+                            chooseLabel="Choose File"
+                        />
+                    )}
+                </div>
+            </Dialog>
         </div>
     );
 };
 
-export default GenerateRequestPage;
+export default withAuth(GenerateRequestPage, undefined, 'generate_request');

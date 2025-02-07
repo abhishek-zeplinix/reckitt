@@ -4,7 +4,7 @@ import AccessDenied from '@/components/access-denied/AccessDenied';
 
 // Simple role definition
 export const USER_ROLES = {
-    SUPER_ADMIN: 'Superadmin',
+    SUPER_ADMIN: 'superAdmin',
     SUPPLIER: 'Supplier',
     APPROVER: 'Approver',
     ADMIN: 'Admin',
@@ -30,6 +30,7 @@ type AuthContextType = {
     isSuperAdmin: () => boolean;
     isSupplier: () => boolean;
     userPermissions: string[];
+    userId: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -81,13 +82,18 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
     const isSuperAdmin = useCallback(() => hasRole(USER_ROLES.SUPER_ADMIN), [hasRole]);
     const isSupplier = useCallback(() => hasRole(USER_ROLES.SUPPLIER), [hasRole]);
 
+
+    //get user id
+    const userId = useMemo(() => get(user, 'id', null) as string | null, [user]);
+
     const value = {
         hasRole,
         hasPermission,
         hasAnyPermission,
         isSuperAdmin,
         isSupplier,
-        userPermissions
+        userPermissions,
+        userId
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -101,7 +107,7 @@ export const useAuth = () => {
     return context;
 };
 
-// simple HOC for protected components
+// HOC for protected components
 export const withAuth = (WrappedComponent: React.ComponentType<any>, requiredRole?: UserRole, requiredPermission?: string) => {
     return function WithAuthComponent(props: any) {
         const { hasRole, hasPermission } = useAuth();
