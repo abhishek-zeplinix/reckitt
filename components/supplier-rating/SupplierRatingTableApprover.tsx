@@ -11,67 +11,99 @@ import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 import { Checkbox } from 'primereact/checkbox';
 import TableSkeleton from './skeleton/TableSkeleton';
+import { Dialog } from 'primereact/dialog';
+import { useAuth } from '@/layout/context/authContext';
+import { PostCall } from '@/app/api-config/ApiKit';
+import { useAppContext } from '@/layout/AppWrapper';
+import { genericTextSchema } from '@/utils/validationSchemas';
+import { z } from 'zod';
 
-
-const SupplierEvaluationTableApprover = ({ rules,
+const SupplierEvaluationTableApprover = ({
   selectedPeriod,
   category,
   departmentId,
-  totalScoreEvaluated,
+  onSuccess,
   supplierScoreData,
   isEvaluatedData,
   isTableLoading
 }: any) => {
 
-  const [tableData, setTableData] = useState<any>(rules);
+  const [tableData, setTableData] = useState<any>(supplierScoreData);
   const [selectedEvaluations, setSelectedEvaluations] = useState<any>({});
   const [currentPercentages, setCurrentPercentages] = useState<any>({});
   const [displayPercentages, setDisplayPercentages] = useState<any>({});
   const [totalScore, setTotalScore] = useState<any>(0);
   const [comments, setComments] = useState('');
   const [capaData, setCapaData] = useState<any[]>([]);
-  const [criteriaCount, setCriteriaCount] = useState(0);
   const [capaDataCount, setCapaDataCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState<any>('pending');
-  const [loading, setLoading2] = useState(true);
   const [initializing, setInitializing] = useState(true);
   const [noData, setNoData] = useState(false);
   const [checkedCriteria, setCheckedCriteria] = useState<any[]>([]);
   const [approverComment, setApproverComment] = useState('');
+  const [isRejectDialogVisible, setIsRejectDialogVisible] = useState(false);
 
-  const dropdownRef = useRef<any>(null);
+  //validation
+  const [rejectionError, setRejectionError] = useState('');
+  const [remainingChars, setRemainingChars] = useState(250);
+
+  const [approvalStatusDisplay, setApprovalStatusDisplay] = useState<string | null>(null); 
+  const [isAlreadyApprovedOrRejected, setIsAlreadyApprovedOrRejected] = useState(false); // to control button visibility
+
 
   const urlParams = useParams();
   const { supId, catId, subCatId } = urlParams;
+  const { userId } = useAuth();
+  const { setAlert } = useAppContext();
 
   useEffect(() => {
-
+    setApproverComment('')
+    setRemainingChars(250)
     setTableData([])
+
     const initialize = async () => {
       setInitializing(true);
       setIsCompleted('pending');
+      setApprovalStatusDisplay(null); // reset status on re-initialization
+      setIsAlreadyApprovedOrRejected(false);
 
       try {
 
         if (supplierScoreData) {
           const status = supplierScoreData[0]?.status;
+
           status === undefined ? setIsCompleted('pending') : setIsCompleted(status);
 
-          // if (status?.toLowerCase() === 'completed' || (!rules?.sections && supplierScoreData[0]?.sections)) {
           if (status?.toLowerCase() === 'completed') {
             setNoData(false)
             setTableData(supplierScoreData[0]);
-            await initializeCompletedData();
-            const totalCriteria = supplierScoreData[0]?.sections?.reduce((total: any, section: any) => {
-              return total + section.ratedCriteria.length;
-            }, 0) || 0;
+            setTotalScore(supplierScoreData[0].totalScore)
+            initializeCompletedData();
 
-            setCriteriaCount(totalCriteria);
           } else {
             setNoData(true)
           }
-          setTotalScore(totalScoreEvaluated);
+
+          if(supplierScoreData[0]?.scoreApprovals){
+            const approverStatus = supplierScoreData[0]?.scoreApprovals?.approvalStatus;
+            const approverComment = supplierScoreData[0]?.scoreApprovals?.approverComment;
+            if (approverStatus) {
+              setApprovalStatusDisplay(approverStatus); // Set the status for display
+              setIsAlreadyApprovedOrRejected(true); // Disable buttons
+            }
+
+            if(approverComment){
+                setApproverComment(approverComment);
+            }
+          
+            setCheckedCriteria(supplierScoreData[0]?.scoreApprovals.checkedData || []); // Ensure default to empty array if undefined
+
+          } else {
+            setCheckedCriteria([]); // Initialize to empty if no scoreApprovals data yet
+          }
+
         }
+
       } catch (error) {
         console.error('Initialization error:', error);
       } finally {
@@ -80,49 +112,54 @@ const SupplierEvaluationTableApprover = ({ rules,
     };
 
     initialize();
-  }, [rules, category, supplierScoreData]);
+  }, [category, supplierScoreData]);
 
 
   useEffect(() => {
-
     if (supplierScoreData) {
-      const status = supplierScoreData[0]?.status;
-      if (status?.toLowerCase() === 'completed') {
-        return;
+      if (supplierScoreData[0]?.scoreApprovals?.checkedData) {
+        console.log("Setting checkedCriteria from scoreApprovals:", supplierScoreData[0]?.scoreApprovals?.checkedData); // ADD THIS LOG
+        setCheckedCriteria(supplierScoreData[0]?.scoreApprovals.checkedData);
+      } else {
+        console.log("No scoreApprovals or checkedData found, setting default checked criteria based on score < 5"); // ADD THIS LOG
+        // Logic to set default checked based on score < 5 will be handled in another useEffect
       }
     }
-    setLoading2(true)
+  }, [supplierScoreData]);
 
-    if (rules) {
-      setTimeout(() => {
-        if (dropdownRef.current) {
-          const dropdownInstance = dropdownRef.current;
-          const options = dropdownInstance.props.options;
+  // useEffect(() => {
+  //   if (tableData?.sections) {
+  //     const defaultChecked: any[] = [];
 
-          if (options && options.length > 1) {
-            const originalValue = dropdownInstance.props.value;
+  //     tableData.sections.forEach((section: any, sectionIndex: number) => {
+  //       section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
+  //         const key = `${sectionIndex}-${criteriaIndex}`;
+  //         const selectedEval = selectedEvaluations[key];
+  //         const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
+  //         const score = evaluation?.score;
 
-            // simulate selecting the second option
-            const newValue = options[1].value; // pick second value from options
-            dropdownInstance.props.onChange({ value: newValue });
+  //         // check if score is less than 5
+  //         if (score && Number(score) < 5) {
+  //           defaultChecked.push({
+  //             sectionName: section.sectionName,
+  //             ratedCriteria: criteria.criteriaName,
+  //             ratio: displayPercentages[key],
+  //             evaluation: selectedEval,
+  //             score: score
+  //           });
+  //         }
+  //       });
+  //     });
 
-            // restore the original value after 50ms
-            setTimeout(() => {
-              dropdownInstance.props.onChange({ value: originalValue });
-              setTimeout(() => setLoading2(false), 100);
-            }, 50);
-          }
-        } else {
-          setLoading2(false)
-        }
-      }, 400);
+  //     setCheckedCriteria(defaultChecked);
+  //   }
+  // }, [tableData, selectedEvaluations, displayPercentages]);
 
-    }
-
-  }, [rules]);
-
+  //capa rule visibility logic
+  //it is based on selectedEvaluations
 
   useEffect(() => {
+
     if (tableData?.sections) {
       const defaultChecked: any[] = [];
 
@@ -133,25 +170,34 @@ const SupplierEvaluationTableApprover = ({ rules,
           const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
           const score = evaluation?.score;
 
-          // check if score is less than 5
           if (score && Number(score) < 5) {
-            defaultChecked.push({
+            const criteriaData = { // Create criteriaData object here to reuse
               sectionName: section.sectionName,
               ratedCriteria: criteria.criteriaName,
               ratio: displayPercentages[key],
               evaluation: selectedEval,
               score: score
-            });
+            };
+            defaultChecked.push(criteriaData);
           }
         });
       });
 
-      setCheckedCriteria(defaultChecked);
-    }
-  }, [tableData, selectedEvaluations, displayPercentages]);
+      console.log('rendering.........');
+      
 
-  //capa rule visibility logic
-  //it is based on selectedEvaluations
+      // Only set defaultChecked if checkedCriteria is currently empty or hasn't been explicitly set from backend
+      if (checkedCriteria.length === 0) { // Check if it's empty, meaning not initialized by backend data yet
+      
+        setCheckedCriteria(defaultChecked);
+      } else {
+        console.log("checkedCriteria ALREADY SET from backend, skipping default check logic."); // ADD THIS LOG
+      }
+    }
+  }, [tableData]); // ADD checkedCriteria to dependency array
+
+
+
   const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
 
 
@@ -243,7 +289,6 @@ const SupplierEvaluationTableApprover = ({ rules,
   };
 
 
-
   if (initializing || !tableData) {
     return (
       <div className="w-full p-4">
@@ -266,234 +311,319 @@ const SupplierEvaluationTableApprover = ({ rules,
     );
   }
 
-
   const handleApprove = () => {
-    alert("API under construction")
-  }
+    handleSubmit("Approved");
+  };
 
-  const handleReject = () => {
-    alert("API under construction")
-  }
+  const handleRejectDialogOpen = () => {
+    setIsRejectDialogVisible(true);
+  };
 
-  const handleSubmit = () =>{
+  const closeRejectDialog = () => {
+    setIsRejectDialogVisible(false);
+  };
 
-  }
+  const handleReject = (keepData: boolean) => {
+    handleSubmit("Rejected", keepData);
+    closeRejectDialog();
+  };
 
-  // if(isTableLoading){
-  //   return(
-  //     <div>
-  //       <TableSkeleton />
-  //     </div>
-  //   )
-  // }
+  const handleSubmit = async (status: string, keepData?: boolean) => {
+    const payload = {
+      approverId: userId,
+      supplierScoreId: tableData?.supplierScoreId,
+      depId: Number(departmentId),
+      catId: Number(catId),
+      subCatId: Number(subCatId),
+      approvalStatus: status,
+      approverComment: approverComment,
+      checkedData: checkedCriteria,
+      ...(status === "Rejected" && { keepData }) // conditionally add keepData for Rejected status
+    };
+
+    console.log(`${status} Payload:`, payload);
+
+    try {
+      const response = await PostCall('/company/score-approval', payload);
+      if (response.code === 'SUCCESS') {
+        onSuccess();
+        setAlert('success', `Evaluation has been ${status.toLowerCase()} successfully`);
+      } else {
+        setAlert('error', 'Something went wrong!!');
+      }
+    } catch (error) {
+      setAlert('error', 'An error occurred while processing your request');
+    }
+  };
+
+  console.log(totalScore);
 
 
   return (
     <>
+      {isTableLoading ? <TableSkeleton /> :
 
-    <div className=" w-full shadow-sm mt-3 overflow-x-auto">
+        <div className=" w-full shadow-sm mt-3 overflow-x-auto">
 
-      <div className="min-w-[800px]">
-        <div className='flex justify-content-start'>
-          <Badge value={isCompleted?.toUpperCase()} severity={getSeverity(isCompleted)} className="mr-3 mb-2" />
-        </div>
-
-        {isTableLoading ? 'Loading.....' :
-
-          <table className="min-w-full bg-white border">
-            <thead>
-              <tr style={{ backgroundColor: '#E9EFF6' }}>
-                <th className="px-4 py-3 text-left text-md font-bold text-black">Section Name</th>
-                <th className="px-4 py-3 text-left text-md font-bold text-black">Rated Criteria</th>
-                <th className="px-4 py-3 text-left text-md font-bold text-black">Ratio (100%)</th>
-                <th className="px-4 py-3 text-left text-md font-bold text-black">Evaluation</th>
-                <th className="px-4 py-3 text-left text-md font-bold text-black">Score</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {tableData?.sections?.map((section: any, sectionIndex: any) => (
-                <>
-                  <tr key={`section-${sectionIndex}`}>
-                    {sectionIndex !== 0 && (
-                      <td colSpan={5}>
-                        <hr />
-                      </td>
-                    )}
-                  </tr>
-
-                  {section?.ratedCriteria?.map((criteria: any, criteriaIndex: any) => {
-                    const key = `${sectionIndex}-${criteriaIndex}`;
-                    const selectedEval = selectedEvaluations[key];
-                    const currentPercentage = currentPercentages[key];
+          <div className="min-w-[800px]">
+            <div className='flex justify-content-start'>
+              <Badge value={isCompleted?.toUpperCase()} severity={getSeverity(isCompleted)} className="mr-3 mb-2" />
+            </div>
 
 
-                    //if no evaluation is selected, 'NA' will be assigned to score by default
-                    const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
+            <table className="min-w-full bg-white border">
+              <thead>
+                <tr style={{ backgroundColor: '#E9EFF6' }}>
+                  <th className="px-4 py-3 text-left text-md font-bold text-black">Section Name</th>
+                  <th className="px-4 py-3 text-left text-md font-bold text-black">Rated Criteria</th>
+                  <th className="px-4 py-3 text-left text-md font-bold text-black">Ratio (100%)</th>
+                  <th className="px-4 py-3 text-left text-md font-bold text-black">Evaluation</th>
+                  <th className="px-4 py-3 text-left text-md font-bold text-black">Score</th>
+                </tr>
+              </thead>
 
-                    return (
-                      <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
-                        {criteriaIndex === 0 && (
-                          <td
-                            className="px-4 py-2 text-md text-black-800"
-                            rowSpan={section.ratedCriteria.length}
-                          // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
-                          >
-                            {section.sectionName}
-                          </td>
-                        )}
-
-                        <td className="px-4 py-2 text-md text-gray-500">
-
-                          <Checkbox
-                            onChange={() => handleCheckboxChange(
-                              section,
-                              criteria,
-                              sectionIndex,
-                              criteriaIndex
-                            )}
-                            checked={
-                              checkedCriteria.some(item =>
-                                item.sectionName === section.sectionName &&
-                                item.ratedCriteria === criteria.criteriaName
-                              )
-                            }
-                            className='mx-2'
-                          />
-
-
-                          {criteria.criteriaName}
+              <tbody>
+                {tableData?.sections?.map((section: any, sectionIndex: any) => (
+                  <>
+                    <tr key={`section-${sectionIndex}`}>
+                      {sectionIndex !== 0 && (
+                        <td colSpan={5}>
+                          <hr />
                         </td>
+                      )}
+                    </tr>
 
-                        {
-                          loading ? <Skeleton width="5rem" />
-                            :
-                            <td className="px-4 py-2">
-                              <InputText
-                                type="text"
-                                value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
-                                size={1}
-                                readOnly
-                                className='m-auto text-center'
-                              />
-                              {loading && <ProgressSpinner className="p-ml-2" />} {/* Show the spinner */}
+                    {section?.ratedCriteria?.map((criteria: any, criteriaIndex: any) => {
+                      const key = `${sectionIndex}-${criteriaIndex}`;
+                      const selectedEval = selectedEvaluations[key];
+                      const currentPercentage = currentPercentages[key];
+
+
+                      //if no evaluation is selected, 'NA' will be assigned to score by default
+                      const score = criteria.evaluations.find((evaluation: any) => evaluation.criteriaEvaluation === selectedEval)?.score || 'empty';
+
+                      return (
+                        <tr key={`criteria-${key}`} className="border-b hover:bg-gray-50">
+                          {criteriaIndex === 0 && (
+                            <td
+                              className="px-4 py-2 text-md text-black-800"
+                              rowSpan={section.ratedCriteria.length}
+                            // style={{ verticalAlign: "top" }} //commnet this line if you want to show it at middle
+                            >
+                              {section.sectionName}
                             </td>
-                        }
-
-
-                        <td className="px-4 py-2">
-                          <Dropdown
-                            ref={dropdownRef}
-                            value={selectedEval}
-                            options={[
-                              // { label: "-- Select an Evaluation --", value: "" }, // for defaukt option, so user can select default again..
-                              ...criteria.evaluations.map((evaluation: any) => ({
-                                label: evaluation.criteriaEvaluation,
-                                value: evaluation.criteriaEvaluation,
-                              }))
-                            ]}
-                            placeholder="-- Select an Evaluation --"
-                            className="w-full md:w-14rem"
-                            showClear
-                            disabled={isCompleted?.toLowerCase() === 'completed'}
-
-                          />
-                        </td>
-
-
-                        <td className="px-4 py-2">
-                          {score === 'NA' ? (
-                            <InputText type="text" size={1} value={score} readOnly className="m-auto bg-gray-400 font-bold border-none text-white text-center" />
-                          ) : Number(score) >= 9 ? (
-                            <InputText type="text" size={1} value={score} readOnly className="m-auto excellent font-bold border-none text-white text-center" />
-                          ) : Number(score) >= 7 ? (
-                            <InputText type="text" size={1} value={score} readOnly className="m-auto good font-bold border-none text-white text-center" />
-                          ) : score >= 'empty' ? (
-                            <InputText type="text" size={1} value="" readOnly className="m-auto bg-white text-center text-transparent" />
-                          ) : Number(score) >= 5 ? (
-                            <InputText type="text" size={1} value={score} readOnly className="m-auto improvement font-bold border-none text-white text-center" />
-                          ) : (
-                            <InputText type="text" size={1} value={score} readOnly className="m-auto critical font-bold border-none text-white text-center" />
                           )}
-                        </td>
 
-                      </tr>
-                    );
-                  })}
-                </>
-              ))}
+                          <td className="px-4 py-2 text-md text-gray-500">
 
-              <tr style={{ backgroundColor: getBackgroundColor(totalScore) }}>
-                <td colSpan={4} className="px-4 py-3 text-right text-white font-bold">
-                  Total Score:
-                </td>
-                <td className="px-4 py-3 font-bold text-lg text-white">{totalScore}</td>
-              </tr>
-            </tbody>
-
-          </table>
-        }
-
-
-      </div>
+                            <Checkbox
+                              onChange={() => handleCheckboxChange(
+                                section,
+                                criteria,
+                                sectionIndex,
+                                criteriaIndex
+                              )}
+                              checked={
+                                checkedCriteria.some(item =>
+                                  item.sectionName === section.sectionName &&
+                                  item.ratedCriteria === criteria.criteriaName
+                                )
+                              }
+                              className='mx-2'
+                            />
 
 
-      <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
-        {totalScore > 50 && (
-          <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
-            <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+                            {criteria.criteriaName}
+                          </td>
+
+
+                          <td className="px-4 py-2">
+                            <InputText
+                              type="text"
+                              value={currentPercentage === 'NA' ? 'NA' : displayPercentages[key] + '%'}
+                              size={1}
+                              readOnly
+                              className='m-auto text-center'
+                            />
+
+                          </td>
+
+
+
+                          <td className="px-4 py-2">
+                            <Dropdown
+                              value={selectedEval}
+                              options={[
+                                // { label: "-- Select an Evaluation --", value: "" }, // for defaukt option, so user can select default again..
+                                ...criteria.evaluations.map((evaluation: any) => ({
+                                  label: evaluation.criteriaEvaluation,
+                                  value: evaluation.criteriaEvaluation,
+                                }))
+                              ]}
+                              placeholder="-- Select an Evaluation --"
+                              className="w-full md:w-14rem"
+                              showClear
+                              disabled={isCompleted?.toLowerCase() === 'completed'}
+
+                            />
+                          </td>
+
+
+                          <td className="px-4 py-2">
+                            {score === 'NA' ? (
+                              <InputText type="text" size={1} value={score} readOnly className="m-auto bg-gray-400 font-bold border-none text-white text-center" />
+                            ) : Number(score) >= 9 ? (
+                              <InputText type="text" size={1} value={score} readOnly className="m-auto excellent font-bold border-none text-white text-center" />
+                            ) : Number(score) >= 7 ? (
+                              <InputText type="text" size={1} value={score} readOnly className="m-auto good font-bold border-none text-white text-center" />
+                            ) : score >= 'empty' ? (
+                              <InputText type="text" size={1} value="" readOnly className="m-auto bg-white text-center text-transparent" />
+                            ) : Number(score) >= 5 ? (
+                              <InputText type="text" size={1} value={score} readOnly className="m-auto improvement font-bold border-none text-white text-center" />
+                            ) : (
+                              <InputText type="text" size={1} value={score} readOnly className="m-auto critical font-bold border-none text-white text-center" />
+                            )}
+                          </td>
+
+                        </tr>
+                      );
+                    })}
+                  </>
+                ))}
+
+                <tr style={{ backgroundColor: getBackgroundColor(totalScore) }}>
+                  <td colSpan={4} className="px-4 py-3 text-right text-white font-bold">
+                    Total Score:
+                  </td>
+                  <td className="px-4 py-3 font-bold text-lg text-white">{totalScore}</td>
+                </tr>
+              </tbody>
+
+            </table>
+
           </div>
-        )}
 
-        {/* divider */}
-        <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
-        <div>
-          <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
-          <InputTextarea
-            rows={5}
-            cols={30}
-            onChange={(e) => setComments(e.target.value)} value={comments}
-            disabled={isCompleted?.toLowerCase() === 'completed'}
-          />
+
+          <div className="flex flex-col justify-content-end gap-3 mt-2 mr-2">
+            {totalScore > 50 && (
+              <div className="m-3 max-w-sm text-ellipsis overflow-hidden" style={{ wordWrap: 'normal', maxWidth: '300px', alignItems: 'stretch' }}>
+                <span className="text-red-500">Note:</span> Capa Not Required (Corrective And Preventive Action (CAPA) Required If Score &lt 50%?)
+              </div>
+            )}
+
+            {/* divider */}
+            <div className="w-[1px] bg-red-500" style={{ height: '100%' }}></div>
+            <div>
+              <div className="py-2 text-dark font-medium">Key Comments / Summary: </div>
+              <InputTextarea
+                rows={5}
+                cols={30}
+                onChange={(e) => setComments(e.target.value)} value={comments}
+                disabled={isCompleted?.toLowerCase() === 'completed'}
+              />
+            </div>
+          </div>
+
+
+
+          {
+            (isEvaluatedData) ?
+              <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
+                {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+              </div>
+              :
+              <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
+                {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+              </div>
+
+          }
+
+
+          <div className="flex flex-col justify-content-center gap-3  mr-2">
+            <div>
+              <div className="py-2 text-dark font-medium">Approver Comment: </div>
+
+              <InputTextarea
+                rows={5}
+                cols={100}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setApproverComment(newValue);
+                  setRemainingChars(250 - newValue.length);
+                  try {
+                    genericTextSchema("Approver Comment", 250).parse({ "Approver Comment": newValue });
+                    setRejectionError('');
+                  } catch (error) {
+                    if (error instanceof z.ZodError) {
+                      setRejectionError(error.errors[0].message);
+                    }
+                  }
+                }}
+                value={approverComment}
+                placeholder='Add comments'
+                disabled={isAlreadyApprovedOrRejected}
+              />
+              <div className="flex justify-between mt-1">
+                <small className="text-red-500">{rejectionError}</small>
+                <small className={`${remainingChars < 50 ? 'text-red-500' : 'text-gray-500'}`}>
+                  {remainingChars > 0 && (
+                    <small className={`${remainingChars < 50 ? 'text-red-500' : 'text-gray-500'}`}>
+                      {remainingChars} characters remaining
+                    </small>
+                  )}
+                </small>
+              </div>
+
+            </div>
+          </div>
+
+          <div className='flex justify-content-center gap-3 mt-1 p-3'>
+            {isAlreadyApprovedOrRejected ? (
+              <Badge value={`Status: ${approvalStatusDisplay}`} severity={getSeverity(approvalStatusDisplay || 'info')} className="mr-3 mb-2" />
+            ) : (
+              <>
+                <Button label="Approve" className='good border-none  hover:text-white' onClick={handleApprove} disabled={remainingChars <= 0} />
+                <Button label="Reject" className='critical border-none hover:text-white' onClick={handleRejectDialogOpen} disabled={remainingChars <= 0} />
+              </>
+            )}
+          </div>
+
+
+          <Dialog
+            header="Reject Confirmation"
+            visible={isRejectDialogVisible}
+            style={{ width: '35vw' }}
+            className="delete-dialog"
+            footer={
+              <div className="flex justify-content-center p-2">
+                <Button
+                  label="Keep Data"
+                  style={{ color: '#DF1740' }}
+                  className="px-7"
+                  text
+                  onClick={() => handleReject(true)}
+                />
+                <Button
+                  label="Delete Data"
+                  style={{ backgroundColor: '#DF1740', border: 'none' }}
+                  className="px-7 hover:text-white"
+                  onClick={() => handleReject(false)}
+                />
+              </div>
+            }
+            onHide={closeRejectDialog}
+          >
+            <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+              <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
+              <div className="flex flex-column align-items-center gap-1">
+                <span>Are you sure you want to reject?</span>
+                <span>Choose whether to keep or delete the data.</span>
+              </div>
+            </div>
+          </Dialog>
+
         </div>
-      </div>
-
-
-
-      {
-        (isEvaluatedData) ?
-          <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
-          </div>
-          :
-          <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-            {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
-          </div>
-
       }
-
-
-      <div className="flex flex-col justify-content-end gap-3  mr-2">
-        <div>
-          <div className="py-2 text-dark font-medium">Approver Comment: </div>
-
-          <InputTextarea
-            rows={5}
-            cols={100}
-            onChange={(e) => setApproverComment(e.target.value)} value={approverComment}
-            placeholder='add comments'
-          />
-
-        </div>
-      </div>
-
-      <div className='flex justify-content-end gap-3 mt-1 p-3'>
-        <Button label="Approve" className='good border-none  hover:text-white' onClick={handleApprove} />
-        <Button label="Reject" className='critical border-none  hover:text-white' onClick={handleReject} />
-      </div>
-
-
-    </div>
 
     </>
   );

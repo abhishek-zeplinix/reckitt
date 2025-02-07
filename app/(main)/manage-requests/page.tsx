@@ -13,11 +13,6 @@ import { z } from 'zod';
 import { useAuth } from '@/layout/context/authContext';
 import { get } from 'lodash';
 
-const REQUEST_ACTIONS: any = {
-    APPROVE: 'approve',
-    REJECT: 'reject'
-};
-
 const rejectionSchema = z.object({
     reason: z.string().max(250, 'Rejection reason cannot exceed 250 characters')
 });
@@ -158,6 +153,7 @@ const ManageRequestsPage = () => {
 
     const CompareDataTable = ({ oldData, requestedData }: any) => {
         if (!requestedData || typeof requestedData !== 'object') return null;
+        if (!oldData || typeof oldData !== 'object') return null;
 
         const requestedKeys = Object.keys(requestedData);
         const data = requestedKeys.filter(key => requestedData[key] !== null);

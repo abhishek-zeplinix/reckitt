@@ -30,6 +30,7 @@ type AuthContextType = {
     isSuperAdmin: () => boolean;
     isSupplier: () => boolean;
     userPermissions: string[];
+    userId: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -81,13 +82,18 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
     const isSuperAdmin = useCallback(() => hasRole(USER_ROLES.SUPER_ADMIN), [hasRole]);
     const isSupplier = useCallback(() => hasRole(USER_ROLES.SUPPLIER), [hasRole]);
 
+
+    //get user id
+    const userId = useMemo(() => get(user, 'id', null) as string | null, [user]);
+
     const value = {
         hasRole,
         hasPermission,
         hasAnyPermission,
         isSuperAdmin,
         isSupplier,
-        userPermissions
+        userPermissions,
+        userId
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

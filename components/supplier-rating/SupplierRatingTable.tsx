@@ -492,15 +492,23 @@ const SupplierEvaluationTable = ({ rules,
 
 
   const prepareApiData = () => {
-    const sections = tableData?.sections?.map((section: any) => {
-      return {
-        sectionName: section.sectionName,
-        ratedCriteria: section.ratedCriteria
-          .map((criteria: any, criteriaIndex: number) => {
-            const sectionIndex = tableData.sections.indexOf(section);
-            const key = `${sectionIndex}-${criteriaIndex}`;
-            const selectedEval = selectedEvaluations[key];
 
+    const sections = tableData?.sections?.map((section: any) => {
+
+      return {
+
+        sectionName: section.sectionName,
+
+        ratedCriteria: section.ratedCriteria
+
+          .map((criteria: any, criteriaIndex: number) => {
+
+            const sectionIndex = tableData.sections.indexOf(section);
+
+            const key = `${sectionIndex}-${criteriaIndex}`;
+
+            const selectedEval = selectedEvaluations[key];
+            
             const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
 
             if (!evaluation) return null;
