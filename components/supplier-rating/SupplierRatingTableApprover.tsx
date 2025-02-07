@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
 import { useParams } from 'next/navigation';
 import { Badge } from 'primereact/badge';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 import { Checkbox } from 'primereact/checkbox';
