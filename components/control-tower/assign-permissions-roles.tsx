@@ -103,7 +103,7 @@ const Permission = () => {
     const fetchPermissionsByRoleId = async (rId: Number) => {
         try {
             setIsDetailLoading(true);
-            const params = { filters: { roleId: rId } };
+            const params = { filters: { roleId: rId }, pagination: false };
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/settings/role-permissions?${queryString}`);
