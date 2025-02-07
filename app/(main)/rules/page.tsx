@@ -568,12 +568,6 @@ const MainRules = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
 
-                                    // {
-                                    //     header: 'EFFECTIVE FROM ',
-                                    //     field: 'effectiveFrom',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    // },
                                     {
                                         header: 'RULES NAME ',
                                         field: 'value',
@@ -588,54 +582,68 @@ const MainRules = () => {
                     </div>
                 </div>
 
-                {/* Dialog for Response Data */}
-                <Dialog 
-    visible={bulkDialogVisible} 
-    onHide={() => setBulkDialogVisible(false)} 
-    header="Upload Summary"
-    style={{ width: '600px' }}
->
-    {responseData && (
-        <div>
-            {/* Saved Count */}
-            <p><strong>Saved Count:</strong> {responseData.savedCount}</p>
+                <Dialog
+                    visible={bulkDialogVisible}
+                    onHide={() => setBulkDialogVisible(false)}
+                    header="Upload Summary"
+                    style={{ width: "600px" }}
+                >
+                    {responseData && (
+                        <div>
+                            <p><strong>Inserted Count:</strong> {responseData.insertedCount}</p>
+                            <p><strong>Skipped Count:</strong> {responseData.skippedCount}</p>
+                            <h4>Skipped Data:</h4>
+                            {responseData.skippedData.length > 0 ? (
+                                <ul>
+                                    {responseData.skippedData.map((skipped: {
+                                        rule: {
+                                            departmentName: string;
+                                            categoryName: string;
+                                            subCategoryName: string;
+                                            effective_from: string;
+                                            criteriaEvaluation: any;
+                                        };
+                                        reason: string;
+                                    }, index: number) => (
+                                        <li key={index}>
+                                            <strong>Department Name:</strong> {skipped.rule?.departmentName || "N/A"} <br />
+                                            <strong>Category Name:</strong> {skipped.rule?.categoryName || "N/A"} <br />
+                                            <strong>SubCategory Name:</strong> {skipped.rule?.subCategoryName || "N/A"} <br />
+                                            <strong>Effective From:</strong> {skipped.rule?.effective_from || "N/A"} <br />
+                                            <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || "N/A"} <br />
+                                            <strong>Reason:</strong> {skipped.reason}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>No skipped data.</p>
+                            )}
 
-            {/* Skipped Data */}
-            <h4>Skipped Data:</h4>
-            {responseData.skippedData.length > 0 ? (
-                <ul>
-                    {responseData.skippedData.map((skipped: { rule: {
-                        departmentName: string;
-                        categoryName: string;
-                        subCategoryName: string;
-                        effective_from: string; criteriaEvaluation: any; 
-}; reason: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: React.Key | null | undefined) => (
-                        <li key={index}>
-                            <strong>Rule:</strong> {skipped.rule ? JSON.stringify(skipped.rule) : 'N/A'} <br />
-                            <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || 'N/A'} <br />
-                            <strong>Department Name:</strong> {skipped.rule?.departmentName || 'N/A'} <br />
-                            <strong>Category Name:</strong> {skipped.rule?.categoryName || 'N/A'} <br />
-                            <strong>SubCategory Name:</strong> {skipped.rule?.subCategoryName || 'N/A'} <br />
-                            <strong>Effective From:</strong> {skipped.rule?.effective_from || 'N/A'} <br />
-                            <strong>Reason:</strong> {skipped.reason}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No skipped data.</p>
-            )}
-
-            {/* Not Found Data */}
-            <h4>Not Found:</h4>
-            <ul>
-                <li><strong>Departments:</strong> {responseData.notFound?.departments?.filter(Boolean).join(', ') || 'None'}</li>
-                <li><strong>Categories:</strong> {responseData.notFound?.categories?.filter(Boolean).join(', ') || 'None'}</li>
-                <li><strong>SubCategories:</strong> {responseData.notFound?.subCategories?.filter(Boolean).join(', ') || 'None'}</li>
-            </ul>
-        </div>
-    )}
-</Dialog>
-
+                            {/* Not Found Data */}
+                            <h4>Not Found Data:</h4>
+                            <ul>
+                                <li>
+                                    <strong>Departments:</strong>{" "}
+                                    {responseData.missingDepartments.length > 0
+                                        ? responseData.missingDepartments.join(", ")
+                                        : "None"}
+                                </li>
+                                <li>
+                                    <strong>Categories:</strong>{" "}
+                                    {responseData.missingCategories.length > 0
+                                        ? responseData.missingCategories.join(", ")
+                                        : "None"}
+                                </li>
+                                <li>
+                                    <strong>SubCategories:</strong>{" "}
+                                    {responseData.missingSubCategories.length > 0
+                                        ? responseData.missingSubCategories.join(", ")
+                                        : "None"}
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+                </Dialog>
                 <Dialog
                     header="Delete confirmation"
                     visible={isDeleteDialogVisible}
