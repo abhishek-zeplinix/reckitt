@@ -1,39 +1,15 @@
+import React from 'react';
+import { Skeleton } from 'primereact/skeleton';
 
 const TableSkeleton = () => {
-
   return (
-    <div className="w-full border border-gray-300 rounded-lg">
-
-      {/* header */}
-      <div className="grid grid-cols-4 bg-gray-200 p-3 rounded-t-lg">
-        {Array(5)
-          .fill("")
-          .map((_, index) => (
-            <div
-              key={index}
-              className="h-4 bg-gray-300 rounded w-3/4 animate-pulse"
-            ></div>
-          ))}
+    <div className="w-full h-screen p-4">
+      <div className="mb-2">
+        <Skeleton width="100px" height="30px" className="mb-2" />
       </div>
-
-      {/* rows */}
-      {Array(20)
-        .fill("")
-        .map((_, rowIndex) => (
-          <div
-            key={rowIndex}
-            className="grid grid-cols-4 p-3 border-t border-gray-300"
-          >
-            {Array(5)
-              .fill("")
-              .map((_, colIndex) => (
-                <div
-                  key={colIndex}
-                  className="h-4 bg-gray-300 rounded w-3/4 animate-pulse"
-                ></div>
-              ))}
-          </div>
-        ))}
+      <div className="border rounded-lg p-4 h-full">
+        <Skeleton width="100%" height="100%" />
+      </div>
     </div>
   );
 };

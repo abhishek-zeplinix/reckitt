@@ -20,6 +20,7 @@ import html2canvas from 'html2canvas';
 import { useAuth } from '@/layout/context/authContext';
 import ReadMoreText from '@/components/read-more-text/ReadMoreText';
 import { Badge } from 'primereact/badge';
+import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
 
 const SupplierScoreboardTables = () => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
@@ -45,7 +46,7 @@ const SupplierScoreboardTables = () => {
     const { hasPermission, isSupplier } = useAuth();
 
     console.log(evaluationData);
-    
+
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
             if (!chartRef.current) return;
@@ -289,7 +290,7 @@ const SupplierScoreboardTables = () => {
                     }}
                 />
                 {percentage <= 50 && percentage !== 0 && !isSupplier() && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
-                {percentage <= 50 && percentage !== 0 && isSupplier() && <Badge value="+ Feedback" severity="success" onClick={handleIconClick} className='cursor-pointer'></Badge> }
+                {percentage <= 50 && percentage !== 0 && isSupplier() && <Badge value="+ Feedback" severity="success" onClick={handleIconClick} className='cursor-pointer'></Badge>}
             </div>
         );
     };
@@ -404,11 +405,18 @@ const SupplierScoreboardTables = () => {
 
                 {hasPermission('add_input') && (
                     <div className="flex-1 ml-5">
-                        <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
-                            <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                        </Link>
+                        {hasPermission('approve_score') ? (
+                            <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/approver`}>
+                                <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                            </Link>
+                        ) : (
+                            <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
+                                <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
+                            </Link>
+                        )}
                     </div>
                 )}
+
 
                 <div className="flex justify-content-end">
                     {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
@@ -665,28 +673,6 @@ const SupplierScoreboardTables = () => {
 
     const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
 
-    const GraphsPanel: any = React.memo(() => {
-        return (
-            <>
-                {/* first chart */}
-                <div className="flex justify-content-between align-items-start flex-wrap gap-4" ref={chartRef}>
-                    <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
-                        <h4 className="mt-2 mb-6">Overall Performance Rating per Quarter</h4>
-                        <Chart type="bar" data={ratingData} options={memoizedOptions} />
-                        <h6 className="text-center">Quarters</h6>
-                    </div>
-
-                    {/* second chart */}
-                    <div className="card shadow-lg" style={{ flexBasis: '48%', minWidth: '48%', width: '100%', flexGrow: 1, height: '470px', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
-                        <h4 className="mt-2 mb-6">Overall Performance per Function</h4>
-                        <Chart type="bar" data={lineData} options={memoizedBarOptions} className="" />
-                        <h6 className="text-center">Quarters</h6>
-                    </div>
-                </div>
-            </>
-        );
-    });
-
     // const renderGraphsPanel = GraphsPanel;
 
     return (
@@ -699,7 +685,7 @@ const SupplierScoreboardTables = () => {
                     <div>{renderDataPanel}</div>
                 </div>
                 <div className="col-12">
-                    <GraphsPanel />
+                    <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef}/>
                 </div>
             </div>
         </>

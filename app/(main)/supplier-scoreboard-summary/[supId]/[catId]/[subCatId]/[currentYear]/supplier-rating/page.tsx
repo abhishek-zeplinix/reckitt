@@ -22,12 +22,12 @@ const SupplierRatingPage = () => {
     const [periodOptions, setPeriodOptions] = useState<any>([]);
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [reload, setReload] = useState<boolean>(false);
-    const [isApprover, setIsApprover] = useState(false)
 
     const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
 
     const urlParams = useParams();
     const { supId, catId, subCatId, currentYear } = urlParams;
+    
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
@@ -383,36 +383,7 @@ const SupplierRatingPage = () => {
                             <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div> */}
                     </div>
-                    {
 
-                       (hasPermission('approve_score') && !isSuperAdmin()) &&
-                        <SupplierEvaluationTableApprover
-                            rules={rules} // Always pass rules
-                            // supplierScoreData={supplierScoreData} // Pass the score data separately
-                            supplierScoreData={supplierScoreData}
-                            category={category}
-                            evaluationPeriod={selectedPeriod}
-                            categoryName={categoryName}
-                            departmentId={selectedDepartment}
-                            department={activeTab}
-                            isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
-                            onSuccess={() => setReload(!reload)}
-                            selectedPeriod={selectedPeriod}
-                            totalScoreEvaluated={
-                                supplierData?.supplierScores?.find(
-                                    (score: any) =>
-                                        score.departmentId === selectedDepartment &&
-                                        score.evalutionPeriod === selectedPeriod
-                                )?.totalScore
-                            }
-                            isTableLoading={scoreDataLoading}
-                        // key={`${selectedDepartment}-${selectedPeriod}`}
-
-                        />
-                    }
-
-                    {
-                        hasPermission('evaluate_score') &&
 
                         <SupplierEvaluationTable
                             rules={rules} // Always pass rules
@@ -436,9 +407,6 @@ const SupplierRatingPage = () => {
                         // key={`${selectedDepartment}-${selectedPeriod}`}
 
                         />
-                    }
-
-
                 </div>
             </>
         );
@@ -458,4 +426,4 @@ const SupplierRatingPage = () => {
     );
 };
 
-export default withAuth(SupplierRatingPage, undefined, 'add_input');
+export default withAuth(SupplierRatingPage, undefined, 'evaluate_score');

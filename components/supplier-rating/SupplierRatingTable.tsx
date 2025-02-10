@@ -11,8 +11,7 @@ import { Badge } from 'primereact/badge';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
-import { useAuth } from '@/layout/context/authContext';
-import { Checkbox } from 'primereact/checkbox';
+
 
 
 const SupplierEvaluationTable = ({ rules,
@@ -140,11 +139,14 @@ const SupplierEvaluationTable = ({ rules,
 
     if (supplierScoreData) {
       const status = supplierScoreData[0]?.status;
+      console.log(status);
+      
       if (status?.toLowerCase() === 'completed') {
-        return;
+        setLoading2(false)
+      }else{
+        setLoading2(true)
       }
     }
-    setLoading2(true)
 
     if (rules) {
       setTimeout(() => {
@@ -492,15 +494,23 @@ const SupplierEvaluationTable = ({ rules,
 
 
   const prepareApiData = () => {
-    const sections = tableData?.sections?.map((section: any) => {
-      return {
-        sectionName: section.sectionName,
-        ratedCriteria: section.ratedCriteria
-          .map((criteria: any, criteriaIndex: number) => {
-            const sectionIndex = tableData.sections.indexOf(section);
-            const key = `${sectionIndex}-${criteriaIndex}`;
-            const selectedEval = selectedEvaluations[key];
 
+    const sections = tableData?.sections?.map((section: any) => {
+
+      return {
+
+        sectionName: section.sectionName,
+
+        ratedCriteria: section.ratedCriteria
+
+          .map((criteria: any, criteriaIndex: number) => {
+
+            const sectionIndex = tableData.sections.indexOf(section);
+
+            const key = `${sectionIndex}-${criteriaIndex}`;
+
+            const selectedEval = selectedEvaluations[key];
+            
             const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
 
             if (!evaluation) return null;

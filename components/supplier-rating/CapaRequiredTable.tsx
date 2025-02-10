@@ -1,3 +1,4 @@
+'use client'
 import { GetCall } from "@/app/api-config/ApiKit";
 import { useAppContext } from "@/layout/AppWrapper";
 import { useParams } from "next/navigation";
