@@ -133,7 +133,6 @@ const Dashboard = () => {
             setBottomSupplierData([]);
         }
     };
-
     const mapApiDataToTiles = (apiData: any): Tile[] => {
         const evaluationData = apiData.EvaluationData?.[0] || {}; // Get the first item in the EvaluationData array or an empty object
 
@@ -165,7 +164,6 @@ const Dashboard = () => {
             }
         ];
     };
-
     const secondData = (apiData: any): Tile[] => {
         const evaluationData = apiData.EvaluationData?.[0] || {};
         return [
@@ -203,7 +201,6 @@ const Dashboard = () => {
             link: '/manage-supplier'
         }
     ];
-
     const cities = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -527,7 +524,7 @@ const Dashboard = () => {
                 borderColor: '#2196F3',
                 backgroundColor: 'rgba(0, 122, 217, 0.2)',
                 fill: false,
-                tension: 0.1
+                tension: 0
             },
             {
                 label: 'Development',
@@ -535,7 +532,7 @@ const Dashboard = () => {
                 borderColor: '#FF9800',
                 backgroundColor: 'rgba(240, 200, 8, 0.2)',
                 fill: false,
-                tension: 0.1
+                tension: 0
             },
             {
                 label: 'Procurement',
@@ -543,7 +540,7 @@ const Dashboard = () => {
                 borderColor: '#4CAF50',
                 backgroundColor: 'rgba(0, 166, 82, 0.2)',
                 fill: false,
-                tension: 0.1
+                tension: 0
             },
             {
                 label: 'Planning',
@@ -551,7 +548,7 @@ const Dashboard = () => {
                 borderColor: '#F44336',
                 backgroundColor: 'rgba(214, 48, 49, 0.2)',
                 fill: false,
-                tension: 0.1
+                tension: 0
             },
             {
                 label: 'Quality',
@@ -559,7 +556,7 @@ const Dashboard = () => {
                 borderColor: '#9b59b6',
                 backgroundColor: 'rgba(155, 89, 182, 0.2)',
                 fill: false,
-                tension: 0.1
+                tension: 0
             }
         ]
     };
