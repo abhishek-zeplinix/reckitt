@@ -11,7 +11,10 @@ import { Dropdown } from 'primereact/dropdown';
 import Link from 'next/link';
 import { encodeRouteParams } from '@/utils/base64';
 import { Button } from 'primereact/button';
-import { filter, get } from 'lodash';
+import { get } from 'lodash';
+import TableSkeleton from '@/components/supplier-rating/skeleton/TableSkeleton';
+import { useRouter } from 'next/navigation';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 
 const ManageFeedbackPage = () => {
@@ -26,6 +29,7 @@ const ManageFeedbackPage = () => {
     const [totalRecords, setTotalRecords] = useState();
 
     const { isLoading, setLoading, setAlert, user } = useAppContext();
+    const router = useRouter();
 
     console.log(feedback);
 
@@ -48,14 +52,20 @@ const ManageFeedbackPage = () => {
             const supId = get(user, 'supplierId');
 
             if (!params) {
-                params = { limit: limit, page: page, filters: {supId} };
+                params = { limit: limit, page: page, filters: { supId } };
             }
             const queryString = buildQueryParams(params);
             setPage(params.page);
 
             const response = await GetCall(`/company/supplier-score-checked-data?${queryString}`);
-            setFeedback(response.data);
-            setTotalRecords(response.total);
+
+            if(response.code === 'SUCCESS'){
+                setFeedback(response.data);
+                setTotalRecords(response.total);
+            }else{
+                setFeedback([]);
+            }
+            
 
         } catch (error) {
             setAlert('error', 'Something went wrong!');
@@ -103,21 +113,24 @@ const ManageFeedbackPage = () => {
     };
 
     const buttonRenderer = (rowData: any) => {
+
+        const navigateToFeedback = () =>{
+                router.push(`/supplier-feedback/${encodeRouteParams({
+                    departmentId: rowData.departmentId,
+                    period: rowData.rawPeriod
+                })}`);
+        }
+
         return (
             <div className="flex gap-2">
-                <Link 
-                    href={`/supplier-feedback/${encodeRouteParams({ 
-                        departmentId: rowData.departmentId, 
-                        period: rowData.rawPeriod 
-                    })}`}
-                >
+             
                     <Button
                         icon="pi pi-eye"
                         className="p-button-rounded p-button-sm"
                         tooltip="View Feedback"
                         tooltipOptions={{ position: 'top' }}
+                        onClick={navigateToFeedback}
                     />
-                </Link>
             </div>
         );
     };
@@ -131,7 +144,7 @@ const ManageFeedbackPage = () => {
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
                             <div className="flex justify-content-between items-center border-b">
                                 <div>
-                                    <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
+                                    {/* <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} /> */}
                                 </div>
                                 <div className="flex  gap-2">
                                     {/* <div className="mt-2">{dropdownFeedbackStatus}</div> */}
@@ -139,53 +152,58 @@ const ManageFeedbackPage = () => {
                                     {/* <div className="mt-2">{FieldGlobalSearch}</div> */}
                                 </div>
                             </div>
-                            <CustomDataTable
-                                ref={dataTableRef}
-                                page={page}
-                                limit={limit}
-                                totalRecords={totalRecords}
-                                // extraButtons={getExtraButtons}
-                                data={feedback?.map((item: any) => ({
-                                    id: item.supplierScoreId,
-                                    departmentId: item.departmentId,
-                                    departmentName: item?.department.name,
-                                    period:formatEvaluationPeriod(item?.evalutionPeriod),
-                                    rawPeriod: item?.evalutionPeriod                                   
-                                }))}
-                                columns={[
-                                    {
-                                        header: 'Sr. No',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                            return <span>{srNo}</span>;
-                                        },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                    },
-                                    {
-                                        header: 'Department Name',
-                                        field: 'departmentName',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle,
-                                        filterPlaceholder: 'Search Supplier Name'
-                                    },
-                                    {
-                                        header: 'Period',
-                                        field: 'period',
-                                        headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 120, maxWidth: 120 }
-                                    },
+                            {
+                                isLoading ? <TableSkeletonSimple col={4} /> :
+                                    <CustomDataTable
+                                        ref={dataTableRef}
+                                        page={page}
+                                        limit={limit}
+                                        totalRecords={totalRecords}
+                                        // extraButtons={getExtraButtons}
+                                        data={feedback?.map((item: any) => ({
+                                            id: item.supplierScoreId,
+                                            departmentId: item.departmentId,
+                                            departmentName: item?.department.name,
+                                            period: formatEvaluationPeriod(item?.evalutionPeriod),
+                                            rawPeriod: item?.evalutionPeriod
+                                        }))}
+                                        columns={[
+                                            {
+                                                header: 'Sr. No',
+                                                body: (data: any, options: any) => {
+                                                    const normalizedRowIndex = options.rowIndex % limit;
+                                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                    {
-                                        header: 'Actions',
-                                        body: buttonRenderer,
-                                        bodyStyle: { minWidth: 100 },
-                                        headerStyle: dataTableHeaderStyle
-                                    }
-                                ]}
-                                onLoad={(params: any) => fetchData(params)}
-                            />
+                                                    return <span>{srNo}</span>;
+                                                },
+                                                bodyStyle: { minWidth: 50, maxWidth: 50 }
+                                            },
+                                            {
+                                                header: 'Department Name',
+                                                field: 'departmentName',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                                headerStyle: dataTableHeaderStyle,
+                                                filterPlaceholder: 'Search Supplier Name'
+                                            },
+                                            {
+                                                header: 'Period',
+                                                field: 'period',
+                                                headerStyle: dataTableHeaderStyle,
+                                                style: { minWidth: 120, maxWidth: 120 }
+                                            },
+
+                                            {
+                                                header: 'Actions',
+                                                body: buttonRenderer,
+                                                bodyStyle: { minWidth: 100 },
+                                                headerStyle: dataTableHeaderStyle
+                                            }
+                                        ]}
+                                        onLoad={(params: any) => fetchData(params)}
+                                    />
+                            }
+
                         </div>
                     </div>
                 </div>
