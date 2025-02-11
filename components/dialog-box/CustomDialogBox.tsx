@@ -13,6 +13,7 @@ interface CustomDialogBoxProps {
     cancelLabel?: string;
     icon?: string;
     iconColor?: string;
+    loading?: boolean;
 }
 
 const CustomDialogBox = ({
@@ -23,6 +24,7 @@ const CustomDialogBox = ({
     header,
     message,
     subMessage,
+    loading,
     confirmLabel = "Confirm",
     cancelLabel = "Cancel",
     icon = "pi pi-info-circle",
@@ -48,6 +50,7 @@ const CustomDialogBox = ({
                         style={{ backgroundColor: iconColor, border: 'none' }}
                         className="px-7 hover:text-white"
                         onClick={onConfirm}
+                        loading={loading}
                     />
                 </div>
             }

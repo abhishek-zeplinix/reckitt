@@ -481,6 +481,9 @@ const SupplierEvaluationTable = ({ rules,
       [key]: value
     };
 
+    console.log(updatedEvals);
+    
+
     // calculate newly evaluated criteria count
     const evaluatedCount = Object.values(updatedEvals).filter(
       (evalv) => evalv !== undefined && evalv !== ''

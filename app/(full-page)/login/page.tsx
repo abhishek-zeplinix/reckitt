@@ -7,7 +7,6 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import Link from 'next/link';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { setAuthData, setUserDetails } from '@/utils/cookies';
@@ -31,53 +30,49 @@ const LoginPage = () => {
     const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value);
 
     const toggleInputType = () => setIsPhoneNumber(!isPhoneNumber);
-    
+
     const handleRoleChange = (e: any) => {
         setRole(e.target.value); // Update role based on selected radio button
         setOtpSent(false); // Reset OTP state when switching roles
     };
 
-   
     const handlePassword = (event: any) => {
         setPassword(event.target.value);
     };
 
-
-   
-
-    const sendOtp = async() => {
+    const sendOtp = async () => {
 
         if (!email) return alert('Please enter your email.');
 
         setLoading(true);
 
         const payload = { email }
-        
-        try{
-           
+
+        try {
+
             const response = await PostCall('/auth/supplier/login', payload);
             console.log(response?.otp);
-            
+
             if (response?.otp) {
                 setIsOtpSent(true)
-                alert(response?.otp)
-            }else{
+                setOtp(response?.otp);
+            } else {
                 setAlert("error", "OTP generation failed")
             }
 
-        }catch(error){
-            
-        }finally{
+        } catch (error) {
+
+        } finally {
 
             setLoading(false);
         }
 
     };
 
-      // setTimeout(() => {
-        //     setIsOtpSent(true); // Show OTP field after sending OTP
-        //     setLoading(false);
-        // }, 1000);
+    // setTimeout(() => {
+    //     setIsOtpSent(true); // Show OTP field after sending OTP
+    //     setLoading(false);
+    // }, 1000);
 
 
     const loginClick = async () => {
@@ -109,7 +104,32 @@ const LoginPage = () => {
         }
     };
 
-    
+
+    // const handleSupplierRedirect = async (supplierId: string) => {
+    //     try {
+    //         console.log(supplierId);
+            
+    //         const { suppliers }: any = await useFetchSingleSupplierDetails({ supId: supplierId });
+    //         console.log(suppliers);
+    //         if (suppliers) {
+    //             const catId = suppliers.category?.categoryId;
+    //             const subCatId = suppliers.subCategories?.subCategoryId;
+    //             const params = {
+    //                 supId: supplierId,
+    //                 catId,
+    //                 subCatId
+    //             };
+
+    //             const encodedParams = encodeRouteParams(params);
+    //             router.push(`/supplier-scoreboard-summary/${encodedParams}`);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching supplier details:', error);
+    //         setAlert('error', 'Failed to load supplier details');
+    //     }
+    // };
+
+
     const loginOTPClick = async () => {
         if (isLoading) {
             return;
@@ -118,42 +138,33 @@ const LoginPage = () => {
         if (email && otp) {
             setLoading(true);
 
-            const payload = {email, otp}
+            const payload = { email, otp }
             const response: any = await PostCall('/auth/supplier/verify-otp', payload);
 
             setLoading(false);
 
             if (response?.code === 'SUCCESS') {
+
+                // // Check if user is a supplier and handle redirect
+                // if (response.data?.role === 'Supplier' && response.data?.supplierId) {
+                //     await handleSupplierRedirect(response.data.supplierId);
+                // }
+
+
                 console.log('login success');
                 setAlert('success', response.message);
                 setUser(response.data);
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
                 setUserDetails(response.data);
-            // } else if (response.code == 'RESET_PASSWORD') {
-            //     console.log('res', response);
-            //     setDisplayName(response.name);
-            //     setAlert('success', 'Please reset you password');
-            //     router.push(`/reset-password?resetToken=${response.resetToken}`);
+
+
+
             } else {
                 setAlert('error', response.message);
             }
 
-            // if (response.code == 'SUCCESS') {
-            //     console.log('login success');
-            //     setAlert('success', 'Login success!');
-            //     setUser(response.data);
-            //     setAuthToken(response.token);
-            //     setAuthData(response.token, response.refreshToken, response.data);
-            //     setUserDetails(response.data);
-            // } else if (response.code == 'RESET_PASSWORD') {
-            //     console.log('res', response);
-            //     setDisplayName(response.name);
-            //     setAlert('success', 'Please reset you password');
-            //     router.push(`/reset-password?resetToken=${response.resetToken}`);
-            // } else {
-            //     setAlert('error', response.message);
-            // }
+
         }
     };
 

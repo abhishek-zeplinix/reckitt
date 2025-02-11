@@ -12,6 +12,7 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import React, { useEffect, useState } from 'react';
 import { decode as base64Decode } from 'js-base64';
+import useDecodeParams from '@/hooks/useDecodeParams';
 
 
 const SupplierRatingPage = ({
@@ -39,31 +40,12 @@ const SupplierRatingPage = ({
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
-    const { hasPermission, isSuperAdmin } = useAuth();
+    const {isSuperAdmin } = useAuth();
 
+    const decodedParams = useDecodeParams(params.encodedParams);
+    const { supId, catId, subCatId, currentYear} = decodedParams;
 
-    const decodedParams = React.useMemo(() => {
-        try {
-            const decodedStr = base64Decode(params.encodedParams);
-            const parsedParams = JSON.parse(decodedStr);
-            
-            return {
-                supId: String(parsedParams.supId),
-                catId: String(parsedParams.catId),
-                subCatId: String(parsedParams.subCatId),
-                currentYear: String(parsedParams.currentYear)
-            };
-        } catch (error) {
-            console.error('Error decoding parameters:', error);
-            return { supId: '', catId: '', subCatId: '', currentYear: ''};
-        }
-    }, [params.encodedParams]);
-
-    const { supId, catId, subCatId, currentYear } = decodedParams;
-
-
-    // const currentYear = 2024;
-    // console.log(supplierData);
+   
     console.log(isSuperAdmin());
     
     const categoriesMap: any = {

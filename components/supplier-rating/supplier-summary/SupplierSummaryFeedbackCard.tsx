@@ -1,30 +1,33 @@
-import useFetchSingleSupplierDetails from "@/hooks/useFetchSingleSupplierDetails";
-import { useParams } from "next/navigation";
+import { formatEvaluationPeriod } from "@/utils/utils";
 import { useState } from "react";
 
-const SupplierSummaryCard = ({catId, subCatId, supId}: any) => {
+const SupplierSummaryFeedbackCard = (data: any) => {
 
-    const urlParams = useParams();
-    const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId })
     const [isSmallScreen, setIsSmallScreen] = useState(false);
-
+    
+    console.log(data);
+    
     const leftPanelData = [
         {
-            label: 'Category :',
-            value: `${suppliers?.category?.categoryName}`
+            label: 'Department Name :',
+            value: data?.data?.department?.name  || 'N/A'
         },
         {
-            label: 'Sub-Category :',
-            value: `${suppliers?.subCategories?.subCategoryName}`
-        },
-        {
-            label: 'Supplier Name :',
-            value: `${suppliers?.supplierName}`
+            label: 'Period :',
+            value: formatEvaluationPeriod(data?.data?.evalutionPeriod )|| 'N/A'
         }
+        
+
     ];
     const RightPanelData = [
-        { label: 'Supplier Id :', value: `${suppliers?.supId}` },
-        { label: 'Warehouse Location :', value: `${suppliers?.warehouseLocation}` }
+        {
+            label: 'Approval Status :',
+            value: data?.data?.scoreApprovals?.approvalStatus || 'N/A'
+        },
+        {
+            label: 'Approver Comment :',
+            value: data?.data?.scoreApprovals?.approverComment || 'No Comment'
+        }
     ];
 
 
@@ -103,9 +106,9 @@ const SupplierSummaryCard = ({catId, subCatId, supId}: any) => {
     const renderSummoryInfo = summoryCards();
     return (
         <>
-        {renderSummoryInfo}
+            {renderSummoryInfo}
         </>
     )
 }
 
-export default SupplierSummaryCard;
+export default SupplierSummaryFeedbackCard;

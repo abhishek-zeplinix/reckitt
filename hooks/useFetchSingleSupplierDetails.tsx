@@ -11,7 +11,7 @@ const useFetchSingleSupplierDetails = ({catId, subCatId, supId}: any) => {
 
     const fetchSupplier = useCallback(async () => {
 
-        if (!catId || !subCatId || !supId) return;
+        if (!supId) return;
 
         try {
 

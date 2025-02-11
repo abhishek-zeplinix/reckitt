@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import React, { useEffect, useMemo, useState } from "react";
-import { decode as base64Decode } from 'js-base64';
+import useDecodeParams from "@/hooks/useDecodeParams";
 
 const ApproverPage = ({
     params
@@ -37,29 +37,10 @@ const ApproverPage = ({
     const [scoreLoading, setScoreLoading] = useState(false);
     const [reload, setReload] = useState<boolean>(false);
 
-    
-    const decodedParams = React.useMemo(() => {
-        try {
-            const decodedStr = base64Decode(params.encodedParams);
-            const parsedParams = JSON.parse(decodedStr);
-            
-            return {
-                supId: String(parsedParams.supId),
-                catId: String(parsedParams.catId),
-                subCatId: String(parsedParams.subCatId),
-                currentYear: String(parsedParams.currentYear)
-            };
-        } catch (error) {
-            console.error('Error decoding parameters:', error);
-            return { supId: '', catId: '', subCatId: '', currentYear: ''};
-        }
-    }, [params.encodedParams]);
-    
-    const { supId, catId, subCatId, currentYear } = decodedParams;
+    const decodedParams = useDecodeParams(params.encodedParams);
+    const { supId, catId, subCatId, currentYear} = decodedParams;
 
     const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
-
-
 
     //  values
     const sortedDepartments: any = useMemo(() =>
@@ -143,7 +124,7 @@ const ApproverPage = ({
     return (
         <div className="grid" id="content-to-print">
             <div className="col-12">
-                <SupplierSummaryCard />
+                <SupplierSummaryCard catId={catId} subCatId={subCatId} supId={supId}/>
             </div>
             <div className="col-12">
                 <div className="border">

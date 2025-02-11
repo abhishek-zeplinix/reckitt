@@ -5,7 +5,6 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { buildQueryParams, formatEvaluationPeriod, getBackgroundColor } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
-import { useParams } from 'next/navigation';
 import { GetCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Department } from '@/types';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
@@ -20,9 +19,10 @@ import { useAuth } from '@/layout/context/authContext';
 import ReadMoreText from '@/components/read-more-text/ReadMoreText';
 import { Badge } from 'primereact/badge';
 import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
-import { useRouter } from 'next/router';
 import { encodeRouteParams, extractRouteParams } from '@/utils/base64';
-import { decode as base64Decode } from 'js-base64';
+import useDecodeParams from '@/hooks/useDecodeParams';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import useFetchSingleSupplierDetails from '@/hooks/useFetchSingleSupplierDetails';
 
 
 const SupplierScoreboardTables = ({
@@ -42,9 +42,7 @@ const SupplierScoreboardTables = ({
     const [bottomFlatData, setbottomFlatData] = useState<any>();
     const { departments } = useFetchDepartments();
 
-    const { setLoading, setAlert } = useAppContext();
-    // const params = useParams();
-    // const { supId, catId, subCatId } = params;
+    const { isLoading, setLoading, setAlert } = useAppContext();
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [evaluationData, setEvaluationData] = useState([]);
@@ -54,28 +52,11 @@ const SupplierScoreboardTables = ({
     const [pdfReady, setPdfReady] = useState(false);
     const { hasPermission, isSupplier } = useAuth();
 
-
-
-    // Decode the base64 encoded parameters
-    const decodedParams = React.useMemo(() => {
-        try {
-            const decodedStr = base64Decode(params.encodedParams);
-            const parsedParams = JSON.parse(decodedStr);
-
-            return {
-                supId: String(parsedParams.supId),
-                catId: String(parsedParams.catId),
-                subCatId: String(parsedParams.subCatId)
-            };
-        } catch (error) {
-            console.error('Error decoding parameters:', error);
-            return { supId: '', catId: '', subCatId: '' };
-        }
-    }, [params.encodedParams]);
-
+    const decodedParams = useDecodeParams(params.encodedParams);
     const { supId, catId, subCatId } = decodedParams;
 
-    console.log(evaluationData);
+    const [isBadgeLoading, setIsBadgeLoading] = useState(false);
+    
 
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
@@ -96,7 +77,8 @@ const SupplierScoreboardTables = ({
     }, [ratingsData, selectedYear, pdfReady]);
 
 
-
+    console.log(bottomFlatData);
+    
     useEffect(() => {
         if (chartImage) {
             setPdfReady(!!chartImage);
@@ -187,7 +169,37 @@ const SupplierScoreboardTables = ({
             setLoading(false);
         }
     };
-    console.log(bottomFlatData);
+
+    
+
+    const fetchSpecificSupplierCheckedData = async (depId: any, period: any) => {
+        try {
+            setLoading(true);
+
+            const response: CustomResponse = await GetCall(`/company/supplier-score-summary/department/${depId}/period/${period}`);
+            setLoading(false);
+
+            if (response.code == 'SUCCESS') {
+                // transform checked data into flat format matching evaluationData structure
+                const flatData = response?.data?.scoreApprovals?.checkedData?.map((item: any) => ({
+                    type: item.sectionName,
+                    criteria: item.ratedCriteria,
+                    ratio: item.ratio,
+                    evaluation: item.evaluation,
+                    score: item.score
+                }));
+
+                setbottomFlatData(response.data);
+                setEvaluationData(flatData);
+            } else {
+                setEvaluationData([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (supplierScore && departments) {
@@ -295,6 +307,7 @@ const SupplierScoreboardTables = ({
 
         const backgroundColor = getBackgroundColor(percentage);
 
+
         const handleIconClick = (e: React.MouseEvent) => {
             e.stopPropagation();
 
@@ -310,6 +323,28 @@ const SupplierScoreboardTables = ({
             console.log(evaluationData, 'selected');
         };
 
+
+        const handleAddFeedbackClick = (e: React.MouseEvent) => {
+            e.stopPropagation();
+
+            const period = isHalfYearly ? `Halfyearly-${field === 'status1' ? '1' : '2'}-${selectedYear}` : `Quarterly-${field.slice(1)}-${selectedYear}`;
+
+            const depId = (departments as any[])?.find((dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase())?.departmentId || '';
+
+            fetchSpecificSupplierCheckedData(depId, period);
+
+            if (evaluationData) {
+                setDialogVisible(true);
+                setLoading(false)
+            }
+            console.log(evaluationData, 'selected');
+        };
+
+        const handleBadgeClick = async (e: any) => {
+            await handleAddFeedbackClick(e); // Call your actual function
+        };
+
+
         return (
             <div className="flex align-items-center gap-2">
                 <Tag
@@ -322,10 +357,26 @@ const SupplierScoreboardTables = ({
                     }}
                 />
                 {percentage <= 50 && percentage !== 0 && !isSupplier() && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
-                {percentage <= 50 && percentage !== 0 && isSupplier() && <Badge value="+ Feedback" severity="success" onClick={handleIconClick} className='cursor-pointer'></Badge>}
+
+                {percentage <= 50 && percentage !== 0 && isSupplier() && (
+                    isLoading ? (
+                        <ProgressSpinner />
+                    ) : (
+                        <Badge
+                            value="+ Feedback"
+                            severity="success"
+                            onClick={handleBadgeClick}
+                            className="cursor-pointer"
+                        />
+                    )
+                )}
+
             </div>
         );
     };
+
+
+
 
     const nameBodyTemplate = (rowData: any) => {
         return <span className="text-primary-main font-bold">{rowData.name}</span>;
@@ -483,6 +534,10 @@ const SupplierScoreboardTables = ({
     const renderHeader = headerComp();
     console.log(selectedYear, 'selectedYear');
 
+    console.log(bottomFlatData?.departmentId);
+    console.log(bottomFlatData?.evalutionPeriod);
+    
+
     const valuesPopupHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -490,19 +545,23 @@ const SupplierScoreboardTables = ({
                     <div className="text-2xl font-medium text-gray-800">Evaluation Period - {bottomFlatData?.evaluationPeriod ? formatEvaluationPeriod(bottomFlatData.evaluationPeriod) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Evaluation Score - {bottomFlatData?.totalScore ? Math.round(bottomFlatData.totalScore) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Department - {bottomFlatData?.department?.name}</div>
+                    {bottomFlatData?.scoreApprovals?.approvalStatus && (
+                        <div className="text-sm text-gray-500 mt-1">
+                            Approval Status - {bottomFlatData.scoreApprovals.approvalStatus}
+                        </div>
+                    )}
                 </div>
+                    
+               
+                {
+                    isSupplier() &&
+                    <div className='mr-4'>
+                        <Link href={`/supplier-feedback/${encodeRouteParams({ departmentId: bottomFlatData?.departmentId, period: bottomFlatData?.evalutionPeriod})}`}>
+                            <Button label="Add Feedback" outlined className="bg-green-500 text-white border-none" />
+                        </Link>
+                    </div>
+                }
 
-                {/* <div className=''>
-                    <Link href={`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}/${selectedYear}/supplier-rating`}>
-                        <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                    </Link>
-                </div> */}
-
-                <div className=''>
-                    <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, catId, subCatId, currentYear: selectedYear })}/supplier-rating`}>
-                        <Button label="Add Inputs" outlined className="!font-light text-color-secondary" />
-                    </Link>
-                </div>
             </div>
         );
     };
@@ -543,26 +602,7 @@ const SupplierScoreboardTables = ({
                         </DataTable>
                     </div>
 
-                    <Dialog
-                        visible={dialogVisible}
-                        style={{ width: '80vw' }} // Made wider to accommodate table
-                        className="delete-dialog"
-                        onHide={() => setDialogVisible(false)}
-                        header={valuesPopupHeader}
-                    >
-                        <div className="flex flex-column w-full surface-border p-1 gap-4">
-                            <div></div>
-                            <div>
-                                <DataTable value={evaluationData}>
-                                    <Column field="type" header="Type" style={{ width: '250px' }} />
-                                    <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
-                                    <Column field="ratio" header="Ratio (%)" style={{ width: '250px' }} />
-                                    <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
-                                    <Column field="score" header="Score" style={{ width: '250px' }} />
-                                </DataTable>
-                            </div>
-                        </div>
-                    </Dialog>
+
                 </div>
             </div>
         );
@@ -739,6 +779,28 @@ const SupplierScoreboardTables = ({
                     <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef} />
                 </div>
             </div>
+
+            <Dialog
+                visible={dialogVisible}
+                style={{ width: '80vw' }} // Made wider to accommodate table
+                className="delete-dialog"
+                onHide={() => setDialogVisible(false)}
+                header={valuesPopupHeader}
+            >
+                <div className="flex flex-column w-full surface-border p-1 gap-4">
+                    <div></div>
+                    <div>
+                        <DataTable value={evaluationData}>
+                            <Column field="type" header="Type" style={{ width: '250px' }} />
+                            <Column field="criteria" header="Criteria" style={{ width: '250px' }} />
+                            <Column field="ratio" header="Ratio (%)" style={{ width: '250px' }} />
+                            <Column field="evaluation" header="Evaluation" style={{ width: '250px' }} />
+                            <Column field="score" header="Score" style={{ width: '250px' }} />
+                        </DataTable>
+                    </div>
+                </div>
+            </Dialog>
+
         </>
     );
 };
