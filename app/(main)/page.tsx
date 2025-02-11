@@ -15,6 +15,10 @@ import Link from 'next/link';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, Tile } from '@/types';
 import { GetCall } from '../api-config/ApiKit';
+import TileSkeleton from '@/components/supplier-rating/skeleton/DashboardCountSkeleton';
+import SupplierPerformanceSkeleton from '@/components/supplier-rating/skeleton/SupplierPerformanceSkeleton';
+import HistoricalPerformanceSkeleton from '@/components/supplier-rating/skeleton/DashboardWaveGraphSkeleton';
+import TotalAssessmentSkeleton from '@/components/supplier-rating/skeleton/DashboardDonutSkeleton';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [filtersVisible, setfiltersVisible] = useState(true);
@@ -31,6 +35,10 @@ const Dashboard = () => {
     const [chartData, setChartData] = useState<Tile[]>([]);
     const [topSupplierData, setTopSupplierData] = useState([]);
     const [bottomSupplierData, setBottomSupplierData] = useState([]);
+    const [tilesLoading, setTileLoading] = useState(false);
+    const [topSupplierLoading, setTopSupplierLoading] = useState(false);
+    const [bottomSupplierLoading, setBottomSupplierLoading] = useState(false);
+    const [supplierPerformanceLoading, setSupplierPerformanceLoading] = useState(false);
 
     const [pieData, setPieData] = useState({
         labels: ['Pending', 'In-progress', 'Completed'],
@@ -52,85 +60,100 @@ const Dashboard = () => {
         fetchBottomData();
     }, []);
     const fetchData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/dashboard-data?${queryString}`);
-        setLoading(false);
-
-        if (response.code === 'SUCCESS') {
-            const apiData = response.data.evasupa;
-            const chartData = mapApiDataToTiles(apiData);
-            const mappedData = mapApiDataToTiles(apiData); // Use the mapping function
-            const SecondTilesData = secondData(apiData); // Use the mapping function
-            const ThirdTilesData = thirdData(apiData); // Use the mapping function
-            setTilesData(mappedData);
-            setSecondTilesData(SecondTilesData);
-            setThirdTilesData(ThirdTilesData);
-            setChartData(chartData);
-
-            const { pendingAssessments, inProgressAssessments, completedAssessments } = response.data.evasupa.EvaluationData[0];
-
-            const pending = parseInt(pendingAssessments);
-            const inProgress = parseInt(inProgressAssessments);
-            const completed = parseInt(completedAssessments);
-            const total = pending + inProgress + completed;
-            setTotalDonut(total);
-            setPieData((prev) => ({
-                ...prev,
-                datasets: [
-                    {
-                        ...prev.datasets[0],
-                        data: [parseInt(pendingAssessments), parseInt(inProgressAssessments), parseInt(completedAssessments)]
-                    }
-                ]
-            }));
-
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: limit, page: page };
             }
-        } else {
-            setTilesData([]);
+            setTileLoading(true);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/dashboard-data?${queryString}`);
+
+            if (response.code === 'SUCCESS') {
+                const apiData = response.data.evasupa;
+                const chartData = mapApiDataToTiles(apiData);
+                const mappedData = mapApiDataToTiles(apiData); // Use the mapping function
+                const SecondTilesData = secondData(apiData); // Use the mapping function
+                const ThirdTilesData = thirdData(apiData); // Use the mapping function
+                setTilesData(mappedData);
+                setSecondTilesData(SecondTilesData);
+                setThirdTilesData(ThirdTilesData);
+                setChartData(chartData);
+
+                const { pendingAssessments, inProgressAssessments, completedAssessments } = response.data.evasupa.EvaluationData[0];
+
+                const pending = parseInt(pendingAssessments);
+                const inProgress = parseInt(inProgressAssessments);
+                const completed = parseInt(completedAssessments);
+                const total = pending + inProgress + completed;
+                setTotalDonut(total);
+                setPieData((prev) => ({
+                    ...prev,
+                    datasets: [
+                        {
+                            ...prev.datasets[0],
+                            data: [parseInt(pendingAssessments), parseInt(inProgressAssessments), parseInt(completedAssessments)]
+                        }
+                    ]
+                }));
+
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setTilesData([]);
+            }
+        } catch (e) {
+            setAlert('Error', 'Something went wrong');
+        } finally {
+            setTileLoading(false);
         }
     };
     const fetchTopData = async (params?: any) => {
-        if (!params) {
-            params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'desc' };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-
-        const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setTopSupplierData(response.data);
-
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'desc' };
             }
-        } else {
-            setTopSupplierData([]);
+            setTopSupplierLoading(true);
+            const queryString = buildQueryParams(params);
+
+            const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
+            if (response.code == 'SUCCESS') {
+                setTopSupplierData(response.data);
+
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setTopSupplierData([]);
+            }
+        } catch (e) {
+            setAlert('Error', 'Something went wrong');
+        } finally {
+            setTopSupplierLoading(false);
         }
     };
     const fetchBottomData = async (params?: any) => {
-        if (!params) {
-            params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'asc' };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setBottomSupplierData(response.data);
-            console.log(response.data, '83');
-
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'asc' };
             }
-        } else {
-            setBottomSupplierData([]);
+            setBottomSupplierLoading(true);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
+            if (response.code == 'SUCCESS') {
+                setBottomSupplierData(response.data);
+                console.log(response.data, '83');
+
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setBottomSupplierData([]);
+            }
+        } catch (e) {
+            setAlert('Error', 'Something went wrong');
+        } finally {
+            setBottomSupplierLoading(false);
         }
     };
     const mapApiDataToTiles = (apiData: any): Tile[] => {
@@ -662,46 +685,24 @@ const Dashboard = () => {
             <>
                 <div>
                     <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden shadow-2 surface-card border-round-2xl mr-3 mb-3`}>{DataFilters}</div>
-                    <div className="py-1 ">
-                        <div className="grid grid-nogutter">
-                            {tilesData.map((tile, index) => (
-                                <div
-                                    key={index}
-                                    className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
-                                >
-                                    <Link href={tile.link || ''}>
-                                        <div className="p-3 border-1 border-primary-main border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
-                                            <div className="flex justify-content-between gap-2 align-items-center">
-                                                <div>
-                                                    <div>
-                                                        <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
-                                                    </div>
-                                                    <div className="mt-2">
-                                                        <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
-                                                        <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <i className="pi pi-angle-right text-primary-main"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="grid p-0">
-                        {/* First Column */}
-                        <div className="col-12 md:col-6">
-                            <div className="pt-3">
-                                <div className="grid grid-nogutter">
-                                    {secondTilesData.map((tile, index) => (
-                                        <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
-                                            <div className="p-3 border-1 border-primary-main border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+
+                    {tilesLoading ? (
+                        <TileSkeleton count={4} colClass="col-12 sm:col-6 lg:col-3" />
+                    ) : (
+                        <div className="py-1 ">
+                            <div className="grid grid-nogutter">
+                                {tilesData.map((tile, index) => (
+                                    <div
+                                        key={index}
+                                        className="col-12 sm:col-6 lg:col-3 pr-3" // Ensures 4 tiles in a row on non-mobile devices
+                                    >
+                                        <Link href={tile.link || ''}>
+                                            <div className="p-3 border-1 border-primary-main border-round-2xl shadow-2 surface-card hover:shadow-3 transition-duration-200">
                                                 <div className="flex justify-content-between gap-2 align-items-center">
                                                     <div>
-                                                        <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                        <div>
+                                                            <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                        </div>
                                                         <div className="mt-2">
                                                             <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
                                                             <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
@@ -712,19 +713,28 @@ const Dashboard = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="py-3">
+                                        </Link>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="grid p-0">
+                        {/* First Column */}
+
+                        <div className="col-12 md:col-6">
+                            <div className="pt-3">
+                                {tilesLoading ? (
+                                    <TileSkeleton count={2} colClass="col-12 sm:col-12 lg:col-6" />
+                                ) : (
                                     <div className="grid grid-nogutter">
-                                        {thirdTilesData.map((tile, index) => (
+                                        {secondTilesData.map((tile, index) => (
                                             <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
                                                 <div className="p-3 border-1 border-primary-main border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
                                                     <div className="flex justify-content-between gap-2 align-items-center">
                                                         <div>
-                                                            <div>
-                                                                <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
-                                                            </div>
+                                                            <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
                                                             <div className="mt-2">
                                                                 <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
                                                                 <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
@@ -738,9 +748,38 @@ const Dashboard = () => {
                                             </div>
                                         ))}
                                     </div>
+                                )}
+                                <div className="py-3">
+                                    {tilesLoading ? (
+                                        <TileSkeleton count={1} colClass="col-12 sm:col-12 lg:col-12" />
+                                    ) : (
+                                        <div className="grid grid-nogutter">
+                                            {thirdTilesData.map((tile, index) => (
+                                                <div key={index} className="col-12 md:col-4 lg:col-6 pr-3">
+                                                    <div className="p-3 border-1 border-primary-main border-round-2xl shadow-1 surface-card hover:shadow-3 transition-duration-200">
+                                                        <div className="flex justify-content-between gap-2 align-items-center">
+                                                            <div>
+                                                                <div>
+                                                                    <h3 className="text-500 text-sm mb-0">{tile.title}</h3>
+                                                                </div>
+                                                                <div className="mt-2">
+                                                                    <h2 className="text-900 text-xl font-bold mb-1">{tile.value}</h2>
+                                                                    <span className={`text-sm font-semibold ${tile.changeClass}`}>{tile.change}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <i className="pi pi-angle-right text-primary-main"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="pr-3 ">{BarGraphSupplierTiers}</div>
-                                <div className="pr-3 ">{BarGraph}</div>
+                                <div className="pr-3">{topSupplierLoading ? <SupplierPerformanceSkeleton /> : BarGraphSupplierTiers}</div>
+
+                                <div className="pr-3 ">{topSupplierLoading ? <SupplierPerformanceSkeleton /> : BarGraph}</div>
                             </div>
                         </div>
 
@@ -749,129 +788,137 @@ const Dashboard = () => {
                             <div className="py-3">
                                 <div className="grid gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
-                                    <div className="col-12 px-2 p-0 py-2 ">
-                                        <div className="p-4 border-round-xl shadow-2 surface-card ">
-                                            <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
-                                            <div className="">
-                                                <DataTable
-                                                    className="mb-3 mt-3"
-                                                    value={topSupplierData}
-                                                    paginator={false} // Enable pagination
-                                                    rows={limit} // Items per page
-                                                    totalRecords={totalRecords} // Total records from API response
-                                                    responsiveLayout="scroll" // Makes the table responsive
-                                                    showGridlines={false} // Optional: Adds gridlines for better readability
-                                                    style={{ fontSize: '12px' }}
-                                                >
-                                                    <Column
-                                                        header="Sr.No."
-                                                        body={(data: any, options: any) => {
-                                                            const normalizedRowIndex = options.rowIndex % limit;
-                                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                                            return <span>{srNo}</span>;
-                                                        }}
-                                                        style={{ minWidth: '50px', maxWidth: '50px' }}
-                                                    />
-                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
-                                                    <Column
-                                                        header="Score"
-                                                        field="Score"
-                                                        style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => {
-                                                            const roundedScore = Math.round(rowData.Score);
-                                                            return (
-                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
-                                                                    {roundedScore}%
-                                                                </span>
-                                                            );
-                                                        }}
-                                                        className="text-center"
-                                                    />
-                                                </DataTable>
+                                    {topSupplierLoading ? (
+                                        <SupplierPerformanceSkeleton />
+                                    ) : (
+                                        <div className="col-12 px-2 p-0 py-2 ">
+                                            <div className="p-4 border-round-xl shadow-2 surface-card ">
+                                                <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
+                                                <div className="">
+                                                    <DataTable
+                                                        className="mb-3 mt-3"
+                                                        value={topSupplierData}
+                                                        paginator={false} // Enable pagination
+                                                        rows={limit} // Items per page
+                                                        totalRecords={totalRecords} // Total records from API response
+                                                        responsiveLayout="scroll" // Makes the table responsive
+                                                        showGridlines={false} // Optional: Adds gridlines for better readability
+                                                        style={{ fontSize: '12px' }}
+                                                    >
+                                                        <Column
+                                                            header="Sr.No."
+                                                            body={(data: any, options: any) => {
+                                                                const normalizedRowIndex = options.rowIndex % limit;
+                                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                                return <span>{srNo}</span>;
+                                                            }}
+                                                            style={{ minWidth: '50px', maxWidth: '50px' }}
+                                                        />
+                                                        <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                        <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                        <Column
+                                                            header="Score"
+                                                            field="Score"
+                                                            style={{ minWidth: '40px', maxWidth: '40px' }}
+                                                            body={(rowData) => {
+                                                                const roundedScore = Math.round(rowData.Score);
+                                                                return (
+                                                                    <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
+                                                                        {roundedScore}%
+                                                                    </span>
+                                                                );
+                                                            }}
+                                                            className="text-center"
+                                                        />
+                                                    </DataTable>
+                                                </div>
+                                                <Link href="/manage-supplier">
+                                                    <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
+                                                        <span className="flex align-items-center gap-2">View All</span>
+                                                        <span className="flex flex-row gap-2">
+                                                            {dashes.map((dash, index) => (
+                                                                <span key={index}>{dash}</span>
+                                                            ))}
+                                                        </span>
+                                                        <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
+                                                            <i className="pi pi-arrow-right"></i>
+                                                        </span>
+                                                    </button>
+                                                </Link>
                                             </div>
-                                            <Link href="/manage-supplier">
-                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
-                                                    <span className="flex align-items-center gap-2">View All</span>
-                                                    <span className="flex flex-row gap-2">
-                                                        {dashes.map((dash, index) => (
-                                                            <span key={index}>{dash}</span>
-                                                        ))}
-                                                    </span>
-                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
-                                                        <i className="pi pi-arrow-right"></i>
-                                                    </span>
-                                                </button>
-                                            </Link>
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Bottom 5 Suppliers */}
-                                    <div className="col-12 px-2 p-0 py-2 ">
-                                        <div className="p-4 border-round-xl shadow-2 surface-card ">
-                                            <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
-                                            <div className="">
-                                                <DataTable
-                                                    className="mb-3 mt-3"
-                                                    value={bottomSupplierData}
-                                                    paginator={false} // Enable pagination
-                                                    rows={limit} // Items per page
-                                                    totalRecords={totalRecords} // Total records from API response
-                                                    responsiveLayout="scroll" // Makes the table responsive
-                                                    showGridlines={false} // Optional: Adds gridlines for better readability
-                                                    style={{ fontSize: '12px' }}
-                                                >
-                                                    <Column
-                                                        header="Sr.No."
-                                                        body={(data: any, options: any) => {
-                                                            const normalizedRowIndex = options.rowIndex % limit;
-                                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                                            return <span>{srNo}</span>;
-                                                        }}
-                                                        style={{ minWidth: '60px', maxWidth: '60px' }}
-                                                    />
-                                                    <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                    <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
-                                                    <Column
-                                                        header="Score"
-                                                        field="Score"
-                                                        style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                        body={(rowData) => {
-                                                            const roundedScore = Math.round(rowData.Score);
-                                                            return (
-                                                                <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
-                                                                    {roundedScore}%
-                                                                </span>
-                                                            );
-                                                        }}
-                                                        className="text-center"
-                                                    />
-                                                </DataTable>
+                                    {bottomSupplierLoading ? (
+                                        <SupplierPerformanceSkeleton />
+                                    ) : (
+                                        <div className="col-12 px-2 p-0 py-2 ">
+                                            <div className="p-4 border-round-xl shadow-2 surface-card ">
+                                                <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
+                                                <div className="">
+                                                    <DataTable
+                                                        className="mb-3 mt-3"
+                                                        value={bottomSupplierData}
+                                                        paginator={false} // Enable pagination
+                                                        rows={limit} // Items per page
+                                                        totalRecords={totalRecords} // Total records from API response
+                                                        responsiveLayout="scroll" // Makes the table responsive
+                                                        showGridlines={false} // Optional: Adds gridlines for better readability
+                                                        style={{ fontSize: '12px' }}
+                                                    >
+                                                        <Column
+                                                            header="Sr.No."
+                                                            body={(data: any, options: any) => {
+                                                                const normalizedRowIndex = options.rowIndex % limit;
+                                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                                return <span>{srNo}</span>;
+                                                            }}
+                                                            style={{ minWidth: '60px', maxWidth: '60px' }}
+                                                        />
+                                                        <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
+                                                        <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
+                                                        <Column
+                                                            header="Score"
+                                                            field="Score"
+                                                            style={{ minWidth: '40px', maxWidth: '40px' }}
+                                                            body={(rowData) => {
+                                                                const roundedScore = Math.round(rowData.Score);
+                                                                return (
+                                                                    <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
+                                                                        {roundedScore}%
+                                                                    </span>
+                                                                );
+                                                            }}
+                                                            className="text-center"
+                                                        />
+                                                    </DataTable>
+                                                </div>
+                                                <Link href="/manage-suppliers">
+                                                    <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
+                                                        <span className="flex align-items-center gap-2">View All</span>
+                                                        <span className="flex flex-row gap-2">
+                                                            {dashes.map((dash, index) => (
+                                                                <span key={index}>{dash}</span>
+                                                            ))}
+                                                        </span>
+                                                        <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
+                                                            <i className="pi pi-arrow-right"></i>
+                                                        </span>
+                                                    </button>
+                                                </Link>
                                             </div>
-                                            <Link href="/manage-suppliers">
-                                                <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
-                                                    <span className="flex align-items-center gap-2">View All</span>
-                                                    <span className="flex flex-row gap-2">
-                                                        {dashes.map((dash, index) => (
-                                                            <span key={index}>{dash}</span>
-                                                        ))}
-                                                    </span>
-                                                    <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
-                                                        <i className="pi pi-arrow-right"></i>
-                                                    </span>
-                                                </button>
-                                            </Link>
                                         </div>
-                                    </div>
+                                    )}
 
-                                    <div className="col-12 px-2 p-0 py-2  ">{DonutGraph}</div>
+                                    <div className="col-12 px-2 p-0 py-2  ">{tilesLoading ? <TotalAssessmentSkeleton /> : DonutGraph}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div>{WaveGraphs}</div>
+                <div>{bottomSupplierLoading ? <HistoricalPerformanceSkeleton /> : WaveGraphs}</div>
             </>
         );
     };
