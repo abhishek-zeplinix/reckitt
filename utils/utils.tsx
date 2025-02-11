@@ -6,8 +6,13 @@ export const formSchemaSupplier = z.object({
     supplierManufacturerName: z.string().min(1, 'Supplier manufacturer cannot be empty'),
     factoryName: z.string().min(1, 'Factory name cannot be empty'),
     email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
-    supplierNumber: z.string().min(1, 'Phone number cannot be empty'),
-    Zip: z.string().min(1, 'Zip code cannot be empty'),
+    supplierNumber: z.string().min(10, "Phone number must be at least 10 digits")
+                                .max(12, "Phone number cannot be more than 12 digits"),
+    Zip: z.union([z.string(), z.number()])
+        .transform((val) => String(val).trim())
+        .refine((val) => val.length > 0, {
+            message: 'Zip code cannot be empty',
+        }),
     siteAddress: z.string().min(1, 'Site address cannot be empty'),
     warehouseLocation: z.string().min(1, 'Warehouse location cannot be empty'),
     procurementCategoryId: z
@@ -369,6 +374,10 @@ export const buildQueryParams = (params: any) => {
 };
 
 export const getRowLimitWithScreenHeight = ({ headerHeight = 250, footerHeight = 50 } = { headerHeight: 250, footerHeight: 50 }) => {
+    if (typeof window === "undefined") {
+        return 10; 
+    }
+
     const availableHeight = window.innerHeight - headerHeight - footerHeight;
     return Math.max(Math.floor(availableHeight / 50), 10);
 };
