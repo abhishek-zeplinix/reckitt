@@ -1,7 +1,7 @@
 import { InputText } from 'primereact/inputtext';
 import { useContext, useEffect, useState } from 'react';
 import SubmitResetButtons from '../control-tower/submit-reset-buttons';
-import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import CustomDataTable from '../CustomDataTable';
 import { getRowLimitWithScreenHeight } from '@/utils/utils';
@@ -18,14 +18,15 @@ const ACTIONS = {
 };
 
 const AddBrandsControl = () => {
-    const [role, setRole] = useState<any>('');
     const [rolesList, setRolesList] = useState<any>([]);
+    const [brand, setBrand] = useState<any>('');
+    const [brandList, setBrandList] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
-    const [selectedRoleId, setSelectedRoleId] = useState<any>();
-
+    const [selectedBrandId, setSelectedBrandId] = useState<any>();
+    const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
 
@@ -37,8 +38,8 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/roles');
-            setRolesList(response.data);
+            const response = await GetCall('/company/brand');
+            setBrandList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
             setAlert('error', 'Something went wrong!');
@@ -49,32 +50,52 @@ const AddBrandsControl = () => {
 
     const handleSubmit = async () => {
         setLoading(true);
-        try {
-            const payload = { name: role };
-            const response = await PostCall('/company/roles', payload);
-            console.log(response);
 
-            if (response.code.toLowerCase() === 'success') {
-                setAlert('success', 'Role successfully added!!');
-                resetInput();
-                fetchData();
+        if (isEditMode) {
+            try {
+                const payload = { brandName: brand };
+                const response = await PutCall(`/company/brand/${selectedBrandId}`, payload);
+                console.log(response);
+
+                if (response.code.toLowerCase() === 'success') {
+                    setAlert('success', 'Role successfully added!!');
+                    resetInput();
+                    fetchData();
+                }
+            } catch (err) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            setAlert('error', 'Something went wrong!');
-        } finally {
-            setLoading(false);
+        } else {
+            try {
+                const payload = { brandName: brand };
+                const response = await PostCall('/company/brand', payload);
+                console.log(response);
+
+                if (response.code.toLowerCase() === 'success') {
+                    setAlert('success', 'Role successfully added!!');
+                    resetInput();
+                    fetchData();
+                }
+            } catch (err) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
+            }
         }
+        resetInput();
     };
 
     const onDelete = async () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/roles/${selectedRoleId}`);
+            const response = await DeleteCall(`/company/brand/${selectedBrandId}`);
 
             if (response.code.toLowerCase() === 'success') {
-                setRolesList((prevRoles: any) => prevRoles.filter((role: any) => role.roleId !== selectedRoleId));
-
+                setRolesList((prevRoles: any) => prevRoles.filter((brand: any) => brand.brandId !== selectedBrandId));
+                fetchData();
                 closeDeleteDialog();
                 setAlert('success', 'Role successfully deleted!');
             } else {
@@ -89,7 +110,7 @@ const AddBrandsControl = () => {
     };
 
     const resetInput = () => {
-        setRole('');
+        setBrand('');
     };
 
     const openDeleteDialog = (items: any) => {
@@ -105,33 +126,39 @@ const AddBrandsControl = () => {
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
-            setSelectedRoleId(perm.roleId);
+            setSelectedBrandId(perm.brandId);
+        }
+
+        if (action === ACTIONS.EDIT) {
+            setBrand(perm.brandName);
+            setSelectedBrandId(perm.brandId);
+            setIsEditMode(true);
         }
     };
 
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="role">Add Brands</label>
-                <InputText aria-label="Add Brands" value={role} onChange={(e) => setRole(e.target.value)} style={{ width: '50%' }} />
+                <label htmlFor="brand">Add Brands</label>
+                <InputText aria-label="Add Brands" value={brand} onChange={(e) => setBrand(e.target.value)} style={{ width: '50%' }} />
                 <small>
                     <i>Enter a brand you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label="Add Brands" />
+                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Brand' : 'Add Brands'} />
             </div>
 
             <div className="mt-4">
                 <CustomDataTable
-                    ref={rolesList}
+                    ref={brandList}
                     page={page}
                     limit={limit} // no of items per page
                     totalRecords={totalRecords} // total records from api response
                     isView={false}
                     isEdit={true} // show edit button
                     isDelete={true} // show delete button
-                    data={rolesList?.map((item: any) => ({
-                        roleId: item?.roleId,
-                        role: item?.name
+                    data={brandList?.map((item: any) => ({
+                        brandId: item?.brandId,
+                        brandName: item?.brandName
                     }))}
                     columns={[
                         // {
@@ -153,8 +180,8 @@ const AddBrandsControl = () => {
                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
-                            header: 'Role',
-                            field: 'role',
+                            header: 'Brand Name',
+                            field: 'brandName',
                             filter: true,
                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                             filterPlaceholder: 'Role'
@@ -162,6 +189,7 @@ const AddBrandsControl = () => {
                     ]}
                     onLoad={(params: any) => fetchData(params)}
                     onDelete={(item: any) => onRowSelect(item, 'delete')}
+                    onEdit={(item: any) => onRowSelect(item, 'edit')}
                 />
             </div>
 
@@ -170,11 +198,10 @@ const AddBrandsControl = () => {
                 visible={isDeleteDialogVisible}
                 style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
                 className="delete-dialog"
-                headerStyle={{ backgroundColor: '#ffdddb', color: '#8c1d18' }}
                 footer={
-                    <div className="flex justify-content-end p-2">
-                        <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" severity="danger" onClick={onDelete} />
+                    <div className="flex justify-content-center p-2">
+                        <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
@@ -184,14 +211,12 @@ const AddBrandsControl = () => {
                         <ProgressSpinner style={{ width: '50px', height: '50px' }} />
                     </div>
                 )}
-                <div className="flex flex-column w-full surface-border p-3">
-                    <div className="flex align-items-center">
-                        <i className="pi pi-info-circle text-6xl red" style={{ marginRight: 10 }}></i>
-                        <span>
-                            This will permanently delete the selected role.
-                            <br />
-                            Do you still want to delete it? This action cannot be undone.
-                        </span>
+                <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
+                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
+
+                    <div className="flex flex-column align-items-center gap-1">
+                        <span>Are you sure you want to delete this brand? </span>
+                        <span>This action cannot be undone. </span>
                     </div>
                 </div>
             </Dialog>

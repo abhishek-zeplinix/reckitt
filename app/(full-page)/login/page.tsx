@@ -31,54 +31,43 @@ const LoginPage = () => {
     const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value);
 
     const toggleInputType = () => setIsPhoneNumber(!isPhoneNumber);
-    
+
     const handleRoleChange = (e: any) => {
         setRole(e.target.value); // Update role based on selected radio button
         setOtpSent(false); // Reset OTP state when switching roles
     };
 
-   
     const handlePassword = (event: any) => {
         setPassword(event.target.value);
     };
 
-
-   
-
-    const sendOtp = async() => {
-
-        if (!email) return alert('Please enter your email.');
+    const sendOtp = async () => {
+        if (!email && !phoneNumber) return alert('Please enter your email.');
 
         setLoading(true);
 
-        const payload = { email }
-        
-        try{
-           
+        const payload = isPhoneNumber ? { supplierNumber: phoneNumber } : { email };
+
+        try {
             const response = await PostCall('/auth/supplier/login', payload);
             console.log(response?.otp);
-            
+
             if (response?.otp) {
-                setIsOtpSent(true)
-                alert(response?.otp)
-            }else{
-                setAlert("error", "OTP generation failed")
+                setIsOtpSent(true);
+                alert(response?.otp);
+            } else {
+                setAlert('error', 'OTP generation failed');
             }
-
-        }catch(error){
-            
-        }finally{
-
+        } catch (error) {
+        } finally {
             setLoading(false);
         }
-
     };
 
-      // setTimeout(() => {
-        //     setIsOtpSent(true); // Show OTP field after sending OTP
-        //     setLoading(false);
-        // }, 1000);
-
+    // setTimeout(() => {
+    //     setIsOtpSent(true); // Show OTP field after sending OTP
+    //     setLoading(false);
+    // }, 1000);
 
     const loginClick = async () => {
         if (isLoading) {
@@ -109,57 +98,39 @@ const LoginPage = () => {
         }
     };
 
-    
     const loginOTPClick = async () => {
         if (isLoading) {
             return;
         }
 
-        if (email && otp) {
-            setLoading(true);
+        if ((!email && !phoneNumber) || !otp) {
+            return alert('Please enter your email or phone number and OTP.');
+        }
 
-            const payload = {email, otp}
+        setLoading(true);
+
+        const payload = isPhoneNumber ? { supplierNumber: phoneNumber, otp } : { email, otp };
+
+        try {
             const response: any = await PostCall('/auth/supplier/verify-otp', payload);
 
-            setLoading(false);
-
             if (response?.code === 'SUCCESS') {
-                console.log('login success');
+                console.log('Login success');
                 setAlert('success', response.message);
                 setUser(response.data);
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
                 setUserDetails(response.data);
-            // } else if (response.code == 'RESET_PASSWORD') {
-            //     console.log('res', response);
-            //     setDisplayName(response.name);
-            //     setAlert('success', 'Please reset you password');
-            //     router.push(`/reset-password?resetToken=${response.resetToken}`);
             } else {
                 setAlert('error', response.message);
             }
-
-            // if (response.code == 'SUCCESS') {
-            //     console.log('login success');
-            //     setAlert('success', 'Login success!');
-            //     setUser(response.data);
-            //     setAuthToken(response.token);
-            //     setAuthData(response.token, response.refreshToken, response.data);
-            //     setUserDetails(response.data);
-            // } else if (response.code == 'RESET_PASSWORD') {
-            //     console.log('res', response);
-            //     setDisplayName(response.name);
-            //     setAlert('success', 'Please reset you password');
-            //     router.push(`/reset-password?resetToken=${response.resetToken}`);
-            // } else {
-            //     setAlert('error', response.message);
-            // }
+        } catch (error) {
+            console.error('Error verifying OTP:', error);
+            setAlert('error', 'There was an error verifying the OTP. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
-
-
-
-
 
     const handleCheckboxChange = (e: any) => {
         setChecked(e.checked); // Update checked state

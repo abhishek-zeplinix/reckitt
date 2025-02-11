@@ -133,7 +133,6 @@ const Dashboard = () => {
             setBottomSupplierData([]);
         }
     };
-
     const mapApiDataToTiles = (apiData: any): Tile[] => {
         const evaluationData = apiData.EvaluationData?.[0] || {}; // Get the first item in the EvaluationData array or an empty object
 
@@ -165,7 +164,6 @@ const Dashboard = () => {
             }
         ];
     };
-
     const secondData = (apiData: any): Tile[] => {
         const evaluationData = apiData.EvaluationData?.[0] || {};
         return [
@@ -203,7 +201,6 @@ const Dashboard = () => {
             link: '/manage-supplier'
         }
     ];
-
     const cities = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -523,19 +520,19 @@ const Dashboard = () => {
         datasets: [
             {
                 label: 'Sustainability',
-                data: [80, 85, 90, 95, 88, 92],
+                data: [60, 45, 70, 95, 88, 92],
                 borderColor: '#2196F3',
                 backgroundColor: 'rgba(0, 122, 217, 0.2)',
                 fill: false,
-                tension: 0.4
+                tension: 0
             },
             {
                 label: 'Development',
-                data: [60, 65, 70, 75, 68, 72],
+                data: [90, 68, 30, 82, 68, 22],
                 borderColor: '#FF9800',
                 backgroundColor: 'rgba(240, 200, 8, 0.2)',
                 fill: false,
-                tension: 0.4
+                tension: 0
             },
             {
                 label: 'Procurement',
@@ -543,7 +540,7 @@ const Dashboard = () => {
                 borderColor: '#4CAF50',
                 backgroundColor: 'rgba(0, 166, 82, 0.2)',
                 fill: false,
-                tension: 0.4
+                tension: 0
             },
             {
                 label: 'Planning',
@@ -551,15 +548,15 @@ const Dashboard = () => {
                 borderColor: '#F44336',
                 backgroundColor: 'rgba(214, 48, 49, 0.2)',
                 fill: false,
-                tension: 0.4
+                tension: 0
             },
             {
                 label: 'Quality',
-                data: [20, 25, 15, 30, 28, 32],
+                data: [0, 25, 15, 30, 28, 85],
                 borderColor: '#9b59b6',
                 backgroundColor: 'rgba(155, 89, 182, 0.2)',
                 fill: false,
-                tension: 0.4
+                tension: 0
             }
         ]
     };

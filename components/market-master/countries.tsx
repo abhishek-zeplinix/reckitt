@@ -1,7 +1,7 @@
 import { InputText } from 'primereact/inputtext';
 import { useContext, useEffect, useState } from 'react';
 import SubmitResetButtons from '../control-tower/submit-reset-buttons';
-import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
+import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import CustomDataTable from '../CustomDataTable';
 import { getRowLimitWithScreenHeight } from '@/utils/utils';
@@ -18,14 +18,14 @@ const ACTIONS = {
 };
 
 const AddCountriesControl = () => {
-    const [role, setRole] = useState<any>('');
-    const [rolesList, setRolesList] = useState<any>([]);
+    const [country, setCountry] = useState<any>('');
+    const [countryList, setCountryList] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
-    const [selectedRoleId, setSelectedRoleId] = useState<any>();
-
+    const [selectedCountryId, setSelectedCountryId] = useState<any>();
+    const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
 
@@ -37,8 +37,8 @@ const AddCountriesControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/roles');
-            setRolesList(response.data);
+            const response = await GetCall('/company/country');
+            setCountryList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
             setAlert('error', 'Something went wrong!');
@@ -46,34 +46,53 @@ const AddCountriesControl = () => {
             setLoading(false);
         }
     };
-
     const handleSubmit = async () => {
         setLoading(true);
-        try {
-            const payload = { name: role };
-            const response = await PostCall('/company/roles', payload);
-            console.log(response);
 
-            if (response.code.toLowerCase() === 'success') {
-                setAlert('success', 'Role successfully added!!');
-                resetInput();
-                fetchData();
+        if (isEditMode) {
+            try {
+                const payload = { countryName: country };
+                const response = await PutCall(`/company/country/${selectedCountryId}`, payload);
+                console.log(response);
+
+                if (response.code.toLowerCase() === 'success') {
+                    setAlert('success', 'Role successfully added!!');
+                    resetInput();
+                    fetchData();
+                }
+            } catch (err) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            setAlert('error', 'Something went wrong!');
-        } finally {
-            setLoading(false);
+        } else {
+            try {
+                const payload = { countryName: country };
+                const response = await PostCall('/company/country', payload);
+                console.log(response);
+
+                if (response.code.toLowerCase() === 'success') {
+                    setAlert('success', 'Role successfully added!!');
+                    resetInput();
+                    fetchData();
+                }
+            } catch (err) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
+            }
         }
+        resetInput();
     };
 
     const onDelete = async () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/roles/${selectedRoleId}`);
+            const response = await DeleteCall(`/company/country/${selectedCountryId}`);
 
             if (response.code.toLowerCase() === 'success') {
-                setRolesList((prevRoles: any) => prevRoles.filter((role: any) => role.roleId !== selectedRoleId));
+                setCountryList((prevRoles: any) => prevRoles.filter((country: any) => country.masterCountryId !== selectedCountryId));
 
                 closeDeleteDialog();
                 setAlert('success', 'Role successfully deleted!');
@@ -89,7 +108,7 @@ const AddCountriesControl = () => {
     };
 
     const resetInput = () => {
-        setRole('');
+        setCountry('');
     };
 
     const openDeleteDialog = (items: any) => {
@@ -105,33 +124,38 @@ const AddCountriesControl = () => {
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
-            setSelectedRoleId(perm.roleId);
+            setSelectedCountryId(perm.masterCountryId);
+        }
+        if (action === ACTIONS.EDIT) {
+            setCountry(perm.countryName);
+            setSelectedCountryId(perm.masterCountryId);
+            setIsEditMode(true);
         }
     };
 
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="role">Add Countries</label>
-                <InputText aria-label="Add Countries" value={role} onChange={(e) => setRole(e.target.value)} style={{ width: '50%' }} />
+                <label htmlFor="country">Add Countries</label>
+                <InputText aria-label="Add Countries" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '50%' }} />
                 <small>
                     <i>Enter a countries you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label="Add Countries" />
+                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Country' : 'Add Country'} />
             </div>
 
             <div className="mt-4">
                 <CustomDataTable
-                    ref={rolesList}
+                    ref={countryList}
                     page={page}
                     limit={limit} // no of items per page
                     totalRecords={totalRecords} // total records from api response
                     isView={false}
                     isEdit={true} // show edit button
                     isDelete={true} // show delete button
-                    data={rolesList?.map((item: any) => ({
-                        roleId: item?.roleId,
-                        role: item?.name
+                    data={countryList?.map((item: any) => ({
+                        masterCountryId: item?.masterCountryId,
+                        countryName: item?.countryName
                     }))}
                     columns={[
                         // {
@@ -153,15 +177,16 @@ const AddCountriesControl = () => {
                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
-                            header: 'Role',
-                            field: 'role',
+                            header: 'Country Name',
+                            field: 'countryName',
                             filter: true,
                             bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Role'
+                            filterPlaceholder: 'Country Name'
                         }
                     ]}
                     onLoad={(params: any) => fetchData(params)}
                     onDelete={(item: any) => onRowSelect(item, 'delete')}
+                    onEdit={(item: any) => onRowSelect(item, 'edit')}
                 />
             </div>
 
@@ -170,11 +195,10 @@ const AddCountriesControl = () => {
                 visible={isDeleteDialogVisible}
                 style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
                 className="delete-dialog"
-                headerStyle={{ backgroundColor: '#ffdddb', color: '#8c1d18' }}
                 footer={
-                    <div className="flex justify-content-end p-2">
-                        <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" severity="danger" onClick={onDelete} />
+                    <div className="flex justify-content-center p-2">
+                        <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
@@ -184,14 +208,12 @@ const AddCountriesControl = () => {
                         <ProgressSpinner style={{ width: '50px', height: '50px' }} />
                     </div>
                 )}
-                <div className="flex flex-column w-full surface-border p-3">
-                    <div className="flex align-items-center">
-                        <i className="pi pi-info-circle text-6xl red" style={{ marginRight: 10 }}></i>
-                        <span>
-                            This will permanently delete the selected role.
-                            <br />
-                            Do you still want to delete it? This action cannot be undone.
-                        </span>
+                <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
+                    <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
+
+                    <div className="flex flex-column align-items-center gap-1">
+                        <span>Are you sure you want to delete this country? </span>
+                        <span>This action cannot be undone. </span>
                     </div>
                 </div>
             </Dialog>

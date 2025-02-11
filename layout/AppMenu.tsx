@@ -394,10 +394,17 @@ const AppMenu = () => {
                     icon: 'pi pi-bolt',
                     url: '/master',
                     check: (user: any) => {
+                        // Check if the user is a super admin
                         if (get(user, 'isSuperAdmin')) {
                             return true;
                         }
-                        return hasAnyPermission(['generate_request', 'manage_request']);
+
+                        // Check if the user has the required permissions
+                        const userPermissions = get(user, 'permissions.permissions', []);
+                        const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+
+                        // Grant access based on permissions
+                        return hasPermission;
                     }
                 },
 

@@ -34,19 +34,18 @@ const PermissionManagement = () => {
     const [description, setdescription] = useState('');
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
     const [allPermissions, setAllPermissions] = useState<any>([]);
-    
+
     useEffect(() => {
         fetchData();
         // fetchPermissionData();
     }, []);
-    
 
     const fetchData = async (params?: any) => {
         setLoading(true);
 
         try {
             if (!params) {
-                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: "permissionId" };
+                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: 'permissionId' };
             }
 
             // setPage(params.page)
@@ -56,7 +55,6 @@ const PermissionManagement = () => {
 
             setAllPermissions(response.data);
             setTotalRecords(response.total);
-
         } catch (err) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -253,11 +251,10 @@ const PermissionManagement = () => {
                     visible={isDeleteDialogVisible}
                     style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
                     className="delete-dialog"
-                    headerStyle={{ backgroundColor: '#ffdddb', color: '#8c1d18' }}
                     footer={
-                        <div className="flex justify-content-end p-2">
-                            <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
-                            <Button label="Delete" severity="danger" onClick={onDelete} />
+                        <div className="flex justify-content-center p-2">
+                            <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                            <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
                         </div>
                     }
                     onHide={closeDeleteDialog}
@@ -267,14 +264,12 @@ const PermissionManagement = () => {
                             <ProgressSpinner style={{ width: '50px', height: '50px' }} />
                         </div>
                     )}
-                    <div className="flex flex-column w-full surface-border p-3">
-                        <div className="flex align-items-center">
-                            <i className="pi pi-info-circle text-6xl red" style={{ marginRight: 10 }}></i>
-                            <span>
-                                This will permanently delete the selected role.
-                                <br />
-                                Do you still want to delete it? This action cannot be undone.
-                            </span>
+                    <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
+                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
+
+                        <div className="flex flex-column align-items-center gap-1">
+                            <span>Are you sure you want to delete this permission? </span>
+                            <span>This action cannot be undone. </span>
                         </div>
                     </div>
                 </Dialog>
