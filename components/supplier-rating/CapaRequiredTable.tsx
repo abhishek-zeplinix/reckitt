@@ -24,6 +24,8 @@ interface CapaRequiredTableProps {
   setCapaDataCount: (count: number) => void;
   selectedPeriod: string;
   isCompleted: string;
+  catId: any,
+  subCatId: any
 }
 
 const CapaRequiredTable = ({
@@ -32,7 +34,9 @@ const CapaRequiredTable = ({
   existingSelections,
   setCapaDataCount,
   isCompleted,
-  selectedPeriod
+  selectedPeriod,
+  catId,
+  subCatId
 }: CapaRequiredTableProps) => {
 
   const { setLoading, setAlert } = useAppContext();
@@ -44,11 +48,11 @@ const CapaRequiredTable = ({
     }, {} as Record<number, string>) || {};
   });
 
-  const urlParams = useParams();
-  const { catId, subCatId } = urlParams;
+  // const urlParams = useParams();
 
-  console.log(existingSelections);
-  
+  // const { catId, subCatId } = urlParams;
+
+
   useEffect(() => {
     
     setSelectedValues({});

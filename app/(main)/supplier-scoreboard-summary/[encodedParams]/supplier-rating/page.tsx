@@ -10,9 +10,18 @@ import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { decode as base64Decode } from 'js-base64';
+import useDecodeParams from '@/hooks/useDecodeParams';
 
-const SupplierRatingPage = () => {
+
+const SupplierRatingPage = ({
+    params
+}: {
+    params: { 
+        encodedParams: string 
+    }
+}) => {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const [activeTab, setActiveTab] = useState('PROCUREMENT');
     const [selectedPeriod, setSelectedPeriod] = useState();
@@ -25,15 +34,18 @@ const SupplierRatingPage = () => {
 
     const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
 
-    const urlParams = useParams();
-    const { supId, catId, subCatId, currentYear } = urlParams;
+    // const urlParams = useParams();
+    // const { supId, catId, subCatId, currentYear } = urlParams;
     
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
-    const { hasPermission, isSuperAdmin } = useAuth();
-    // const currentYear = 2024;
-    // console.log(supplierData);
+    const {isSuperAdmin } = useAuth();
+
+    const decodedParams = useDecodeParams(params.encodedParams);
+    const { supId, catId, subCatId, currentYear} = decodedParams;
+
+   
     console.log(isSuperAdmin());
     
     const categoriesMap: any = {
@@ -403,7 +415,11 @@ const SupplierRatingPage = () => {
                                         score.departmentId === selectedDepartment &&
                                         score.evalutionPeriod === selectedPeriod
                                 )?.totalScore
+                                
                             }
+                            catId={catId}
+                            subCatId={subCatId}
+                            supId={supId}
                         // key={`${selectedDepartment}-${selectedPeriod}`}
 
                         />

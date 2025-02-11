@@ -300,7 +300,7 @@ const ManageRequestsPage = () => {
         return (
             <Button
                 icon="pi pi-eye"
-                className="p-button-rounded p-button-text"
+                className="p-button-rounded p-button-sm"
                 onClick={() => handleViewClick(rowData)}
             />
         );

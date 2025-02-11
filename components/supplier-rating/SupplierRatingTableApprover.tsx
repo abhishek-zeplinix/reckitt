@@ -24,7 +24,9 @@ const SupplierEvaluationTableApprover = ({
   onSuccess,
   supplierScoreData,
   isEvaluatedData,
-  isTableLoading
+  isTableLoading,
+  catId,
+  subCatId
 }: any) => {
 
   const [tableData, setTableData] = useState<any>(supplierScoreData);
@@ -51,7 +53,7 @@ const SupplierEvaluationTableApprover = ({
 
 
   const urlParams = useParams();
-  const { supId, catId, subCatId } = urlParams;
+  // const { supId, catId, subCatId } = urlParams;
   const { userId } = useAuth();
   const { setAlert } = useAppContext();
 
@@ -528,11 +530,11 @@ const SupplierEvaluationTableApprover = ({
           {
             (isEvaluatedData) ?
               <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-                {(totalScore <= 50) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+                {(totalScore <= 50) && <CapaRequiredTable catId={catId} subCatId ={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
               </div>
               :
               <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-                {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+                {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable catId={catId} subCatId ={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
               </div>
 
           }
