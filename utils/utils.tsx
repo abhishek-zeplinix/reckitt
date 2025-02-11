@@ -374,6 +374,10 @@ export const buildQueryParams = (params: any) => {
 };
 
 export const getRowLimitWithScreenHeight = ({ headerHeight = 250, footerHeight = 50 } = { headerHeight: 250, footerHeight: 50 }) => {
+    if (typeof window === "undefined") {
+        return 10; 
+    }
+
     const availableHeight = window.innerHeight - headerHeight - footerHeight;
     return Math.max(Math.floor(availableHeight / 50), 10);
 };

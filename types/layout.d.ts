@@ -87,6 +87,7 @@ export interface MenuModel {
 }
 
 export interface AppMenuItem extends MenuModel {
+    label?: string; // Make label optional
     items?: AppMenuItem[];
     badge?: 'UPDATED' | 'NEW';
     badgeClass?: string;
@@ -97,6 +98,7 @@ export interface AppMenuItem extends MenuModel {
     replaceUrl?: boolean;
     command?: ({ originalEvent, item }: CommandProps) => void;
     check?: (item: any) => boolean;
+    separator?: boolean; 
 }
 
 export interface AppMenuItemProps {

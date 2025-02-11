@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { LayoutContext } from './context/layoutcontext';
 import { MenuProvider } from './context/menucontext';
@@ -12,31 +12,30 @@ import { useAppContext } from './AppWrapper';
 import { COMPANY_ROLE_MENU, COMPANY } from '@/config/permissions';
 import { classNames } from 'primereact/utils';
 import { useRouter } from 'next/navigation';
-import { useLoaderContext } from './context/LoaderContext';
+// import { useLoaderContext } from './context/LoaderContext';
 import { useAuth } from './context/authContext';
+import { useMemo } from 'react';
 
 const AppMenu = () => {
     const router = useRouter();
     const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
-    const { setLoader } = useLoaderContext();
+    // const { setLoader } = useLoaderContext();
     const { hasPermission, hasAnyPermission, isSupplier } = useAuth();
 
-    const handleMenuClick = ({ originalEvent, item }: any) => {
+    const handleMenuClick = useCallback(({ originalEvent, item }: any) => {
         if (originalEvent) {
             originalEvent.preventDefault();
         }
-
-        // Show the loade
-
-        // Simulate a delay of 1 second before routing
-        // setTimeout(() => {
         router.push(item.url);
-        setLoader(true);
-        //     setLoader(false); // Hide the loader after 1 second
-        // }, 500);
-    };
+    }, [router]);
+    
+    
+    useEffect(() => {
+        console.log('AppMenu re-rendered');
+    }, []);
 
-    const model: AppMenuItem[] = [
+
+    const model = useMemo(() => [
         {
             label: '',
             icon: 'pi pi-fw pi-bookmark',
@@ -48,6 +47,7 @@ const AppMenu = () => {
                     url: '/',
                     command: handleMenuClick
                 },
+                { separator: true }, // <-- Separator added inside items
                 {
                     label: 'Guidlines & Glossary',
                     icon: 'pi pi-sliders-v',
@@ -228,42 +228,6 @@ const AppMenu = () => {
                             },
                             command: handleMenuClick
                         }
-                        // {
-                        //     label: 'Manage Rule',
-                        //     url: '/manage-rules',
-                        //     check: (user: any) => {
-                        //         // Check if the user is a super admin
-                        //         if (get(user, 'isSuperAdmin')) {
-                        //             return true;
-                        //         }
-
-                        //         // Check if the user has the required permissions
-                        //         const userPermissions = get(user, 'permissions.permissions', []);
-                        //         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                        //         // Grant access based on permissions
-                        //         return hasPermission;
-                        //     },
-                        //     command: handleMenuClick
-                        // },
-                        // {
-                        //     label: 'Manage CAPA Rule',
-                        //     url: '/manage-capa-rules',
-                        //     check: (user: any) => {
-                        //         // Check if the user is a super admin
-                        //         if (get(user, 'isSuperAdmin')) {
-                        //             return true;
-                        //         }
-
-                        //         // Check if the user has the required permissions
-                        //         const userPermissions = get(user, 'permissions.permissions', []);
-                        //         const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-
-                        //         // Grant access based on permissions
-                        //         return hasPermission;
-                        //     },
-                        //     command: handleMenuClick
-                        // }
                     ]
                 },
                 {
@@ -526,357 +490,9 @@ const AppMenu = () => {
                     command: handleMenuClick
                 }
 
-                // {
-                //     label: 'Permissions',
-                //     icon: 'pi pi-lock',
-                //     check: (user: any) => {
-                //         const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
-                //         if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //             return true;
-                //         }
-                //         return false;
-                //     },
-                //     items: [
-                //         {
-                //             label: 'Routes',
-                //             url: '/routes',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Permissions',
-                //             url: '/permissions',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         }
-                //     ]
-                // },
-                // {
-                //     label: 'Operations',
-                //     icon: 'pi pi-cog',
-                //     check: (user: any) => {
-                //         const checkComm = intersection(CAMPANY_SETTING_MENU, get(user, 'permissions', []));
-                //         if (get(user, 'isSuperAdmin') || get(user, 'isAdmin') || checkComm.length > 0) {
-                //             return true;
-                //         }
-                //         return false;
-                //     },
-                //     items: [
-                //         {
-                //             label: 'Receive Purchase Order',
-                //             url: '/receive-purchase-order',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_WAREHOUSE_MENU, get(user, 'permissions', []));
-                //                 if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Pallet Receiving',
-                //             url: '/pallet-receiving',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_WAREHOUSE_MENU, get(user, 'permissions', []));
-                //                 if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         }
-                //     ]
-                // },
-                // {
-                //     label: 'Inventory Management',
-                //     icon: 'pi pi-box',
-                //     url: '/',
-                //     command: handleMenuClick
-                //     // check: (user: any) => {
-                //     //     const checkComm = intersection(INVENTORY_MENU, get(user, 'permissions', []));
-                //     //     if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //     //         return true;
-                //     //     }
-                //     //     return false;
-                //     // },
-                //     // items: []
-                // },
-                // {
-                //     label: 'Supplier Management',
-                //     icon: 'pi pi-stop',
-                //     check: (user: any) => {
-                //         const checkComm = intersection(SUPPLIER_MENU, get(user, 'permissions', []));
-                //         if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //             return true;
-                //         }
-                //         return false;
-                //     },
-                //     items: [
-                //         {
-                //             label: 'Purchase Order',
-                //             url: '/purchase-order',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(SUPPLIER_WAREHOUSE_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Vendors',
-                //             url: '/vendors',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(SUPPLIER_CATELOGUE_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         }
-                //     ]
-                // },
-                // {
-                //     label: 'Sales Activity',
-                //     icon: 'pi pi-dollar',
-                //     check: (user: any) => {
-                //         const checkComm = intersection(SALES_MENU, get(user, 'permissions', []));
-                //         if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //             return true;
-                //         }
-                //         return false;
-                //     },
-                //     items: [
-                //         {
-                //             label: 'Customers',
-                //             url: '/customers',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(SALES_CUSTOMER_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Orders',
-                //             url: '/orders',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(SALES_ORDER_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         }
-                //     ]
-                // },
-                // {
-                //     label: 'Control Tower',
-                //     icon: 'pi pi-desktop',
-                //     check: (user: any) => {
-                //         const checkComm = intersection(COMPANY, get(user, 'permissions', []));
-                //         if (checkComm.length > 0) {
-                //             return true;
-                //         }
-                //         return false;
-                //     },
-                //     items: [
-                //         {
-                //             label: 'Users',
-                //             url: '/users',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(COMPANY_USER_MENU, get(user, 'permissions', []));
-                //                 if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Roles',
-                //             url: '/roles',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(COMPANY_ROLE_MENU, get(user, 'permissions', []));
-                //                 if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Sub Locations',
-                //             url: '/sub-location',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_WAREHOUSE_MENU, get(user, 'permissions', []));
-                //                 if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Location',
-                //             url: '/warehouses',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_WAREHOUSE_MENU, get(user, 'permissions', []));
-                //                 if (!get(user, 'isSuperAdmin') && checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Master Codes',
-                //             url: '/master-codes',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(COMPANY_MASTER_CODE_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Category',
-                //             url: '/categories',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_CATEGORY_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Category Mapping',
-                //             url: '/product-mapping',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(COMPANY_MASTER_CODE_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Racks',
-                //             url: '/racks',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_RACK_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Bins',
-                //             url: '/bins',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_BIN_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'SKU',
-                //             url: '/sku',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_BIN_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'SKU List',
-                //             url: '/sku-list',
-                //             check: (user: any) => {
-                //                 const checkComm = intersection(INVENTORY_BIN_MENU, get(user, 'permissions', []));
-                //                 if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                //                     return true;
-                //                 }
-                //                 return false;
-                //             },
-                //             command: handleMenuClick
-                //         }
-                //     ]
-                // },
-                // {
-                //     label: 'Settings',
-                //     icon: 'pi pi-cog',
-                //     check: (user: any) => {
-                //         const checkComm = intersection(CAMPANY_SETTING_MENU, get(user, 'permissions', []));
-                //         if (get(user, 'isSuperAdmin') || get(user, 'isAdmin') || checkComm.length > 0) {
-                //             return true;
-                //         }
-                //         return false;
-                //     },
-                //     items: [
-                //         {
-                //             label: 'Email Setting',
-                //             url: '/email-setting',
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Email Templates',
-                //             url: '/email-templates',
-                //             command: handleMenuClick
-                //         },
-                //         {
-                //             label: 'Files',
-                //             url: '/files',
-                //             command: handleMenuClick
-                //         }
-                //     ]
-                // }
             ]
         }
-    ];
-
-    const menuToggleClass = classNames('menu-toggle-icon', {
-        'toogle-overlay': layoutConfig.menuMode === 'overlay',
-        'toogle-static': layoutConfig.menuMode === 'static',
-        'toogle-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-        'toogle-overlay-active': layoutState.overlayMenuActive,
-        'toogle-mobile-active': layoutState.staticMenuMobileActive
-    });
-
-    const iconClass = classNames('pi', {
-        'pi-angle-left text-lg text-white p-3': !layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-        'pi-angle-right text-lg text-white p-3': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
-    });
+    ], [hasPermission, hasAnyPermission, handleMenuClick]);
     return (
         <MenuProvider>
             <div className="min-h-screen flex relative lg:static">
@@ -884,20 +500,21 @@ const AppMenu = () => {
                     <div className="flex flex-column" style={{ height: '92%' }}>
                         <div className="overflow-y-auto " style={{ scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
                             <ul className="list-none p-3 m-0">
-                                {get(model, '0.items', []).map((item, i) =>
-                                    !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={`AppMenuitem${i}${item.label}`} /> : <li key={`AppMenuitem${i}${item.label}`} className="menu-separator"></li>
-                                )}
-                            </ul>
+                            {get(model, '0.items', []).map((item, i) =>
+                                item.separator ? (
+                                    <li key={`separator-${i}`} className="menu-separator"></li>
+                                ) : (
+                                    <AppMenuitem 
+                                        item={item as AppMenuItem} // Type assertion to prevent TypeScript error
+                                        root={true} 
+                                        index={i} 
+                                        key={`AppMenuitem${i}${item.label}`} 
+                                    />
+                                )
+                            )}
+                        </ul>
+
                         </div>
-                        {!layoutState.isMobile && (
-                            <div className="mt-auto">
-                                <a
-                                    v-ripple
-                                    className="flex mb-1 justify-content-center align-items-center  p-2 text-700 transition-duration-150 transition-colors p-ripple "
-                                    style={{ width: layoutState.staticMenuDesktopInactive ? 60 : 250, height: '15px' }}
-                                ></a>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
@@ -905,4 +522,4 @@ const AppMenu = () => {
     );
 };
 
-export default AppMenu;
+export default React.memo(AppMenu, (prevProps, nextProps) => true);
