@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { classNames } from 'primereact/utils';
@@ -8,15 +6,14 @@ import { AppTopbarRef } from '@/types';
 import { LayoutContext } from './context/layoutcontext';
 import { Avatar } from 'primereact/avatar';
 import { Menu } from 'primereact/menu';
-import { Toast } from 'primereact/toast';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { useAppContext } from './AppWrapper';
 import { get } from 'lodash';
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
-    const { setAlert, setLoading, signOut, user } = useAppContext();
+    const { signOut, user } = useAppContext();
     const router = useRouter();
-    const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
+    const { layoutConfig, layoutState, onMenuToggle } = useContext(LayoutContext);
     const menubuttonRef = useRef(null);
     const topbarmenuRef = useRef(null);
     const topbarmenubuttonRef = useRef(null);
@@ -27,11 +24,15 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         {
             template: (item: any, options: any) => {
                 return (
-                    <div className="p-menuitem cursor-pointer" style={{ alignItems: 'center', padding: 10 }}>
-                        <div style={{ marginLeft: 10 }}>
-                            <span style={{ fontWeight: 'bold' }}>Admin</span>
-                            <br></br>
-                            <span style={{ color: 'gray' }}>abhi@gmail.com</span>
+                    <div className="p-menuitem cursor-pointer flex flex-col gap-1" style={{ padding: '1rem' }}>
+                        <div className="font-bold text-lg">
+                            {get(user, 'name', 'User')}
+                        </div>
+                        <div className="text-gray-600">
+                            {get(user, 'email', '')}
+                        </div>
+                        <div className="text-sm text-blue-600 mt-1">
+                            {get(user, 'role.name', 'Role not assigned')}
                         </div>
                     </div>
                 );
@@ -51,6 +52,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             command: () => setVisible(true)
         }
     ];
+
     const menuToggleClass = classNames('menu-toggle-icon bg-primary-main', {
         'toogle-overlay': layoutConfig.menuMode === 'overlay',
         'toogle-static': layoutConfig.menuMode === 'static',
@@ -58,10 +60,12 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         'toogle-overlay-active': layoutState.overlayMenuActive,
         'toogle-mobile-active': layoutState.staticMenuMobileActive
     });
+
     const iconClass = classNames('pi', {
         'pi-angle-left': !layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
         'pi-angle-right': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
     });
+
     useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,
         topbarmenu: topbarmenuRef.current,
@@ -72,7 +76,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         signOut();
     };
 
-    const avatrClick = (e: any) => {
+    const avatarClick = (e: any) => {
         if (menu) {
             menu.current.toggle(e);
         }
@@ -83,8 +87,9 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     return (
         <div className="layout-topbar">
             <Link href="/" className="layout-topbar-logo">
-                <img src="/images/reckitt.webp" width="100px" height={'40px'} alt="logo" />
+                <img src="/images/reckitt.webp" width="100px" height="40px" alt="logo" />
             </Link>
+
             {!layoutState.isMobile && (
                 <div className={menuToggleClass} onClick={onMenuToggle}>
                     <i className={iconClass}></i>
@@ -97,19 +102,44 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                 </button>
             )}
 
-            <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={avatrClick}>
-                <Menu model={items} popup ref={menu} />
-                <Avatar label={get(user, 'displayName') ? get(user, 'displayName')[0] : 'U'} style={{ backgroundColor: '#9c27b0', color: '#ffffff' }} shape="circle" onClick={avatrClick} />
-            </button>
+            <div className="flex items-center gap-2 ml-auto">
+                <div className="hidden md:flex flex-col items-end">
+                    <span className="font-semibold">{get(user, 'name', 'User')}</span>
+                    <span className="text-sm text-blue-600">{get(user, 'role.name', 'Role not assigned')}</span>
+                </div>
+
+                <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={avatarClick}>
+                    <Menu model={items} popup ref={menu} />
+                    <Avatar
+                        label={get(user, 'name') ? get(user, 'name')[0] : 'U'}
+                        style={{ backgroundColor: '#9c27b0', color: '#ffffff' }}
+                        shape="circle"
+                        onClick={avatarClick}
+                    />
+                </button>
+            </div>
 
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
                 <button type="button" className="p-link layout-topbar-button profile-icon-setting">
                     <Menu model={items} popup ref={menu} />
-                    <Avatar label={get(user, 'displayName') ? get(user, 'displayName')[0] : 'U'} style={{ backgroundColor: '#9c27b0', color: '#ffffff' }} shape="circle" onClick={avatrClick} />
+                    <Avatar
+                        label={get(user, 'name') ? get(user, 'name')[0] : 'U'}
+                        style={{ backgroundColor: '#9c27b0', color: '#ffffff' }}
+                        shape="circle"
+                        onClick={avatarClick}
+                    />
                 </button>
             </div>
 
-            <ConfirmDialog className="custom-dialog" visible={visible} onHide={onHide} message="Are you sure you want to logout?" header="Confirmation" icon="pi pi-exclamation-triangle" accept={accept} />
+            <ConfirmDialog
+                className="custom-dialog"
+                visible={visible}
+                onHide={onHide}
+                message="Are you sure you want to logout?"
+                header="Confirmation"
+                icon="pi pi-exclamation-triangle"
+                accept={accept}
+            />
         </div>
     );
 });

@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEventListener, useMountEffect, useUnmountEffect } from 'primereact/hooks';
-import React, { useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { classNames } from 'primereact/utils';
 import AppFooter from './AppFooter';
 import AppSidebar from './AppSidebar';
@@ -13,21 +13,10 @@ import { LayoutContext } from './context/layoutcontext';
 import { PrimeReactContext } from 'primereact/api';
 import { ChildContainerProps, LayoutState, AppTopbarRef } from '@/types';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useAppContext } from './AppWrapper';
-import Preloader from '@/components/Preloader';
-import TopLinerLoader from '@/components/TopLineLoader';
-import MyFileUpload from '@/components/MyFileUpload';
-import { Menubar } from 'primereact/menubar';
-import router from 'next/router';
-import { useLoaderContext } from './context/LoaderContext';
-import Loader from '@/components/common/Loader';
 
-const Layout = React.memo(({ children }: ChildContainerProps) => {
-    const { user, isScroll } = useAppContext();
-    const { layoutConfig, layoutState, setLayoutState, onMenuToggle } = useContext(LayoutContext);
-    const [pageTitle, setPageTitle] = useState('');
+const Layout = ({ children }: ChildContainerProps) => {
+    const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
     const { setRipple } = useContext(PrimeReactContext);
-    const { loader } = useLoaderContext();
     const topbarRef = useRef<AppTopbarRef>(null);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [bindMenuOutsideClickListener, unbindMenuOutsideClickListener] = useEventListener({
@@ -133,81 +122,22 @@ const Layout = React.memo(({ children }: ChildContainerProps) => {
         'p-ripple-disabled': !layoutConfig.ripple
     });
 
-    const menuToggleClass = classNames('menu-toggle-icon bg-primary-main', {
-        'toogle-overlay': layoutConfig.menuMode === 'overlay',
-        'toogle-static': layoutConfig.menuMode === 'static',
-        'toogle-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-        'toogle-overlay-active': layoutState.overlayMenuActive,
-        'toogle-mobile-active': layoutState.staticMenuMobileActive
-    });
-
-    const iconClass = classNames('pi', {
-        'pi-angle-left': !layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-        'pi-angle-right': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static'
-    });
-
-    if (!user) {
-        return (
-            <>
-                <Preloader />
-            </>
-        );
-    }
-
-    // function for splitting url
-    // Extract the last part of the path, e.g., '/some-path' -> 'some-path'
-    // Extract the last part of the path, e.g., '/some-path' -> 'some-path'
-    const pathParts = pathname.split('/').filter(Boolean);
-
-    // Determine the page name
-    const pageName = pathParts.pop() || ''; // This will give you the last part of the URL, e.g., 'faq', 'add-faq'
-
-    // Clean the name: remove dashes, capitalize first letter, and make the rest lowercase
-    const cleanedName = pageName
-        .replace(/-/g, ' ') // Replace dashes with spaces
-        .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
-
-    // Determine if there's any additional path (i.e., not the root page)
-    const hasAdditionalPath = pathParts.length > 0;
-
-    // Set the icon and label based on whether there is an additional path
-    const items = [
-        {
-            label: cleanedName,
-            icon: hasAdditionalPath ? 'pi pi-arrow-left' : '' // Only show the arrow icon if there is an additional path
-        }
-    ];
-
-    const isDefaultPage = pathname === '/';
-
     return (
-        <>
-            <React.Fragment>
-                {/* <TopLinerLoader /> */}
-                {loader && <Loader />}
-                <div className={containerClass}>
-                    <MyFileUpload />
-                    <AppTopbar ref={topbarRef} />
-                    {/* {!layoutState.isMobile && (
-                    <div className={menuToggleClass} onClick={onMenuToggle}>
-                        <i className={iconClass}></i>
-                    </div>
-                )} */}
-                    <div ref={sidebarRef} className="layout-sidebar">
-                        <AppSidebar />
-                    </div>
-                    <div className={'layout-main-container'}>
-                        {/* {!isDefaultPage && <Menubar className="layout-upper-panel bg-white border-t  border-gray-300 rounded-none font-bold text-2xl" model={items} />} */}
-
-                        <div className={`layout-main ${!isScroll ? 'layout-main-pad' : ''}`}>{children}</div>
-                        <AppFooter />
-                    </div>
-                    <AppConfig />
-                    <div className="layout-mask"></div>
+        <React.Fragment>
+            <div className={containerClass}>
+                <AppTopbar ref={topbarRef} />
+                <div ref={sidebarRef} className="layout-sidebar">
+                    <AppSidebar />
                 </div>
-            </React.Fragment>
-        </>
+                <div className="layout-main-container">
+                    <div className="layout-main">{children}</div>
+                    <AppFooter />
+                </div>
+                <AppConfig />
+                <div className="layout-mask"></div>
+            </div>
+        </React.Fragment>
     );
-});
+};
 
 export default Layout;
