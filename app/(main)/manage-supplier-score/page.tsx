@@ -15,6 +15,7 @@ import ScoreTiles from '@/components/supplier-score/score-tiles';
 import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { withAuth } from '@/layout/context/authContext';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -42,6 +43,7 @@ const ManageSupplierScorePage = () => {
 
     const { departments } = useFetchDepartments();
     const { isLoading, setLoading, setAlert } = useAppContext();
+    const [isDataLoading, setIsDataLoading] = useState(false);
 
     const renderHeader = () => {
         return (
@@ -58,6 +60,7 @@ const ManageSupplierScorePage = () => {
     const header = renderHeader();
 
     const fetchData = async (params?: any) => {
+        setIsDataLoading(true);
         try {
             if (!params) {
                 params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
@@ -90,7 +93,7 @@ const ManageSupplierScorePage = () => {
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
-            setLoading(false);
+            setIsDataLoading(false);
         }
     };
 
@@ -170,106 +173,109 @@ const ManageSupplierScorePage = () => {
                             <div className="mt-3 ">
                                 <ScoreTiles />
                             </div>
+                            {
+                                isDataLoading ? <TableSkeletonSimple col={8} /> :
+                                    <CustomDataTable
+                                        ref={dataTableRef}
+                                        page={page}
+                                        limit={limit} // no of items per page
+                                        totalRecords={totalRecords} // total records from api response
+                                        data={rules?.map((item: any) => ({
+                                            ruleId: item.ruleId,
+                                            supplierName: item.supplier?.supplierName,
+                                            depName: item.department?.name,
+                                            evalutionPeriod: item.evalutionPeriod,
+                                            totalScore: item.totalScore,
+                                            categoryName: item.category?.categoryName,
+                                            subCategoryName: item.subCategory?.subCategoryName,
+                                            status: item.status
+                                        }))}
+                                        columns={[
+                                            {
+                                                header: 'Sr. No.',
+                                                body: (data: any, options: any) => {
+                                                    const normalizedRowIndex = options.rowIndex % limit;
+                                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                            <CustomDataTable
-                                ref={dataTableRef}
-                                page={page}
-                                limit={limit} // no of items per page
-                                totalRecords={totalRecords} // total records from api response
-                                data={rules?.map((item: any) => ({
-                                    ruleId: item.ruleId,
-                                    supplierName: item.supplier?.supplierName,
-                                    depName: item.department?.name,
-                                    evalutionPeriod: item.evalutionPeriod,
-                                    totalScore: item.totalScore,
-                                    categoryName: item.category?.categoryName,
-                                    subCategoryName: item.subCategory?.subCategoryName,
-                                    status: item.status
-                                }))}
-                                columns={[
-                                    {
-                                        header: 'Sr. No.',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                    return <span>{srNo}</span>;
+                                                },
+                                                bodyStyle: { minWidth: 50, maxWidth: 50 }
+                                            },
 
-                                            return <span>{srNo}</span>;
-                                        },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                    },
+                                            {
+                                                header: 'Name',
+                                                field: 'supplierName',
+                                                // filter: true,
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                                headerStyle: dataTableHeaderStyle
+                                            },
+                                            {
+                                                header: 'Type',
+                                                field: 'depName',
+                                                sortable: true,
+                                                headerStyle: dataTableHeaderStyle,
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'Quarter',
+                                                field: 'evalutionPeriod',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                                headerStyle: dataTableHeaderStyle
+                                            },
+                                            {
+                                                header: 'Supplier Score',
+                                                field: 'totalScore',
+                                                body: (rowData) => {
+                                                    const score = rowData.totalScore;
+                                                    let color = '';
 
-                                    {
-                                        header: 'Name',
-                                        field: 'supplierName',
-                                        // filter: true,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Type',
-                                        field: 'depName',
-                                        sortable: true,
-                                        headerStyle: dataTableHeaderStyle,
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                    },
-                                    {
-                                        header: 'Quarter',
-                                        field: 'evalutionPeriod',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Supplier Score',
-                                        field: 'totalScore',
-                                        body: (rowData) => {
-                                            const score = rowData.totalScore;
-                                            let color = '';
+                                                    if (score >= 0 && score <= 50) {
+                                                        color = '#F44336';
+                                                    } else if (score >= 51 && score <= 70) {
+                                                        color = '#FF9800';
+                                                    } else if (score >= 71 && score <= 90) {
+                                                        color = '#4CAF50';
+                                                    } else if (score >= 91 && score <= 100) {
+                                                        color = '#2196F3';
+                                                    }
 
-                                            if (score >= 0 && score <= 50) {
-                                                color = '#F44336';
-                                            } else if (score >= 51 && score <= 70) {
-                                                color = '#FF9800';
-                                            } else if (score >= 71 && score <= 90) {
-                                                color = '#4CAF50';
-                                            } else if (score >= 91 && score <= 100) {
-                                                color = '#2196F3';
+                                                    return <div style={{ color: color, fontWeight: 'bold' }}>{score}</div>;
+                                                },
+                                                bodyStyle: { minWidth: 100, maxWidth: 100, textAlign: 'center' },
+                                                headerStyle: dataTableHeaderStyle
+                                            },
+                                            {
+                                                header: 'Procurement Category',
+                                                field: 'categoryName',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                                headerStyle: dataTableHeaderStyle
+                                            },
+                                            {
+                                                header: 'Supplier Category',
+                                                field: 'subCategoryName',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                                headerStyle: dataTableHeaderStyle
+                                            },
+                                            {
+                                                header: 'Status',
+                                                field: 'status',
+                                                filter: true,
+                                                body: (rowData) => {
+                                                    const status = rowData.status;
+                                                    const color = status === 'completed' ? 'green' : 'red';
+
+                                                    return <div style={{ color: color, fontWeight: 'bold' }}>{status}</div>;
+                                                },
+                                                filterPlaceholder: 'Search Factory Name',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                                headerStyle: dataTableHeaderStyle
                                             }
+                                        ]}
+                                        onLoad={(params: any) => fetchData(params)}
+                                        onDelete={(item: any) => onRowSelect(item, 'delete')}
+                                    />
+                            }
 
-                                            return <div style={{ color: color, fontWeight: 'bold' }}>{score}</div>;
-                                        },
-                                        bodyStyle: { minWidth: 100, maxWidth: 100, textAlign: 'center' },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Procurement Category',
-                                        field: 'categoryName',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Supplier Category',
-                                        field: 'subCategoryName',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Status',
-                                        field: 'status',
-                                        filter: true,
-                                        body: (rowData) => {
-                                            const status = rowData.status;
-                                            const color = status === 'completed' ? 'green' : 'red';
-
-                                            return <div style={{ color: color, fontWeight: 'bold' }}>{status}</div>;
-                                        },
-                                        filterPlaceholder: 'Search Factory Name',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    }
-                                ]}
-                                onLoad={(params: any) => fetchData(params)}
-                                onDelete={(item: any) => onRowSelect(item, 'delete')}
-                            />
                         </div>
                     </div>
                 </div>
