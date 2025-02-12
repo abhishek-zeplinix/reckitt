@@ -22,7 +22,7 @@ import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
 import { encodeRouteParams, extractRouteParams } from '@/utils/base64';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import useFetchSingleSupplierDetails from '@/hooks/useFetchSingleSupplierDetails';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 
 const SupplierScoreboardTables = ({
@@ -56,7 +56,7 @@ const SupplierScoreboardTables = ({
     const { supId, catId, subCatId } = decodedParams;
 
     const [isBadgeLoading, setIsBadgeLoading] = useState(false);
-    
+
 
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
@@ -78,7 +78,7 @@ const SupplierScoreboardTables = ({
 
 
     console.log(bottomFlatData);
-    
+
     useEffect(() => {
         if (chartImage) {
             setPdfReady(!!chartImage);
@@ -170,7 +170,7 @@ const SupplierScoreboardTables = ({
         }
     };
 
-    
+
 
     const fetchSpecificSupplierCheckedData = async (depId: any, period: any) => {
         try {
@@ -536,7 +536,7 @@ const SupplierScoreboardTables = ({
 
     console.log(bottomFlatData?.departmentId);
     console.log(bottomFlatData?.evalutionPeriod);
-    
+
 
     const valuesPopupHeader = () => {
         return (
@@ -551,12 +551,12 @@ const SupplierScoreboardTables = ({
                         </div>
                     )}
                 </div>
-                    
-               
+
+
                 {
                     isSupplier() &&
                     <div className='mr-4'>
-                        <Link href={`/supplier-feedback/${encodeRouteParams({ departmentId: bottomFlatData?.departmentId, period: bottomFlatData?.evalutionPeriod})}`}>
+                        <Link href={`/supplier-feedback/${encodeRouteParams({ departmentId: bottomFlatData?.departmentId, period: bottomFlatData?.evalutionPeriod })}`}>
                             <Button label="Add Feedback" outlined className="bg-green-500 text-white border-none" />
                         </Link>
                     </div>
@@ -773,7 +773,11 @@ const SupplierScoreboardTables = ({
                     <div>{renderSummoryInfo}</div>
                 </div>
                 <div className="col-12">
-                    <div>{renderDataPanel}</div>
+                    {
+                        isLoading ? <TableSkeletonSimple col={5} /> :
+                            <div>{renderDataPanel}</div>
+
+                    }
                 </div>
                 <div className="col-12">
                     <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef} />
