@@ -13,8 +13,12 @@ import { LayoutContext } from './context/layoutcontext';
 import { PrimeReactContext } from 'primereact/api';
 import { ChildContainerProps, LayoutState, AppTopbarRef } from '@/types';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useAppContext } from './AppWrapper';
+import Preloader from '@/components/Preloader';
+import TopLinerLoader from '@/components/TopLineLoader';
 
 const Layout = ({ children }: ChildContainerProps) => {
+    const { user, isScroll } = useAppContext();
     const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
     const { setRipple } = useContext(PrimeReactContext);
     const topbarRef = useRef<AppTopbarRef>(null);
@@ -121,9 +125,17 @@ const Layout = ({ children }: ChildContainerProps) => {
         'p-input-filled': layoutConfig.inputStyle === 'filled',
         'p-ripple-disabled': !layoutConfig.ripple
     });
+    if (!user) {
+        return (
+            <>
+                <Preloader />
+            </>
+        );
+    }
 
     return (
         <React.Fragment>
+            <TopLinerLoader />
             <div className={containerClass}>
                 <AppTopbar ref={topbarRef} />
                 <div ref={sidebarRef} className="layout-sidebar">
