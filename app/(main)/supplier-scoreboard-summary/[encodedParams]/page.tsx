@@ -23,6 +23,7 @@ import { encodeRouteParams, extractRouteParams } from '@/utils/base64';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import { lime } from '@mui/material/colors';
 
 
 const SupplierScoreboardTables = ({
@@ -774,7 +775,7 @@ const SupplierScoreboardTables = ({
                 </div>
                 <div className="col-12">
                     {
-                        isLoading ? <TableSkeletonSimple col={5} /> :
+                        isLoading ? <TableSkeletonSimple /> :
                             <div>{renderDataPanel}</div>
 
                     }

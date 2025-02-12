@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import CustomDataTable from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight, renderColorStatus } from '@/utils/utils';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
@@ -362,21 +362,7 @@ const ManageRequestsPage = () => {
                                         field: 'status',
                                         filter: true,
                                         bodyStyle: { width: '150px' },
-                                        body: (rowData: any) => {
-                                            const getStatusClass = (status: string) => {
-                                                switch (status.toLowerCase()) {
-                                                    case 'approved':
-                                                        return 'bg-green-100 text-green-700 border-round-md';
-                                                    case 'rejected':
-                                                        return 'bg-red-100 text-red-700 border-round-md';
-                                                    case 'pending':
-                                                        return 'bg-blue-100 text-blue-700 border-round-md';
-                                                    default:
-                                                        return '';
-                                                }
-                                            };
-                                            return <span className={`px-2 py-1 rounded-lg ${getStatusClass(rowData.status)}`}>{rowData.status}</span>;
-                                        }
+                                        body: (rowData: any) => renderColorStatus(rowData.status)
                                     },
                                     {
                                         header: 'Proof Document',

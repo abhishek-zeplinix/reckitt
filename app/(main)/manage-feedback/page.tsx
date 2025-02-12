@@ -1,20 +1,17 @@
 'use client';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { buildQueryParams, formatEvaluationPeriod, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, formatEvaluationPeriod, getRowLimitWithScreenHeight, renderColorStatus } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
-import { GetCall, PutCall } from '@/app/api-config/ApiKit';
+import { GetCall } from '@/app/api-config/ApiKit';
 import { Rules } from '@/types';
-import { Dropdown } from 'primereact/dropdown';
-import Link from 'next/link';
 import { encodeRouteParams } from '@/utils/base64';
 import { Button } from 'primereact/button';
 import { get } from 'lodash';
-import TableSkeleton from '@/components/supplier-rating/skeleton/TableSkeleton';
 import { useRouter } from 'next/navigation';
 import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import { useAuth } from '@/layout/context/authContext';
 
 const ManageFeedbackPage = () => {
     const { layoutState } = useContext(LayoutContext);
@@ -22,27 +19,50 @@ const ManageFeedbackPage = () => {
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-
-    const [action, setAction] = useState(null);
     const [feedback, setFeedback] = useState<Rules[]>([]);
     const [totalRecords, setTotalRecords] = useState();
+    const [userRole, setUserRole] = useState<string | null>(null)
 
     const { isLoading, setLoading, setAlert, user } = useAppContext();
+    const { isSupplier } = useAuth();
     const router = useRouter();
 
-    console.log(feedback);
+    useEffect(() => {
 
-    const renderHeader = () => {
-        return (
-            <div className="flex justify-content-between">
-                <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Manage Feedbacks</h3>
-                </span>
-            </div>
-        );
-    };
+        if (user) {
+            if (isSupplier()) {
+                setUserRole('supplier');
+            }
+            // else if (isApprover()) {
+            //     setUserRole('approver');
+            // } else if (isEvaluator()) {
+            //     setUserRole('evaluator');
+            // }
+            else {
+                setUserRole('admin');
+            }
+        }
 
-    const header = renderHeader();
+    }, [user]);
+
+    useEffect(() => {
+        // Fetch data based on the user's role
+        if (userRole) {
+            if (userRole === 'supplier') {
+                fetchData();
+            }
+
+            // else if (userRole === 'approver') {
+            //     fetchDataApprover();
+            // } else if (userRole === 'evaluator') {
+            //     fetchDataEvaluator();
+            // }
+
+            else {
+                fetchDataAdmin();
+            }
+        }
+    }, [userRole]);
 
     const fetchData = async (params?: any) => {
         try {
@@ -71,49 +91,42 @@ const ManageFeedbackPage = () => {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const fetchDataAdmin = async (params?: any) => {
+        try {
+            setLoading(true);
 
-    const formatDate = (timestamp: any) => {
-        const date = new Date(timestamp);
+            if (!params) {
+                params = { limit: limit, page: page };
+            }
+            const queryString = buildQueryParams(params);
+            setPage(params.page);
 
-        const formattedDate = date
-            .toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            })
-            .replace(',', '');
+            const response = await GetCall(`/company/score-checked-data?${queryString}`);
 
-        return formattedDate;
+            if (response.code === 'SUCCESS') {
+                setFeedback(response.data);
+                setTotalRecords(response.total);
+            } else {
+                setFeedback([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
-
-    const onLimitChange = (e: any) => {
-        setLimit(e.value); // Update limit
-        fetchData({ limit: e.value, page: 1 }); // Fetch data with new limit
-    };
 
     const buttonRenderer = (rowData: any) => {
         const navigateToFeedback = () => {
             router.push(
                 `/supplier-feedback/${encodeRouteParams({
                     departmentId: rowData.departmentId,
-                    period: rowData.rawPeriod
+                    period: rowData.rawPeriod,
+                    supId: rowData.supId
                 })}`
             );
         };
@@ -124,6 +137,18 @@ const ManageFeedbackPage = () => {
             </div>
         );
     };
+
+    const renderHeader = () => {
+        return (
+            <div className="flex justify-content-between">
+                <span className="p-input-icon-left flex align-items-center">
+                    <h3 className="mb-0">Manage Feedbacks</h3>
+                </span>
+            </div>
+        );
+    };
+
+    const header = renderHeader();
 
     return (
         <div className="grid">
@@ -151,11 +176,14 @@ const ManageFeedbackPage = () => {
                                     totalRecords={totalRecords}
                                     // extraButtons={getExtraButtons}
                                     data={feedback?.map((item: any) => ({
-                                        id: item.supplierScoreId,
-                                        departmentId: item.departmentId,
+                                        id: item?.supplierScoreId,
+                                        supId: item?.supId,
+                                        supplierName: item?.supplier.supplierName,
+                                        departmentId: item?.departmentId,
                                         departmentName: item?.department.name,
                                         period: formatEvaluationPeriod(item?.evalutionPeriod),
-                                        rawPeriod: item?.evalutionPeriod
+                                        rawPeriod: item?.evalutionPeriod,
+                                        approvalStatus: item?.scoreApprovals.approvalStatus
                                     }))}
                                     columns={[
                                         {
@@ -169,17 +197,29 @@ const ManageFeedbackPage = () => {
                                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                                         },
                                         {
+                                            header: 'Supplier Name',
+                                            field: 'supplierName',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            headerStyle: dataTableHeaderStyle,
+                                        },
+                                        {
                                             header: 'Department Name',
                                             field: 'departmentName',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                                             headerStyle: dataTableHeaderStyle,
-                                            filterPlaceholder: 'Search Supplier Name'
                                         },
                                         {
                                             header: 'Period',
                                             field: 'period',
                                             headerStyle: dataTableHeaderStyle,
                                             style: { minWidth: 120, maxWidth: 120 }
+                                        },
+                                        {
+                                            header: 'Approval Status',
+                                            field: 'approvalStatus',
+                                            headerStyle: dataTableHeaderStyle,
+                                            style: { minWidth: 120, maxWidth: 120 },
+                                            body: (rowData: any) => renderColorStatus(rowData.approvalStatus)
                                         },
 
                                         {
@@ -189,7 +229,19 @@ const ManageFeedbackPage = () => {
                                             headerStyle: dataTableHeaderStyle
                                         }
                                     ]}
-                                    onLoad={(params: any) => fetchData(params)}
+                                    onLoad={(params: any) => {
+                                        if (userRole === 'supplier') {
+                                            fetchData(params);
+                                        }
+                                        // else if (userRole === 'approver') {
+                                        //     fetchDataApprover(params);
+                                        // } else if (userRole === 'evaluator') {
+                                        //     fetchDataEvaluator(params);
+                                        // }
+                                        else {
+                                            fetchDataAdmin(params);
+                                        }
+                                    }}
                                 />
                             )}
                         </div>

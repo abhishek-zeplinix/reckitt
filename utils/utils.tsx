@@ -473,3 +473,21 @@ export const formatEvaluationPeriod = (period: string): string => {
         .replace('Halfyearly-', 'H')
         .replace(/-(\d{4})$/, ' $1'); // Adds space before the year
 };
+
+
+export const getStatusClass = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'approved':
+            return 'bg-green-100 text-green-700 border-round-md';
+        case 'rejected':
+            return 'bg-red-100 text-red-700 border-round-md';
+        case 'pending':
+            return 'bg-blue-100 text-blue-700 border-round-md';
+        default:
+            return '';
+    }
+};
+
+export const renderColorStatus = (status: string) => {
+    return <span className={`px-2 py-1 rounded-lg ${getStatusClass(status)}`}>{status}</span>;
+};

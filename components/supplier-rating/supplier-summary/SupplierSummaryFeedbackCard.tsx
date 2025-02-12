@@ -9,6 +9,10 @@ const SupplierSummaryFeedbackCard = (data: any) => {
     
     const leftPanelData = [
         {
+            label: 'Supplier Name :',
+            value: data?.data?.supplier?.supplierName  || 'N/A'
+        },
+        {
             label: 'Department Name :',
             value: data?.data?.department?.name  || 'N/A'
         },
