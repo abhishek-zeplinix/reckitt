@@ -14,9 +14,6 @@ import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
-import { FileUpload } from 'primereact/fileupload';
-import { Checkbox } from 'primereact/checkbox';
-import { Calendar } from 'primereact/calendar';
 import { ColumnBodyOptions } from 'primereact/column';
 
 const ACTIONS = {
@@ -52,9 +49,6 @@ const SetRulesPage = () => {
     const searchParams = useSearchParams();
     const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
     const ruleSetId = searchParams.get('ruleSetId');
-    // const [isValid, setIsValid] = useState(true);
-    // const { loader } = useLoaderContext();
-    // const { loader, setLoader } = useLoaderContext();
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -121,79 +115,10 @@ const SetRulesPage = () => {
     const handleCreateNavigation = () => {
         router.push(`/rules/set-rules/create-new-rules?ruleSetId=${ruleSetId}`);
     };
-
-    const handleFileUpload = async (event: { files: File[] }) => {
-        const file = event.files[0]; // Retrieve the uploaded file
-        if (!file) {
-            setAlert('error', 'Please select a file to upload.');
-            return;
-        }
-
-        if (!date) {
-            setAlert('error', 'Please enter a valid date.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const formatDate = (date: Date): string => {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-            const year = date.getFullYear();
-            return `${year}-${month}-${day}`;
-        };
-
-        // In the handleFileUpload function
-        if (date) {
-            formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
-        }
-
-        setIsDetailLoading(true);
-        try {
-            // Use the existing PostCall function
-            const response: CustomResponse = await PostCall('/company/bulk-rules', formData);
-
-            setIsDetailLoading(false);
-
-            if (response.code === 'SUCCESS') {
-                setAlert('success', 'Rules imported successfully');
-                setVisible(false);
-                fetchData();
-            } else {
-                setAlert('error', response.message || 'File upload failed');
-            }
-        } catch (error) {
-            setIsDetailLoading(false);
-            console.error('An error occurred during file upload:', error);
-            setAlert('error', 'An unexpected error occurred during file upload');
-        }
-    };
     const handleEditRules = (ruleSetId: any, ruleId: any) => {
         router.push(`/rules/set-rules/create-new-rules?edit=true&ruleSetId=${ruleSetId}&ruleId=${ruleId}`);
     };
-
     const { isLoading, setLoading, setAlert } = useAppContext();
-
-    const dialogHeader = () => {
-        return (
-            <div className="flex justify-content-between align-items-center w-full">
-                <span>Choose your file</span>
-                <Button
-                    label="Download Sample PDF"
-                    icon="pi pi-download"
-                    className="p-button-text p-button-sm text-primary-main"
-                    onClick={() => {
-                        // Trigger PDF download
-                        const link = document.createElement('a');
-                        link.href = '/path-to-your-pdf.pdf'; // Replace with the actual path to your PDF
-                        link.download = 'example.pdf'; // Replace with the desired file name
-                        link.click();
-                    }}
-                />
-            </div>
-        );
-    };
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -201,45 +126,7 @@ const SetRulesPage = () => {
                     <h3 className="mb-0">Manage Rules</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    {/* <Button
-                        icon="pi pi-plus"
-                        size="small"
-                        label="Import Rules"
-                        aria-label="Add Rules"
-                        className="default-button"
-                        style={{ marginLeft: 10 }}
-                        onClick={() => setVisible(true)} // Show dialog when button is clicked
-                    /> */}
-                    <Dialog
-                        header={dialogHeader}
-                        visible={visible}
-                        style={{ width: '50vw' }}
-                        onHide={() => setVisible(false)} // Hide dialog when the close button is clicked
-                    >
-                        <div className="mb-3">
-                            <div>
-                                <div className="flex justify-center items-center gap-4 ">
-                                    <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
-                                        Select Effective Date:
-                                    </label>
-                                    <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
-                                </div>
-                            </div>
-                        </div>
-                        <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
-                    </Dialog>
                     <Button icon="pi pi-plus" size="small" label="Add Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
-                    {/* <Button
-                        icon="pi pi-plus"
-                        size="small"
-                        label="Delete Rules"
-                        aria-label="Delete Rule"
-                        className="bg-primary-main border-primary-main hover:text-white"
-                        onClick={() => {
-                            handleAllDelete();
-                        }}
-                        style={{ marginLeft: 10 }}
-                    /> */}
                 </div>
             </div>
         );
@@ -269,6 +156,7 @@ const SetRulesPage = () => {
             setLoading(false);
         }
     };
+    console.log('159',rules)
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
@@ -277,7 +165,7 @@ const SetRulesPage = () => {
     }, []);
     const fetchprocurementCategories = async (categoryId: number | null) => {
         if (!categoryId) {
-            setprocurementCategories([]); // Clear subcategories if no category is selected
+            setprocurementCategories([]);
             return;
         }
         setLoading(true);
@@ -370,33 +258,10 @@ const SetRulesPage = () => {
 
     const closeDeleteDialog = () => {
         setIsDeleteDialogVisible(false);
-        setIsAllDeleteDialogVisible(false);
-    };
-    const handleAllDelete = () => {
-        setIsAllDeleteDialogVisible(true);
-        setIsDeleteDialogVisible(true);
     };
 
     const onDelete = async () => {
-        setLoading(true);
-        if (isAllDeleteDialogVisible) {
-            try {
-                const response = await DeleteCall(`/company/rules`);
-
-                if (response.code === 'SUCCESS') {
-                    closeDeleteDialog();
-                    setAlert('success', 'Rule successfully deleted!');
-                    fetchData();
-                } else {
-                    setAlert('error', 'Something went wrong!');
-                    closeDeleteDialog();
-                }
-            } catch (error) {
-                setAlert('error', 'Something went wrong!');
-            } finally {
-                setLoading(false);
-            }
-        } else {
+        setLoading(true)
             try {
                 const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
@@ -413,26 +278,23 @@ const SetRulesPage = () => {
             } finally {
                 setLoading(false);
             }
-        }
     };
 
-    const expandedData = rules.flatMap((item: any) => {
-        // Create a row for each criteriaEvaluation and score pair
-        return item.criteriaEvaluation.map((criteria: string, index: number) => ({
-            ruleId: item.ruleId,
-            department: item?.department?.name,
-            category: item?.categories?.categoryName,
-            subCategories: item?.subCategories?.subCategoryName,
-            section: item.section,
-            ratedCriteria: item.ratedCriteria,
-            criteriaEvaluation: criteria,
-            score: item.score[index],
-            ratiosCopack: item.ratiosCopack,
-            ratiosRawpack: item.ratiosRawpack,
-            // add a unique identifier for each expanded row
-            expandedRowId: `${item.ruleId}-${index}`
-        }));
-    });
+    // const expandedData = rules.flatMap((item: any) => {
+    //     return item.criteriaEvaluation.map((criteria: string, index: number) => ({
+    //         ruleId: item.ruleId,
+    //         department: item?.department?.name,
+    //         category: item?.categories?.categoryName,
+    //         subCategories: item?.subCategories?.subCategoryName,
+    //         section: item.section,
+    //         ratedCriteria: item.ratedCriteria,
+    //         criteriaEvaluation: criteria,
+    //         score: item.score[index],
+    //         ratiosCopack: item.ratiosCopack,
+    //         ratiosRawpack: item.ratiosRawpack,
+    //         expandedRowId: `${item.ruleId}-${index}`
+    //     }));
+    // });
 
     return (
         <div className="grid">
@@ -458,19 +320,18 @@ const SetRulesPage = () => {
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
-                                limit={limit} // no of items per page
-                                totalRecords={totalRecords} // total records from api response
-                                // isEdit={true} // show edit button
-                                isDelete={true} // show delete button
+                                limit={limit}
+                                totalRecords={totalRecords}
+                                isDelete={true} 
                                 extraButtons={(item) => [
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, item.ruleId); // Pass the userId from the row data
+                                            handleEditRules(ruleSetId, item.ruleId); 
                                         }
                                     }
                                 ]}
-                                data={expandedData}
+                                data={rules}
                                 columns={[
                                     {
                                         header: 'SR. NO',
@@ -484,19 +345,19 @@ const SetRulesPage = () => {
                                     },
                                     {
                                         header: 'DEPARTMENT ',
-                                        field: 'department',
+                                        field: 'department.name',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'PROCUREMENT CATEGORY ',
-                                        field: 'category',
+                                        field: 'categories.categoryName',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'SUPPLIER CATEGORY',
-                                        field: 'subCategories',
+                                        field: 'subCategories.subCategoryName',
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 150, maxWidth: 150 }
                                     },
@@ -516,40 +377,67 @@ const SetRulesPage = () => {
                                         header: 'CRITERIA EVALUATION',
                                         field: 'criteriaEvaluation',
                                         body: (data: any, options: ColumnBodyOptions) => {
-                                            const rowIndex = options.rowIndex;
-                                            const isExpanded = expandedRows[rowIndex] || false;
-
-                                            const words = data.criteriaEvaluation.split(' ');
-                                            const isLongText = words.length > 5;
-                                            const displayText = isExpanded ? data.criteriaEvaluation : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-
-                                            const toggleExpand = () => {
-                                                setExpandedRows((prev) => ({
-                                                    ...prev,
-                                                    [rowIndex]: !isExpanded
-                                                }));
-                                            };
-
-                                            return (
-                                                <span>
-                                                    {displayText}
-                                                    {isLongText && (
-                                                        <button onClick={toggleExpand} style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px', fontSize: '10px' }}>
-                                                            {isExpanded ? 'Read Less' : 'Read More'}
-                                                        </button>
-                                                    )}
-                                                </span>
-                                            );
+                                          const rowIndex = options.rowIndex;
+                                          const isExpanded = expandedRows[rowIndex] || false;
+                                      
+                                          if (!Array.isArray(data.criteriaEvaluation)) return null; // Ensure it's an array
+                                      
+                                          const joinedText = data.criteriaEvaluation.join(', '); // Join array values
+                                          const words = joinedText.split(' ');
+                                          const isLongText = words.length > 5;
+                                          const displayText = isExpanded ? joinedText : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                                      
+                                          const toggleExpand = () => {
+                                            setExpandedRows((prev) => ({
+                                              ...prev,
+                                              [rowIndex]: !isExpanded
+                                            }));
+                                          };
+                                      
+                                          return (
+                                            <span>
+                                              {displayText}
+                                              {isLongText && (
+                                                <button
+                                                  onClick={toggleExpand}
+                                                  style={{
+                                                    color: 'red',
+                                                    cursor: 'pointer',
+                                                    border: 'none',
+                                                    background: 'none',
+                                                    marginLeft: '5px',
+                                                    fontSize: '10px'
+                                                  }}
+                                                >
+                                                  {isExpanded ? 'Read Less' : 'Read More'}
+                                                </button>
+                                              )}
+                                            </span>
+                                          );
                                         },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
+                                      },
+                                      {
                                         header: 'CRITERIA SCORE',
                                         field: 'score',
-                                        bodyStyle: { minWidth: 50, maxWidth: 50, textAlign: 'center' },
+                                        body: (data: any) => {
+                                          if (!Array.isArray(data.score)) return null; // Ensure it's an array
+                                      
+                                          return (
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
+                                              {data.score.map((value: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
+                                                <span key={index} style={{ padding: '2px 5px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                                                  {value}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          );
+                                        },
+                                        bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
                                         headerStyle: dataTableHeaderStyle
-                                    },
+                                      },
+                                      
                                     {
                                         header: 'RATIOS COPACK (%)',
                                         field: 'ratiosCopack',

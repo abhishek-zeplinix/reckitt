@@ -21,8 +21,8 @@ const CreateNewRulesPage = () => {
     const isEditMode = searchParams.get('edit') === 'true'; // Check if in edit mode
     const capaRuleId = searchParams.get('capaRuleId');
     const ruleSetId = searchParams.get('ruleSetId');
-    const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
-    const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState(null);
+    const [selectedProcurementCategory, setSelectedProcurementCategory] = useState<any>(null);
+    const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState<any>(null);
     const [selectedSupplierCategory, setSelectedSupplierCategory] = useState(null);
     const [procurementDepartment, setProcurementDepartment] = useState([]);
     const [procurementCategories, setprocurementCategories] = useState([]);
@@ -82,6 +82,14 @@ const CreateNewRulesPage = () => {
             updatedArray[index] = value;
             return { ...prev, [key]: updatedArray };
         });
+         // Clear the error for the field when a value is entered
+         setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+            if (value && updatedErrors[key]) {
+                delete updatedErrors[key];
+            }
+            return updatedErrors;
+        });
     };
     // Remove a field
     const handleRemoveField = (index: number) => {
@@ -107,7 +115,7 @@ const CreateNewRulesPage = () => {
             let response: CustomResponse;
 
             if (isEditMode) {
-                endpoint = `/company/caparule/${capaRuleId}`;
+                endpoint = `/company/caparule/${capaRuleId}/rule-set/${ruleSetId}`;
                 try {
                     response = await PutCall(endpoint, fields); // Call PUT API
                     if (response.code === 'SUCCESS') {
@@ -161,7 +169,10 @@ const CreateNewRulesPage = () => {
                 setSelectedProcurementCategory(userDetails.categoryId || '');
                 fetchprocurementCategories(userDetails.categoryId), setSelectedSupplierCategory(userDetails.subCategoryId || '');
                 setcapaRulesName(userDetails.capaRulesName || '');
-                setstatus(userDetails.status || '');
+                setFields((prev) => ({
+                    ...prev,
+                    status: userDetails.status || [''],
+                }));
                 // Parse the date string into a Date object
                 const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
                 setDate(parsedDate);
@@ -229,6 +240,14 @@ const CreateNewRulesPage = () => {
     const handleCategoryChange = (value: any) => {
         setSelectedSupplierCategory(value); // Update the selected value
         fetchprocurementCategories(value); // Call the API with the selected value
+         // Clear the error for the field when a value is entered
+         setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+            if (value && updatedErrors['categoryId']) {
+                delete updatedErrors['categoryId'];
+            }
+            return updatedErrors;
+        });
     };
     const handleInputChange = (name: string, value: string) => {
         if (name === 'orderBy') {
@@ -268,6 +287,53 @@ const CreateNewRulesPage = () => {
             }
             setcapaRulesName(value);
         }
+       // Clear the error for the field when a value is entered
+       setFormErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        if (value && updatedErrors[name]) {
+            delete updatedErrors[name];
+        }
+        return updatedErrors;
+    });
+    setFields((prevForm) => {
+        const updatedForm = {
+            ...prevForm,
+            ...(typeof name === 'string' ? { [name]: value } : name),
+        };
+
+        if (name === 'departmentId') {
+            setSelectedProcurementDepartment(Number(value));
+            updatedForm.departmentId = null;
+        }
+
+        return updatedForm;
+    });
+    setFields((prevForm) => {
+        const updatedForm = {
+            ...prevForm,
+            ...(typeof name === 'string' ? { [name]: value } : name),
+        };
+
+        if (name === 'subCategoryId') {
+            setSelectedProcurementCategory(Number(value));
+            updatedForm.subCategoryId = null;
+        }
+
+        return updatedForm;
+    });
+    setFields((prevForm) => {
+        const updatedForm = {
+            ...prevForm,
+            ...(typeof name === 'string' ? { [name]: value } : name),
+        };
+
+        if (name === 'effectiveFrom') {
+            setDate(value ? new Date(value) : null); 
+            updatedForm.effectiveFrom = null;
+        }            
+
+        return updatedForm;
+    });
         // validateFields(name, value);
     };
     const renderContentbody = () => {
@@ -282,7 +348,7 @@ const CreateNewRulesPage = () => {
                                 <Calendar
                                     id="effectiveFrom"
                                     value={date}
-                                    onChange={(e) => setDate(e.value as Date)}
+                                    onChange={(e) =>handleInputChange('effectiveFrom', e.target.value ? e.target.value.toISOString() : '')}
                                     dateFormat="dd-mm-yy"
                                     placeholder="Select a date"
                                     showIcon
@@ -303,7 +369,7 @@ const CreateNewRulesPage = () => {
                                     id="departmentId"
                                     value={selectedProcurementDepartment}
                                     options={procurementDepartment}
-                                    onChange={(e) => setSelectedProcurementDepartment(e.value)}
+                                    onChange={(e) => handleInputChange('departmentId', e.target.value)}
                                     placeholder="Select Department"
                                     optionLabel="name"
                                     optionValue="departmentId"
@@ -331,7 +397,7 @@ const CreateNewRulesPage = () => {
                                     id="subCategoryId"
                                     value={selectedProcurementCategory}
                                     options={procurementCategories}
-                                    onChange={(e) => setSelectedProcurementCategory(e.value)}
+                                    onChange={(e) => handleInputChange('subCategoryId', e.target.value)}
                                     optionLabel="subCategoryName"
                                     optionValue="subCategoryId"
                                     placeholder="Select Supplier Category"
