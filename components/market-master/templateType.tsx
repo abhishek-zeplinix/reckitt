@@ -17,15 +17,15 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const AddBrandsControl = () => {
+const AddTemplateType = () => {
     const [rolesList, setRolesList] = useState<any>([]);
-    const [brand, setBrand] = useState<any>('');
-    const [brandList, setBrandList] = useState<any>([]);
+    const [templateType, setTemplateType] = useState<any>('');
+    const [templateTypeList, setTemplateTypeList] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
-    const [selectedBrandId, setSelectedBrandId] = useState<any>();
+    const [selectedTemplateTypeId, setSelectedtemplateTypeId] = useState<any>();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
@@ -38,8 +38,8 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/brand');
-            setBrandList(response.data);
+            const response = await GetCall('/company/templateType');
+            setTemplateTypeList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
             setAlert('error', 'Something went wrong!');
@@ -53,12 +53,12 @@ const AddBrandsControl = () => {
 
         if (isEditMode) {
             try {
-                const payload = { brandName: brand };
-                const response = await PutCall(`/company/brand/${selectedBrandId}`, payload);
+                const payload = { templateTypeName: templateType };
+                const response = await PutCall(`/company/templateType/${selectedTemplateTypeId}`, payload);
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Brand successfully updated!');
+                    setAlert('success', 'Template Type successfully updated!');
                     resetInput();
                     fetchData();
                 }
@@ -69,12 +69,12 @@ const AddBrandsControl = () => {
             }
         } else {
             try {
-                const payload = { brandName: brand };
-                const response = await PostCall('/company/brand', payload);
+                const payload = { templateTypeName: templateType };
+                const response = await PostCall('/company/templateType', payload);
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Brand successfully added!');
+                    setAlert('success', 'Template Type successfully added!');
                     resetInput();
                     fetchData();
                 }
@@ -91,13 +91,13 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/brand/${selectedBrandId}`);
+            const response = await DeleteCall(`/company/templateType/${selectedTemplateTypeId}`);
 
             if (response.code.toLowerCase() === 'success') {
-                setRolesList((prevRoles: any) => prevRoles.filter((brand: any) => brand.brandId !== selectedBrandId));
+                setRolesList((prevRoles: any) => prevRoles.filter((templateType: any) => templateType.templateTypeId !== selectedTemplateTypeId));
                 fetchData();
                 closeDeleteDialog();
-                setAlert('success', 'Brand successfully deleted!');
+                setAlert('success', 'Template Type successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
@@ -110,7 +110,7 @@ const AddBrandsControl = () => {
     };
 
     const resetInput = () => {
-        setBrand('');
+        setTemplateType('');
         setIsEditMode(false);
     };
 
@@ -127,12 +127,12 @@ const AddBrandsControl = () => {
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
-            setSelectedBrandId(perm.brandId);
+            setSelectedtemplateTypeId(perm.templateTypeId);
         }
 
         if (action === ACTIONS.EDIT) {
-            setBrand(perm.brandName);
-            setSelectedBrandId(perm.brandId);
+            setTemplateType(perm.templateTypeName);
+            setSelectedtemplateTypeId(perm.templateTypeId);
             setIsEditMode(true);
         }
     };
@@ -140,26 +140,26 @@ const AddBrandsControl = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="brand">Add Brands</label>
-                <InputText aria-label="Add Brands" value={brand} onChange={(e) => setBrand(e.target.value)} style={{ width: '50%' }} />
+                <label htmlFor="templateType">Template Type</label>
+                <InputText aria-label="Add Template Type" value={templateType} onChange={(e) => setTemplateType(e.target.value)} style={{ width: '50%' }} />
                 <small>
-                    <i>Enter a brand you want to add.</i>
+                    <i>Enter a Template Type you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Brand' : 'Add Brands'} />
+                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Template Type' : 'Add Template Type'} />
             </div>
 
             <div className="mt-4">
                 <CustomDataTable
-                    ref={brandList}
+                    ref={templateTypeList}
                     page={page}
                     limit={limit} // no of items per page
                     totalRecords={totalRecords} // total records from api response
                     isView={false}
                     isEdit={true} // show edit button
                     isDelete={true} // show delete button
-                    data={brandList?.map((item: any) => ({
-                        brandId: item?.brandId,
-                        brandName: item?.brandName
+                    data={templateTypeList?.map((item: any) => ({
+                        templateTypeId: item?.templateTypeId,
+                        templateTypeName: item?.templateTypeName
                     }))}
                     columns={[
                         // {
@@ -181,8 +181,8 @@ const AddBrandsControl = () => {
                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
-                            header: 'Brand Name',
-                            field: 'brandName',
+                            header: 'Template Type Name',
+                            field: 'templateTypeName',
                             filter: true,
                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                             filterPlaceholder: 'Role'
@@ -216,7 +216,7 @@ const AddBrandsControl = () => {
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
-                        <span>Are you sure you want to delete this brand? </span>
+                        <span>Are you sure you want to delete this Template Type? </span>
                         <span>This action cannot be undone. </span>
                     </div>
                 </div>
@@ -225,4 +225,4 @@ const AddBrandsControl = () => {
     );
 };
 
-export default AddBrandsControl;
+export default AddTemplateType;

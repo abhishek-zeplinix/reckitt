@@ -17,7 +17,7 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const AddBrandsControl = () => {
+const AddWhitelistedDomain = () => {
     const [rolesList, setRolesList] = useState<any>([]);
     const [brand, setBrand] = useState<any>('');
     const [brandList, setBrandList] = useState<any>([]);
@@ -38,7 +38,7 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/brand');
+            const response = await GetCall('/company/whitelistedDomain');
             setBrandList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
@@ -54,11 +54,11 @@ const AddBrandsControl = () => {
         if (isEditMode) {
             try {
                 const payload = { brandName: brand };
-                const response = await PutCall(`/company/brand/${selectedBrandId}`, payload);
+                const response = await PutCall(`/company/whitelistedDomain/${selectedBrandId}`, payload);
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Brand successfully updated!');
+                    setAlert('success', 'Whitelisted Domain successfully updated!');
                     resetInput();
                     fetchData();
                 }
@@ -70,11 +70,11 @@ const AddBrandsControl = () => {
         } else {
             try {
                 const payload = { brandName: brand };
-                const response = await PostCall('/company/brand', payload);
+                const response = await PostCall('/company/whitelistedDomain', payload);
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Brand successfully added!');
+                    setAlert('success', 'Whitelisted Domain successfully added!');
                     resetInput();
                     fetchData();
                 }
@@ -91,13 +91,13 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/brand/${selectedBrandId}`);
+            const response = await DeleteCall(`/company/whitelistedDomain/${selectedBrandId}`);
 
             if (response.code.toLowerCase() === 'success') {
                 setRolesList((prevRoles: any) => prevRoles.filter((brand: any) => brand.brandId !== selectedBrandId));
                 fetchData();
                 closeDeleteDialog();
-                setAlert('success', 'Brand successfully deleted!');
+                setAlert('success', 'Whitelisted Domain successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
@@ -140,12 +140,12 @@ const AddBrandsControl = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="brand">Add Brands</label>
-                <InputText aria-label="Add Brands" value={brand} onChange={(e) => setBrand(e.target.value)} style={{ width: '50%' }} />
+                <label htmlFor="brand">Whitelisted Domain</label>
+                <InputText aria-label="Add Whitelisted Domain" value={brand} onChange={(e) => setBrand(e.target.value)} style={{ width: '50%' }} />
                 <small>
-                    <i>Enter a brand you want to add.</i>
+                    <i>Enter a Whitelisted Domain you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Brand' : 'Add Brands'} />
+                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Whitelisted Domain' : 'Add Whitelisted Domain'} />
             </div>
 
             <div className="mt-4">
@@ -216,7 +216,7 @@ const AddBrandsControl = () => {
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
-                        <span>Are you sure you want to delete this brand? </span>
+                        <span>Are you sure you want to delete this Whitelisted Domain? </span>
                         <span>This action cannot be undone. </span>
                     </div>
                 </div>
@@ -225,4 +225,4 @@ const AddBrandsControl = () => {
     );
 };
 
-export default AddBrandsControl;
+export default AddWhitelistedDomain;

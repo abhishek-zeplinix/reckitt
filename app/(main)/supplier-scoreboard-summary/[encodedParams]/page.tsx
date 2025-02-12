@@ -22,16 +22,17 @@ import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
 import { encodeRouteParams, extractRouteParams } from '@/utils/base64';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
-import { lime } from '@mui/material/colors';
-
+import useFetchSingleSupplierDetails from '@/hooks/useFetchSingleSupplierDetails';
+import SupplierSummaryTableSkeleton from '@/components/supplier-rating/skeleton/SupplierSummarySkeleton';
+import PerformanceRatingSkeleton from '@/components/supplier-rating/skeleton/OverallPerformanceSkeleton';
+import SupplierSummaryRightLeftPanelSkeleton from '@/components/supplier-rating/skeleton/SupplierSummaryLeftRightPanelSkeleton';
 
 const SupplierScoreboardTables = ({
     params
 }: {
     params: {
-        encodedParams: string
-    }
+        encodedParams: string;
+    };
 }) => {
     const [halfYearlyData, setHalfYearlyData] = useState<any>([]);
     const [quarterlyData, setQuarterlyData] = useState<any>([]);
@@ -58,7 +59,6 @@ const SupplierScoreboardTables = ({
 
     const [isBadgeLoading, setIsBadgeLoading] = useState(false);
 
-
     useEffect(() => {
         const captureTimer = setTimeout(async () => {
             if (!chartRef.current) return;
@@ -76,7 +76,6 @@ const SupplierScoreboardTables = ({
 
         return () => clearTimeout(captureTimer);
     }, [ratingsData, selectedYear, pdfReady]);
-
 
     console.log(bottomFlatData);
 
@@ -170,8 +169,6 @@ const SupplierScoreboardTables = ({
             setLoading(false);
         }
     };
-
-
 
     const fetchSpecificSupplierCheckedData = async (depId: any, period: any) => {
         try {
@@ -308,7 +305,6 @@ const SupplierScoreboardTables = ({
 
         const backgroundColor = getBackgroundColor(percentage);
 
-
         const handleIconClick = (e: React.MouseEvent) => {
             e.stopPropagation();
 
@@ -324,7 +320,6 @@ const SupplierScoreboardTables = ({
             console.log(evaluationData, 'selected');
         };
 
-
         const handleAddFeedbackClick = (e: React.MouseEvent) => {
             e.stopPropagation();
 
@@ -336,7 +331,7 @@ const SupplierScoreboardTables = ({
 
             if (evaluationData) {
                 setDialogVisible(true);
-                setLoading(false)
+                setLoading(false);
             }
             console.log(evaluationData, 'selected');
         };
@@ -344,7 +339,6 @@ const SupplierScoreboardTables = ({
         const handleBadgeClick = async (e: any) => {
             await handleAddFeedbackClick(e); // Call your actual function
         };
-
 
         return (
             <div className="flex align-items-center gap-2">
@@ -359,25 +353,10 @@ const SupplierScoreboardTables = ({
                 />
                 {percentage <= 50 && percentage !== 0 && !isSupplier() && <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />}
 
-                {percentage <= 50 && percentage !== 0 && isSupplier() && (
-                    isLoading ? (
-                        <ProgressSpinner />
-                    ) : (
-                        <Badge
-                            value="+ Feedback"
-                            severity="success"
-                            onClick={handleBadgeClick}
-                            className="cursor-pointer"
-                        />
-                    )
-                )}
-
+                {percentage <= 50 && percentage !== 0 && isSupplier() && (isLoading ? <ProgressSpinner /> : <Badge value="+ Feedback" severity="success" onClick={handleBadgeClick} className="cursor-pointer" />)}
             </div>
         );
     };
-
-
-
 
     const nameBodyTemplate = (rowData: any) => {
         return <span className="text-primary-main font-bold">{rowData.name}</span>;
@@ -424,23 +403,27 @@ const SupplierScoreboardTables = ({
                             padding: '1rem'
                         }}
                     >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {leftPanelData.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
+                        {isLoading ? (
+                            <SupplierSummaryRightLeftPanelSkeleton itemCount={5} />
+                        ) : (
+                            <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
+                                {leftPanelData.map((item, index) => (
+                                    <>
+                                        <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                            <div>
+                                                <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
+                                                    {item.label}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
+                                            <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
+                                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
+                                            </div>
+                                        </li>
+                                        {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
+                                    </>
+                                ))}
+                            </ul>
+                        )}
                     </div>
 
                     <div
@@ -456,23 +439,27 @@ const SupplierScoreboardTables = ({
                             padding: '1rem'
                         }}
                     >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {rightPanelData?.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
+                        {isLoading ? (
+                            <SupplierSummaryRightLeftPanelSkeleton itemCount={4} />
+                        ) : (
+                            <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
+                                {rightPanelData?.map((item, index) => (
+                                    <>
+                                        <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                            <div>
+                                                <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
+                                                    {item.label}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < rightPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
+                                            <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
+                                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
+                                            </div>
+                                        </li>
+                                        {index < rightPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
+                                    </>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
             </>
@@ -515,7 +502,6 @@ const SupplierScoreboardTables = ({
                     )}
                 </div>
 
-
                 <div className="flex justify-content-end">
                     {/* <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button " style={{ marginLeft: 10 }} /> */}
                     {/* <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-pink-500 border-pink-500 hover:text-white" style={{ marginLeft: 10 }}
@@ -538,7 +524,6 @@ const SupplierScoreboardTables = ({
     console.log(bottomFlatData?.departmentId);
     console.log(bottomFlatData?.evalutionPeriod);
 
-
     const valuesPopupHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -546,23 +531,16 @@ const SupplierScoreboardTables = ({
                     <div className="text-2xl font-medium text-gray-800">Evaluation Period - {bottomFlatData?.evaluationPeriod ? formatEvaluationPeriod(bottomFlatData.evaluationPeriod) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Evaluation Score - {bottomFlatData?.totalScore ? Math.round(bottomFlatData.totalScore) : 'N/A'}</div>
                     <div className="text-sm text-gray-500 mt-1">Department - {bottomFlatData?.department?.name}</div>
-                    {bottomFlatData?.scoreApprovals?.approvalStatus && (
-                        <div className="text-sm text-gray-500 mt-1">
-                            Approval Status - {bottomFlatData.scoreApprovals.approvalStatus}
-                        </div>
-                    )}
+                    {bottomFlatData?.scoreApprovals?.approvalStatus && <div className="text-sm text-gray-500 mt-1">Approval Status - {bottomFlatData.scoreApprovals.approvalStatus}</div>}
                 </div>
 
-
-                {
-                    isSupplier() &&
-                    <div className='mr-4'>
+                {isSupplier() && (
+                    <div className="mr-4">
                         <Link href={`/supplier-feedback/${encodeRouteParams({ departmentId: bottomFlatData?.departmentId, period: bottomFlatData?.evalutionPeriod })}`}>
                             <Button label="Add Feedback" outlined className="bg-green-500 text-white border-none" />
                         </Link>
                     </div>
-                }
-
+                )}
             </div>
         );
     };
@@ -572,38 +550,48 @@ const SupplierScoreboardTables = ({
                 <div className="mb-4">{renderHeader}</div>
                 <div>
                     {/* Half-yearly Table */}
-                    <div className="card custom-box-shadow p-0">
-                        <DataTable value={halfYearlyData} tableStyle={{ minWidth: '60rem' }}>
-                            <Column body={nameBodyTemplate} field="name" style={{ width: '20%' }} />
-                            <Column style={{ width: '20%' }} />
-                            <Column header={`H1 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'status1', true)} style={{ width: '20%' }} />
-                            <Column style={{ width: '20%' }} />
-                            <Column header={`H2 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'status2', true)} style={{ width: '20%' }} />
-                        </DataTable>
-                    </div>
+                    {isLoading ? (
+                        <SupplierSummaryTableSkeleton rowsCount={2} columnsCount={3} />
+                    ) : (
+                        <div className="card custom-box-shadow p-0">
+                            <DataTable value={halfYearlyData} tableStyle={{ minWidth: '60rem' }}>
+                                <Column body={nameBodyTemplate} field="name" style={{ width: '20%' }} />
+                                <Column style={{ width: '20%' }} />
+                                <Column header={`H1 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'status1', true)} style={{ width: '20%' }} />
+                                <Column style={{ width: '20%' }} />
+                                <Column header={`H2 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'status2', true)} style={{ width: '20%' }} />
+                            </DataTable>
+                        </div>
+                    )}
 
                     {/* Quarterly Table */}
-                    <div className="card custom-box-shadow p-0">
-                        <DataTable value={quarterlyData} tableStyle={{ minWidth: '60rem' }}>
-                            <Column body={nameBodyTemplate} field="name" style={{ width: '20%' }} />
-                            <Column header={`Q1 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q1')} style={{ width: '20%' }} />
-                            <Column header={`Q2 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q2')} style={{ width: '20%' }} />
-                            <Column header={`Q3 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q3')} style={{ width: '20%' }} />
-                            <Column header={`Q4 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q4')} style={{ width: '20%' }} />
-                        </DataTable>
-                    </div>
+                    {isLoading ? (
+                        <SupplierSummaryTableSkeleton rowsCount={3} columnsCount={5} />
+                    ) : (
+                        <div className="card custom-box-shadow p-0">
+                            <DataTable value={quarterlyData} tableStyle={{ minWidth: '60rem' }}>
+                                <Column body={nameBodyTemplate} field="name" style={{ width: '20%' }} />
+                                <Column header={`Q1 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q1')} style={{ width: '20%' }} />
+                                <Column header={`Q2 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q2')} style={{ width: '20%' }} />
+                                <Column header={`Q3 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q3')} style={{ width: '20%' }} />
+                                <Column header={`Q4 ${selectedYear}`} body={(rowData) => statusBodyTemplate(rowData, 'q4')} style={{ width: '20%' }} />
+                            </DataTable>
+                        </div>
+                    )}
 
                     {/* Ratings Table */}
-                    <div className="card custom-box-shadow p-0">
-                        <DataTable value={ratingsData} tableStyle={{ minWidth: '60rem' }}>
-                            <Column field="name" header="Quarter" className="font-bold" style={{ width: '20%' }} />
-                            <Column header="Rating" body={(rowData) => statusBodyTemplateForRating(rowData, 'status1')} style={{ width: '20%' }} />
-                            <Column field="remark" header="Remark" style={{ width: '200px' }} />
-                            <Column field="action" header="Action Needed" style={{ width: '250px' }} />
-                        </DataTable>
-                    </div>
-
-
+                    {isLoading ? (
+                        <SupplierSummaryTableSkeleton rowsCount={4} columnsCount={4} />
+                    ) : (
+                        <div className="card custom-box-shadow p-0">
+                            <DataTable value={ratingsData} tableStyle={{ minWidth: '60rem' }}>
+                                <Column field="name" header="Quarter" className="font-bold" style={{ width: '20%' }} />
+                                <Column header="Rating" body={(rowData) => statusBodyTemplateForRating(rowData, 'status1')} style={{ width: '20%' }} />
+                                <Column field="remark" header="Remark" style={{ width: '200px' }} />
+                                <Column field="action" header="Action Needed" style={{ width: '250px' }} />
+                            </DataTable>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -684,7 +672,6 @@ const SupplierScoreboardTables = ({
         []
     );
 
-
     const prepareChartData = () => {
         //chart 1
         const ratingLabels = ratingsData?.map((rating: any) => rating.name) || [];
@@ -763,9 +750,7 @@ const SupplierScoreboardTables = ({
         return { ratingData, lineData };
     };
 
-
     const { ratingData, lineData } = React.useMemo(() => prepareChartData(), [halfYearlyData, quarterlyData, ratingsData]);
-
 
     return (
         <>
@@ -780,9 +765,7 @@ const SupplierScoreboardTables = ({
 
                     }
                 </div>
-                <div className="col-12">
-                    <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef} />
-                </div>
+                <div className="col-12">{isLoading ? <PerformanceRatingSkeleton /> : <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef} />}</div>
             </div>
 
             <Dialog
@@ -805,7 +788,6 @@ const SupplierScoreboardTables = ({
                     </div>
                 </div>
             </Dialog>
-
         </>
     );
 };

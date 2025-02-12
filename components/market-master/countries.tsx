@@ -56,7 +56,7 @@ const AddCountriesControl = () => {
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Role successfully added!!');
+                    setAlert('success', 'country successfully updated!');
                     resetInput();
                     fetchData();
                 }
@@ -72,7 +72,7 @@ const AddCountriesControl = () => {
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Role successfully added!!');
+                    setAlert('success', 'country successfully added!');
                     resetInput();
                     fetchData();
                 }
@@ -95,7 +95,7 @@ const AddCountriesControl = () => {
                 setCountryList((prevRoles: any) => prevRoles.filter((country: any) => country.masterCountryId !== selectedCountryId));
 
                 closeDeleteDialog();
-                setAlert('success', 'Role successfully deleted!');
+                setAlert('success', 'country successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
@@ -109,6 +109,7 @@ const AddCountriesControl = () => {
 
     const resetInput = () => {
         setCountry('');
+        setIsEditMode(false);
     };
 
     const openDeleteDialog = (items: any) => {
