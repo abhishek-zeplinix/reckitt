@@ -951,7 +951,7 @@ const AppMenu = () => {
                     ]
                 },
                 {
-                    label: 'Market Metrics 2',
+                    label: 'Market Master',
                     icon: 'pi pi-chart-bar',
                     check: (user: any) => {
                         // Check if the user is a super admin
@@ -968,7 +968,7 @@ const AppMenu = () => {
                     },
                     items: [
                         {
-                            label: 'Market Master',
+                            label: 'Location Master',
                             icon: 'pi pi-bolt',
                             url: '/master',
                             check: (user: any) => {
@@ -979,7 +979,7 @@ const AppMenu = () => {
                             }
                         },
                         {
-                            label: 'Market Master',
+                            label: 'Other Master',
                             icon: 'pi pi-bolt',
                             url: '/masterTwo',
                             check: (user: any) => {

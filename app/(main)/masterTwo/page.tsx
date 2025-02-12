@@ -16,7 +16,7 @@ const MasterTowerTwo = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Market Master Two</h3>
+                    <h3 className="mb-0">Other Master</h3>
                 </span>
             </div>
         );
