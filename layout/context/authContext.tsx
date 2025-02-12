@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useCallback, useMemo, useState, useEffect } from 'react';
 import { get, intersection } from 'lodash';
 import AccessDenied from '@/components/access-denied/AccessDenied';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 // Simple role definition
 export const USER_ROLES = {
@@ -13,14 +14,6 @@ export const USER_ROLES = {
 
 type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
-//permissions by role
-// const ROLE_PERMISSIONS = {
-//     [USER_ROLES.SUPER_ADMIN]: ['all'],
-//     [USER_ROLES.SUPPLIER]: ['view_products', 'edit_products'],
-//     [USER_ROLES.APPROVER]: ['view_dashboard', 'manage_suppliers', "manage_input_request"],
-//     [USER_ROLES.ADMIN]: ['view_users', 'edit_users'],
-//     [USER_ROLES.USER]: ['view_products']
-// } as const;
 
 // Simple context type
 type AuthContextType = {
@@ -31,15 +24,26 @@ type AuthContextType = {
     isSupplier: () => boolean;
     userPermissions: string[];
     userId: string | null;
+    isLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Provider component
 export const AuthProvider = ({ user, children }: { user: any | null; children: React.ReactNode }) => {
+
+    const [isLoading, setIsLoading] = useState(true);
+
     // Extract user permissions from the user object
     const userPermissions = useMemo(() => get(user, 'permissions.permissions', []) as string[], [user]);
     console.log(userPermissions);
+
+    useEffect(() => {
+        if (user) {
+            setIsLoading(false);
+        }
+    }, [user]);
+
 
     // Check if user has a specific role
     const hasRole = useCallback((role: UserRole): boolean => {
@@ -93,7 +97,8 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
         isSuperAdmin,
         isSupplier,
         userPermissions,
-        userId
+        userId,
+        isLoading
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -110,7 +115,12 @@ export const useAuth = () => {
 // HOC for protected components
 export const withAuth = (WrappedComponent: React.ComponentType<any>, requiredRole?: UserRole, requiredPermission?: string) => {
     return function WithAuthComponent(props: any) {
-        const { hasRole, hasPermission } = useAuth();
+        const { hasRole, hasPermission, isLoading } = useAuth();
+
+        if (isLoading) {
+            return <ProgressSpinner />; // Or any other loading indicator
+        }
+
 
         if (requiredRole && !hasRole(requiredRole)) {
             return <AccessDenied />

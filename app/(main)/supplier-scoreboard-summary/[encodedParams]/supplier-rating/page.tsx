@@ -2,16 +2,12 @@
 import { GetCall } from '@/app/api-config/ApiKit';
 import TableSkeleton from '@/components/supplier-rating/skeleton/TableSkeleton';
 import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
-import SupplierEvaluationTableApprover from '@/components/supplier-rating/SupplierRatingTableApprover';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
 import { useAuth, withAuth } from '@/layout/context/authContext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
-import { useParams } from 'next/navigation';
-import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import React, { useEffect, useState } from 'react';
-import { decode as base64Decode } from 'js-base64';
 import useDecodeParams from '@/hooks/useDecodeParams';
 
 
@@ -129,13 +125,15 @@ const SupplierRatingPage = ({
             return response.data;
         } catch (error) {
             setAlert('error', 'Failed to fetch rules');
+        }finally{
+
         }
     };
 
     // Initial data fetch
     useEffect(() => {
         const initializeData = async () => {
-            setLoading(true);
+            // setLoading(true);
             try {
                 const supplierDetails = await fetchSupplierData();
 
@@ -151,7 +149,7 @@ const SupplierRatingPage = ({
             } catch (error) {
                 setAlert('error', 'Something went wrong during initialization');
             } finally {
-                setLoading(false);
+                // setLoading(false);
             }
         };
 
@@ -170,7 +168,7 @@ const SupplierRatingPage = ({
 
             if (!isPeriodValid) return;
 
-            setLoading(true);
+            // setLoading(true);
             try {
                 const scoreData = await fetchSupplierScore();
 
@@ -181,7 +179,7 @@ const SupplierRatingPage = ({
             } catch (error) {
                 // Error handled in respective fetch functions
             } finally {
-                setLoading(false);
+                // setLoading(false);
             }
         };
 
@@ -395,8 +393,6 @@ const SupplierRatingPage = ({
                             <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
                         </div> */}
                     </div>
-
-
                         <SupplierEvaluationTable
                             rules={rules} // Always pass rules
                             // supplierScoreData={supplierScoreData} // Pass the score data separately
@@ -420,9 +416,13 @@ const SupplierRatingPage = ({
                             catId={catId}
                             subCatId={subCatId}
                             supId={supId}
+                            rulesLoading = {isLoading}
+                            scoreLoading = {scoreDataLoading}
                         // key={`${selectedDepartment}-${selectedPeriod}`}
 
                         />
+                             
+
                 </div>
             </>
         );
@@ -436,10 +436,13 @@ const SupplierRatingPage = ({
                 <div>{renderSummoryInfo}</div>
             </div>
             <div className="col-12">
+            {
+                scoreDataLoading ? <TableSkeleton /> :
                 <div>{renderDataPanel}</div>
+            }
             </div>
         </div>
     );
 };
 
-export default withAuth(SupplierRatingPage, undefined, 'evaluate_score');
+export default withAuth(SupplierRatingPage, 'superAdmin', 'evaluate_score');

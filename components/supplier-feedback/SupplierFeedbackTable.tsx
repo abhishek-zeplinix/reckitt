@@ -5,6 +5,9 @@ import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import { useAuth } from '@/layout/context/authContext';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import { useAppContext } from '@/layout/AppWrapper';
 
 const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: any) => {
     const [uploadedFiles, setUploadedFiles] = useState<any>({});
@@ -12,10 +15,45 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [isShowSplit, setIsShowSplit] = useState(false);
+
+    const { isLoading, setAlert } = useAppContext();
+
     const { layoutState } = useContext(LayoutContext);
+    const { isSupplier } = useAuth();
 
     const handleFileUpload = (scoreCheckedDataId: any) => (event: any) => {
         const file: any = event.files[0];
+
+        if (!event || !event.files || event.files.length === 0) {
+            console.log('No file selected');
+            return;
+        }
+        
+        if (!file) {
+            console.log('File is undefined');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            setAlert('error', 'File size exceeds 2MB limit');
+            return;
+        }
+
+        // Validate file type (PDF, images, DOC/DOCX)
+        const allowedTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            setAlert('error', 'Only PDF, images (JPEG, PNG), and DOC/DOCX files are allowed')
+            return;
+        }
+        
+
         setUploadedFiles((prev: any) => ({
             ...prev,
             [scoreCheckedDataId]: file
@@ -54,7 +92,7 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
         });
 
         try {
-            
+
             await onSubmit(formData);
             setUploadedFiles({});
             setFileNames({}); // Clear file names after submission
@@ -64,6 +102,18 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
         } finally {
             setSubmitting(false);
             setShowConfirmDialog(false);
+        }
+    };
+
+    const onError = (event: any) => {
+        const { files, messages } = event;
+
+        if (messages?.[0]?.detail.includes('2 MB')) {
+            setAlert('error', 'File size exceeds 2MB limit');
+        } else if (!files[0].type.match(/(image.*|application\/pdf)/)) {
+            setAlert('error', 'Please upload only images or PDF files');
+        } else {
+            setAlert('error', 'An error occurred while uploading the file');
         }
     };
 
@@ -81,7 +131,11 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
                     className={`p-button-${hasFile ? 'success' : 'primary'} p-button-sm`}
                     onSelect={handleFileUpload(rowData.scoreCheckedDataId)}
                     accept="image/*,application/pdf"
+                    // accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx"
+                    // maxFileSize={2000000}
                     disabled={isFileAlreadyUploaded}
+                    onError={onError}
+
                 />
                 {fileName && (
                     <span className="text-sm text-500 text-yellow-700">
@@ -98,18 +152,22 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
             <span className="p-input-icon-left flex align-items-center">
                 <h3 className="mb-0">Supplier Feedback</h3>
             </span>
+            <div className="p-input-icon-left flex align-items-left flex-column text-sm font-bold">
+                <div> Allowed Formats: <span className='text-red-500'>jpeg, png, pdf, doc, docx</span></div>
+               <div>Max File Size:  <span className='text-red-500'>2 MB</span></div>
+            </div>
         </div>
     );
 
     const fileDownloadTemplate = (rowData: any) => {
         if (!rowData.file) return "Not Uploaded";
-        
+
         return (
-            <a 
-                href={rowData.file} 
-                download 
-                target="_blank" 
-                rel="noopener noreferrer" 
+            <a
+                href={rowData.file}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-blue-500 hover:underline"
             >
                 View Document
@@ -123,41 +181,47 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
                 <div className={`panel-container ${isShowSplit ? (layoutState.isMobile ? 'mobile-split' : 'split') : ''}`}>
                     <div className="left-panel mb-0">
                         <div className="header">{renderHeader()}</div>
-                        <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg flex flex-column gap-3" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
-                            <div>
-                                <DataTable
-                                    value={data?.scoreApprovals?.checkedData || []}
-                                    tableStyle={{ minWidth: '50rem' }}
-                                    sortField="scoreCheckedDataId"
-                                    sortOrder={1}
-                                >
-                                    <Column field="sectionName" header="Section" />
-                                    {/* <Column field="scoreCheckedDataId" header="scoreCheckedDataId" /> */}
-                                    <Column field="ratedCriteria" header="Criteria" />
-                                    <Column field="ratio" header="Ratio" />
-                                    <Column field="evaluation" header="Evaluation" />
-                                    <Column field="score" header="Score" />
-                                    <Column field="file"
-                                        header="Uploaded Document"
-                                        body={fileDownloadTemplate} 
-                                    />
-                                    <Column
-                                        body={fileUploadTemplate}
-                                        header="Upload File"
-                                        style={{ width: '200px' }}
-                                    />
-                                </DataTable>
-                            </div>
+                        {isLoading ? <TableSkeletonSimple columns={7} rows={7} /> :
 
-                            <div className='flex justify-content-end mr-2'>
-                                <Button
-                                    label="Submit Feedback"
-                                    icon="pi pi-upload"
-                                    onClick={() => setShowConfirmDialog(true)}
-                                    disabled={Object.keys(uploadedFiles).length === 0 || submitting}
-                                />
+                            <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg flex flex-column gap-3" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
+
+                                <div>
+                                    <DataTable
+                                        value={data?.scoreApprovals?.checkedData || []}
+                                        tableStyle={{ minWidth: '50rem' }}
+                                        sortField="scoreCheckedDataId"
+                                        sortOrder={1}
+                                    >
+                                        <Column field="sectionName" header="Section" />
+                                        {/* <Column field="scoreCheckedDataId" header="scoreCheckedDataId" /> */}
+                                        <Column field="ratedCriteria" header="Criteria" />
+                                        <Column field="ratio" header="Ratio" />
+                                        <Column field="evaluation" header="Evaluation" />
+                                        <Column field="score" header="Score" />
+                                        <Column field="file"
+                                            header="Uploaded Document"
+                                            body={fileDownloadTemplate}
+                                        />
+                                        <Column
+                                            body={fileUploadTemplate}
+                                            header="Upload File"
+                                            style={{ width: '200px' }}
+                                            hidden={!isSupplier()}
+                                        />
+                                    </DataTable>
+                                </div>
+
+                                <div className='flex justify-content-end mr-2'>
+                                    <Button
+                                        label="Submit Feedback"
+                                        icon="pi pi-upload"
+                                        onClick={() => setShowConfirmDialog(true)}
+                                        disabled={Object.keys(uploadedFiles).length === 0 || submitting}
+                                        visible={isSupplier()}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
 
