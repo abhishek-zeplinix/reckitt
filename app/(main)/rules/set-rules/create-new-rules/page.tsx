@@ -19,14 +19,14 @@ const CreateNewRulesPage = () => {
     const ruleId = searchParams.get('ruleId');
     const ruleSetId = searchParams.get('ruleSetId');
     const [orderBy, setorderBy] = useState('');
-    const [selectedProcurementCategory, setSelectedProcurementCategory] = useState(null);
+    const [selectedProcurementCategory, setSelectedProcurementCategory] = useState<any>(null);
     const [selectedsection, setSelectedsection] = useState('');
     const [selectedCriteria, setCriteria] = useState('');
     const [selectedcriteriaEvaluation, setcriteriaEvaluation] = useState('');
     const [selectedScore, setScore] = useState('');
     const [selectedratiosRawpack, setratiosRawpack] = useState('');
     const [selectedratiosCopack, setratiosCopack] = useState('');
-    const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState(null);
+    const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState<any>(null);
     const [selectedSupplierCategory, setSelectedSupplierCategory] = useState(null);
     const [procurementDepartment, setProcurementDepartment] = useState([]);
     const [procurementCategories, setprocurementCategories] = useState([]);
@@ -77,6 +77,16 @@ const CreateNewRulesPage = () => {
                 });
             }
         }
+    
+        // Clear the error for the field when a value is entered
+        setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+            if (value && updatedErrors[key]) {
+                delete updatedErrors[key];
+            }
+            return updatedErrors;
+        });
+    
         setFields((prev) => {
             const updatedArray = [...prev[key]];
             updatedArray[index] = value;
@@ -133,6 +143,7 @@ const CreateNewRulesPage = () => {
     };
 
     const handleSubmit = async (fields: Record<string, unknown>) => {
+        console.log('136',fields)
         const { valid, errors } = validateFormRuleData(fields);
         if (!valid) {
             setFormErrors(errors);
@@ -142,7 +153,7 @@ const CreateNewRulesPage = () => {
         setFormErrors({});
         try {
             if (isEditMode) {
-                const endpoint = `/company/rules/${ruleId}`;
+                const endpoint = `/company/rules/${ruleId}/rule-set/${ruleSetId}`;
                 try {
                     const response: CustomResponse = await PutCall(endpoint, fields); // Call PUT API
                     if (response.code === 'SUCCESS') {
@@ -191,7 +202,7 @@ const CreateNewRulesPage = () => {
         try {
             const response: CustomResponse = await GetCall(`/company/rules?filters.ruleId=${ruleId}&sortBy=ruleId`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
-                const userDetails = response.data[0]; // Assuming the API returns an array of users
+                const userDetails = response.data[0]; 
                 setorderBy(userDetails.orderBy || '');
                 setSelectedProcurementDepartment(userDetails.departmentId || null);
                 setSelectedProcurementCategory(userDetails.categoryId || '');
@@ -199,10 +210,15 @@ const CreateNewRulesPage = () => {
                 setSelectedSupplierCategory(userDetails.subCategoryId || '');
                 setSelectedsection(userDetails.section || '');
                 setCriteria(userDetails.ratedCriteria || '');
-                setcriteriaEvaluation(userDetails.criteriaEvaluation || null);
-                setScore(userDetails.score || null);
+                setFields((prev) => ({
+                    ...prev,
+                    criteriaEvaluation: userDetails.criteriaEvaluation || [''],
+                    score: userDetails.score || ['']
+                }));                
                 setratiosRawpack(userDetails.ratiosRawpack || null);
                 setratiosCopack(userDetails.ratiosCopack || null);
+                const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
+                setDate(parsedDate);
             } else {
                 setAlert('error', 'User details not found.');
             }
@@ -269,6 +285,14 @@ const CreateNewRulesPage = () => {
     const handleCategoryChange = (value: any) => {
         setSelectedSupplierCategory(value);
         fetchprocurementCategories(value);
+         // Clear the error for the field when a value is entered
+         setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+            if (value && updatedErrors['categoryId']) {
+                delete updatedErrors['categoryId'];
+            }
+            return updatedErrors;
+        });
     };
     const handleInputChange = (name: string, value: string) => {
         if (name === 'orderBy') {
@@ -296,7 +320,7 @@ const CreateNewRulesPage = () => {
             if (!/^\d*$/.test(value)) {
                 setErrors((prevAlphaErrors) => ({
                     ...prevAlphaErrors,
-                    [name]: 'Only letters are allowed!'
+                    [name]: 'Only numbers are allowed!'
                 }));
                 return;
             } else {
@@ -311,7 +335,7 @@ const CreateNewRulesPage = () => {
             if (!/^\d*$/.test(value)) {
                 setErrors((prevAlphaErrors) => ({
                     ...prevAlphaErrors,
-                    [name]: 'Only letters are allowed!'
+                    [name]: 'Only numbers are allowed!'
                 }));
                 return;
             } else {
@@ -323,9 +347,81 @@ const CreateNewRulesPage = () => {
             }
             setratiosCopack(value);
         }
-        // validateFields(name, value);
+    
+        // Clear the error for the field when a value is entered
+        setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+            if (value && updatedErrors[name]) {
+                delete updatedErrors[name];
+            }
+            return updatedErrors;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name),
+            };
+    
+            if (name === 'departmentId') {
+                setSelectedProcurementDepartment(Number(value));
+                updatedForm.departmentId = null;
+            }
+    
+            return updatedForm;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name),
+            };
+    
+            if (name === 'subCategoryId') {
+                setSelectedProcurementCategory(Number(value));
+                updatedForm.subCategoryId = null;
+            }
+    
+            return updatedForm;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name),
+            };
+    
+            if (name === 'section') {
+                setSelectedsection(value);
+                updatedForm.section = '';
+            }
+    
+            return updatedForm;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name),
+            };
+    
+            if (name === 'ratedCriteria') {
+                setCriteria(value);
+                updatedForm.ratedCriteria = '';
+            }
+    
+            return updatedForm;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name),
+            };
+    
+            if (name === 'effectiveFrom') {
+                setDate(value ? new Date(value) : null); 
+                updatedForm.effectiveFrom = null;
+            }            
+    
+            return updatedForm;
+        });
     };
-
     const renderContentbody = () => {
         return (
             <div className="grid">
@@ -335,7 +431,8 @@ const CreateNewRulesPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-2">
                             <div className="field col-4">
                                 <label htmlFor="effectiveFrom">Select Effective Date:</label>
-                                <Calendar id="effectiveFrom" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                <Calendar id="effectiveFrom" value={date} onChange={(e) =>handleInputChange('effectiveFrom', e.target.value ? e.target.value.toISOString() : '')}
+ dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
                                 {formErrors.effectiveFrom && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.effectiveFrom}</p>}
                             </div>
                             <div className="field col-4">
@@ -350,7 +447,8 @@ const CreateNewRulesPage = () => {
                                     id="departmentId"
                                     value={selectedProcurementDepartment}
                                     options={procurementDepartment}
-                                    onChange={(e) => setSelectedProcurementDepartment(e.value)}
+                                    // onChange={(e) => setSelectedProcurementDepartment(e.value)}
+                                    onChange={(e) => handleInputChange('departmentId', e.target.value)}
                                     placeholder="Select Department"
                                     optionLabel="name"
                                     optionValue="departmentId"
@@ -378,7 +476,8 @@ const CreateNewRulesPage = () => {
                                     id="subCategoryId"
                                     value={selectedProcurementCategory}
                                     options={procurementCategories}
-                                    onChange={(e) => setSelectedProcurementCategory(e.value)}
+                                    // onChange={(e) => setSelectedProcurementCategory(e.value)}
+                                    onChange={(e) => handleInputChange('subCategoryId', e.target.value)}
                                     optionLabel="subCategoryName"
                                     optionValue="subCategoryId"
                                     placeholder="Select Supplier Category"
@@ -388,13 +487,13 @@ const CreateNewRulesPage = () => {
                             </div>
                             <div className="field col-4">
                                 <label htmlFor="section">Section</label>
-                                <input id="section" type="text" value={selectedsection} onChange={(e) => setSelectedsection(e.target.value)} className="p-inputtext w-full" placeholder="Enter Section Name" />
+                                <input id="section" type="text" value={selectedsection} onChange={(e) => handleInputChange('section', e.target.value)} className="p-inputtext w-full" placeholder="Enter Section Name" />
                                 {formErrors.section && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.section}</p>}
                             </div>
 
                             <div className="field col-4">
                                 <label htmlFor="ratedCriteria">Criteria</label>
-                                <input type="text" placeholder="Criteria" value={selectedCriteria} onChange={(e) => setCriteria(e.target.value)} className="p-inputtext w-full" />
+                                <input type="text" placeholder="Criteria" value={selectedCriteria} onChange={(e) => handleInputChange('ratedCriteria', e.target.value)} className="p-inputtext w-full" />
                                 {formErrors.ratedCriteria && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.ratedCriteria}</p>}
                             </div>
 
@@ -422,12 +521,12 @@ const CreateNewRulesPage = () => {
                                             onChange={(e) => handleChange(index, 'criteriaEvaluation', e.target.value)}
                                             className="p-inputtext w-full"
                                         />
-                                        {formErrors.criteriaEvaluation && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.criteriaEvaluation}</p>}
+                                        {formErrors.criteriaEvaluation && <p style={{ color: 'red', fontSize: '10px' ,marginBottom: '0px'}}>{formErrors.criteriaEvaluation}</p>}
                                     </div>
                                     <div className="field col-4">
                                         <label htmlFor={`score-${index}`}>Score</label>
                                         <input id={`score-${index}`} type="text" placeholder="Score" value={fields.score[index]} onChange={(e) => handleChange(index, 'score', e.target.value)} className="p-inputtext w-full" />
-                                        {formErrors.score && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.score}</p>}
+                                        {formErrors.score && <p style={{ color: 'red', fontSize: '10px',marginBottom: '0px' }}>{formErrors.score}</p>}
                                         {scoreerrors[`score-${index}`] && <p className="text-red-500 text-xs">{scoreerrors[`score-${index}`]}</p>}
                                     </div>
                                     {fields.score.length > 1 && (

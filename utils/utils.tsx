@@ -81,17 +81,24 @@ const fieldsSchemaRules = z.object({
             message: 'Supplier category cannot be empty'
         }),
     ratedCriteria: z.string().min(1, 'Rated Criteria cannot be empty'),
-    ratiosRawpack: z.string().min(1, 'Ratios Raw Pack cannot be empty'),
-    ratiosCopack: z.string().min(1, 'Ratios Co Pack cannot be empty'),
+    ratiosRawpack: z.preprocess(
+        (val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val),
+        z.number().min(1, "Ratios Raw Pack cannot be empty")
+      ),
+      ratiosCopack: z.preprocess(
+        (val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val),
+        z.number().min(1, "Ratios Co Pack cannot be empty")
+      ),
     criteriaEvaluation: z.array(z.string().min(1, 'Criteria Evaluation cannot be empty')),
     score: z.array(
         z
-            .string()
-            .min(1, 'Score cannot be empty')
-            .refine((val) => !isNaN(Number(val)), {
-                message: 'Score must be a number'
-            })
-    )
+          .union([
+            z.string().refine((val) => val.trim() !== "", { message: "Score cannot be empty" }), // Ensures no empty strings
+            z.number().min(0, "Score must be 0 or higher"),
+            z.literal("NA"),
+          ])
+          .transform((val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val)) // Converts valid number strings to numbers
+      )
 });
 
 export const validateFormRuleData = (data: unknown) => {
@@ -146,9 +153,6 @@ const fieldsSchemaCapaRules = z.object({
         z
             .string()
             .min(1, 'Score cannot be empty')
-            .refine((val) => !isNaN(Number(val)), {
-                message: 'Score must be a number'
-            })
     )
 });
 

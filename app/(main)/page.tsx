@@ -64,7 +64,7 @@ const Dashboard = () => {
             if (!params) {
                 params = { limit: limit, page: page };
             }
-            setTileLoading(true);
+            setLoading(true);
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/dashboard-data?${queryString}`);
 
@@ -105,7 +105,7 @@ const Dashboard = () => {
         } catch (e) {
             setAlert('Error', 'Something went wrong');
         } finally {
-            setTileLoading(false);
+            setLoading(false);
         }
     };
     const fetchTopData = async (params?: any) => {
@@ -113,7 +113,7 @@ const Dashboard = () => {
             if (!params) {
                 params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'desc' };
             }
-            setTopSupplierLoading(true);
+            setLoading(true);
             const queryString = buildQueryParams(params);
 
             const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
@@ -129,7 +129,7 @@ const Dashboard = () => {
         } catch (e) {
             setAlert('Error', 'Something went wrong');
         } finally {
-            setTopSupplierLoading(false);
+            setLoading(false);
         }
     };
     const fetchBottomData = async (params?: any) => {
@@ -137,7 +137,7 @@ const Dashboard = () => {
             if (!params) {
                 params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'asc' };
             }
-            setBottomSupplierLoading(true);
+            setLoading(true);
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
             if (response.code == 'SUCCESS') {
@@ -153,7 +153,7 @@ const Dashboard = () => {
         } catch (e) {
             setAlert('Error', 'Something went wrong');
         } finally {
-            setBottomSupplierLoading(false);
+            setLoading(false);
         }
     };
     const mapApiDataToTiles = (apiData: any): Tile[] => {
@@ -686,7 +686,7 @@ const Dashboard = () => {
                 <div>
                     <div className={`transition-all duration-300 ease-in-out ${filtersVisible ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden shadow-2 surface-card border-round-2xl mr-3 mb-3`}>{DataFilters}</div>
 
-                    {tilesLoading ? (
+                    {isLoading ? (
                         <TileSkeleton count={4} colClass="col-12 sm:col-6 lg:col-3" />
                     ) : (
                         <div className="py-1 ">
@@ -725,7 +725,7 @@ const Dashboard = () => {
 
                         <div className="col-12 md:col-6">
                             <div className="pt-3">
-                                {tilesLoading ? (
+                                {isLoading ? (
                                     <TileSkeleton count={2} colClass="col-12 sm:col-12 lg:col-6" />
                                 ) : (
                                     <div className="grid grid-nogutter">
@@ -750,7 +750,7 @@ const Dashboard = () => {
                                     </div>
                                 )}
                                 <div className="py-3">
-                                    {tilesLoading ? (
+                                    {isLoading ? (
                                         <TileSkeleton count={1} colClass="col-12 sm:col-12 lg:col-12" />
                                     ) : (
                                         <div className="grid grid-nogutter">
@@ -777,9 +777,9 @@ const Dashboard = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="pr-3">{topSupplierLoading ? <SupplierPerformanceSkeleton /> : BarGraphSupplierTiers}</div>
+                                <div className="pr-3">{isLoading ? <SupplierPerformanceSkeleton /> : BarGraphSupplierTiers}</div>
 
-                                <div className="pr-3 ">{topSupplierLoading ? <SupplierPerformanceSkeleton /> : BarGraph}</div>
+                                <div className="pr-3 ">{isLoading ? <SupplierPerformanceSkeleton /> : BarGraph}</div>
                             </div>
                         </div>
 
@@ -788,7 +788,7 @@ const Dashboard = () => {
                             <div className="py-3">
                                 <div className=" gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
-                                    {topSupplierLoading ? (
+                                    {isLoading ? (
                                         <SupplierPerformanceSkeleton />
                                     ) : (
                                         <div className="col-12 px-2 p-0 py-2 ">
@@ -850,7 +850,7 @@ const Dashboard = () => {
                                     )}
 
                                     {/* Bottom 5 Suppliers */}
-                                    {bottomSupplierLoading ? (
+                                    {isLoading ? (
                                         <SupplierPerformanceSkeleton />
                                     ) : (
                                         <div className="col-12 px-2 p-0 py-2 ">
@@ -911,14 +911,14 @@ const Dashboard = () => {
                                         </div>
                                     )}
 
-                                    <div className="col-12 px-2 p-0 py-2  ">{tilesLoading ? <TotalAssessmentSkeleton /> : DonutGraph}</div>
+                                    <div className="col-12 px-2 p-0 py-2  ">{isLoading ? <TotalAssessmentSkeleton /> : DonutGraph}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div>{bottomSupplierLoading ? <HistoricalPerformanceSkeleton /> : WaveGraphs}</div>
+                <div>{isLoading ? <HistoricalPerformanceSkeleton /> : WaveGraphs}</div>
             </>
         );
     };
