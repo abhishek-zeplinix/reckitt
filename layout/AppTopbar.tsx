@@ -24,16 +24,10 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         {
             template: (item: any, options: any) => {
                 return (
-                    <div className="p-menuitem cursor-pointer flex flex-col gap-1" style={{ padding: '1rem' }}>
-                        <div className="font-bold text-lg">
-                            {get(user, 'name', 'User')}
-                        </div>
-                        <div className="text-gray-600">
-                            {get(user, 'email', '')}
-                        </div>
-                        <div className="text-sm text-blue-600 mt-1">
-                            {get(user, 'role.name', 'Role not assigned')}
-                        </div>
+                    <div className="p-menuitem cursor-pointer flex flex-column gap-1" style={{ padding: '1rem' }}>
+                        <div className="font-bold text-lg">{get(user, 'name', 'User')}</div>
+                        <div className="text-gray-600">{get(user, 'email', '')}</div>
+                        {/* <div className="text-sm text-blue-600 mt-1">{get(user, 'role.name', 'Role not assigned')}</div> */}
                     </div>
                 );
             }
@@ -103,43 +97,25 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             )}
 
             <div className="flex items-center gap-2 ml-auto">
-                <div className="hidden md:flex flex-col items-end">
+                <div className="hidden md:flex flex-column items-end">
                     <span className="font-semibold">{get(user, 'name', 'User')}</span>
                     <span className="text-sm text-blue-600">{get(user, 'role.name', 'Role not assigned')}</span>
                 </div>
 
                 <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={avatarClick}>
                     <Menu model={items} popup ref={menu} />
-                    <Avatar
-                        label={get(user, 'name') ? get(user, 'name')[0] : 'U'}
-                        style={{ backgroundColor: '#9c27b0', color: '#ffffff' }}
-                        shape="circle"
-                        onClick={avatarClick}
-                    />
+                    <Avatar label={get(user, 'name') ? get(user, 'name')[0] : 'U'} style={{ backgroundColor: '#9c27b0', color: '#ffffff' }} shape="circle" onClick={avatarClick} />
                 </button>
             </div>
 
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
                 <button type="button" className="p-link layout-topbar-button profile-icon-setting">
                     <Menu model={items} popup ref={menu} />
-                    <Avatar
-                        label={get(user, 'name') ? get(user, 'name')[0] : 'U'}
-                        style={{ backgroundColor: '#9c27b0', color: '#ffffff' }}
-                        shape="circle"
-                        onClick={avatarClick}
-                    />
+                    <Avatar label={get(user, 'name') ? get(user, 'name')[0] : 'U'} style={{ backgroundColor: '#9c27b0', color: '#ffffff' }} shape="circle" onClick={avatarClick} />
                 </button>
             </div>
 
-            <ConfirmDialog
-                className="custom-dialog"
-                visible={visible}
-                onHide={onHide}
-                message="Are you sure you want to logout?"
-                header="Confirmation"
-                icon="pi pi-exclamation-triangle"
-                accept={accept}
-            />
+            <ConfirmDialog className="custom-dialog" visible={visible} onHide={onHide} message="Are you sure you want to logout?" header="Confirmation" icon="pi pi-exclamation-triangle" accept={accept} />
         </div>
     );
 });

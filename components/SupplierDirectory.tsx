@@ -18,7 +18,7 @@ import TableSkeletonSimple from './supplier-rating/skeleton/TableSkeletonSimple'
 
 const SupplierDirectory = () => {
     const { isLoading, setLoading } = useAppContext();
-    const [categoryLoader, setCategoryLoader] = useState(false)
+    const [categoryLoader, setCategoryLoader] = useState(false);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -29,7 +29,6 @@ const SupplierDirectory = () => {
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
     const router = useRouter();
-
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -90,12 +89,10 @@ const SupplierDirectory = () => {
 
         const params: any = { supId, catId, subCatId };
 
-
         const encodedParams = encodeRouteParams(params);
 
         // router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
         router.push(`/supplier-scoreboard-summary/${encodedParams}`);
-
     };
 
     // Render the status column
@@ -185,73 +182,73 @@ const SupplierDirectory = () => {
                 </div>
             </div>
 
-            {
-                isLoading || categoryLoader ? <TableSkeletonSimple col={8}/> :
-                    <CustomDataTable
-                        ref={dataTableRef}
-                        // filter
-                        page={page}
-                        limit={limit}
-                        totalRecords={totalRecords}
-                        // extraButtons={getExtraButtons}
-                        data={suppliers}
-                        columns={[
-                            {
-                                header: 'Sr. No',
-                                body: (data: any, options: any) => {
-                                    const normalizedRowIndex = options.rowIndex % limit;
-                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+            {isLoading || categoryLoader ? (
+                <TableSkeletonSimple columns={6} rows={limit} />
+            ) : (
+                <CustomDataTable
+                    ref={dataTableRef}
+                    // filter
+                    page={page}
+                    limit={limit}
+                    totalRecords={totalRecords}
+                    // extraButtons={getExtraButtons}
+                    data={suppliers}
+                    columns={[
+                        {
+                            header: 'Sr. No',
+                            body: (data: any, options: any) => {
+                                const normalizedRowIndex = options.rowIndex % limit;
+                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                    return <span>{srNo}</span>;
-                                },
-                                bodyStyle: { minWidth: 50, maxWidth: 50 }
+                                return <span>{srNo}</span>;
                             },
-                            {
-                                header: 'Supplier Name',
-                                field: 'supplierName',
-                                bodyStyle: { minWidth: 120 },
-                                filterPlaceholder: 'Search Supplier Name'
-                            },
-                            {
-                                header: 'Status',
-                                field: 'status',
-                                bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
-                                body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
-                            },
-                            {
-                                header: 'Warehouse Location',
-                                field: 'warehouseLocation',
-                                style: { minWidth: 120 }
-                            },
+                            bodyStyle: { minWidth: 50, maxWidth: 50 }
+                        },
+                        {
+                            header: 'Supplier Name',
+                            field: 'supplierName',
+                            bodyStyle: { minWidth: 120 },
+                            filterPlaceholder: 'Search Supplier Name'
+                        },
+                        {
+                            header: 'Status',
+                            field: 'status',
+                            bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
+                            body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
+                        },
+                        {
+                            header: 'Warehouse Location',
+                            field: 'warehouseLocation',
+                            style: { minWidth: 120 }
+                        },
 
-                            {
-                                header: 'Procurement Category',
-                                field: 'category.categoryName',
-                                style: { minWidth: 120, maxWidth: 120 }
-                            },
+                        {
+                            header: 'Procurement Category',
+                            field: 'category.categoryName',
+                            style: { minWidth: 120, maxWidth: 120 }
+                        },
 
-                            {
-                                header: 'Supplier Category',
-                                field: 'subCategories.subCategoryName',
-                                style: { minWidth: 120, maxWidth: 180 }
-                            },
-                            {
-                                header: 'History',
-                                body: HistoryBodyTemplate,
-                                style: { minWidth: 70, maxWidth: 70 },
-                                className: 'text-center'
-                            },
-                            {
-                                header: 'Evaluate',
-                                body: evaluateBodyTemplate,
-                                style: { minWidth: 70, maxWidth: 70 },
-                                className: 'text-center'
-                            }
-                        ]}
-                        onLoad={(params: any) => fetchData(params)}
-                    />
-            }
-
+                        {
+                            header: 'Supplier Category',
+                            field: 'subCategories.subCategoryName',
+                            style: { minWidth: 120, maxWidth: 180 }
+                        },
+                        {
+                            header: 'History',
+                            body: HistoryBodyTemplate,
+                            style: { minWidth: 70, maxWidth: 70 },
+                            className: 'text-center'
+                        },
+                        {
+                            header: 'Evaluate',
+                            body: evaluateBodyTemplate,
+                            style: { minWidth: 70, maxWidth: 70 },
+                            className: 'text-center'
+                        }
+                    ]}
+                    onLoad={(params: any) => fetchData(params)}
+                />
+            )}
         </div>
     );
 };
