@@ -1,8 +1,7 @@
-import { Chart } from "primereact/chart";
-import React from "react";
+import { Chart } from 'primereact/chart';
+import React from 'react';
 
 const GraphsPanel: any = React.memo(({ ratingData, memoizedOptions, lineData, memoizedBarOptions, chartRef }: any) => {
-
     return (
         <>
             {/* first chart */}
