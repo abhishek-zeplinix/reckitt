@@ -28,12 +28,10 @@
 //         }
 //         router.push(item.url);
 //     }, [router]);
-    
-    
+
 //     useEffect(() => {
 //         console.log('AppMenu re-rendered');
 //     }, []);
-
 
 //     const model = useMemo(() => [
 //         {
@@ -529,11 +527,11 @@
 //                                 item.separator ? (
 //                                     <li key={`separator-${i}`} className="menu-separator"></li>
 //                                 ) : (
-//                                     <AppMenuitem 
+//                                     <AppMenuitem
 //                                         item={item as AppMenuItem} // Type assertion to prevent TypeScript error
-//                                         root={true} 
-//                                         index={i} 
-//                                         key={`AppMenuitem${i}${item.label}`} 
+//                                         root={true}
+//                                         index={i}
+//                                         key={`AppMenuitem${i}${item.label}`}
 //                                     />
 //                                 )
 //                             )}
@@ -548,10 +546,6 @@
 // };
 
 // export default React.memo(AppMenu, (prevProps, nextProps) => true);
-
-
-
-
 
 /* eslint-disable @next/next/no-img-element */
 'use client';
@@ -647,32 +641,8 @@ const AppMenu = () => {
                         }
                         return false;
                     },
-                    items: [
-                        {
-                            label: 'Suppliers task',
-                            url: '/task-management/supplier-tasks',
-                            // check: (user: any) => {
-                            //     const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
-                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // },
-                            command: handleMenuClick
-                        },
-                        {
-                            label: 'Evaluator Tasks',
-                            url: '/task-management/evaluator-tasks',
-                            // check: (user: any) => {
-                            //     const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
-                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // },
-                            command: handleMenuClick
-                        }
-                    ]
+                    url: '/task-management',
+                    command: handleMenuClick
                 },
                 {
                     label: 'Suppliers',
@@ -981,7 +951,7 @@ const AppMenu = () => {
                     ]
                 },
                 {
-                    label: 'Market Metrics 2',
+                    label: 'Market Master',
                     icon: 'pi pi-chart-bar',
                     check: (user: any) => {
                         // Check if the user is a super admin
@@ -998,7 +968,7 @@ const AppMenu = () => {
                     },
                     items: [
                         {
-                            label: 'Market Master',
+                            label: 'Location Master',
                             icon: 'pi pi-bolt',
                             url: '/master',
                             check: (user: any) => {
@@ -1009,27 +979,26 @@ const AppMenu = () => {
                             }
                         },
                         {
-                                                label: 'Market Master',
-                                                icon: 'pi pi-bolt',
-                                                url: '/masterTwo',
-                                                check: (user: any) => {
-                                                    // Check if the user is a super admin
-                                                    if (get(user, 'isSuperAdmin')) {
-                                                        return true;
-                                                    }
-                            
-                                                    // Check if the user has the required permissions
-                                                    const userPermissions = get(user, 'permissions.permissions', []);
-                                                    const hasPermission = intersection(COMPANY, userPermissions).length > 0;
-                            
-                                                    // Grant access based on permissions
-                                                    return hasPermission;
-                                                }
-                        },
-        
+                            label: 'Other Master',
+                            icon: 'pi pi-bolt',
+                            url: '/masterTwo',
+                            check: (user: any) => {
+                                // Check if the user is a super admin
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+
+                                // Check if the user has the required permissions
+                                const userPermissions = get(user, 'permissions.permissions', []);
+                                const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+
+                                // Grant access based on permissions
+                                return hasPermission;
+                            }
+                        }
                     ]
                 },
-                
+
                 {
                     label: 'Request Management',
                     icon: 'pi pi-bolt',
