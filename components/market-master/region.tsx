@@ -56,7 +56,7 @@ const AddRegionControl = () => {
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Role successfully added!!');
+                    setAlert('success', 'Region successfully updated!');
                     resetInput();
                     fetchData();
                 }
@@ -72,7 +72,7 @@ const AddRegionControl = () => {
                 console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Role successfully added!!');
+                    setAlert('success', 'Region successfully added!');
                     resetInput();
                     fetchData();
                 }
@@ -95,7 +95,7 @@ const AddRegionControl = () => {
                 setRegionList((prevRoles: any) => prevRoles.filter((region: any) => region.regionId !== selectedRegionId));
                 fetchData();
                 closeDeleteDialog();
-                setAlert('success', 'Role successfully deleted!');
+                setAlert('success', 'Region successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
@@ -109,6 +109,7 @@ const AddRegionControl = () => {
 
     const resetInput = () => {
         setRegion('');
+        setIsEditMode(false);
     };
 
     const openDeleteDialog = (items: any) => {
