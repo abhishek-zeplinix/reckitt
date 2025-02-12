@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Correct import for Next.js router
+import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 // import 'primeicons/primeicons.css';
 // import 'primereact/resources/themes/saga-blue/theme.css';
@@ -13,10 +13,12 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
+import { encodeRouteParams } from '@/utils/base64';
+import TableSkeletonSimple from './supplier-rating/skeleton/TableSkeletonSimple';
 
 const SupplierDirectory = () => {
-    const router = useRouter();
-    const { setLoading } = useAppContext();
+    const { isLoading, setLoading } = useAppContext();
+    const [categoryLoader, setCategoryLoader] = useState(false);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -26,6 +28,7 @@ const SupplierDirectory = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
+    const router = useRouter();
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -62,9 +65,9 @@ const SupplierDirectory = () => {
             setsupplierCategories([]); // Clear subcategories if no category is selected
             return;
         }
-        setLoading(true);
+        setCategoryLoader(true);
         const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setLoading(false);
+        setCategoryLoader(false);
         if (response.code == 'SUCCESS') {
             setsupplierCategories(response.data);
         } else {
@@ -72,9 +75,9 @@ const SupplierDirectory = () => {
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
+        setCategoryLoader(true);
         const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
+        setCategoryLoader(false);
         if (response.code == 'SUCCESS') {
             setprocurementCategories(response.data);
         } else {
@@ -84,15 +87,12 @@ const SupplierDirectory = () => {
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
         console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId, 'Abhishek');
 
-        const selectedSupplier = suppliers.find((supplier) => supplier.supId === supId);
+        const params: any = { supId, catId, subCatId };
 
-        if (selectedSupplier) {
-            // uupdate the context with the selected supplier data
+        const encodedParams = encodeRouteParams(params);
 
-            sessionStorage.setItem('supplier-data', JSON.stringify(selectedSupplier));
-        }
-        
-        router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
+        // router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
+        router.push(`/supplier-scoreboard-summary/${encodedParams}`);
     };
 
     // Render the status column
@@ -181,90 +181,74 @@ const SupplierDirectory = () => {
                     <div className="">{FieldGlobalSearch}</div>
                 </div>
             </div>
-            {/* <DataTable
-                value={suppliers}
-                scrollable
-                rows={10}
-                paginator
-                // scrollHeight="250px"
-                responsiveLayout="scroll"
-                // onRowClick={(e) => navigateToSummary(e.data.supId)}
 
-                className="supplier-directory"
-            >
-                <Column field="supId" header="#" />
-                <Column field="supplierName" header="Supplier Name" />
-                <Column field="status" header="Status" body={statusBodyTemplate} />
-                <Column field="warehouseLocation" header="Location" />
-                <Column field="category.categoryName" header="Procurement Category" />
-                <Column field="subCategories.subCategoryName" header="Supplier Category" />
-                <Column header="History" body={HistoryBodyTemplate} />
-                <Column header="Evaluate" body={evaluateBodyTemplate} />
-            </DataTable> */}
+            {isLoading || categoryLoader ? (
+                <TableSkeletonSimple columns={6} rows={limit} />
+            ) : (
+                <CustomDataTable
+                    ref={dataTableRef}
+                    // filter
+                    page={page}
+                    limit={limit}
+                    totalRecords={totalRecords}
+                    // extraButtons={getExtraButtons}
+                    data={suppliers}
+                    columns={[
+                        {
+                            header: 'Sr. No',
+                            body: (data: any, options: any) => {
+                                const normalizedRowIndex = options.rowIndex % limit;
+                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-            <CustomDataTable
-                ref={dataTableRef}
-                // filter
-                page={page}
-                limit={limit}
-                totalRecords={totalRecords}
-                // extraButtons={getExtraButtons}
-                data={suppliers}
-                columns={[
-                    {
-                        header: 'Sr. No',
-                        body: (data: any, options: any) => {
-                            const normalizedRowIndex = options.rowIndex % limit;
-                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-
-                            return <span>{srNo}</span>;
+                                return <span>{srNo}</span>;
+                            },
+                            bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
-                        bodyStyle: { minWidth: 50, maxWidth: 50 }
-                    },
-                    {
-                        header: 'Supplier Name',
-                        field: 'supplierName',
-                        bodyStyle: { minWidth: 120 },
-                        filterPlaceholder: 'Search Supplier Name'
-                    },
-                    {
-                        header: 'Status',
-                        field: 'status',
-                        bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
-                        body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
-                    },
-                    {
-                        header: 'Warehouse Location',
-                        field: 'warehouseLocation',
-                        style: { minWidth: 120 }
-                    },
+                        {
+                            header: 'Supplier Name',
+                            field: 'supplierName',
+                            bodyStyle: { minWidth: 120 },
+                            filterPlaceholder: 'Search Supplier Name'
+                        },
+                        {
+                            header: 'Status',
+                            field: 'status',
+                            bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
+                            body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
+                        },
+                        {
+                            header: 'Warehouse Location',
+                            field: 'warehouseLocation',
+                            style: { minWidth: 120 }
+                        },
 
-                    {
-                        header: 'Procurement Category',
-                        field: 'category.categoryName',
-                        style: { minWidth: 120, maxWidth: 120 }
-                    },
+                        {
+                            header: 'Procurement Category',
+                            field: 'category.categoryName',
+                            style: { minWidth: 120, maxWidth: 120 }
+                        },
 
-                    {
-                        header: 'Supplier Category',
-                        field: 'subCategories.subCategoryName',
-                        style: { minWidth: 120, maxWidth: 180 }
-                    },
-                    {
-                        header: 'History',
-                        body: HistoryBodyTemplate,
-                        style: { minWidth: 70, maxWidth: 70 },
-                        className: 'text-center'
-                    },
-                    {
-                        header: 'Evaluate',
-                        body: evaluateBodyTemplate,
-                        style: { minWidth: 70, maxWidth: 70 },
-                        className: 'text-center'
-                    }
-                ]}
-                onLoad={(params: any) => fetchData(params)}
-            />
+                        {
+                            header: 'Supplier Category',
+                            field: 'subCategories.subCategoryName',
+                            style: { minWidth: 120, maxWidth: 180 }
+                        },
+                        {
+                            header: 'History',
+                            body: HistoryBodyTemplate,
+                            style: { minWidth: 70, maxWidth: 70 },
+                            className: 'text-center'
+                        },
+                        {
+                            header: 'Evaluate',
+                            body: evaluateBodyTemplate,
+                            style: { minWidth: 70, maxWidth: 70 },
+                            className: 'text-center'
+                        }
+                    ]}
+                    onLoad={(params: any) => fetchData(params)}
+                />
+            )}
         </div>
     );
 };

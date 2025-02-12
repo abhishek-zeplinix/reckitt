@@ -7,7 +7,6 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import Link from 'next/link';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { setAuthData, setUserDetails } from '@/utils/cookies';
@@ -54,7 +53,7 @@ const LoginPage = () => {
 
             if (response?.otp) {
                 setIsOtpSent(true);
-                alert(response?.otp);
+                setOtp(response?.otp);
             } else {
                 setAlert('error', 'OTP generation failed');
             }
@@ -64,6 +63,10 @@ const LoginPage = () => {
         }
     };
 
+    // setTimeout(() => {
+    //     setIsOtpSent(true); // Show OTP field after sending OTP
+    //     setLoading(false);
+    // }, 1000);
     // setTimeout(() => {
     //     setIsOtpSent(true); // Show OTP field after sending OTP
     //     setLoading(false);
