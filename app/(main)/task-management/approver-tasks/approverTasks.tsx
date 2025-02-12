@@ -27,7 +27,7 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const EvaluatorTasks = () => {
+const ApproverTasks = () => {
     const router = useRouter();
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
@@ -512,4 +512,4 @@ const EvaluatorTasks = () => {
     );
 };
 
-export default EvaluatorTasks;
+export default ApproverTasks;

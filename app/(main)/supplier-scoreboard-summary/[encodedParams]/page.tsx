@@ -25,6 +25,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import useFetchSingleSupplierDetails from '@/hooks/useFetchSingleSupplierDetails';
 import SupplierSummaryTableSkeleton from '@/components/supplier-rating/skeleton/SupplierSummarySkeleton';
 import PerformanceRatingSkeleton from '@/components/supplier-rating/skeleton/OverallPerformanceSkeleton';
+import SupplierSummaryRightLeftPanelSkeleton from '@/components/supplier-rating/skeleton/SupplierSummaryLeftRightPanelSkeleton';
 
 const SupplierScoreboardTables = ({
     params
@@ -402,23 +403,27 @@ const SupplierScoreboardTables = ({
                             padding: '1rem'
                         }}
                     >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {leftPanelData.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
+                        {isLoading ? (
+                            <SupplierSummaryRightLeftPanelSkeleton itemCount={5} />
+                        ) : (
+                            <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
+                                {leftPanelData.map((item, index) => (
+                                    <>
+                                        <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                            <div>
+                                                <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
+                                                    {item.label}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
+                                            <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
+                                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
+                                            </div>
+                                        </li>
+                                        {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
+                                    </>
+                                ))}
+                            </ul>
+                        )}
                     </div>
 
                     <div
@@ -434,23 +439,27 @@ const SupplierScoreboardTables = ({
                             padding: '1rem'
                         }}
                     >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {rightPanelData?.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
+                        {isLoading ? (
+                            <SupplierSummaryRightLeftPanelSkeleton itemCount={4} />
+                        ) : (
+                            <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
+                                {rightPanelData?.map((item, index) => (
+                                    <>
+                                        <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2" style={{ flex: '1' }}>
+                                            <div>
+                                                <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
+                                                    {item.label}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < rightPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
+                                            <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
+                                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
+                                            </div>
+                                        </li>
+                                        {index < rightPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
+                                    </>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
             </>

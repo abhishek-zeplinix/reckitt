@@ -21,7 +21,7 @@ import HistoricalPerformanceSkeleton from '@/components/supplier-rating/skeleton
 import TotalAssessmentSkeleton from '@/components/supplier-rating/skeleton/DashboardDonutSkeleton';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [filtersVisible, setfiltersVisible] = useState(true);
+    const [filtersVisible, setfiltersVisible] = useState(false);
     const [position, setPosition] = useState('center');
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [page, setPage] = useState<number>(1);
@@ -786,7 +786,7 @@ const Dashboard = () => {
                         {/* Second Column */}
                         <div className="col-12 md:col-6 p-0 pr-3">
                             <div className="py-3">
-                                <div className="grid gap-3 pr-2">
+                                <div className=" gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
                                     {topSupplierLoading ? (
                                         <SupplierPerformanceSkeleton />

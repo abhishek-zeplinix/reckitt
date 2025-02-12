@@ -11,7 +11,7 @@ const SupplierPerformanceSkeleton = () => {
                 <Skeleton width="100%" height="360px" />
             </div>
 
-            <div className="grid mt-3 score-bg p-4">
+            <div className="mt-3 score-bg p-4">
                 <div className="flex gap-2 px-2">
                     {[...Array(4)].map((_, index) => (
                         <div key={index} className="flex align-items-center mr-4 border-right-1 pr-3 p-2 w-full mb-2 border-gray-400">

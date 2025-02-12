@@ -7,10 +7,10 @@ import AddReviewType from '@/components/market-master/reviewType';
 import AddTemplateType from '@/components/market-master/templateType';
 import AddWhitelistedDomain from '@/components/market-master/whitelistedDomain';
 
-const Tabs = ['Assesor Type', 'Assesor Role', 'Position','Review Type','Template Type','Whitelisted Domain'];
+const Tabs = ['Assesor Type', 'Assesor Role', 'Position', 'Review Type', 'Template Type', 'Whitelisted Domain'];
 
 const MasterTowerTwo = () => {
-    const [activeTab, setActiveTab] = useState('Brands');
+    const [activeTab, setActiveTab] = useState('Assesor Type');
 
     const renderHeader = () => {
         return (
