@@ -641,32 +641,8 @@ const AppMenu = () => {
                         }
                         return false;
                     },
-                    items: [
-                        {
-                            label: 'Suppliers task',
-                            url: '/task-management/supplier-tasks',
-                            // check: (user: any) => {
-                            //     const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
-                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // },
-                            command: handleMenuClick
-                        },
-                        {
-                            label: 'Evaluator Tasks',
-                            url: '/task-management/evaluator-tasks',
-                            // check: (user: any) => {
-                            //     const checkComm = intersection(PERMISSION_MENU, get(user, 'permissions', []));
-                            //     if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // },
-                            command: handleMenuClick
-                        }
-                    ]
+                    url: '/task-management',
+                    command: handleMenuClick
                 },
                 {
                     label: 'Suppliers',
