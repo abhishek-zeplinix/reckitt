@@ -354,7 +354,7 @@ const ApproverTasks = () => {
                                         }
                                     }
                                 ]}
-                                data={approverEvaluatorsList.map((item: any) => ({
+                                data={approverEvaluatorsList?.map((item: any) => ({
                                     userId: item.userId,
                                     ApproverName: item.users?.name,
                                     departmentName: item.department?.name,

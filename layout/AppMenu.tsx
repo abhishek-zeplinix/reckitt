@@ -634,6 +634,8 @@ const AppMenu = () => {
                 {
                     label: 'Task Management',
                     icon: 'pi pi-ticket',
+                    url: '/task-management',
+
                     check: (user: any) => {
                         // const checkComm = intersection([...PERMISSION_MENU, ...ROUTE_MENU], get(user, 'permissions', []));
                         if (get(user, 'isSuperAdmin')) {
@@ -641,7 +643,6 @@ const AppMenu = () => {
                         }
                         return false;
                     },
-                    url: '/task-management',
                     command: handleMenuClick
                 },
                 {
