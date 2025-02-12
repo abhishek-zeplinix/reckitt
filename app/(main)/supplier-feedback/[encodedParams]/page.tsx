@@ -7,6 +7,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import SupplierSummaryFeedbackCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryFeedbackCard';
 import { buildQueryParams } from '@/utils/utils';
 import { useAuth } from '@/layout/context/authContext';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const SupplierFeedback = ({
     params,
@@ -16,7 +17,6 @@ const SupplierFeedback = ({
     // const [loading, setLoading] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [scoreData, setScoreData] = useState<any>(null);
-    const toastRef = React.useRef(null);
 
 
     const decodedParams = useDecodeParams(params.encodedParams);
@@ -116,10 +116,16 @@ const SupplierFeedback = ({
         <div className="grid">
 
             <div className="col-12">
-                {scoreData && <SupplierSummaryFeedbackCard data={scoreData} />}
-            </div>
-            <div className="col-12">
+                {
+                    isLoading ? (<TableSkeletonSimple columns={5} />) :
+                        <>
+                            {scoreData && <SupplierSummaryFeedbackCard data={scoreData} />}
 
+                        </>
+                }
+            </div>
+
+            <div className="col-12">
                 <SupplierScoreTable
                     data={scoreData}
                     loading={uploadLoading}
@@ -127,7 +133,6 @@ const SupplierFeedback = ({
                     setUploadLoading={setUploadLoading}
 
                 />
-
             </div>
 
         </div>

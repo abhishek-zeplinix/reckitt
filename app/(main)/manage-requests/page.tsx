@@ -271,25 +271,21 @@ const ManageRequestsPage = () => {
                     className="bg-primary-main text-white hover:bg-pink-600 border-none m-2" 
                     onClick={closeDialog} 
                 /> */}
-
                 {isSupplier() ? <></> :
                     <>
-                        {(!showRejectInput || rejectedReason.trim()) && (
-                            <>
-                                <Button
-                                    label="Approve"
-                                    className="p-button-success m-2"
-                                    onClick={() => handleAction('approve')}
-                                    disabled={remainingChars <= 0}
-                                />
-                                <Button
-                                    label="Reject"
-                                    className="bg-red-600 text-white border-none hover:bg-red-700 m-2"
-                                    onClick={() => handleAction('reject')}
-                                    disabled={remainingChars <= 0}
-                                />
-                            </>
+                        {!showRejectInput && (
+                            <Button
+                                label="Approve"
+                                className="p-button-success m-2"
+                                onClick={() => handleAction('approve')}
+                            />
                         )}
+                        <Button
+                            label="Reject"
+                            className="bg-red-600 text-white border-none hover:bg-red-700 m-2"
+                            onClick={() => handleAction('reject')}
+                            disabled={showRejectInput && (remainingChars <= 0 || !rejectedReason.trim())}
+                        />
                     </>
                 }
             </div>

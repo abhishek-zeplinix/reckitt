@@ -759,11 +759,7 @@ const SupplierScoreboardTables = ({
                     <div>{renderSummoryInfo}</div>
                 </div>
                 <div className="col-12">
-                    {
-                        isLoading ? <TableSkeletonSimple /> :
-                            <div>{renderDataPanel}</div>
-
-                    }
+                    <div>{renderDataPanel}</div>
                 </div>
                 <div className="col-12">{isLoading ? <PerformanceRatingSkeleton /> : <GraphsPanel ratingData={ratingData} memoizedOptions={memoizedOptions} lineData={lineData} memoizedBarOptions={memoizedBarOptions} chartRef={chartRef} />}</div>
             </div>
