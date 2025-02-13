@@ -103,7 +103,7 @@ const Dashboard = () => {
                 setTilesData([]);
             }
         } catch (e) {
-            setAlert('Error', 'Something went wrong');
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -127,7 +127,7 @@ const Dashboard = () => {
                 setTopSupplierData([]);
             }
         } catch (e) {
-            setAlert('Error', 'Something went wrong');
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -150,7 +150,7 @@ const Dashboard = () => {
                 setBottomSupplierData([]);
             }
         } catch (e) {
-            setAlert('Error', 'Something went wrong');
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }

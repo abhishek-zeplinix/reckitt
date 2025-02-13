@@ -15,6 +15,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { ColumnBodyOptions } from 'primereact/column';
+import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {
     ADD: 'add',
@@ -50,14 +51,6 @@ const SetRulesPage = () => {
     const ruleSetId = searchParams.get('ruleSetId');
     const [selectedRow, setSelectedRow] = useState<any>(null);
     const [dialogVisible, setDialogVisible] = useState(false);
-
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
 
     // Handle limit change
     const onCategorychange = (e: any) => {
@@ -137,6 +130,7 @@ const SetRulesPage = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             if (!params) {
                 params = { limit: limit, page: page, include: 'subCategories,department,categories', sortOrder: 'asc' };
             }
@@ -162,37 +156,56 @@ const SetRulesPage = () => {
         fetchData();
     }, []);
     const fetchprocurementCategories = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setprocurementCategories([]);
-            return;
-        }
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
+        try {
+            setLoading(true);
+            if (!categoryId) {
+                setprocurementCategories([]);
+                return;
+            }
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data);
+            } else {
+                setprocurementCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setCategories(response.data);
-        } else {
-            setCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setCategories(response.data);
+            } else {
+                setCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierDepartment = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSupplierDepartment(response.data);
-        } else {
-            setSupplierDepartment([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setSupplierDepartment(response.data);
+            } else {
+                setSupplierDepartment([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load department');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -259,23 +272,23 @@ const SetRulesPage = () => {
     };
 
     const onDelete = async () => {
-        setLoading(true)
-            try {
-                const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
+        try {
+            setLoading(true);
+            const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
-                if (response.code === 'SUCCESS') {
-                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
-                    closeDeleteDialog();
-                    setAlert('success', 'Rule successfully deleted!');
-                } else {
-                    setAlert('error', 'Something went wrong!');
-                    closeDeleteDialog();
-                }
-            } catch (error) {
+            if (response.code === 'SUCCESS') {
+                setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
+                closeDeleteDialog();
+                setAlert('success', 'Rule successfully deleted!');
+            } else {
                 setAlert('error', 'Something went wrong!');
-            } finally {
-                setLoading(false);
+                closeDeleteDialog();
             }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // const expandedData = rules.flatMap((item: any) => {
@@ -297,7 +310,7 @@ const SetRulesPage = () => {
         setSelectedRow(item);
         setDialogVisible(true);
     };
-    
+
     const closeDialog = () => {
         setDialogVisible(false);
         setSelectedRow(null);
@@ -329,12 +342,12 @@ const SetRulesPage = () => {
                                 page={page}
                                 limit={limit}
                                 totalRecords={totalRecords}
-                                isDelete={true} 
+                                isDelete={true}
                                 extraButtons={(item) => [
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, item.ruleId); 
+                                            handleEditRules(ruleSetId, item.ruleId);
                                         }
                                     },
                                     {
@@ -390,21 +403,21 @@ const SetRulesPage = () => {
                                     //     body: (data: any, options: ColumnBodyOptions) => {
                                     //       const rowIndex = options.rowIndex;
                                     //       const isExpanded = expandedRows[rowIndex] || false;
-                                      
+
                                     //       if (!Array.isArray(data.criteriaEvaluation)) return null; // Ensure it's an array
-                                      
+
                                     //       const joinedText = data.criteriaEvaluation.join(', '); // Join array values
                                     //       const words = joinedText.split(' ');
                                     //       const isLongText = words.length > 5;
                                     //       const displayText = isExpanded ? joinedText : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-                                      
+
                                     //       const toggleExpand = () => {
                                     //         setExpandedRows((prev) => ({
                                     //           ...prev,
                                     //           [rowIndex]: !isExpanded
                                     //         }));
                                     //       };
-                                      
+
                                     //       return (
                                     //         <span>
                                     //           {displayText}
@@ -434,7 +447,7 @@ const SetRulesPage = () => {
                                     //     field: 'score',
                                     //     body: (data: any) => {
                                     //       if (!Array.isArray(data.score)) return null; // Ensure it's an array
-                                      
+
                                     //       return (
                                     //         <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
                                     //           {data.score.map((value: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
@@ -448,7 +461,7 @@ const SetRulesPage = () => {
                                     //     bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
                                     //     headerStyle: dataTableHeaderStyle
                                     //   },
-                                      
+
                                     {
                                         header: 'RATIOS COPACK (%)',
                                         field: 'ratiosCopack',
@@ -468,20 +481,19 @@ const SetRulesPage = () => {
                         </div>
                     </div>
                 </div>
-            <Dialog header="Criteria Evaluation & Score:" visible={dialogVisible} onHide={closeDialog} style={{ width: '500px' }}>
-                {selectedRow && (
-                    <div>
-                        <ul>
-                            {selectedRow.criteriaEvaluation?.map((item: any, index: number) => (
-                                <li key={index} className="mb-3">
-                                    {item} - <strong>{selectedRow.score?.[index] || 'N/A'}</strong>
-                                </li>
-                            )) || <li>N/A</li>}
-                        </ul>
-                    </div>
-                )}
-            </Dialog>
-
+                <Dialog header="Criteria Evaluation & Score:" visible={dialogVisible} onHide={closeDialog} style={{ width: '500px' }}>
+                    {selectedRow && (
+                        <div>
+                            <ul>
+                                {selectedRow.criteriaEvaluation?.map((item: any, index: number) => (
+                                    <li key={index} className="mb-3">
+                                        {item} - <strong>{selectedRow.score?.[index] || 'N/A'}</strong>
+                                    </li>
+                                )) || <li>N/A</li>}
+                            </ul>
+                        </div>
+                    )}
+                </Dialog>
 
                 <Dialog
                     header="Delete confirmation"

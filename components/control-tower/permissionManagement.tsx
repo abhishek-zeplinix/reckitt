@@ -105,7 +105,7 @@ const PermissionManagement = () => {
 
     const handlePermissionSubmit = async () => {
         if (!module || !permissionData || !description) {
-            setAlert('Error', 'Please select all feilds');
+            setAlert('error', 'Please select all feilds');
             return;
         }
 

@@ -105,7 +105,7 @@ const CreateNewMembersPage = () => {
     const handleAddFields = () => {
         // Access the latest state before updating
         if (fields.criteriaEvaluation.length === 0 || fields.score.length === 0 || fields.criteriaEvaluation[fields.criteriaEvaluation.length - 1].trim() === '' || fields.score[fields.score.length - 1].trim() === '') {
-            setAlert('Error', 'Please fill in the previous field before adding a new one.');
+            setAlert('error', 'Please fill in the previous field before adding a new one.');
             return;
         }
 

@@ -19,6 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 // import { useLoaderContext } from '@/layout/context/LoaderContext';
 import { RadioButton } from 'primereact/radiobutton';
+import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {
     ADD: 'add',
@@ -59,13 +60,6 @@ const EvaluatorTasks = () => {
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
 
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
     const ruleTypeOptions = [
         { label: 'CAPA RULE', value: 'capa rule' },
         { label: 'MAIN RULE', value: 'main rule' }

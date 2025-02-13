@@ -42,8 +42,8 @@ const ManageUserAddPage = () => {
     }, []);
 
     const fetchUserDetails = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const response: CustomResponse = await GetCall(`/company/user?filters.id=${userId}&sortBy=id`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
                 const userDetails = response.data[0]; // Assuming the API returns an array of users
@@ -56,7 +56,6 @@ const ManageUserAddPage = () => {
                 setAlert('error', 'User details not found.');
             }
         } catch (error) {
-            console.error('Error fetching user details:', error);
             setAlert('error', 'Failed to fetch user details.');
         } finally {
             setLoading(false);
@@ -64,8 +63,8 @@ const ManageUserAddPage = () => {
     };
 
     const fetchData = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const response: CustomResponse = await GetCall(`/company/roles`);
             if (response.code === 'SUCCESS') {
                 const formattedData = response.data.map((item: any) => ({
@@ -77,33 +76,40 @@ const ManageUserAddPage = () => {
                 setRoles([]);
             }
         } catch (error) {
-            console.error('Error fetching roles:', error);
             setRoles([]);
+            setAlert('error', 'Failed to get roles');
         } finally {
             setLoading(false);
         }
     };
 
     const fetchSupplierData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            const formattedData = response.data.map((item: any) => ({
-                label: item.supplierName, // Dropdown label
-                value: item.supId // Dropdown value
-            }));
-            setSupplierData(formattedData);
-
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: limit, page: page };
             }
-        } else {
-            setSupplierData([]);
+            setLoading(true);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                const formattedData = response.data.map((item: any) => ({
+                    label: item.supplierName, // Dropdown label
+                    value: item.supId // Dropdown value
+                }));
+                setSupplierData(formattedData);
+
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setSupplierData([]);
+            }
+        } catch (error) {
+            setRoles([]);
+            setAlert('error', 'Failed to get supplier data');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -122,6 +128,7 @@ const ManageUserAddPage = () => {
         };
 
         try {
+            setLoading(true);
             let endpoint: string;
             let response: CustomResponse;
 
@@ -131,7 +138,7 @@ const ManageUserAddPage = () => {
                 response = await PutCall(endpoint, payload); // Call PUT API
             } else {
                 if (!roleName || !roleEmail || !rolePhone || !rolePassword || !roles) {
-                    setAlert('Error', 'Please fill all required fields');
+                    setAlert('error', 'Please fill all required fields');
                     return;
                 }
                 endpoint = `/company/user`;
@@ -146,10 +153,9 @@ const ManageUserAddPage = () => {
                 setAlert('error', response.message || 'Failed to submit user data.');
             }
         } catch (error) {
-            console.error('Error submitting user data:', error);
             setAlert('error', 'An error occurred while submitting user data.');
         } finally {
-            setIsDetailLoading(false);
+            setLoading(false);
         }
     };
 

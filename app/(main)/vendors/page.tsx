@@ -20,6 +20,7 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
 import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import { limitOptions } from '@/utils/constant';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -127,13 +128,6 @@ const ManageVendorsPage = () => {
         fetchsupplierCategories();
     }, []);
 
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
     // Handle limit change
     const onLimitChange = (e: any) => {
         setLimit(e.value); // Update limit

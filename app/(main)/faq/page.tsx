@@ -69,7 +69,7 @@ const FaqPage = () => {
 
     const handleSubmit = async () => {
         if (!formData.question || !formData.answer) {
-            setAlert('Error', 'Please fill all required fields');
+            setAlert('error', 'Please fill all required fields');
             return;
         }
 
@@ -94,8 +94,6 @@ const FaqPage = () => {
                 setAlert('error', response.message);
             }
         } catch (error) {
-            console.error('Error submitting FAQ data:', error);
-
             setAlert('error', 'An error occurred while submitting FAQ data.');
         } finally {
             setIsDetailLoading(false);

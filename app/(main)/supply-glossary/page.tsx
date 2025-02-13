@@ -39,13 +39,17 @@ const SupplyGlossaryPage = () => {
     }, []);
 
     const fetchGlossary = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/supplyglossaries`);
-        setLoading(false);
-        if (response.code === 'SUCCESS') {
-            setGlossaryData(response.data);
-        } else {
-            setGlossaryData([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/supplyglossaries`);
+            setLoading(false);
+            if (response.code === 'SUCCESS') {
+                setGlossaryData(response.data);
+            } else {
+                setGlossaryData([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to fetch glossary data');
         }
     };
 
@@ -69,13 +73,12 @@ const SupplyGlossaryPage = () => {
 
     const handleSubmit = async () => {
         if (!formData.name || !formData.description) {
-            setAlert('Error', 'Please fill all required fields');
+            setAlert('error', 'Please fill all required fields');
             return;
         }
 
-        setIsDetailLoading(true);
-
         try {
+            setLoading(true);
             let response: CustomResponse;
 
             if (selectedGlossary) {
@@ -83,8 +86,6 @@ const SupplyGlossaryPage = () => {
             } else {
                 response = await PostCall(`/company/supplyglossaries`, formData);
             }
-
-            setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', `Glossary ${selectedGlossary ? 'updated' : 'added'} successfully`);
@@ -96,7 +97,7 @@ const SupplyGlossaryPage = () => {
         } catch (error) {
             setAlert('error', 'An error occurred while submitting glossary data.');
         } finally {
-            setIsDetailLoading(false);
+            setLoading(false);
         }
     };
 

@@ -66,7 +66,7 @@ const CreateNewRulesPage = () => {
     // Add new set of criteriaEvaluation and score
     const handleAddFields = () => {
         if (fields.status.length > 0 && fields.status[fields.status.length - 1].trim() === '') {
-            setAlert('Error', 'Please fill the previous field before adding a new one!');
+            setAlert('error', 'Please fill the previous field before adding a new one!');
             return;
         }
 
@@ -82,8 +82,8 @@ const CreateNewRulesPage = () => {
             updatedArray[index] = value;
             return { ...prev, [key]: updatedArray };
         });
-         // Clear the error for the field when a value is entered
-         setFormErrors((prevErrors) => {
+        // Clear the error for the field when a value is entered
+        setFormErrors((prevErrors) => {
             const updatedErrors = { ...prevErrors };
             if (value && updatedErrors[key]) {
                 delete updatedErrors[key];
@@ -111,12 +111,14 @@ const CreateNewRulesPage = () => {
         }
         setFormErrors({});
         try {
+            setLoading(true);
             let endpoint: string;
             let response: CustomResponse;
 
             if (isEditMode) {
                 endpoint = `/company/caparule/${capaRuleId}/rule-set/${ruleSetId}`;
                 try {
+                    setLoading(true);
                     response = await PutCall(endpoint, fields); // Call PUT API
                     if (response.code === 'SUCCESS') {
                         router.push(`/rules/set-capa-rules&ruleSetId=${ruleSetId}`);
@@ -126,12 +128,17 @@ const CreateNewRulesPage = () => {
                     }
                 } catch (error) {
                     setAlert('error', 'Failed to update CAPA Rules. Please try again.');
+                } finally {
+                    setLoading(false);
                 }
             } else {
                 try {
+                    setLoading(true);
                     onNewAdd(fields);
                 } catch (error) {
                     setAlert('error', 'Failed to add CAPA Rules. Please try again.');
+                } finally {
+                    setLoading(false);
                 }
             }
         } catch (validationError) {
@@ -142,6 +149,8 @@ const CreateNewRulesPage = () => {
             } else {
                 setAlert('error', 'Unexpected error during validation.');
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -159,8 +168,8 @@ const CreateNewRulesPage = () => {
     }, []);
 
     const fetchUserDetails = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
                 const userDetails = response.data[0]; // Assuming the API returns an array of users
@@ -171,7 +180,7 @@ const CreateNewRulesPage = () => {
                 setcapaRulesName(userDetails.capaRulesName || '');
                 setFields((prev) => ({
                     ...prev,
-                    status: userDetails.status || [''],
+                    status: userDetails.status || ['']
                 }));
                 // Parse the date string into a Date object
                 const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
@@ -180,7 +189,6 @@ const CreateNewRulesPage = () => {
                 setAlert('error', 'User details not found.');
             }
         } catch (error) {
-            console.error('Error fetching user details:', error);
             setAlert('error', 'Failed to fetch user details.');
         } finally {
             setLoading(false);
@@ -199,49 +207,73 @@ const CreateNewRulesPage = () => {
     const footerNewRules = renderNewRuleFooter();
 
     const fetchprocurementDepartment = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setProcurementDepartment(response.data);
-        } else {
-            setProcurementDepartment([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+            if (response.code == 'SUCCESS') {
+                setProcurementDepartment(response.data);
+            } else {
+                setProcurementDepartment([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to fetch department.');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchprocurementCategories = async (categoryId: any) => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data);
+            } else {
+                setprocurementCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to fetch category.');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setsupplierCategories(response.data);
-        } else {
-            setsupplierCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setsupplierCategories(response.data);
+            } else {
+                setsupplierCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to fetch category.');
+        } finally {
+            setLoading(false);
         }
     };
     const onNewAdd = async (userForm: any) => {
-        const response: CustomResponse = await PostCall(`/company/caparule/${ruleSetId}`, userForm);
-        if (response.code == 'SUCCESS') {
-            router.push(`/rules/set-capa-rules?ruleSetId=${ruleSetId}`);
-            setAlert('success', 'Successfully Added');
-        } else {
-            setAlert('error', response.message);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await PostCall(`/company/caparule/${ruleSetId}`, userForm);
+            if (response.code == 'SUCCESS') {
+                router.push(`/rules/set-capa-rules?ruleSetId=${ruleSetId}`);
+                setAlert('success', 'Successfully Added');
+            } else {
+                setAlert('error', response.message);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to add capa rule.');
+        } finally {
+            setLoading(false);
         }
     };
     const handleCategoryChange = (value: any) => {
         setSelectedSupplierCategory(value); // Update the selected value
         fetchprocurementCategories(value); // Call the API with the selected value
-         // Clear the error for the field when a value is entered
-         setFormErrors((prevErrors) => {
+        // Clear the error for the field when a value is entered
+        setFormErrors((prevErrors) => {
             const updatedErrors = { ...prevErrors };
             if (value && updatedErrors['categoryId']) {
                 delete updatedErrors['categoryId'];
@@ -287,53 +319,53 @@ const CreateNewRulesPage = () => {
             }
             setcapaRulesName(value);
         }
-       // Clear the error for the field when a value is entered
-       setFormErrors((prevErrors) => {
-        const updatedErrors = { ...prevErrors };
-        if (value && updatedErrors[name]) {
-            delete updatedErrors[name];
-        }
-        return updatedErrors;
-    });
-    setFields((prevForm) => {
-        const updatedForm = {
-            ...prevForm,
-            ...(typeof name === 'string' ? { [name]: value } : name),
-        };
+        // Clear the error for the field when a value is entered
+        setFormErrors((prevErrors) => {
+            const updatedErrors = { ...prevErrors };
+            if (value && updatedErrors[name]) {
+                delete updatedErrors[name];
+            }
+            return updatedErrors;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name)
+            };
 
-        if (name === 'departmentId') {
-            setSelectedProcurementDepartment(Number(value));
-            updatedForm.departmentId = null;
-        }
+            if (name === 'departmentId') {
+                setSelectedProcurementDepartment(Number(value));
+                updatedForm.departmentId = null;
+            }
 
-        return updatedForm;
-    });
-    setFields((prevForm) => {
-        const updatedForm = {
-            ...prevForm,
-            ...(typeof name === 'string' ? { [name]: value } : name),
-        };
+            return updatedForm;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name)
+            };
 
-        if (name === 'subCategoryId') {
-            setSelectedProcurementCategory(Number(value));
-            updatedForm.subCategoryId = null;
-        }
+            if (name === 'subCategoryId') {
+                setSelectedProcurementCategory(Number(value));
+                updatedForm.subCategoryId = null;
+            }
 
-        return updatedForm;
-    });
-    setFields((prevForm) => {
-        const updatedForm = {
-            ...prevForm,
-            ...(typeof name === 'string' ? { [name]: value } : name),
-        };
+            return updatedForm;
+        });
+        setFields((prevForm) => {
+            const updatedForm = {
+                ...prevForm,
+                ...(typeof name === 'string' ? { [name]: value } : name)
+            };
 
-        if (name === 'effectiveFrom') {
-            setDate(value ? new Date(value) : null); 
-            updatedForm.effectiveFrom = null;
-        }            
+            if (name === 'effectiveFrom') {
+                setDate(value ? new Date(value) : null);
+                updatedForm.effectiveFrom = null;
+            }
 
-        return updatedForm;
-    });
+            return updatedForm;
+        });
         // validateFields(name, value);
     };
     const renderContentbody = () => {
@@ -348,7 +380,7 @@ const CreateNewRulesPage = () => {
                                 <Calendar
                                     id="effectiveFrom"
                                     value={date}
-                                    onChange={(e) =>handleInputChange('effectiveFrom', e.target.value ? e.target.value.toISOString() : '')}
+                                    onChange={(e) => handleInputChange('effectiveFrom', e.target.value ? e.target.value.toISOString() : '')}
                                     dateFormat="dd-mm-yy"
                                     placeholder="Select a date"
                                     showIcon
