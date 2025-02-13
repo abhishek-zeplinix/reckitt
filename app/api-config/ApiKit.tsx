@@ -19,7 +19,6 @@ class CustomError extends Error {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-console.log(BASE_URL);
 
 // Create axios client, pre-configured with baseURL
 let APIKit: any = axios.create({
@@ -117,7 +116,6 @@ const fetchData = async (method: string, url: string, payload = {}, headers: any
         return customResponse;
     } catch (err: any) {
         if (axios.isCancel(err)) {
-            console.log('Request canceled:', err.message);
         } else {
             console.error('Error fetching data:', err);
         }
@@ -151,7 +149,6 @@ const PostPdfCall = async (url: string, payload = {}, headers = {}) => {
 
         // Check if the response.data is a Blob
         if (response.data instanceof Blob) {
-            console.log('Received Blob response.');
             const url = window.URL.createObjectURL(response.data);
             const a = document.createElement('a');
             a.href = url;
@@ -181,7 +178,6 @@ const GetPdfCall = async (url: string, headers = {}) => {
 
         // Check if the response.data is a Blob
         if (response.data instanceof Blob) {
-            console.log('Received Blob response.');
             const url = window.URL.createObjectURL(response.data);
             const a = document.createElement('a');
             a.href = url;

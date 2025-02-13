@@ -98,8 +98,6 @@ const CreateNewMembersPage = () => {
             ratiosCopack: selectedratiosCopack || ''
         }));
     };
-    console.log('117', fields);
-    // Update common fields when they change
     useEffect(() => {
         updateCommonFields();
     }, [date, selectedProcurementDepartment, orderBy, selectedsection, selectedProcurementCategory, selectedSupplierCategory, selectedCriteria, selectedratiosRawpack, selectedratiosCopack]);

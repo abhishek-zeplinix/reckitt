@@ -55,7 +55,6 @@ const AddBrandsControl = () => {
             try {
                 const payload = { brandName: brand };
                 const response = await PutCall(`/company/brand/${selectedBrandId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Brand successfully updated!');
@@ -71,7 +70,6 @@ const AddBrandsControl = () => {
             try {
                 const payload = { brandName: brand };
                 const response = await PostCall('/company/brand', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Brand successfully added!');

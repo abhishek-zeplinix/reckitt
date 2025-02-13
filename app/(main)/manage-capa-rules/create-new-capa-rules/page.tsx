@@ -104,9 +104,7 @@ const CreateNewRulesPage = () => {
         try {
             const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
-                console.log('49', response.data);
                 const userDetails = response.data[0]; // Assuming the API returns an array of users
-                console.log('112', response.data[0]);
                 setorderBy(userDetails.orderBy || '');
                 setSelectedProcurementDepartment(userDetails.departmentId || null);
                 setSelectedProcurementCategory(userDetails.categoryId || '');

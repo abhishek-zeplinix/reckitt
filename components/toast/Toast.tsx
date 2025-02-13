@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 const CustomToast = ({ type, message, onClose }: { type: string; message: string; onClose?: () => void }) => {
-    console.log('custome', type);
 
     const gradientStyles: any = {
         success: 'linear-gradient(to right,rgb(195, 242, 228),rgb(255, 255, 255))',

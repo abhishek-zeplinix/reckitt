@@ -107,8 +107,6 @@ const CreateNewRulesPage = () => {
     const handleRemoveField = (index: number) => {
         setFields(fields.filter((_, i) => i !== index));
     };
-
-    console.log('67', fields);
     const handleSubmit = async () => {
         // Validate all fields
         for (const field of fields) {

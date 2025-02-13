@@ -320,9 +320,6 @@ const TrendSummaryPage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-
-            console.log(queryString);
-
             const response = await GetCall(`company/rules/${memberId}?${queryString}`);
 
             setTotalRecords(response.total);

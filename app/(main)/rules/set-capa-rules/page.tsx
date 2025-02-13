@@ -280,8 +280,6 @@ const ManageCapaRulesPage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-            console.log(queryString, 'abhi');
-
             const response = await GetCall(`company/caparule-set/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);

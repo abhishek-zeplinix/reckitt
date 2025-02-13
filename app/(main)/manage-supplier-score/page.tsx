@@ -79,9 +79,6 @@ const ManageSupplierScorePage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-
-            console.log('Fetching data with params:', queryString); // Debug log
-
             const response = await GetCall(`company/supplier-score?${queryString}`);
 
             setTotalRecords(response.total);
@@ -151,7 +148,6 @@ const ManageSupplierScorePage = () => {
     };
 
     const handleFilterChange = (filters: any) => {
-        console.log(filters);
 
         setFilters(filters);
     };

@@ -145,8 +145,6 @@ const SetRulesPage = () => {
 
             const queryString = buildQueryParams(params);
 
-            console.log(queryString);
-
             const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
@@ -157,7 +155,6 @@ const SetRulesPage = () => {
             setLoading(false);
         }
     };
-    console.log('159',rules)
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 

@@ -3,7 +3,6 @@ import { removeAuthData } from "@/utils/cookies";
 import { get } from "lodash";
 
 const parseError = async (error: any) => {
-    console.log('error', error.code)
     if (error.response && error.response.data && error.response.data.code) {
         error.code = error.response.data.code;
         if (error.response.data.code == 'AUTH_FAILED') {

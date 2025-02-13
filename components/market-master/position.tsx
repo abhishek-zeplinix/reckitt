@@ -55,7 +55,6 @@ const AddPosition = () => {
             try {
                 const payload = { positionName: position };
                 const response = await PutCall(`/company/position/${selectedPositionId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Position successfully updated!');
@@ -71,7 +70,6 @@ const AddPosition = () => {
             try {
                 const payload = { positionName: position };
                 const response = await PostCall('/company/position', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Position successfully added!');

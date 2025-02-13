@@ -55,7 +55,6 @@ const AddReviewType = () => {
             try {
                 const payload = { reviewTypeName: reviewTypes };
                 const response = await PutCall(`/company/reviewTypes/${selectedReviewTypesId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Review Types successfully updated!');
@@ -71,7 +70,6 @@ const AddReviewType = () => {
             try {
                 const payload = { reviewTypeName: reviewTypes };
                 const response = await PostCall('/company/reviewTypes', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Review Types successfully added!');

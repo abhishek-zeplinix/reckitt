@@ -55,8 +55,6 @@ const AddAssesorRole = () => {
             try {
                 const payload = { assesorRoleName: addAssesorrole };
                 const response = await PutCall(`/company/assesorrole/${selectedAssesorroleId}`, payload);
-                console.log(response);
-
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Assesor Role successfully updated!');
                     resetInput();
@@ -71,7 +69,6 @@ const AddAssesorRole = () => {
             try {
                 const payload = { assesorRoleName: addAssesorrole };
                 const response = await PostCall('/company/assesorrole', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Assesor Role successfully added!');

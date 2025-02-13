@@ -256,7 +256,6 @@ const ManageRulesPage = () => {
 
             setTotalRecords(response.total);
             setRules(response.data);
-            console.log(response.data, 'Abhishek');
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {

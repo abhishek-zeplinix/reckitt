@@ -53,7 +53,6 @@ const AddCountriesControl = () => {
             try {
                 const payload = { countryName: country };
                 const response = await PutCall(`/company/country/${selectedCountryId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'country successfully updated!');
@@ -69,7 +68,6 @@ const AddCountriesControl = () => {
             try {
                 const payload = { countryName: country };
                 const response = await PostCall('/company/country', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'country successfully added!');

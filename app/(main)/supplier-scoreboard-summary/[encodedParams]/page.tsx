@@ -77,8 +77,6 @@ const SupplierScoreboardTables = ({
         return () => clearTimeout(captureTimer);
     }, [ratingsData, selectedYear, pdfReady]);
 
-    console.log(bottomFlatData);
-
     useEffect(() => {
         if (chartImage) {
             setPdfReady(!!chartImage);
@@ -105,7 +103,6 @@ const SupplierScoreboardTables = ({
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/company/supplier?${queryString}`);
-            console.log('fetch indivisual supplier data', response.data[0]);
 
             setSupplierData(response.data[0]);
         } catch (error) {
@@ -317,7 +314,6 @@ const SupplierScoreboardTables = ({
             if (evaluationData) {
                 setDialogVisible(true);
             }
-            console.log(evaluationData, 'selected');
         };
 
         const handleAddFeedbackClick = (e: React.MouseEvent) => {
@@ -333,7 +329,6 @@ const SupplierScoreboardTables = ({
                 setDialogVisible(true);
                 setLoading(false);
             }
-            console.log(evaluationData, 'selected');
         };
 
         const handleBadgeClick = async (e: any) => {
@@ -519,11 +514,6 @@ const SupplierScoreboardTables = ({
         );
     };
     const renderHeader = headerComp();
-    console.log(selectedYear, 'selectedYear');
-
-    console.log(bottomFlatData?.departmentId);
-    console.log(bottomFlatData?.evalutionPeriod);
-
     const valuesPopupHeader = () => {
         return (
             <div className="flex justify-content-between">

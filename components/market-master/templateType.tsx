@@ -55,7 +55,6 @@ const AddTemplateType = () => {
             try {
                 const payload = { templateTypeName: templateType };
                 const response = await PutCall(`/company/templateType/${selectedTemplateTypeId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Template Type successfully updated!');
@@ -71,7 +70,6 @@ const AddTemplateType = () => {
             try {
                 const payload = { templateTypeName: templateType };
                 const response = await PostCall('/company/templateType', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Template Type successfully added!');

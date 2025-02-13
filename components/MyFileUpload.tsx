@@ -133,7 +133,6 @@ const MyFileUpload = ({ isVisible, onSelect }: any) => {
 
     const onDone = () => {
         setDialogVisible(false);
-        console.log('selectedFiles', selectedFiles);
         if (onSelect) {
             onSelect(selectedFiles);
         }

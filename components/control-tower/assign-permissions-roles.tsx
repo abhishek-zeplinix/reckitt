@@ -57,9 +57,6 @@ const Permission = () => {
         try {
             const response = await GetCall('/settings/permissions');
 
-            // Log the response to the console for debugging
-            console.log('Fetched Permissions Response:', response.data);
-
             // Format the data into the structure expected by MultiSelect
             const formattedPermissions = response.data.map((permission: any) => ({
                 label: permission.permission, // Display the permission name
@@ -82,15 +79,11 @@ const Permission = () => {
     //         const queryString = buildQueryParams(params);
 
     //         const response = await GetCall(`/settings/role-permissions?${queryString}`);
-    //         console.log('Fetched role permissions:', response.data);
     //         setSpecificRolePermissions(response.data);
-    //         console.log(response.data);
 
     //         // pre-select existing permissions in MultiSelect
     //         // const existingPermissionIds = response.data.permission.map((perm: any) => perm.permission.permissionId);
     //         const existingPermissionIds = response.data.map((item: any) => item.permission.permissionId);
-
-    //         console.log('existing permissions',existingPermissionIds);
 
     //         setSelectedPermissions(existingPermissionIds);
     //     } catch (error) {
@@ -107,7 +100,6 @@ const Permission = () => {
             const queryString = buildQueryParams(params);
 
             const response = await GetCall(`/settings/role-permissions?${queryString}`);
-            console.log('Fetched role permissions:', response.data);
 
             // Update to handle the new response structure
             setSpecificRolePermissions({
@@ -123,8 +115,6 @@ const Permission = () => {
 
             // Update selected permissions based on the new structure
             const existingPermissionIds = response.data.map((item: any) => item.permission.permissionId);
-
-            console.log('existing permissions', existingPermissionIds);
             setSelectedPermissions(existingPermissionIds);
         } catch (error) {
             setAlert('error', 'Failed to fetch role permissions');
@@ -135,9 +125,6 @@ const Permission = () => {
 
     const openViewDialog = async (items: any) => {
         setVisible(true);
-        // selectedRoleId(items.rouleId);
-        console.log(items);
-
         setSelectedRoleId(items.roleId);
         setSelectedRole(items.role);
         await fetchPermissionsByRoleId(items.roleId);

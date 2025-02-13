@@ -55,8 +55,6 @@ const AddAssesorType = () => {
             try {
                 const payload = { assesorTypeName: addAssesortype };
                 const response = await PutCall(`/company/assesortype/${selectedAssesortypeId}`, payload);
-                console.log(response);
-
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Assesor Type successfully updated!');
                     resetInput();
@@ -71,8 +69,6 @@ const AddAssesorType = () => {
             try {
                 const payload = { assesorTypeName: addAssesortype };
                 const response = await PostCall('/company/assesortype', payload);
-                console.log(response);
-
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Assesor Type successfully added!');
                     resetInput();

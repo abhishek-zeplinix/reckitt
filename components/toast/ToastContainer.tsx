@@ -1,7 +1,6 @@
 import CustomToast from './Toast';
 
 const ToastContainer = ({ toasts, removeToast }: { toasts: any; removeToast: any }) => {
-    console.log(toasts);
 
     return (
         <div className="fixed top-0 left-0 right-0" style={{ maxWidth: '25rem', zIndex: 99999, margin: '0 auto' }}>

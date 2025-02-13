@@ -88,7 +88,6 @@ const GenerateRequestPage = () => {
             const params = { filters: { supId }, pagination: false };
 
             const queryString = buildQueryParams(params);
-            console.log(params);
 
             const response = await GetCall(`/company/supplier?${queryString}`);
 
@@ -185,8 +184,6 @@ const GenerateRequestPage = () => {
             );           
 
             const supId = get(formData, 'supplierId');
-
-            console.log(requestedData);
             
 
             const response = await PostCall(`/company/manageRequest/supplier/${supId}`, apiData);

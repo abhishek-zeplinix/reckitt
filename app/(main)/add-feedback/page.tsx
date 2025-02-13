@@ -83,8 +83,6 @@ const AddFeedBackPages = () => {
             } else {
                 updatedForm = { ...updatedForm, ...name };
             }
-
-            console.log(updatedForm, 'Abhishek');
             return updatedForm;
         });
     };
@@ -107,10 +105,6 @@ const AddFeedBackPages = () => {
         formData.append('year', year?.toString() || '');
         formData.append('quarter', quarter || '');
         formData.append('info', info || '');
-
-        console.log('Submitting FormData:', Array.from(formData.entries()));
-
-        // Call API with FormData
         onNewAdd(formData); // Call the API
     };
 
@@ -123,7 +117,6 @@ const AddFeedBackPages = () => {
 
     const handleSupplierChange = (e: { value: any }) => {
         setSelectedSupplier(e.value);
-        console.log('Selected Supplier ID:', e.value);
     };
 
     const quarterOptions = [
@@ -200,7 +193,6 @@ const AddFeedBackPages = () => {
                             onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                    console.log('File selected:', file);
                                     setForm((prevForm) => ({ ...prevForm, file }));
                                 }
                             }}

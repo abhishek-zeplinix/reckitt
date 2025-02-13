@@ -108,7 +108,6 @@ const CreateNewRulesPage = () => {
             ratiosCopack: selectedratiosCopack || ''
         }));
     };
-    console.log('117', fields);
     // Update common fields when they change
     useEffect(() => {
         updateCommonFields();
@@ -143,7 +142,6 @@ const CreateNewRulesPage = () => {
     };
 
     const handleSubmit = async (fields: Record<string, unknown>) => {
-        console.log('136',fields)
         const { valid, errors } = validateFormRuleData(fields);
         if (!valid) {
             setFormErrors(errors);

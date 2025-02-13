@@ -512,7 +512,6 @@ const ManageSupplierPage = () => {
             closeDialog(); // Close dialog in all cases
         }
     };
-    console.log('515', responseData);
 
     return (
         <div className="grid">

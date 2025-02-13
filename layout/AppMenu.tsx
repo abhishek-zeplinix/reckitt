@@ -30,7 +30,6 @@
 //     }, [router]);
 
 //     useEffect(() => {
-//         console.log('AppMenu re-rendered');
 //     }, []);
 
 //     const model = useMemo(() => [

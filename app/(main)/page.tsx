@@ -142,7 +142,6 @@ const Dashboard = () => {
             const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
             if (response.code == 'SUCCESS') {
                 setBottomSupplierData(response.data);
-                console.log(response.data, '83');
 
                 if (response.total) {
                     setTotalRecords(response?.total);

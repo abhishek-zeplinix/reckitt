@@ -31,7 +31,6 @@ const ManageFeedbackPage = () => {
     const [periodOptions, setPeriodOptions] = useState<Array<{ label: string; value: string }>>([]);
     const [selectedStatus, setSelectedStatus] = useState('');
 
-
     const { isLoading, setLoading, setAlert, user } = useAppContext();
     const { isSupplier } = useAuth();
     const router = useRouter();

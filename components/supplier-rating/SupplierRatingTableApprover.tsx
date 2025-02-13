@@ -119,11 +119,8 @@ const SupplierEvaluationTableApprover = ({
   useEffect(() => {
     if (supplierScoreData) {
       if (supplierScoreData[0]?.scoreApprovals?.checkedData) {
-        console.log("Setting checkedCriteria from scoreApprovals:", supplierScoreData[0]?.scoreApprovals?.checkedData); // ADD THIS LOG
         setCheckedCriteria(supplierScoreData[0]?.scoreApprovals.checkedData);
       } else {
-        console.log("No scoreApprovals or checkedData found, setting default checked criteria based on score < 5"); // ADD THIS LOG
-        // Logic to set default checked based on score < 5 will be handled in another useEffect
       }
     }
   }, [supplierScoreData]);
@@ -183,8 +180,6 @@ const SupplierEvaluationTableApprover = ({
           }
         });
       });
-
-      console.log('rendering.........');
       
 
       // Only set defaultChecked if checkedCriteria is currently empty or hasn't been explicitly set from backend
@@ -192,7 +187,6 @@ const SupplierEvaluationTableApprover = ({
       
         setCheckedCriteria(defaultChecked);
       } else {
-        console.log("checkedCriteria ALREADY SET from backend, skipping default check logic."); // ADD THIS LOG
       }
     }
   }, [tableData]); // ADD checkedCriteria to dependency array
@@ -342,8 +336,6 @@ const SupplierEvaluationTableApprover = ({
       ...(status === "Rejected" && { keepData }) // conditionally add keepData for Rejected status
     };
 
-    console.log(`${status} Payload:`, payload);
-
     try {
       const response = await PostCall('/company/score-approval', payload);
       if (response.code === 'SUCCESS') {
@@ -356,9 +348,6 @@ const SupplierEvaluationTableApprover = ({
       setAlert('error', 'An error occurred while processing your request');
     }
   };
-
-  console.log(totalScore);
-
 
   return (
     <>

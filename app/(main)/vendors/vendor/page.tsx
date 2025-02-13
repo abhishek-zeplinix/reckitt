@@ -179,8 +179,6 @@ const ManageVendorAddEditPage = () => {
         try {
             const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
 
-            console.log(response);
-
             if (response.code === 'SUCCESS') {
                 setAlert('success', `Supplier ${isEditMode ? 'Updated' : 'Added'} Successfully`);
                 router.push('/manage-supplier');
@@ -193,7 +191,6 @@ const ManageVendorAddEditPage = () => {
             setLoading(false);
         }
     };
-    console.log('192', wordLimitErrors);
 
     const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
         if (typeof name !== 'string') return;

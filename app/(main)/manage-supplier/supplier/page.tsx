@@ -101,7 +101,6 @@ const ManageSupplierAddEditPage = () => {
 
     // Fetch cities based on selected state
     useEffect(() => {
-        console.log('105',form.country, form.state)
         const fetchCities = async () => {
             if(isEditMode){
                 const countries = await Country.getAllCountries();
@@ -112,7 +111,7 @@ const ManageSupplierAddEditPage = () => {
                               c.name.toLowerCase() === form.country.toLowerCase()
                           );
                         if (selectedCountryObj) {
-                            // console.log('100',selectedCountryObj)
+
                             if (form.state) {
                                 const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, form.state);
                                 setAllCity(cities);
@@ -151,7 +150,6 @@ const ManageSupplierAddEditPage = () => {
 
     fetchCountries();
   }, [form?.country]);
-  console.log('153',form)
 
   // Fetch States
   
@@ -170,7 +168,6 @@ const ManageSupplierAddEditPage = () => {
         
 
         if (selectedStateObj) {
-            console.log('153',selectedStateObj)
           fetchCities(countryCode, selectedStateObj.isoCode);
         }
       }
@@ -271,8 +268,6 @@ const ManageSupplierAddEditPage = () => {
         setLoading(true);
         try {
             const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
-
-            console.log(response);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', `Supplier ${isEditMode ? 'Updated' : 'Added'} Successfully`);

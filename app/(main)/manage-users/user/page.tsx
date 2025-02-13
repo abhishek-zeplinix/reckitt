@@ -33,8 +33,6 @@ const ManageUserAddPage = () => {
     //     fetchSupplierData();
     // }, []);
 
-    // console.log('sup id selected on dropdown', supplierId);
-
     useEffect(() => {
         fetchData();
         fetchSupplierData();
@@ -48,7 +46,6 @@ const ManageUserAddPage = () => {
         try {
             const response: CustomResponse = await GetCall(`/company/user?filters.id=${userId}&sortBy=id`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
-                console.log('49', response.data);
                 const userDetails = response.data[0]; // Assuming the API returns an array of users
                 setRoleName(userDetails.name || '');
                 setRoleEmail(userDetails.email || '');

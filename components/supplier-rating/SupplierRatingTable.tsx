@@ -63,10 +63,8 @@ const SupplierEvaluationTable = ({ rules,
 
   // update function to check CAPA data status
   const checkCapaDataStatus = (data: any[]) => {
-    console.log(data);
     if (!data || data.length === 0) return { count: 0, completedCount: 0 };
     const totalCapaRules = data.length;
-    console.log(totalCapaRules);
 
     const completedCapaRules = data.filter(
       item => item.selectedStatus && item.selectedStatus !== ''
@@ -107,8 +105,6 @@ const SupplierEvaluationTable = ({ rules,
 
             setTableData(supplierScoreData[0]);
 
-            console.log('insiderrrrrrrrr');
-
 
             await initializeCompletedData();
 
@@ -147,8 +143,6 @@ const SupplierEvaluationTable = ({ rules,
 
     if (supplierScoreData) {
       const status = supplierScoreData[0]?.status;
-      console.log(status);
-
       if (status?.toLowerCase() === 'completed') {
         setLoading2(false)
       } else {
@@ -482,10 +476,6 @@ const SupplierEvaluationTable = ({ rules,
       ...selectedEvaluations,
       [key]: value
     };
-
-    console.log(updatedEvals);
-    
-
     // calculate newly evaluated criteria count
     const evaluatedCount = Object.values(updatedEvals).filter(
       (evalv) => evalv !== undefined && evalv !== ''
@@ -571,20 +561,12 @@ const SupplierEvaluationTable = ({ rules,
           ? 'In Progress'
           : 'In Progress';
     }
-
-    console.log(capaDataCompletedCount);
-    console.log(capaDataCount);
-
-
-
     // Combine overall status
     const overallStatus = totalScore <= 50
       ? (criteriaStatus === 'Completed' && capaStatus === 'Completed'
         ? 'Completed'
         : 'In Progress')
       : criteriaStatus;
-
-    console.log(overallStatus);
 
     const apiData = {
       supId,
@@ -606,7 +588,6 @@ const SupplierEvaluationTable = ({ rules,
   // const handleSubmit = async () => {
 
   //   const apiData = prepareApiData();
-  //   console.log(apiData);
 
   //   try {
   //     setLoading(true)
@@ -671,9 +652,6 @@ const SupplierEvaluationTable = ({ rules,
     }
     setCapaData(data);
     checkCapaDataStatus(data);
-
-    console.log(data);
-
   };
 
   const getSeverity = (status: string) => {

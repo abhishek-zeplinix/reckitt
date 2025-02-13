@@ -52,7 +52,6 @@ const AddRoleControl = () => {
         try {
             const payload = { name: role };
             const response = await PostCall('/company/roles', payload);
-            console.log(response);
 
             if (response.code.toLowerCase() === 'success') {
                 setAlert('success', 'Role successfully added!!');
