@@ -32,11 +32,11 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                 );
             }
         },
-        {
-            label: 'Profile',
-            icon: 'pi pi-user',
-            command: () => router.push('/profile')
-        },
+        // {
+        //     label: 'Profile',
+        //     icon: 'pi pi-user',
+        //     command: () => router.push('/profile')
+        // },
         {
             separator: true
         },
