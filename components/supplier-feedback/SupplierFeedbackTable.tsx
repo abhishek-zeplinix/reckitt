@@ -25,12 +25,10 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
         const file: any = event.files[0];
 
         if (!event || !event.files || event.files.length === 0) {
-            console.log('No file selected');
             return;
         }
         
         if (!file) {
-            console.log('File is undefined');
             return;
         }
 
@@ -77,12 +75,6 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
 
         // prepare the array of files in the same order as the scoreCheckedDataId values
         const filesArray = Object.keys(uploadedFiles).map(id => uploadedFiles[id]);
-
-
-        console.log("Payload:", {
-            data: scoreCheckedDataIdsJson,
-            files: filesArray
-        });
 
         // create FormData and append the JSON string and files array
         const formData = new FormData();

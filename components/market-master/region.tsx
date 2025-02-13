@@ -53,7 +53,6 @@ const AddRegionControl = () => {
             try {
                 const payload = { regionName: region };
                 const response = await PutCall(`/company/region/${selectedRegionId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Region successfully updated!');
@@ -69,7 +68,6 @@ const AddRegionControl = () => {
             try {
                 const payload = { regionName: region };
                 const response = await PostCall('/company/region', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Region successfully added!');

@@ -66,8 +66,6 @@ const ManageRequestsPage = () => {
         }
     };
 
-    console.log(requests);
-
 
     const handleViewClick = (request: any) => {
         setSelectedRequest(request);

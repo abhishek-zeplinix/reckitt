@@ -17,7 +17,7 @@ const ManageUsersPage = () => {
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const { setLoading } = useAppContext();
+    const { setAlert, setLoading } = useAppContext();
     const [companyUsers, setCompanyUsers] = useState<CompanyUsers[]>([]);
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
 
@@ -68,20 +68,26 @@ const ManageUsersPage = () => {
     };
 
     const fetchData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/user?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setCompanyUsers(response.data);
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: limit, page: page };
             }
-        } else {
-            setCompanyUsers([]);
+            setLoading(true);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/user?${queryString}`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setCompanyUsers(response.data);
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setCompanyUsers([]);
+            }
+        } catch (error) {
+            setAlert('error', 'An error occurred while submitting user data.');
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -25,11 +25,6 @@ const SupplierFeedback = ({
     const { setAlert, user, setLoading, isLoading } = useAppContext();
     const { isSupplier } = useAuth();
 
-    console.log(supId);
-    console.log(departmentId);
-    console.log(period);
-    console.log(user);
-
     const fetchSupplierFeedbackBySupplier = async (params?: any) => {
 
         try {
@@ -81,9 +76,7 @@ const SupplierFeedback = ({
     const handleSubmitFiles = async (formData: any) => {
         try {
             setUploadLoading(true);
-            console.log(formData);
             for (const [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
             }
             const response = await PostCall('/company/supplier-cheked/file-upload', formData);
 

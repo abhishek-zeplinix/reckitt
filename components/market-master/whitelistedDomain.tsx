@@ -55,7 +55,6 @@ const AddWhitelistedDomain = () => {
             try {
                 const payload = { brandName: brand };
                 const response = await PutCall(`/company/whitelistedDomain/${selectedBrandId}`, payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Whitelisted Domain successfully updated!');
@@ -71,7 +70,6 @@ const AddWhitelistedDomain = () => {
             try {
                 const payload = { brandName: brand };
                 const response = await PostCall('/company/whitelistedDomain', payload);
-                console.log(response);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Whitelisted Domain successfully added!');

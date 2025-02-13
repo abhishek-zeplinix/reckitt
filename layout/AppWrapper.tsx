@@ -64,9 +64,6 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     const [toasts, setToasts] = useState<Array<{ id: number; type: string; message: string }>>([]);
 
-
-    // console.log(user);
-
     useEffect(() => {
         const isValid = isTokenValid(authToken);
 
@@ -112,7 +109,6 @@ export const AppWrapper = React.memo(({ children }: any) => {
         // fetchData();
 
         eventEmitter.on('signOut', (data: any) => {
-            console.log('Event received:');
             removeAuthData();
             signOut();
             setAlert('info', 'Session expired');

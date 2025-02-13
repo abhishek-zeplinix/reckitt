@@ -8,8 +8,6 @@ const SupplierSummaryFeedbackCard = (data: any) => {
     const [isSmallScreen, setIsSmallScreen] = useState(false);
     const { isLoading } = useAppContext();
 
-    console.log(isLoading);
-
     const leftPanelData = [
         {
             label: 'Supplier Name :',

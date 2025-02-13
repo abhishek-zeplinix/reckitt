@@ -49,7 +49,6 @@ const LoginPage = () => {
 
         try {
             const response = await PostCall('/auth/supplier/login', payload);
-            console.log(response?.otp);
 
             if (response?.otp) {
                 setIsOtpSent(true);
@@ -58,6 +57,7 @@ const LoginPage = () => {
                 setAlert('error', 'OTP generation failed');
             }
         } catch (error) {
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -84,14 +84,12 @@ const LoginPage = () => {
 
             setLoading(false);
             if (response.code == 'SUCCESS') {
-                console.log('login success');
                 setAlert('success', 'Login success!');
                 setUser(response.data);
                 setAuthToken(response.token);
                 setAuthData(response.token, response.refreshToken, response.data);
                 setUserDetails(response.data);
             } else if (response.code == 'RESET_PASSWORD') {
-                console.log('res', response);
                 setDisplayName(response.name);
                 setAlert('success', 'Please reset you password');
                 router.push(`/reset-password?resetToken=${response.resetToken}`);
@@ -118,7 +116,6 @@ const LoginPage = () => {
             const response: any = await PostCall('/auth/supplier/verify-otp', payload);
 
             if (response?.code === 'SUCCESS') {
-                console.log('Login success');
                 setAlert('success', response.message);
                 setUser(response.data);
                 setAuthToken(response.token);

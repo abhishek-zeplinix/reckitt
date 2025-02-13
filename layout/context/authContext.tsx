@@ -36,7 +36,6 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
 
     // Extract user permissions from the user object
     const userPermissions = useMemo(() => get(user, 'permissions.permissions', []) as string[], [user]);
-    console.log(userPermissions);
 
     useEffect(() => {
         if (user) {

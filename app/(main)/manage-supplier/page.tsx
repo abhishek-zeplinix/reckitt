@@ -19,6 +19,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { RadioButton } from 'primereact/radiobutton';
 import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { limitOptions } from '@/utils/constant';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -128,13 +129,6 @@ const ManageSupplierPage = () => {
         fetchsupplierCategories();
     }, []);
 
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
     // Handle limit change
     const onLimitChange = (e: any) => {
         setLimit(e.value); // Update limit
@@ -170,34 +164,45 @@ const ManageSupplierPage = () => {
     };
 
     const fetchData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSuppliers(response.data);
+        try {
+            setLoading(true);
 
-            if (response.total) {
-                setTotalRecords(response?.total);
+            if (!params) {
+                params = { limit: limit, page: page };
             }
-        } else {
-            setSuppliers([]);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+            if (response.code == 'SUCCESS') {
+                setSuppliers(response.data);
+
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setSuppliers([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to fetch supplier data');
+        } finally {
+            setLoading(false);
         }
     };
     const confirmDelete = async () => {
-        if (!selectedSupplierToDelete) return;
-        setLoading(true);
-        const response: CustomResponse = await DeleteCall(`/company/supplier/${selectedSupplierToDelete.supId}`);
-        setLoading(false);
-        if (response.code === 'SUCCESS') {
-            setIsDeleteDialogVisible(false);
-            fetchData();
-            setAlert('success', 'Successfully Deleted');
-        } else {
-            setAlert('error', response.message);
+        try {
+            setLoading(true);
+            if (!selectedSupplierToDelete) return;
+            const response: CustomResponse = await DeleteCall(`/company/supplier/${selectedSupplierToDelete.supId}`);
+            if (response.code === 'SUCCESS') {
+                setIsDeleteDialogVisible(false);
+                fetchData();
+                setAlert('success', 'Successfully Deleted');
+            } else {
+                setAlert('error', response.message);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to delete supplier');
+        } finally {
+            setLoading(false);
         }
     };
     const openDeleteDialog = (perm: Supplier) => {
@@ -211,78 +216,118 @@ const ManageSupplierPage = () => {
 
     const onNewAdd = async (companyForm: any) => {
         if (action == ACTIONS.ADD) {
-            setIsDetailLoading(true);
-            const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
-            setIsDetailLoading(false);
-            if (response.code == 'SUCCESS') {
-                setAlert('success', 'Supplier Added Successfully');
-                dataTableRef.current?.updatePagination(1);
-                router.push('/manage-supplier');
-            } else {
-                setAlert('error', response.message);
+            try {
+                setLoading(true);
+                const response: CustomResponse = await PostCall(`/company/supplier`, companyForm);
+                if (response.code == 'SUCCESS') {
+                    setAlert('success', 'Supplier Added Successfully');
+                    dataTableRef.current?.updatePagination(1);
+                    router.push('/manage-supplier');
+                } else {
+                    setAlert('error', response.message);
+                }
+            } catch (error) {
+                setAlert('error', 'Failed to add supplier');
+            } finally {
+                setLoading(false);
             }
         }
         if (action == ACTIONS.EDIT) {
-            setIsDetailLoading(true);
-            const response: CustomResponse = await PutCall(`/company/supplier/${selectedSupplier?.supId}`, companyForm);
-            setIsDetailLoading(false);
-            if (response.code == 'SUCCESS') {
-                setAlert('success', 'Supplier Updated Successfully');
-                dataTableRef.current?.updatePagination(1);
-            } else {
-                setAlert('error', response.message);
+            try {
+                setLoading(true);
+                const response: CustomResponse = await PutCall(`/company/supplier/${selectedSupplier?.supId}`, companyForm);
+                if (response.code == 'SUCCESS') {
+                    setAlert('success', 'Supplier Updated Successfully');
+                    dataTableRef.current?.updatePagination(1);
+                } else {
+                    setAlert('error', response.message);
+                }
+            } catch (error) {
+                setAlert('error', 'Failed to edit supplier');
+            } finally {
+                setLoading(false);
             }
         }
     };
 
     const fetchFactory = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/factory`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setFactoryDetails(response.data);
-        } else {
-            setFactoryDetails([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/factory`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setFactoryDetails(response.data);
+            } else {
+                setFactoryDetails([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load factory');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchLocation = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/location`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setLocationDetails(response.data);
-        } else {
-            setLocationDetails([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/location`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setLocationDetails(response.data);
+            } else {
+                setLocationDetails([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load location');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchSubLocation = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-location`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSubLocationDetails(response.data);
-        } else {
-            setSubLocationDetails([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-location`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setSubLocationDetails(response.data);
+            } else {
+                setSubLocationDetails([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load sub location');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchCategory = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setCategory(response.data);
-        } else {
-            setCategory([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setCategory(response.data);
+            } else {
+                setCategory([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchSubCategory = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSubCategory(response.data);
-        } else {
-            setSubCategory([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setSubCategory(response.data);
+            } else {
+                setSubCategory([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -296,12 +341,10 @@ const ManageSupplierPage = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        setIsDetailLoading(true);
         try {
+            setLoading(true);
             // Use the existing PostCall function
             const response: CustomResponse = await PostCall('/company/addbulksupplier', formData);
-
-            setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Suppliers imported successfully');
@@ -313,10 +356,9 @@ const ManageSupplierPage = () => {
                 setAlert('error', response.message || 'File upload failed');
             }
         } catch (error) {
-            setIsDetailLoading(false);
             setAlert('error', 'An unexpected error occurred during file upload');
         } finally {
-            setIsDetailLoading(false);
+            setLoading(false);
         }
     };
 
@@ -334,27 +376,39 @@ const ManageSupplierPage = () => {
         }
     };
     const fetchprocurementCategories = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setsupplierCategories([]); // Clear subcategories if no category is selected
-            return;
-        }
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setsupplierCategories(response.data);
-        } else {
-            setsupplierCategories([]);
+        try {
+            if (!categoryId) {
+                setsupplierCategories([]); // Clear subcategories if no category is selected
+                return;
+            }
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setsupplierCategories(response.data);
+            } else {
+                setsupplierCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data);
+            } else {
+                setprocurementCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -464,9 +518,10 @@ const ManageSupplierPage = () => {
     };
     const handleSave = async () => {
         let payload = null; // Initialize payload as null
-        setIsDetailLoading(true); // Set loading state at the start
+        // Set loading state at the start
 
         try {
+            setLoading(true);
             if (blockOption === 'Permanent Block') {
                 payload = {
                     blockType: 'permanent',
@@ -491,7 +546,6 @@ const ManageSupplierPage = () => {
                 return; // Exit the function
             } else {
                 console.warn('Invalid data for saving.');
-                setIsDetailLoading(false); // Reset loading state
                 return; // Exit the function
             }
 
@@ -505,14 +559,12 @@ const ManageSupplierPage = () => {
                 }
             }
         } catch (error) {
-            console.error('Error during API call:', error);
             setAlert('error', 'An unexpected error occurred.');
         } finally {
-            setIsDetailLoading(false); // Ensure loading state is reset
+            setLoading(false); // Ensure loading state is reset
             closeDialog(); // Close dialog in all cases
         }
     };
-    console.log('515', responseData);
 
     return (
         <div className="grid">

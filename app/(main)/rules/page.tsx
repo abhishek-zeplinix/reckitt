@@ -19,6 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 // import { useLoaderContext } from '@/layout/context/LoaderContext';
 import { RadioButton } from 'primereact/radiobutton';
+import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {
     ADD: 'add',
@@ -58,16 +59,9 @@ const MainRules = () => {
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
 
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
     const ruleTypeOptions = [
-        { label: "CAPA RULE", value: "capa rule" },
-        { label: "MAIN RULE", value: "main rule" }
+        { label: 'CAPA RULE', value: 'capa rule' },
+        { label: 'MAIN RULE', value: 'main rule' }
     ];
     // Handle limit change
     // const onCategorychange = (e: any) => {
@@ -158,12 +152,10 @@ const MainRules = () => {
         // Determine API endpoint based on selected rule type
         const apiEndpoint = chooseRules === 'Capa Rules' ? '/company/caparule/bulk/capa-rules' : '/company/bulk-rules';
 
-        setIsDetailLoading(true);
         try {
+            setLoading(true);
             // Use the existing PostCall function
             const response: CustomResponse = await PostCall(apiEndpoint, formData);
-
-            setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Rules imported successfully');
@@ -175,9 +167,9 @@ const MainRules = () => {
                 setAlert('error', response.message || 'File upload failed');
             }
         } catch (error) {
-            setIsDetailLoading(false);
-            console.error('An error occurred during file upload:', error);
             setAlert('error', 'An unexpected error occurred during file upload');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -298,6 +290,7 @@ const MainRules = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             if (!params) {
                 params = { limit: limit, page: page, sortBy: 'ruleSetId' };
             }
@@ -305,6 +298,7 @@ const MainRules = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
+            setLoading(true);
             const response = await GetCall(`company/rules-set?${queryString}`);
 
             setTotalRecords(response.total);
@@ -424,9 +418,9 @@ const MainRules = () => {
     };
 
     const onDelete = async () => {
-        setLoading(true);
         if (isAllDeleteDialogVisible) {
             try {
+                setLoading(true);
                 const response = await DeleteCall(`/company/rules`);
 
                 if (response.code === 'SUCCESS') {
@@ -445,6 +439,7 @@ const MainRules = () => {
         } else {
             if (selectedRuleSetId.ruleType === 'MAIN RULE') {
                 try {
+                    setLoading(true);
                     const response = await DeleteCall(`/company/rules-set/${selectedRuleSetId.ruleSetId}`);
 
                     if (response.code === 'SUCCESS') {
@@ -462,6 +457,7 @@ const MainRules = () => {
                 }
             } else {
                 try {
+                    setLoading(true);
                     const response = await DeleteCall(`/company/caparule-set/${selectedRuleSetId.ruleSetId}`);
 
                     if (response.code === 'SUCCESS') {
@@ -501,17 +497,17 @@ const MainRules = () => {
                                     <Dropdown className="mt-2" value={limit} options={limitOptions} onChange={onLimitChange} placeholder="Limit" style={{ width: '100px', height: '30px' }} />
                                 </div>
                                 <div className="flex  gap-2">
-                                <div>
-                                <Dropdown 
-                                    className="mt-2" 
-                                    value={selectedRuleType} 
-                                    options={ruleTypeOptions} 
-                                    onChange={onRuleTypeChange} 
-                                    placeholder="Select Rule Type" 
-                                    style={{ width: '150px', height: '30px' }} 
-                                    showClear={!!selectedRuleType}
-                                />
-                                </div>
+                                    <div>
+                                        <Dropdown
+                                            className="mt-2"
+                                            value={selectedRuleType}
+                                            options={ruleTypeOptions}
+                                            onChange={onRuleTypeChange}
+                                            placeholder="Select Rule Type"
+                                            style={{ width: '150px', height: '30px' }}
+                                            showClear={!!selectedRuleType}
+                                        />
+                                    </div>
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
@@ -582,38 +578,42 @@ const MainRules = () => {
                     </div>
                 </div>
 
-                <Dialog
-                    visible={bulkDialogVisible}
-                    onHide={() => setBulkDialogVisible(false)}
-                    header="Upload Summary"
-                    style={{ width: "600px" }}
-                >
+                <Dialog visible={bulkDialogVisible} onHide={() => setBulkDialogVisible(false)} header="Upload Summary" style={{ width: '600px' }}>
                     {responseData && (
                         <div>
-                            <p><strong>Inserted Count:</strong> {responseData.insertedCount}</p>
-                            <p><strong>Skipped Count:</strong> {responseData.skippedCount}</p>
+                            <p>
+                                <strong>Inserted Count:</strong> {responseData.insertedCount}
+                            </p>
+                            <p>
+                                <strong>Skipped Count:</strong> {responseData.skippedCount}
+                            </p>
                             <h4>Skipped Data:</h4>
                             {responseData.skippedData.length > 0 ? (
                                 <ul>
-                                    {responseData.skippedData.map((skipped: {
-                                        rule: {
-                                            departmentName: string;
-                                            categoryName: string;
-                                            subCategoryName: string;
-                                            effective_from: string;
-                                            criteriaEvaluation: any;
-                                        };
-                                        reason: string;
-                                    }, index: number) => (
-                                        <li key={index}>
-                                            <strong>Department Name:</strong> {skipped.rule?.departmentName || "N/A"} <br />
-                                            <strong>Category Name:</strong> {skipped.rule?.categoryName || "N/A"} <br />
-                                            <strong>SubCategory Name:</strong> {skipped.rule?.subCategoryName || "N/A"} <br />
-                                            <strong>Effective From:</strong> {skipped.rule?.effective_from || "N/A"} <br />
-                                            <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || "N/A"} <br />
-                                            <strong>Reason:</strong> {skipped.reason}
-                                        </li>
-                                    ))}
+                                    {responseData.skippedData.map(
+                                        (
+                                            skipped: {
+                                                rule: {
+                                                    departmentName: string;
+                                                    categoryName: string;
+                                                    subCategoryName: string;
+                                                    effective_from: string;
+                                                    criteriaEvaluation: any;
+                                                };
+                                                reason: string;
+                                            },
+                                            index: number
+                                        ) => (
+                                            <li key={index}>
+                                                <strong>Department Name:</strong> {skipped.rule?.departmentName || 'N/A'} <br />
+                                                <strong>Category Name:</strong> {skipped.rule?.categoryName || 'N/A'} <br />
+                                                <strong>SubCategory Name:</strong> {skipped.rule?.subCategoryName || 'N/A'} <br />
+                                                <strong>Effective From:</strong> {skipped.rule?.effective_from || 'N/A'} <br />
+                                                <strong>Criteria Evaluation:</strong> {skipped.rule?.criteriaEvaluation || 'N/A'} <br />
+                                                <strong>Reason:</strong> {skipped.reason}
+                                            </li>
+                                        )
+                                    )}
                                 </ul>
                             ) : (
                                 <p>No skipped data.</p>
@@ -623,22 +623,13 @@ const MainRules = () => {
                             <h4>Not Found Data:</h4>
                             <ul>
                                 <li>
-                                    <strong>Departments:</strong>{" "}
-                                    {responseData.missingDepartments.length > 0
-                                        ? responseData.missingDepartments.join(", ")
-                                        : "None"}
+                                    <strong>Departments:</strong> {responseData.missingDepartments.length > 0 ? responseData.missingDepartments.join(', ') : 'None'}
                                 </li>
                                 <li>
-                                    <strong>Categories:</strong>{" "}
-                                    {responseData.missingCategories.length > 0
-                                        ? responseData.missingCategories.join(", ")
-                                        : "None"}
+                                    <strong>Categories:</strong> {responseData.missingCategories.length > 0 ? responseData.missingCategories.join(', ') : 'None'}
                                 </li>
                                 <li>
-                                    <strong>SubCategories:</strong>{" "}
-                                    {responseData.missingSubCategories.length > 0
-                                        ? responseData.missingSubCategories.join(", ")
-                                        : "None"}
+                                    <strong>SubCategories:</strong> {responseData.missingSubCategories.length > 0 ? responseData.missingSubCategories.join(', ') : 'None'}
                                 </li>
                             </ul>
                         </div>

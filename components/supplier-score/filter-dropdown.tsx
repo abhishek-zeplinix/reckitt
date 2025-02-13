@@ -51,8 +51,6 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category }: a
         //         value: cat.categoryId,
         //     }));
 
-        //     console.log(mappedCategories);
-
         //     setCategoryOptions(mappedCategories);
         // }
     }, [departments, selectedDepartment]);

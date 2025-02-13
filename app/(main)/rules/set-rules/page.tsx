@@ -15,6 +15,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { ColumnBodyOptions } from 'primereact/column';
+import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {
     ADD: 'add',
@@ -47,16 +48,9 @@ const SetRulesPage = () => {
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const searchParams = useSearchParams();
-    const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
     const ruleSetId = searchParams.get('ruleSetId');
-
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
+    const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     // Handle limit change
     const onCategorychange = (e: any) => {
@@ -136,6 +130,7 @@ const SetRulesPage = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             if (!params) {
                 params = { limit: limit, page: page, include: 'subCategories,department,categories', sortOrder: 'asc' };
             }
@@ -143,8 +138,6 @@ const SetRulesPage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-
-            console.log(queryString);
 
             const response = await GetCall(`company/rules/${ruleSetId}?${queryString}`);
 
@@ -156,7 +149,6 @@ const SetRulesPage = () => {
             setLoading(false);
         }
     };
-    console.log('159',rules)
 
     const dataTableHeaderStyle = { fontSize: '12px' };
 
@@ -164,37 +156,56 @@ const SetRulesPage = () => {
         fetchData();
     }, []);
     const fetchprocurementCategories = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setprocurementCategories([]);
-            return;
-        }
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
+        try {
+            setLoading(true);
+            if (!categoryId) {
+                setprocurementCategories([]);
+                return;
+            }
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data);
+            } else {
+                setprocurementCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setCategories(response.data);
-        } else {
-            setCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setCategories(response.data);
+            } else {
+                setCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierDepartment = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSupplierDepartment(response.data);
-        } else {
-            setSupplierDepartment([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setSupplierDepartment(response.data);
+            } else {
+                setSupplierDepartment([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load department');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -261,40 +272,34 @@ const SetRulesPage = () => {
     };
 
     const onDelete = async () => {
-        setLoading(true)
-            try {
-                const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
+        try {
+            setLoading(true);
+            const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
-                if (response.code === 'SUCCESS') {
-                    setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
-                    closeDeleteDialog();
-                    setAlert('success', 'Rule successfully deleted!');
-                } else {
-                    setAlert('error', 'Something went wrong!');
-                    closeDeleteDialog();
-                }
-            } catch (error) {
+            if (response.code === 'SUCCESS') {
+                setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
+                closeDeleteDialog();
+                setAlert('success', 'Rule successfully deleted!');
+            } else {
                 setAlert('error', 'Something went wrong!');
-            } finally {
-                setLoading(false);
+                closeDeleteDialog();
             }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // const expandedData = rules.flatMap((item: any) => {
-    //     return item.criteriaEvaluation.map((criteria: string, index: number) => ({
-    //         ruleId: item.ruleId,
-    //         department: item?.department?.name,
-    //         category: item?.categories?.categoryName,
-    //         subCategories: item?.subCategories?.subCategoryName,
-    //         section: item.section,
-    //         ratedCriteria: item.ratedCriteria,
-    //         criteriaEvaluation: criteria,
-    //         score: item.score[index],
-    //         ratiosCopack: item.ratiosCopack,
-    //         ratiosRawpack: item.ratiosRawpack,
-    //         expandedRowId: `${item.ruleId}-${index}`
-    //     }));
-    // });
+    const openDialog = (item: React.SetStateAction<null>) => {
+        setSelectedRow(item);
+        setDialogVisible(true);
+    };
+
+    const closeDialog = () => {
+        setDialogVisible(false);
+        setSelectedRow(null);
+    };
 
     return (
         <div className="grid">
@@ -322,13 +327,17 @@ const SetRulesPage = () => {
                                 page={page}
                                 limit={limit}
                                 totalRecords={totalRecords}
-                                isDelete={true} 
+                                isDelete={true}
                                 extraButtons={(item) => [
                                     {
                                         icon: 'pi pi-user-edit',
                                         onClick: (e) => {
-                                            handleEditRules(ruleSetId, item.ruleId); 
+                                            handleEditRules(ruleSetId, item.ruleId);
                                         }
+                                    },
+                                    {
+                                        icon: 'pi pi-eye',
+                                        onClick: () => openDialog(item)
                                     }
                                 ]}
                                 data={rules}
@@ -373,71 +382,71 @@ const SetRulesPage = () => {
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
-                                    {
-                                        header: 'CRITERIA EVALUATION',
-                                        field: 'criteriaEvaluation',
-                                        body: (data: any, options: ColumnBodyOptions) => {
-                                          const rowIndex = options.rowIndex;
-                                          const isExpanded = expandedRows[rowIndex] || false;
-                                      
-                                          if (!Array.isArray(data.criteriaEvaluation)) return null; // Ensure it's an array
-                                      
-                                          const joinedText = data.criteriaEvaluation.join(', '); // Join array values
-                                          const words = joinedText.split(' ');
-                                          const isLongText = words.length > 5;
-                                          const displayText = isExpanded ? joinedText : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-                                      
-                                          const toggleExpand = () => {
-                                            setExpandedRows((prev) => ({
-                                              ...prev,
-                                              [rowIndex]: !isExpanded
-                                            }));
-                                          };
-                                      
-                                          return (
-                                            <span>
-                                              {displayText}
-                                              {isLongText && (
-                                                <button
-                                                  onClick={toggleExpand}
-                                                  style={{
-                                                    color: 'red',
-                                                    cursor: 'pointer',
-                                                    border: 'none',
-                                                    background: 'none',
-                                                    marginLeft: '5px',
-                                                    fontSize: '10px'
-                                                  }}
-                                                >
-                                                  {isExpanded ? 'Read Less' : 'Read More'}
-                                                </button>
-                                              )}
-                                            </span>
-                                          );
-                                        },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                      },
-                                      {
-                                        header: 'CRITERIA SCORE',
-                                        field: 'score',
-                                        body: (data: any) => {
-                                          if (!Array.isArray(data.score)) return null; // Ensure it's an array
-                                      
-                                          return (
-                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
-                                              {data.score.map((value: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
-                                                <span key={index} style={{ padding: '2px 5px', border: '1px solid #ccc', borderRadius: '4px' }}>
-                                                  {value}
-                                                </span>
-                                              ))}
-                                            </div>
-                                          );
-                                        },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
-                                        headerStyle: dataTableHeaderStyle
-                                      },
-                                      
+                                    // {
+                                    //     header: 'CRITERIA EVALUATION',
+                                    //     field: 'criteriaEvaluation',
+                                    //     body: (data: any, options: ColumnBodyOptions) => {
+                                    //       const rowIndex = options.rowIndex;
+                                    //       const isExpanded = expandedRows[rowIndex] || false;
+
+                                    //       if (!Array.isArray(data.criteriaEvaluation)) return null; // Ensure it's an array
+
+                                    //       const joinedText = data.criteriaEvaluation.join(', '); // Join array values
+                                    //       const words = joinedText.split(' ');
+                                    //       const isLongText = words.length > 5;
+                                    //       const displayText = isExpanded ? joinedText : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+
+                                    //       const toggleExpand = () => {
+                                    //         setExpandedRows((prev) => ({
+                                    //           ...prev,
+                                    //           [rowIndex]: !isExpanded
+                                    //         }));
+                                    //       };
+
+                                    //       return (
+                                    //         <span>
+                                    //           {displayText}
+                                    //           {isLongText && (
+                                    //             <button
+                                    //               onClick={toggleExpand}
+                                    //               style={{
+                                    //                 color: 'red',
+                                    //                 cursor: 'pointer',
+                                    //                 border: 'none',
+                                    //                 background: 'none',
+                                    //                 marginLeft: '5px',
+                                    //                 fontSize: '10px'
+                                    //               }}
+                                    //             >
+                                    //               {isExpanded ? 'Read Less' : 'Read More'}
+                                    //             </button>
+                                    //           )}
+                                    //         </span>
+                                    //       );
+                                    //     },
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    //   },
+                                    //   {
+                                    //     header: 'CRITERIA SCORE',
+                                    //     field: 'score',
+                                    //     body: (data: any) => {
+                                    //       if (!Array.isArray(data.score)) return null; // Ensure it's an array
+
+                                    //       return (
+                                    //         <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
+                                    //           {data.score.map((value: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
+                                    //             <span key={index} style={{ padding: '2px 5px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                                    //               {value}
+                                    //             </span>
+                                    //           ))}
+                                    //         </div>
+                                    //       );
+                                    //     },
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    //   },
+
                                     {
                                         header: 'RATIOS COPACK (%)',
                                         field: 'ratiosCopack',
@@ -457,6 +466,19 @@ const SetRulesPage = () => {
                         </div>
                     </div>
                 </div>
+                <Dialog header="Criteria Evaluation & Score:" visible={dialogVisible} onHide={closeDialog} style={{ width: '500px' }}>
+                    {selectedRow && (
+                        <div>
+                            <ul>
+                                {selectedRow.criteriaEvaluation?.map((item: any, index: number) => (
+                                    <li key={index} className="mb-3">
+                                        {item} - <strong>{selectedRow.score?.[index] || 'N/A'}</strong>
+                                    </li>
+                                )) || <li>N/A</li>}
+                            </ul>
+                        </div>
+                    )}
+                </Dialog>
 
                 <Dialog
                     header="Delete confirmation"

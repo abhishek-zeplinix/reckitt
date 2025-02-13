@@ -40,9 +40,6 @@ const SupplierRatingPage = ({
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { supId, catId, subCatId, currentYear} = decodedParams;
-
-   
-    console.log(isSuperAdmin());
     
     const categoriesMap: any = {
         'raw & pack': 'ratiosRawpack',
@@ -139,8 +136,6 @@ const SupplierRatingPage = ({
 
                 // Check if supplier has been evaluated for the selected department
                 const isDepartmentEvaluated = supplierDetails?.supplierScores?.some((score: any) => score.departmentId === selectedDepartment);
-                console.log(isDepartmentEvaluated);
-                console.log(supplierDetails?.isEvaluated);
 
 
                 if (supplierDetails?.isEvaluated && isDepartmentEvaluated) {
@@ -349,8 +344,6 @@ const SupplierRatingPage = ({
     };
 
     const renderSummoryInfo = summoryCards();
-
-    // // console.log(departments);
     // useEffect(() => {
     //     // Clear existing score data when period changes
     //     setSupplierScoreData(null);

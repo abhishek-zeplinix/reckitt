@@ -51,10 +51,6 @@ const Routes = () => {
             }
 
             const queryString = buildQueryParams(params);
-
-            console.log(queryString);
-            
-
             const response = await GetCall(`/settings/routes?${queryString}`);
 
             setRoutesList(response.data);
@@ -71,14 +67,9 @@ const Routes = () => {
 
         try {
             const response = await GetCall('/settings/permissions');
-
-            // Log the response to the console for debugging
-            console.log('Fetched Permissions Response:', response.data);
-
-            // Format the data into the structure expected by MultiSelect
             const formattedPermissions = response.data.map((permission: any) => ({
-                label: permission.permission, // Display the permission name
-                value: permission.permissionId // Use the permissionId as the value
+                label: permission.permission,
+                value: permission.permissionId 
             }));
 
             setPermissions(formattedPermissions); // Set the formatted data
@@ -93,7 +84,6 @@ const Routes = () => {
         try {
             setIsDetailLoading(true);
             const response = await GetCall(`settings/routes/${rId}`);
-            console.log('Fetched route permissions:', response.data);
             setSpecificRoutePermissions(response.data);
 
             // pre-select existing permissions in MultiSelect

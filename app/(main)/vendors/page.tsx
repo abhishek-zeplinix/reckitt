@@ -19,6 +19,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { RadioButton } from 'primereact/radiobutton';
 import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import { limitOptions } from '@/utils/constant';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -126,13 +128,6 @@ const ManageVendorsPage = () => {
         fetchsupplierCategories();
     }, []);
 
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
     // Handle limit change
     const onLimitChange = (e: any) => {
         setLimit(e.value); // Update limit
@@ -168,21 +163,26 @@ const ManageVendorsPage = () => {
     };
 
     const fetchData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSuppliers(response.data);
-
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: limit, page: page };
             }
-        } else {
-            setSuppliers([]);
+            setLoading(true);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+            if (response.code == 'SUCCESS') {
+                setSuppliers(response.data);
+
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setSuppliers([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
         }
     };
     const confirmDelete = async () => {
@@ -530,46 +530,51 @@ const ManageVendorsPage = () => {
                                         <div className="mt-2">{FieldGlobalSearch}</div>
                                     </div>
                                 </div>
-                                <CustomDataTable
-                                    className="mb-3"
-                                    ref={dataTableRef}
-                                    page={page}
-                                    limit={limit} // no of items per page
-                                    totalRecords={totalRecords} // total records from api response
-                                    isEdit={true} // show edit button
-                                    isDelete={true}
-                                    data={suppliers}
-                                    columns={[
-                                        {
-                                            header: 'Sr. No',
-                                            body: (data: any, options: any) => {
-                                                const srNo = (page - 1) * limit + options.rowIndex + 1 - (page - 1) * 10;
-                                                return <span>{srNo}</span>;
+
+                                {isLoading ? (
+                                    <TableSkeletonSimple />
+                                ) : (
+                                    <CustomDataTable
+                                        className="mb-3"
+                                        ref={dataTableRef}
+                                        page={page}
+                                        limit={limit} // no of items per page
+                                        totalRecords={totalRecords} // total records from api response
+                                        isEdit={true} // show edit button
+                                        isDelete={true}
+                                        data={suppliers}
+                                        columns={[
+                                            {
+                                                header: 'Sr. No',
+                                                body: (data: any, options: any) => {
+                                                    const srNo = (page - 1) * limit + options.rowIndex + 1 - (page - 1) * 10;
+                                                    return <span>{srNo}</span>;
+                                                },
+                                                bodyStyle: { minWidth: 50, maxWidth: 50 }
                                             },
-                                            bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                        },
-                                        {
-                                            header: 'Name',
-                                            field: 'supplierName',
-                                            style: { minWidth: 150 }
-                                        },
+                                            {
+                                                header: 'Name',
+                                                field: 'supplierName',
+                                                style: { minWidth: 150 }
+                                            },
 
-                                        {
-                                            header: 'Email',
-                                            field: 'email',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
-                                        },
+                                            {
+                                                header: 'Email',
+                                                field: 'email',
+                                                bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                            },
 
-                                        {
-                                            header: 'Mobile',
-                                            field: 'Zip',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        }
-                                    ]}
-                                    rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
-                                    onLoad={(params: any) => fetchData(params)}
-                                    onEdit={(item: any) => onRowSelect(item, 'edit')}
-                                />
+                                            {
+                                                header: 'Mobile',
+                                                field: 'Zip',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            }
+                                        ]}
+                                        rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
+                                        onLoad={(params: any) => fetchData(params)}
+                                        onEdit={(item: any) => onRowSelect(item, 'edit')}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>

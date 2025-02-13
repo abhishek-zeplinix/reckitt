@@ -31,7 +31,6 @@ const ManageFeedbackPage = () => {
     const [periodOptions, setPeriodOptions] = useState<Array<{ label: string; value: string }>>([]);
     const [selectedStatus, setSelectedStatus] = useState('');
 
-
     const { isLoading, setLoading, setAlert, user } = useAppContext();
     const { isSupplier } = useAuth();
     const router = useRouter();
@@ -116,7 +115,6 @@ const ManageFeedbackPage = () => {
             }
         } catch (error) {
             setAlert('error', 'Something went wrong!');
-            console.error('Error fetching data:', error);
         } finally {
             setLoading(false);
         }
@@ -137,13 +135,7 @@ const ManageFeedbackPage = () => {
 
         return (
             <div className="flex gap-2">
-                <Button 
-                    icon="pi pi-eye" 
-                    className="p-button-rounded p-button-sm" 
-                    tooltip="View Feedback" 
-                    tooltipOptions={{ position: 'top' }} 
-                    onClick={navigateToFeedback} 
-                />
+                <Button icon="pi pi-eye" className="p-button-rounded p-button-sm" tooltip="View Feedback" tooltipOptions={{ position: 'top' }} onClick={navigateToFeedback} />
             </div>
         );
     };
@@ -152,12 +144,10 @@ const ManageFeedbackPage = () => {
         const departmentId = e.value;
         setSelectedDepartment(departmentId);
         setSelectedPeriod(''); // Reset period when department changes
-        
+
         if (departmentId) {
-            const selectedDept: any = departments.find(
-                (dept: Department) => dept.departmentId === departmentId
-            );
-            
+            const selectedDept: any = departments.find((dept: Department) => dept.departmentId === departmentId);
+
             if (selectedDept) {
                 const options = getPeriodOptions(selectedDept.evolutionType, currentYear);
                 setPeriodOptions(options);
@@ -167,7 +157,7 @@ const ManageFeedbackPage = () => {
         } else {
             setPeriodOptions([]);
         }
-        
+
         fetchData({
             limit,
             page,
@@ -177,11 +167,10 @@ const ManageFeedbackPage = () => {
         });
     };
 
-    
     const onPeriodChange = (e: any) => {
         const period = e.value;
         setSelectedPeriod(period);
-        
+
         fetchData({
             limit,
             page,
@@ -195,7 +184,7 @@ const ManageFeedbackPage = () => {
     const onStatusChange = (e: any) => {
         const status = e.value;
         setSelectedStatus(status);
-        
+
         fetchData({
             limit,
             page,
@@ -207,7 +196,6 @@ const ManageFeedbackPage = () => {
         });
     };
 
-
     const renderHeader = () => (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left flex align-items-center">
@@ -217,40 +205,14 @@ const ManageFeedbackPage = () => {
     );
 
     const dropdownMenuDepartment = () => (
-        <Dropdown
-            value={selectedDepartment}
-            onChange={onDepartmentChange}
-            options={departments}
-            optionValue="departmentId"
-            placeholder="Select Department"
-            optionLabel="name"
-            className="w-full md:w-10rem"
-            showClear={!!selectedDepartment}
-        />
+        <Dropdown value={selectedDepartment} onChange={onDepartmentChange} options={departments} optionValue="departmentId" placeholder="Select Department" optionLabel="name" className="w-full md:w-10rem" showClear={!!selectedDepartment} />
     );
 
     const dropdownMenuPeriod = () => (
-        <Dropdown
-            value={selectedPeriod}
-            onChange={onPeriodChange}
-            options={periodOptions}
-            placeholder="Select Period"
-            className="w-full md:w-10rem"
-            showClear={!!selectedPeriod}
-            disabled={!selectedDepartment || periodOptions.length === 0}
-        />
+        <Dropdown value={selectedPeriod} onChange={onPeriodChange} options={periodOptions} placeholder="Select Period" className="w-full md:w-10rem" showClear={!!selectedPeriod} disabled={!selectedDepartment || periodOptions.length === 0} />
     );
 
-    const dropdownMenuStatus = () => (
-        <Dropdown
-            value={selectedStatus}
-            onChange={onStatusChange}
-            options={STATUS_OPTIONS}
-            placeholder="Select Status"
-            className="w-full md:w-10rem"
-            showClear={!!selectedStatus}
-        />
-    );
+    const dropdownMenuStatus = () => <Dropdown value={selectedStatus} onChange={onStatusChange} options={STATUS_OPTIONS} placeholder="Select Status" className="w-full md:w-10rem" showClear={!!selectedStatus} />;
 
     return (
         <div className="grid">
@@ -301,13 +263,13 @@ const ManageFeedbackPage = () => {
                                             header: 'Supplier Name',
                                             field: 'supplierName',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            headerStyle: dataTableHeaderStyle,
+                                            headerStyle: dataTableHeaderStyle
                                         },
                                         {
                                             header: 'Department Name',
                                             field: 'departmentName',
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            headerStyle: dataTableHeaderStyle,
+                                            headerStyle: dataTableHeaderStyle
                                         },
                                         {
                                             header: 'Period',

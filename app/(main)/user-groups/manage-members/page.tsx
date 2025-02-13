@@ -18,6 +18,7 @@ import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 import { ColumnBodyOptions } from 'primereact/column';
+import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {
     ADD: 'add',
@@ -55,14 +56,6 @@ const ManageMembersPage = () => {
     // const [isValid, setIsValid] = useState(true);
     // const { loader } = useLoaderContext();
     // const { loader, setLoader } = useLoaderContext();
-
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
 
     const membersOptions = [
         {
@@ -304,9 +297,6 @@ const ManageMembersPage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-
-            console.log(queryString);
-
             const response = await GetCall(`company/rules/${memberId}?${queryString}`);
 
             setTotalRecords(response.total);

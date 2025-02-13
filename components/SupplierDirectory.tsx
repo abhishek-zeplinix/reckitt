@@ -50,8 +50,6 @@ const SupplierDirectory = () => {
         setLoading(false);
         if (response.code == 'SUCCESS') {
             setSuppliers(response.data);
-            console.log('46', response.data);
-
             if (response.total) {
                 setTotalRecords(response?.total);
             }
@@ -85,7 +83,6 @@ const SupplierDirectory = () => {
         }
     };
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
-        console.log('supplier id-->', supId, 'cat id -->', catId, 'sub cat id -->', subCatId, 'Abhishek');
 
         const params: any = { supId, catId, subCatId };
 

@@ -29,7 +29,6 @@ const ForgotPasswordPage = () => {
             const response: any = await PostCall('/auth/forgot-password', { email });
             setLoading(false);
             if (response.code == 'SUCCESS') {
-                console.log('reset password email sent');
                 setAlert('success', 'Password reset email sent successfully!');
             } else {
                 setAlert('error', response.message);

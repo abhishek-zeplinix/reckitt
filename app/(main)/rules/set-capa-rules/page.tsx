@@ -18,6 +18,7 @@ import { FileUpload } from 'primereact/fileupload';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 import { ColumnBodyOptions } from 'primereact/column';
+import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {
     ADD: 'add',
@@ -55,17 +56,11 @@ const ManageCapaRulesPage = () => {
     const searchParams = useSearchParams();
     const ruleSetId = searchParams.get('ruleSetId');
     const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
+    const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
     const handleCreateNavigation = () => {
         router.push(`/rules/set-capa-rules/create-new-capa-rules?ruleSetId=${ruleSetId}`); // Replace with the route you want to navigate to
     };
-
-    const limitOptions = [
-        { label: '10', value: 10 },
-        { label: '20', value: 20 },
-        { label: '50', value: 50 },
-        { label: '70', value: 70 },
-        { label: '100', value: 100 }
-    ];
 
     // Handle limit change
     const onCategorychange = (e: any) => {
@@ -146,12 +141,10 @@ const ManageCapaRulesPage = () => {
             formData.append('effectiveFrom', formatDate(date)); // Format the date as DD-MM-YYYY
         }
 
-        setIsDetailLoading(true);
         try {
+            setLoading(true);
             // Use the existing PostCall function
             const response: CustomResponse = await PostCall('/company/caparule/bulkadd', formData);
-
-            setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Capa Rules imported successfully');
@@ -161,9 +154,9 @@ const ManageCapaRulesPage = () => {
                 setAlert('error', response.message || 'File upload failed');
             }
         } catch (error) {
-            setIsDetailLoading(false);
-            console.error('An error occurred during file upload:', error);
             setAlert('error', 'An unexpected error occurred during file upload');
+        } finally {
+            setLoading(false);
         }
     };
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -271,6 +264,7 @@ const ManageCapaRulesPage = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             if (!params) {
                 params = { limit: limit, page: page, include: 'subCategories', sortOrder: 'asc' };
             }
@@ -278,8 +272,6 @@ const ManageCapaRulesPage = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-            console.log(queryString, 'abhi');
-
             const response = await GetCall(`company/caparule-set/${ruleSetId}?${queryString}`);
 
             setTotalRecords(response.total);
@@ -294,37 +286,55 @@ const ManageCapaRulesPage = () => {
     const dataTableHeaderStyle = { fontSize: '12px' };
 
     const fetchprocurementCategories = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setprocurementCategories([]); // Clear subcategories if no category is selected
-            return;
-        }
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
+        try {
+            setLoading(true);
+            if (!categoryId) {
+                setprocurementCategories([]); // Clear subcategories if no category is selected
+                return;
+            }
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
+
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data);
+            } else {
+                setprocurementCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setCategories(response.data);
-        } else {
-            setCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setCategories(response.data);
+            } else {
+                setCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierDepartment = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSupplierDepartment(response.data);
-        } else {
-            setSupplierDepartment([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setSupplierDepartment(response.data);
+            } else {
+                setSupplierDepartment([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load department');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -399,6 +409,7 @@ const ManageCapaRulesPage = () => {
         setLoading(true);
         if (isAllDeleteDialogVisible) {
             try {
+                setLoading(true);
                 const response = await DeleteCall(`/company/caparule&ruleSetId=${ruleSetId}`);
 
                 if (response.code === 'SUCCESS') {
@@ -416,6 +427,7 @@ const ManageCapaRulesPage = () => {
             }
         } else {
             try {
+                setLoading(true);
                 const response = await DeleteCall(`/company/caparule/${selectedRuleId}`);
 
                 if (response.code === 'SUCCESS') {
@@ -455,24 +467,16 @@ const ManageCapaRulesPage = () => {
     //         setLoading(false);
     //     }
     // };
-    console.log('456',rules)
-    const expandedData = rules.flatMap((item: any) => {
-        // Create a row for each criteriaEvaluation and score pair
-        return item.status.map((criteria: string, index: number) => ({
-            capaRuleId: item.capaRuleId,
-            department: item?.department?.name,
-            category: item?.category?.categoryName,
-            subCategories: item?.subCategory?.subCategoryName,
-            capaRulesName: item.capaRulesName,
-            effectiveFrom: item.effectiveFrom,
-            status: criteria,
-            // score: item.score[index],
-            // ratiosCopack: item.ratiosCopack,
-            // ratiosRawpack: item.ratiosRawpack,
-            // add a unique identifier for each expanded row
-            expandedRowId: `${item.capaRuleId}-${index}`
-        }));
-    });
+
+    const openDialog = (item: React.SetStateAction<null>) => {
+        setSelectedRow(item);
+        setDialogVisible(true);
+    };
+
+    const closeDialog = () => {
+        setDialogVisible(false);
+        setSelectedRow(null);
+    };
 
     return (
         <div className="grid">
@@ -510,9 +514,13 @@ const ManageCapaRulesPage = () => {
                                         onClick: (e) => {
                                             handleEditRules(ruleSetId, item.capaRuleId); // Pass the userId from the row data
                                         }
+                                    },
+                                    {
+                                        icon: 'pi pi-eye',
+                                        onClick: () => openDialog(item)
                                     }
                                 ]}
-                                data={expandedData}
+                                data={rules}
                                 columns={[
                                     {
                                         header: 'Sr. No',
@@ -526,14 +534,14 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'DEPARTMENT ',
-                                        field: 'department',
+                                        field: 'department.name',
                                         // filter: true,
                                         bodyStyle: { minWidth: 100, maxWidth: 100 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'PROCUREMENT CATEGORY',
-                                        field: 'category',
+                                        field: 'category.categoryName',
                                         // sortable: true,
                                         // filter: true,
                                         filterPlaceholder: 'Supplier Name',
@@ -542,7 +550,7 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'SUB CATEGORY',
-                                        field: 'subCategories',
+                                        field: 'subCategory.subCategoryName',
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 180, maxWidth: 180 }
                                     },
@@ -562,29 +570,26 @@ const ManageCapaRulesPage = () => {
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'capaRulesName',
-                                        body: (data: any, options: ColumnBodyOptions) => { 
-                                            const rowIndex = options.rowIndex; 
+                                        body: (data: any, options: ColumnBodyOptions) => {
+                                            const rowIndex = options.rowIndex;
                                             const isExpanded = expandedRows[rowIndex] || false;
-                                                            
+
                                             const words = data.capaRulesName.split(' ');
                                             const isLongText = words.length > 5;
                                             const displayText = isExpanded ? data.capaRulesName : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-                                                            
+
                                             const toggleExpand = () => {
                                                 setExpandedRows((prev) => ({
                                                     ...prev,
-                                                    [rowIndex]: !isExpanded,
+                                                    [rowIndex]: !isExpanded
                                                 }));
                                             };
-                                                            
+
                                             return (
                                                 <span>
                                                     {displayText}
                                                     {isLongText && (
-                                                        <button 
-                                                            onClick={toggleExpand} 
-                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
-                                                        >
+                                                        <button onClick={toggleExpand} style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px', fontSize: '10px' }}>
                                                             {isExpanded ? 'Read Less' : 'Read More'}
                                                         </button>
                                                     )}
@@ -593,43 +598,43 @@ const ManageCapaRulesPage = () => {
                                         },
                                         bodyStyle: { minWidth: 300, maxWidth: 300 },
                                         headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'CRITERIA',
-                                        field: 'status',
-                                        body: (data: any, options: ColumnBodyOptions) => { 
-                                            const rowIndex = options.rowIndex; 
-                                            const isExpanded = expandedRows[rowIndex] || false;
-                    
-                                            const words = data.status.split(' ');
-                                            const isLongText = words.length > 5;
-                                            const displayText = isExpanded ? data.status : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
-                    
-                                            const toggleExpand = () => {
-                                                setExpandedRows((prev) => ({
-                                                    ...prev,
-                                                    [rowIndex]: !isExpanded,
-                                                }));
-                                            };
-                    
-                                            return (
-                                                <span>
-                                                    {displayText}
-                                                    {isLongText && (
-                                                        <button 
-                                                            onClick={toggleExpand} 
-                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
-                                                        >
-                                                            {isExpanded ? 'Read Less' : 'Read More'}
-                                                        </button>
-                                                    )}
-                                                </span>
-                                            );
-                                        },
-                                        filterPlaceholder: 'Search Supplier Category',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
                                     }
+                                    // {
+                                    //     header: 'CRITERIA',
+                                    //     field: 'status',
+                                    //     body: (data: any, options: ColumnBodyOptions) => {
+                                    //         const rowIndex = options.rowIndex;
+                                    //         const isExpanded = expandedRows[rowIndex] || false;
+
+                                    //         const words = data.status.split(' ');
+                                    //         const isLongText = words.length > 5;
+                                    //         const displayText = isExpanded ? data.status : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+
+                                    //         const toggleExpand = () => {
+                                    //             setExpandedRows((prev) => ({
+                                    //                 ...prev,
+                                    //                 [rowIndex]: !isExpanded,
+                                    //             }));
+                                    //         };
+
+                                    //         return (
+                                    //             <span>
+                                    //                 {displayText}
+                                    //                 {isLongText && (
+                                    //                     <button
+                                    //                         onClick={toggleExpand}
+                                    //                         style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
+                                    //                     >
+                                    //                         {isExpanded ? 'Read Less' : 'Read More'}
+                                    //                     </button>
+                                    //                 )}
+                                    //             </span>
+                                    //         );
+                                    //     },
+                                    //     filterPlaceholder: 'Search Supplier Category',
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    // }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
@@ -637,6 +642,19 @@ const ManageCapaRulesPage = () => {
                         </div>
                     </div>
                 </div>
+                <Dialog header="Criteria Evaluation & Score:" visible={dialogVisible} onHide={closeDialog} style={{ width: '500px' }}>
+                    {selectedRow && (
+                        <div>
+                            <ul>
+                                {selectedRow.status?.map((item: any, index: number) => (
+                                    <li key={index} className="mb-3">
+                                        {item}
+                                    </li>
+                                )) || <li>N/A</li>}
+                            </ul>
+                        </div>
+                    )}
+                </Dialog>
 
                 <Dialog
                     header="Delete confirmation"

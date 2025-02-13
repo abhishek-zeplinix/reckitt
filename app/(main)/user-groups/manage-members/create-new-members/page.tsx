@@ -98,8 +98,6 @@ const CreateNewMembersPage = () => {
             ratiosCopack: selectedratiosCopack || ''
         }));
     };
-    console.log('117', fields);
-    // Update common fields when they change
     useEffect(() => {
         updateCommonFields();
     }, [date, selectedProcurementDepartment, orderBy, selectedsection, selectedProcurementCategory, selectedSupplierCategory, selectedCriteria, selectedratiosRawpack, selectedratiosCopack]);
@@ -107,7 +105,7 @@ const CreateNewMembersPage = () => {
     const handleAddFields = () => {
         // Access the latest state before updating
         if (fields.criteriaEvaluation.length === 0 || fields.score.length === 0 || fields.criteriaEvaluation[fields.criteriaEvaluation.length - 1].trim() === '' || fields.score[fields.score.length - 1].trim() === '') {
-            setAlert('Error', 'Please fill in the previous field before adding a new one.');
+            setAlert('error', 'Please fill in the previous field before adding a new one.');
             return;
         }
 

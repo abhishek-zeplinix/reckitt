@@ -103,7 +103,7 @@ const Dashboard = () => {
                 setTilesData([]);
             }
         } catch (e) {
-            setAlert('Error', 'Something went wrong');
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -127,7 +127,7 @@ const Dashboard = () => {
                 setTopSupplierData([]);
             }
         } catch (e) {
-            setAlert('Error', 'Something went wrong');
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -142,7 +142,6 @@ const Dashboard = () => {
             const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
             if (response.code == 'SUCCESS') {
                 setBottomSupplierData(response.data);
-                console.log(response.data, '83');
 
                 if (response.total) {
                     setTotalRecords(response?.total);
@@ -151,7 +150,7 @@ const Dashboard = () => {
                 setBottomSupplierData([]);
             }
         } catch (e) {
-            setAlert('Error', 'Something went wrong');
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }

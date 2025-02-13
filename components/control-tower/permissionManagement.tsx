@@ -90,11 +90,6 @@ const PermissionManagement = () => {
 
         try {
             const response = await GetCall('/settings/permissions');
-
-            // Log the response to the console for debugging
-            console.log('Fetched Permissions Response:', response);
-
-            // Format the data into the structure expected by MultiSelect
             const formattedPermissions = response.data.map((permission: any) => ({
                 label: permission.permission, // Display the permission name
                 value: permission.permissionId // Use the permissionId as the value
@@ -110,7 +105,7 @@ const PermissionManagement = () => {
 
     const handlePermissionSubmit = async () => {
         if (!module || !permissionData || !description) {
-            setAlert('Error', 'Please select all feilds');
+            setAlert('error', 'Please select all feilds');
             return;
         }
 
@@ -160,7 +155,6 @@ const PermissionManagement = () => {
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
             setSelectedPermissionId(perm.permissionId);
-            console.log(selectedRoleId, 'Abhishek');
         }
     };
     return (
