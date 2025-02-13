@@ -47,8 +47,9 @@ const SetRulesPage = () => {
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const searchParams = useSearchParams();
-    const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
     const ruleSetId = searchParams.get('ruleSetId');
+    const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     const limitOptions = [
         { label: '10', value: 10 },
@@ -295,6 +296,15 @@ const SetRulesPage = () => {
     //         expandedRowId: `${item.ruleId}-${index}`
     //     }));
     // });
+    const openDialog = (item: React.SetStateAction<null>) => {
+        setSelectedRow(item);
+        setDialogVisible(true);
+    };
+    
+    const closeDialog = () => {
+        setDialogVisible(false);
+        setSelectedRow(null);
+    };
 
     return (
         <div className="grid">
@@ -329,6 +339,10 @@ const SetRulesPage = () => {
                                         onClick: (e) => {
                                             handleEditRules(ruleSetId, item.ruleId); 
                                         }
+                                    },
+                                    {
+                                        icon: 'pi pi-eye',
+                                        onClick: () => openDialog(item)
                                     }
                                 ]}
                                 data={rules}
@@ -373,70 +387,70 @@ const SetRulesPage = () => {
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
-                                    {
-                                        header: 'CRITERIA EVALUATION',
-                                        field: 'criteriaEvaluation',
-                                        body: (data: any, options: ColumnBodyOptions) => {
-                                          const rowIndex = options.rowIndex;
-                                          const isExpanded = expandedRows[rowIndex] || false;
+                                    // {
+                                    //     header: 'CRITERIA EVALUATION',
+                                    //     field: 'criteriaEvaluation',
+                                    //     body: (data: any, options: ColumnBodyOptions) => {
+                                    //       const rowIndex = options.rowIndex;
+                                    //       const isExpanded = expandedRows[rowIndex] || false;
                                       
-                                          if (!Array.isArray(data.criteriaEvaluation)) return null; // Ensure it's an array
+                                    //       if (!Array.isArray(data.criteriaEvaluation)) return null; // Ensure it's an array
                                       
-                                          const joinedText = data.criteriaEvaluation.join(', '); // Join array values
-                                          const words = joinedText.split(' ');
-                                          const isLongText = words.length > 5;
-                                          const displayText = isExpanded ? joinedText : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                                    //       const joinedText = data.criteriaEvaluation.join(', '); // Join array values
+                                    //       const words = joinedText.split(' ');
+                                    //       const isLongText = words.length > 5;
+                                    //       const displayText = isExpanded ? joinedText : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
                                       
-                                          const toggleExpand = () => {
-                                            setExpandedRows((prev) => ({
-                                              ...prev,
-                                              [rowIndex]: !isExpanded
-                                            }));
-                                          };
+                                    //       const toggleExpand = () => {
+                                    //         setExpandedRows((prev) => ({
+                                    //           ...prev,
+                                    //           [rowIndex]: !isExpanded
+                                    //         }));
+                                    //       };
                                       
-                                          return (
-                                            <span>
-                                              {displayText}
-                                              {isLongText && (
-                                                <button
-                                                  onClick={toggleExpand}
-                                                  style={{
-                                                    color: 'red',
-                                                    cursor: 'pointer',
-                                                    border: 'none',
-                                                    background: 'none',
-                                                    marginLeft: '5px',
-                                                    fontSize: '10px'
-                                                  }}
-                                                >
-                                                  {isExpanded ? 'Read Less' : 'Read More'}
-                                                </button>
-                                              )}
-                                            </span>
-                                          );
-                                        },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                      },
-                                      {
-                                        header: 'CRITERIA SCORE',
-                                        field: 'score',
-                                        body: (data: any) => {
-                                          if (!Array.isArray(data.score)) return null; // Ensure it's an array
+                                    //       return (
+                                    //         <span>
+                                    //           {displayText}
+                                    //           {isLongText && (
+                                    //             <button
+                                    //               onClick={toggleExpand}
+                                    //               style={{
+                                    //                 color: 'red',
+                                    //                 cursor: 'pointer',
+                                    //                 border: 'none',
+                                    //                 background: 'none',
+                                    //                 marginLeft: '5px',
+                                    //                 fontSize: '10px'
+                                    //               }}
+                                    //             >
+                                    //               {isExpanded ? 'Read Less' : 'Read More'}
+                                    //             </button>
+                                    //           )}
+                                    //         </span>
+                                    //       );
+                                    //     },
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    //   },
+                                    //   {
+                                    //     header: 'CRITERIA SCORE',
+                                    //     field: 'score',
+                                    //     body: (data: any) => {
+                                    //       if (!Array.isArray(data.score)) return null; // Ensure it's an array
                                       
-                                          return (
-                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
-                                              {data.score.map((value: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
-                                                <span key={index} style={{ padding: '2px 5px', border: '1px solid #ccc', borderRadius: '4px' }}>
-                                                  {value}
-                                                </span>
-                                              ))}
-                                            </div>
-                                          );
-                                        },
-                                        bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
-                                        headerStyle: dataTableHeaderStyle
-                                      },
+                                    //       return (
+                                    //         <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
+                                    //           {data.score.map((value: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined, index: React.Key | null | undefined) => (
+                                    //             <span key={index} style={{ padding: '2px 5px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                                    //               {value}
+                                    //             </span>
+                                    //           ))}
+                                    //         </div>
+                                    //       );
+                                    //     },
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150, textAlign: 'center' },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    //   },
                                       
                                     {
                                         header: 'RATIOS COPACK (%)',
@@ -457,6 +471,20 @@ const SetRulesPage = () => {
                         </div>
                     </div>
                 </div>
+            <Dialog header="Criteria Evaluation & Score:" visible={dialogVisible} onHide={closeDialog} style={{ width: '500px' }}>
+                {selectedRow && (
+                    <div>
+                        <ul>
+                            {selectedRow.criteriaEvaluation?.map((item: any, index: number) => (
+                                <li key={index} className="mb-3">
+                                    {item} - <strong>{selectedRow.score?.[index] || 'N/A'}</strong>
+                                </li>
+                            )) || <li>N/A</li>}
+                        </ul>
+                    </div>
+                )}
+            </Dialog>
+
 
                 <Dialog
                     header="Delete confirmation"

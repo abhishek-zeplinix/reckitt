@@ -305,6 +305,7 @@ const MainRules = () => {
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
+            setLoading(true);
             const response = await GetCall(`company/rules-set?${queryString}`);
 
             setTotalRecords(response.total);

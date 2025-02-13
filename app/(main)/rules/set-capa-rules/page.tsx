@@ -55,6 +55,8 @@ const ManageCapaRulesPage = () => {
     const searchParams = useSearchParams();
     const ruleSetId = searchParams.get('ruleSetId');
     const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
+    const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
     const handleCreateNavigation = () => {
         router.push(`/rules/set-capa-rules/create-new-capa-rules?ruleSetId=${ruleSetId}`); // Replace with the route you want to navigate to
     };
@@ -455,7 +457,6 @@ const ManageCapaRulesPage = () => {
     //         setLoading(false);
     //     }
     // };
-    console.log('456',rules)
     const expandedData = rules.flatMap((item: any) => {
         // Create a row for each criteriaEvaluation and score pair
         return item.status.map((criteria: string, index: number) => ({
@@ -473,6 +474,16 @@ const ManageCapaRulesPage = () => {
             expandedRowId: `${item.capaRuleId}-${index}`
         }));
     });
+     const openDialog = (item: React.SetStateAction<null>) => {
+            setSelectedRow(item);
+            setDialogVisible(true);
+        };
+        
+        const closeDialog = () => {
+            setDialogVisible(false);
+            setSelectedRow(null);
+        };
+    
 
     return (
         <div className="grid">
@@ -510,9 +521,13 @@ const ManageCapaRulesPage = () => {
                                         onClick: (e) => {
                                             handleEditRules(ruleSetId, item.capaRuleId); // Pass the userId from the row data
                                         }
+                                    },
+                                    {
+                                        icon: 'pi pi-eye',
+                                        onClick: () => openDialog(item)
                                     }
                                 ]}
-                                data={expandedData}
+                                data={rules}
                                 columns={[
                                     {
                                         header: 'Sr. No',
@@ -526,14 +541,14 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'DEPARTMENT ',
-                                        field: 'department',
+                                        field: 'department.name',
                                         // filter: true,
                                         bodyStyle: { minWidth: 100, maxWidth: 100 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
                                         header: 'PROCUREMENT CATEGORY',
-                                        field: 'category',
+                                        field: 'category.categoryName',
                                         // sortable: true,
                                         // filter: true,
                                         filterPlaceholder: 'Supplier Name',
@@ -542,7 +557,7 @@ const ManageCapaRulesPage = () => {
                                     },
                                     {
                                         header: 'SUB CATEGORY',
-                                        field: 'subCategories',
+                                        field: 'subCategory.subCategoryName',
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 180, maxWidth: 180 }
                                     },
@@ -594,42 +609,42 @@ const ManageCapaRulesPage = () => {
                                         bodyStyle: { minWidth: 300, maxWidth: 300 },
                                         headerStyle: dataTableHeaderStyle
                                     },
-                                    {
-                                        header: 'CRITERIA',
-                                        field: 'status',
-                                        body: (data: any, options: ColumnBodyOptions) => { 
-                                            const rowIndex = options.rowIndex; 
-                                            const isExpanded = expandedRows[rowIndex] || false;
+                                    // {
+                                    //     header: 'CRITERIA',
+                                    //     field: 'status',
+                                    //     body: (data: any, options: ColumnBodyOptions) => { 
+                                    //         const rowIndex = options.rowIndex; 
+                                    //         const isExpanded = expandedRows[rowIndex] || false;
                     
-                                            const words = data.status.split(' ');
-                                            const isLongText = words.length > 5;
-                                            const displayText = isExpanded ? data.status : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                                    //         const words = data.status.split(' ');
+                                    //         const isLongText = words.length > 5;
+                                    //         const displayText = isExpanded ? data.status : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
                     
-                                            const toggleExpand = () => {
-                                                setExpandedRows((prev) => ({
-                                                    ...prev,
-                                                    [rowIndex]: !isExpanded,
-                                                }));
-                                            };
+                                    //         const toggleExpand = () => {
+                                    //             setExpandedRows((prev) => ({
+                                    //                 ...prev,
+                                    //                 [rowIndex]: !isExpanded,
+                                    //             }));
+                                    //         };
                     
-                                            return (
-                                                <span>
-                                                    {displayText}
-                                                    {isLongText && (
-                                                        <button 
-                                                            onClick={toggleExpand} 
-                                                            style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
-                                                        >
-                                                            {isExpanded ? 'Read Less' : 'Read More'}
-                                                        </button>
-                                                    )}
-                                                </span>
-                                            );
-                                        },
-                                        filterPlaceholder: 'Search Supplier Category',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    }
+                                    //         return (
+                                    //             <span>
+                                    //                 {displayText}
+                                    //                 {isLongText && (
+                                    //                     <button 
+                                    //                         onClick={toggleExpand} 
+                                    //                         style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px',fontSize:'10px' }}
+                                    //                     >
+                                    //                         {isExpanded ? 'Read Less' : 'Read More'}
+                                    //                     </button>
+                                    //                 )}
+                                    //             </span>
+                                    //         );
+                                    //     },
+                                    //     filterPlaceholder: 'Search Supplier Category',
+                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    //     headerStyle: dataTableHeaderStyle
+                                    // }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
@@ -637,6 +652,19 @@ const ManageCapaRulesPage = () => {
                         </div>
                     </div>
                 </div>
+                <Dialog header="Criteria Evaluation & Score:" visible={dialogVisible} onHide={closeDialog} style={{ width: '500px' }}>
+                                {selectedRow && (
+                                    <div>
+                                        <ul>
+                                            {selectedRow.status?.map((item: any, index: number) => (
+                                                <li key={index} className="mb-3">
+                                                    {item} 
+                                                </li>
+                                            )) || <li>N/A</li>}
+                                        </ul>
+                                    </div>
+                                )}
+                            </Dialog>
 
                 <Dialog
                     header="Delete confirmation"
