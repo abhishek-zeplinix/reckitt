@@ -467,23 +467,7 @@ const ManageCapaRulesPage = () => {
     //         setLoading(false);
     //     }
     // };
-    const expandedData = rules.flatMap((item: any) => {
-        // Create a row for each criteriaEvaluation and score pair
-        return item.status.map((criteria: string, index: number) => ({
-            capaRuleId: item.capaRuleId,
-            department: item?.department?.name,
-            category: item?.category?.categoryName,
-            subCategories: item?.subCategory?.subCategoryName,
-            capaRulesName: item.capaRulesName,
-            effectiveFrom: item.effectiveFrom,
-            status: criteria,
-            // score: item.score[index],
-            // ratiosCopack: item.ratiosCopack,
-            // ratiosRawpack: item.ratiosRawpack,
-            // add a unique identifier for each expanded row
-            expandedRowId: `${item.capaRuleId}-${index}`
-        }));
-    });
+
     const openDialog = (item: React.SetStateAction<null>) => {
         setSelectedRow(item);
         setDialogVisible(true);

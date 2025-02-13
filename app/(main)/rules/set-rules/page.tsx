@@ -291,21 +291,6 @@ const SetRulesPage = () => {
         }
     };
 
-    // const expandedData = rules.flatMap((item: any) => {
-    //     return item.criteriaEvaluation.map((criteria: string, index: number) => ({
-    //         ruleId: item.ruleId,
-    //         department: item?.department?.name,
-    //         category: item?.categories?.categoryName,
-    //         subCategories: item?.subCategories?.subCategoryName,
-    //         section: item.section,
-    //         ratedCriteria: item.ratedCriteria,
-    //         criteriaEvaluation: criteria,
-    //         score: item.score[index],
-    //         ratiosCopack: item.ratiosCopack,
-    //         ratiosRawpack: item.ratiosRawpack,
-    //         expandedRowId: `${item.ruleId}-${index}`
-    //     }));
-    // });
     const openDialog = (item: React.SetStateAction<null>) => {
         setSelectedRow(item);
         setDialogVisible(true);
