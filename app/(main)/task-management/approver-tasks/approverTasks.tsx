@@ -194,6 +194,7 @@ const ApproverTasks = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             const role = 'Approver';
             if (!params) {
                 params = { limit: limit, page: page, filters: { role } };
