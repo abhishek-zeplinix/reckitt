@@ -19,6 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 // import { useLoaderContext } from '@/layout/context/LoaderContext';
 import { RadioButton } from 'primereact/radiobutton';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -296,6 +297,7 @@ const UserGroups = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             if (!params) {
                 params = { limit: limit, page: page, sortBy: 'userGroupId' };
             }
@@ -544,80 +546,84 @@ const UserGroups = () => {
                                 </div>
                             </div>
 
-                            <CustomDataTable
-                                ref={dataTableRef}
-                                page={page}
-                                limit={limit} // no of items per page
-                                totalRecords={totalRecords} // total records from api response
-                                // isEdit={true} // show edit button
-                                isDelete={true} // show delete button
-                                extraButtons={(item) => [
-                                    {
-                                        icon: 'pi pi-eye',
-                                        onClick: (e) => {
-                                            handleEditRules(item); // Pass the item (row data) instead of e
+                            {isLoading ? (
+                                <TableSkeletonSimple />
+                            ) : (
+                                <CustomDataTable
+                                    ref={dataTableRef}
+                                    page={page}
+                                    limit={limit} // no of items per page
+                                    totalRecords={totalRecords} // total records from api response
+                                    // isEdit={true} // show edit button
+                                    isDelete={true} // show delete button
+                                    extraButtons={(item) => [
+                                        {
+                                            icon: 'pi pi-eye',
+                                            onClick: (e) => {
+                                                handleEditRules(item); // Pass the item (row data) instead of e
+                                            }
                                         }
-                                    }
-                                ]}
-                                data={userGroups.map((item: any) => ({
-                                    reviewType: item.reviewType?.reviewTypeName,
-                                    templateType: item.templateType?.templateTypeName,
-                                    userGroup: item.userGroupName,
-                                    whitelistedDomains: item.domains?.map((domain: any) => domain.whiteListedDomain?.whitelistedDomainName).join(', '),
-                                    totalMembers: item.totalMembers
-                                }))}
-                                columns={[
-                                    {
-                                        header: 'SR. NO',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                    ]}
+                                    data={userGroups.map((item: any) => ({
+                                        reviewType: item.reviewType?.reviewTypeName,
+                                        templateType: item.templateType?.templateTypeName,
+                                        userGroup: item.userGroupName,
+                                        whitelistedDomains: item.domains?.map((domain: any) => domain.whiteListedDomain?.whitelistedDomainName).join(', '),
+                                        totalMembers: item.totalMembers
+                                    }))}
+                                    columns={[
+                                        {
+                                            header: 'SR. NO',
+                                            body: (data: any, options: any) => {
+                                                const normalizedRowIndex = options.rowIndex % limit;
+                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                            return <span>{srNo}</span>;
+                                                return <span>{srNo}</span>;
+                                            },
+                                            bodyStyle: { minWidth: 50, maxWidth: 50 }
                                         },
-                                        bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                    },
-                                    {
-                                        header: 'Review Type ',
-                                        field: 'reviewType',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Template Type',
-                                        field: 'templateType',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
+                                        {
+                                            header: 'Review Type ',
+                                            field: 'reviewType',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            headerStyle: dataTableHeaderStyle
+                                        },
+                                        {
+                                            header: 'Template Type',
+                                            field: 'templateType',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            headerStyle: dataTableHeaderStyle
+                                        },
 
-                                    // {
-                                    //     header: 'EFFECTIVE FROM ',
-                                    //     field: 'effectiveFrom',
-                                    //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                    //     headerStyle: dataTableHeaderStyle
-                                    // },
-                                    {
-                                        header: 'User Group',
-                                        field: 'userGroup',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Whitlisted Domains',
-                                        field: 'whitelistedDomains',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    },
-                                    {
-                                        header: 'Total Members',
-                                        field: 'totalMembers',
-                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        headerStyle: dataTableHeaderStyle
-                                    }
-                                ]}
-                                onLoad={(params: any) => fetchData(params)}
-                                onDelete={(item: any) => onRowSelect(item, 'delete')}
-                            />
+                                        // {
+                                        //     header: 'EFFECTIVE FROM ',
+                                        //     field: 'effectiveFrom',
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        //     headerStyle: dataTableHeaderStyle
+                                        // },
+                                        {
+                                            header: 'User Group',
+                                            field: 'userGroup',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            headerStyle: dataTableHeaderStyle
+                                        },
+                                        {
+                                            header: 'Whitlisted Domains',
+                                            field: 'whitelistedDomains',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            headerStyle: dataTableHeaderStyle
+                                        },
+                                        {
+                                            header: 'Total Members',
+                                            field: 'totalMembers',
+                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                            headerStyle: dataTableHeaderStyle
+                                        }
+                                    ]}
+                                    onLoad={(params: any) => fetchData(params)}
+                                    onDelete={(item: any) => onRowSelect(item, 'delete')}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
