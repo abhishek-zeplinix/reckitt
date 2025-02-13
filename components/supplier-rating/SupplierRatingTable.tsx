@@ -27,7 +27,9 @@ const SupplierEvaluationTable = ({ rules,
   isEvaluatedData,
   catId,
   subCatId,
-  supId
+  supId,
+  rulesLoading,
+  scoreLoading
  }: any) => {
 
   const [tableData, setTableData] = useState<any>(rules);

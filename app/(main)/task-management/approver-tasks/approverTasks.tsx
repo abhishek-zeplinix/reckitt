@@ -194,6 +194,7 @@ const ApproverTasks = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             const role = 'Approver';
             if (!params) {
                 params = { limit: limit, page: page, filters: { role } };
@@ -354,7 +355,7 @@ const ApproverTasks = () => {
                                         }
                                     }
                                 ]}
-                                data={approverEvaluatorsList.map((item: any) => ({
+                                data={approverEvaluatorsList?.map((item: any) => ({
                                     userId: item.userId,
                                     ApproverName: item.users?.name,
                                     departmentName: item.department?.name,

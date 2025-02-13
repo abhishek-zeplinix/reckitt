@@ -35,6 +35,7 @@ const UserGroups = () => {
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [rules, setRules] = useState<SetRulesDir[]>([]);
+    const [userGroups, setuserGroups] = useState<[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [visible, setVisible] = useState(false);
@@ -213,6 +214,7 @@ const UserGroups = () => {
                     <h3 className="mb-0">Manage User Groups</h3>
                 </span>
                 <div className="flex justify-content-end">
+                    <Button icon="pi pi-plus" size="small" label="Add Vendor" aria-label="Import Vendors" className="bg-primary-main border-primary-main hover:text-white" onClick={() => {}} style={{ marginLeft: 10 }} />
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
@@ -295,16 +297,16 @@ const UserGroups = () => {
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
-                params = { limit: limit, page: page, sortBy: 'ruleSetId' };
+                params = { limit: limit, page: page, sortBy: 'userGroupId' };
             }
 
             setPage(params.page);
 
             const queryString = buildQueryParams(params);
-            const response = await GetCall(`company/rules-set?${queryString}`);
+            const response = await GetCall(`company/user-group?${queryString}`);
 
             setTotalRecords(response.total);
-            setRules(response.data.rows);
+            setuserGroups(response.data);
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -557,11 +559,11 @@ const UserGroups = () => {
                                         }
                                     }
                                 ]}
-                                data={ManageUserGroups.map((item: any) => ({
-                                    reviewType: item.reviewType,
-                                    templateType: item.templateType,
-                                    userGroup: item.userGroup,
-                                    whitelistedDomains: item.whitelistedDomains,
+                                data={userGroups.map((item: any) => ({
+                                    reviewType: item.reviewType?.reviewTypeName,
+                                    templateType: item.templateType?.templateTypeName,
+                                    userGroup: item.userGroupName,
+                                    whitelistedDomains: item.domains?.map((domain: any) => domain.whiteListedDomain?.whitelistedDomainName).join(', '),
                                     totalMembers: item.totalMembers
                                 }))}
                                 columns={[

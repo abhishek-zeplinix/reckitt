@@ -1,22 +1,29 @@
+import { useAppContext } from "@/layout/AppWrapper";
 import { formatEvaluationPeriod } from "@/utils/utils";
 import { useState } from "react";
+import SupplierSummaryRightLeftPanelSkeleton from "../skeleton/SupplierSummaryLeftRightPanelSkeleton";
 
 const SupplierSummaryFeedbackCard = (data: any) => {
 
     const [isSmallScreen, setIsSmallScreen] = useState(false);
-    
-    console.log(data);
-    
+    const { isLoading } = useAppContext();
+
+    console.log(isLoading);
+
     const leftPanelData = [
         {
+            label: 'Supplier Name :',
+            value: data?.data?.supplier?.supplierName || 'N/A'
+        },
+        {
             label: 'Department Name :',
-            value: data?.data?.department?.name  || 'N/A'
+            value: data?.data?.department?.name || 'N/A'
         },
         {
             label: 'Period :',
-            value: formatEvaluationPeriod(data?.data?.evalutionPeriod )|| 'N/A'
+            value: formatEvaluationPeriod(data?.data?.evalutionPeriod) || 'N/A'
         }
-        
+
 
     ];
     const RightPanelData = [
@@ -34,6 +41,7 @@ const SupplierSummaryFeedbackCard = (data: any) => {
     const summoryCards = () => {
         return (
             <>
+        
                 <div className="flex justify-content-between align-items-start flex-wrap gap-4">
                     <div
                         className="card shadow-lg  "
@@ -48,24 +56,27 @@ const SupplierSummaryFeedbackCard = (data: any) => {
                             padding: '1rem'
                         }}
                     >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {leftPanelData?.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
+
+                            <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
+                                {leftPanelData?.map((item, index) => (
+                                    <>
+                                        <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
+                                            <div>
+                                                <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
+                                                    {item.label}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center " style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0 ">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
+                                            <div className="mt-2 md:mt-0 flex align-items-center " style={{ fontSize: '0.9rem' }}>
+                                                <span className="text-900 font-medium mr-2 mb-1 md:mb-0 ">{item.value}</span>
+                                            </div>
+                                        </li>
+                                        {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
+                                    </>
+                                ))}
+                            </ul>
+                        
                     </div>
+
 
                     <div
                         className="card shadow-lg  "

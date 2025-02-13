@@ -5,6 +5,7 @@ import DynamicInput from '@/components/control-tower/dynamic-inputs';
 import Permission from '@/components/control-tower/assign-permissions-roles';
 import PermissionManagement from '@/components/control-tower/permissionManagement';
 import Routes from '@/components/control-tower/assign-permissions-routes';
+import { withAuth } from '@/layout/context/authContext';
 
 const Tabs = ['Roles', 'Routes', 'Accessibility', 'Permissions'];
 
@@ -72,4 +73,4 @@ const ControlTower = () => {
     );
 };
 
-export default ControlTower;
+export default withAuth(ControlTower, 'superAdmin', undefined);

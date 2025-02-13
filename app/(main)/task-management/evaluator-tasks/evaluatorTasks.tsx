@@ -194,6 +194,7 @@ const EvaluatorTasks = () => {
 
     const fetchData = async (params?: any) => {
         try {
+            setLoading(true);
             const role = 'Evaluator';
             if (!params) {
                 params = { limit: limit, page: page, filters: { role } };
