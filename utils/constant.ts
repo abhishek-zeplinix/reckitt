@@ -9,9 +9,9 @@ export const constant = {
 }
 
 export const limitOptions = [
-    { label: '10', value: 10 },
-    { label: '20', value: 20 },
-    { label: '50', value: 50 },
-    { label: '70', value: 70 },
-    { label: '100', value: 100 }
-];
+        { label: '10', value: 10 },
+        { label: '20', value: 20 },
+        { label: '50', value: 50 },
+        { label: '70', value: 70 },
+        { label: '100', value: 100 }
+    ];
