@@ -43,6 +43,16 @@ const AssignSuppliers = ({
     const decodedParams = useDecodeParams(params.encodedParams);
     const { userId, role, name, department } = decodedParams;
 
+    useEffect(() => {
+        const allCountries = Country.getAllCountries().map(country => ({
+            label: country.name,
+            value: country.isoCode
+        }));
+        setCountries(allCountries);
+        fetchData();
+    }, []);
+
+
     if (!userId || !role || !name || !department) {
         router.replace('/404')
         return null;
@@ -56,15 +66,7 @@ const AssignSuppliers = ({
 
     // const { departments } = useFetchDepartments();
 
-    useEffect(() => {
-        const allCountries = Country.getAllCountries().map(country => ({
-            label: country.name,
-            value: country.isoCode
-        }));
-        setCountries(allCountries);
-        fetchData();
-    }, []);
-
+   
 
 
     const fetchData = async (currentPage = page, customFilters = {}) => {
@@ -243,7 +245,7 @@ const AssignSuppliers = ({
                     </div>
 
                     <div className="flex flex-column">
-                        <label className="mb-2">{role}'s Department </label>
+                        <label className="mb-2">{role}&apos; Department </label>
                         <InputText name='departmnet' value={department} disabled />
                         {/* <Dropdown
                             value={department}
