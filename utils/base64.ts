@@ -8,6 +8,10 @@ interface RouteParams {
   type?: string;
   departmentId?: any;
   period?: any;
+  userId?: any;
+  role?: string;
+  name? : string,
+  department?: string
   // Add any other optional parameters you might need
 }
 

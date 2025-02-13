@@ -269,7 +269,9 @@ const ManageFeedbackPage = () => {
                             </div>
 
                             {isLoading ? (
-                                <TableSkeletonSimple columns={4} rows={limit} />
+                                <div className='mt-3'>
+                                <TableSkeletonSimple columns={4} rows={limit}/>
+                                </div>
                             ) : (
                                 <CustomDataTable
                                     ref={dataTableRef}
