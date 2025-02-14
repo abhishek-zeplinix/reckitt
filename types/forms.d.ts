@@ -306,6 +306,8 @@ type EmptyManageUsers = {
   name:string;
   password:string;
   phone:string;
+  address:string;
+  zip:string;
   countries: {
       name: string;
       countryId: number | null;

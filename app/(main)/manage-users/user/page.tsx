@@ -12,6 +12,7 @@ import { Country, State, City } from 'country-state-city';
 import { EmptyManageUsers } from '@/types/forms';
 import { InputText } from 'primereact/inputtext';
 import { get } from 'lodash';
+import { InputTextarea } from 'primereact/inputtextarea';
 const defaultForm: EmptyManageUsers = {
     roleId: null,
     supplierId: null,
@@ -23,6 +24,8 @@ const defaultForm: EmptyManageUsers = {
     country: '',
     departmentId:null,
     city: '',
+    address:'',
+    zip:'',
     countries: {
         name: '',
         countryId: null
@@ -377,7 +380,7 @@ const selectedCity = allCity.find(
                         });
                     }
                 }
-                if (name === 'name' || name === 'email') {
+                if (name === 'name' || name === 'email' || name === 'address') {
                     if (wordCount > 250) {
                         setWordMaxLimitErrors((prevWordErrors) => ({
                             ...prevWordErrors,
@@ -387,6 +390,34 @@ const selectedCity = allCity.find(
                     } else {
                         setWordMaxLimitErrors((prevWordErrors) => {
                             const updatedErrors = { ...prevWordErrors };
+                            delete updatedErrors[name];
+                            return updatedErrors;
+                        });
+                    }
+                }
+                if (name === 'zip') {
+                    if (!/^[a-zA-Z0-9\s-]+$/.test(val)) {
+                        // Ensure only numbers and dash are allowed
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Only letters,numbers,spaces and hyphens are allowed!'
+                        }));
+                        return;
+                    } else if (val.length > 10) {
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Maximum 10 characters allowed! '
+                        }));
+                        return;
+                    } else if (val.length < 1) {
+                        setNumberErrors((prevNumErrors) => ({
+                            ...prevNumErrors,
+                            [name]: 'Zip must not be empty'
+                        }));
+                        return;
+                    } else {
+                        setNumberErrors((prevNumErrors) => {
+                            const updatedErrors = { ...prevNumErrors };
                             delete updatedErrors[name];
                             return updatedErrors;
                         });
@@ -660,6 +691,24 @@ const selectedCity = allCity.find(
                                 showClear={!!selectedCity}
                               />
                               {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
+                            </div>
+                            <div className="field col-3">
+                                <label htmlFor="address" className="font-semibold">
+                                    Site Address
+                                </label>
+                                <InputTextarea id="address" value={get(form, 'address')} onChange={(e) => onInputChange('address', e.target.value)} className="p-inputtext w-full mb-1" placeholder="Enter Address" />
+                                {formErrors.address && (
+                                     <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.address}</p> // Display error message
+                                )}
+                                {wordMaxLimitErrors.address && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{wordMaxLimitErrors.address}</p>}
+                            </div>
+                            <div className="field col-3">
+                                <label htmlFor="zip" className="font-semibold">
+                                    ZipCode
+                                </label>
+                                <InputText id="zip" value={get(form, 'zip')} type="text" onChange={(e) => onInputChange('zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full mb-1" />
+                                {formErrors.zip && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.zip}</p>}
+                                {numberErrors.zip && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{numberErrors.zip}</p>}
                             </div>
                             </>
                             )}

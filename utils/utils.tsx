@@ -229,6 +229,12 @@ export const formSchemaManageUser = (isEditMode: boolean,showFields:boolean) => 
             state: z.string()
                 .min(1, "State cannot be empty")
                 .refine((val) => val.trim() !== "", { message: "State cannot be empty" }),
+            zip: z.union([z.string(), z.number()])
+                .transform((val) => String(val).trim())
+                .refine((val) => val.length > 0, {
+                    message: 'Zip code cannot be empty',
+                }),
+            address: z.string().min(1, 'Site address cannot be empty'),
         });
     }
 
