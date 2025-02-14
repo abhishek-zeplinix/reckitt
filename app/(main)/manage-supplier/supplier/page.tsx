@@ -71,33 +71,11 @@ const ManageSupplierAddEditPage = () => {
     const [allCity, setAllCity] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
     const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
     const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({});
     const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
     const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});
-
-    useEffect(() => {
-        const fetchCountries = async () => {
-            const countries = await Country.getAllCountries();
-            setAllCountry(countries);
-        };
-        fetchCountries();
-    }, []);
-
-    // Fetch states based on selected country
-    useEffect(() => {
-        const fetchStates = async () => {
-            if (form.country) {
-                const states = await State.getStatesOfCountry(form.country);
-                setAllState(states);
-            } else {
-                setAllState([]); // Reset states if no country is selected
-            }
-        };
-        fetchStates();
-    }, [form.country]);
 
     // Fetch cities based on selected state
     useEffect(() => {
@@ -111,20 +89,46 @@ const ManageSupplierAddEditPage = () => {
                               c.name.toLowerCase() === form.country.toLowerCase()
                           );
                         if (selectedCountryObj) {
-
-                            if (form.state) {
-                                const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, form.state);
-                                setAllCity(cities);
+                            const states = await State.getAllStates();
+                            const selectedStateObj = states.find(
+                                (c) =>
+                                c.isoCode.toLowerCase() === form.state.toLowerCase() ||
+                                c.name.toLowerCase() === form.state.toLowerCase()
+                            );
+                            if(selectedStateObj){
+                            const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, selectedStateObj.isoCode);
+                            setAllCity(cities);
                             } else {
                                 setAllCity([]); // Reset cities if no state is selected
                             }
                         }};
                     }
             else if (form.state) {
-                const cities = await City.getCitiesOfState(form.country, form.state);
-                setAllCity(cities);
+                    const countries = await Country.getAllCountries();
+                        if (form?.country) {
+                            const selectedCountryObj = countries.find(
+                                (c) =>
+                                  c.isoCode.toLowerCase() === form.country.toLowerCase() ||
+                                  c.name.toLowerCase() === form.country.toLowerCase()
+                              );
+                            if (selectedCountryObj) {
+                                if (form.state) {
+                                    const states = await State.getAllStates();
+                                    const selectedStateObj = states.find(
+                                        (c) =>
+                                        c.isoCode.toLowerCase() === form.state.toLowerCase() ||
+                                        c.name.toLowerCase() === form.state.toLowerCase()
+                                    );
+                                    if(selectedStateObj){
+                                    const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, selectedStateObj.isoCode);
+                                    setAllCity(cities);
+                                    }
+                                } else {
+                                    setAllCity([]); // Reset cities if no state is selected
+                                }
+                            }};
             } else {
-                setAllCity([]); // Reset cities if no state is selected
+                setAllCity([]); 
             }
         };
         fetchCities();
@@ -158,7 +162,6 @@ const ManageSupplierAddEditPage = () => {
     if (countryCode) {
       const states = await State.getStatesOfCountry(countryCode);
       setAllState(states);
-
       if (form?.state) {
         const selectedStateObj = states.find(
           (s) =>
@@ -166,7 +169,6 @@ const ManageSupplierAddEditPage = () => {
             s.name.toLowerCase() === form.state.toLowerCase()
         );
         
-
         if (selectedStateObj) {
           fetchCities(countryCode, selectedStateObj.isoCode);
         }
@@ -418,7 +420,6 @@ const ManageSupplierAddEditPage = () => {
                 }
             }
         }
-
         setForm((prevForm) => {
             const updatedForm = {
                 ...prevForm,
@@ -438,7 +439,7 @@ const ManageSupplierAddEditPage = () => {
             const updatedErrors = { ...prevErrors };
     
             if (val && updatedErrors[name]) {
-                delete updatedErrors[name]; // Remove error when the field is filled
+                delete updatedErrors[name]; 
             }
     
             return updatedErrors;
@@ -489,6 +490,7 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
+        console.log('290',form)
         const { valid, errors } = validateFormData(form);
         if (!valid) {
             setFormErrors(errors);
@@ -589,6 +591,7 @@ const ManageSupplierAddEditPage = () => {
                                         onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                         placeholder="Select Procurement Category"
                                         className="w-full mb-1"
+                                        showClear={!!get(form, 'supplierCategoryId')}
                                     />
                                     {formErrors.supplierCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.supplierCategoryId}</p>}
                                 </div>
@@ -606,9 +609,10 @@ const ManageSupplierAddEditPage = () => {
                                             onChange={(e) => onInputChange('procurementCategoryId', e.value)}
                                             placeholder="Select Supplier Category"
                                             className="w-full mb-1"
+                                            showClear={!!get(form, 'procurementCategoryId')}
                                         />
                                     ) : (
-                                        <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
+                                        <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full"  />
                                     )}
                                     {formErrors.procurementCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.procurementCategoryId}</p>}
                                 </div>
@@ -641,10 +645,10 @@ const ManageSupplierAddEditPage = () => {
   <label htmlFor="country" className="font-semibold">Country</label>
   <Dropdown
     id="country"
-    value={selectedCountry?.isoCode || ''}
+    value={selectedCountry?.name  || ''}
     options={allCountry}
     optionLabel="name"
-    optionValue="isoCode"
+    optionValue="name"
     filter
     onChange={(e) => {
       onInputChange('country', e.value);
@@ -653,6 +657,7 @@ const ManageSupplierAddEditPage = () => {
     }}
     placeholder="Select Country"
     className="w-full mb-1"
+    showClear={!!selectedCountry}
   />
   {formErrors.country && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.country}</p>}
 </div>
@@ -661,10 +666,10 @@ const ManageSupplierAddEditPage = () => {
   <label htmlFor="state" className="font-semibold">State</label>
   <Dropdown
     id="state"
-    value={selectedState?.isoCode || ''}
+    value={selectedState?.name  || ''}
     options={allState}
     optionLabel="name"
-    optionValue="isoCode"
+    optionValue="name"
     filter
     onChange={(e) => {
       onInputChange('state', e.value);
@@ -672,6 +677,7 @@ const ManageSupplierAddEditPage = () => {
     }}
     placeholder="Select State"
     className="w-full mb-1"
+    showClear={!!selectedState}
   />
   {formErrors.state && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.state}</p>}
 </div>
@@ -688,6 +694,7 @@ const ManageSupplierAddEditPage = () => {
     onChange={(e) => onInputChange('city', e.value)}
     placeholder="Select City"
     className="w-full mb-1"
+    showClear={!!selectedCity}
   />
   {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
 </div>

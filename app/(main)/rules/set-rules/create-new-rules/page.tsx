@@ -27,7 +27,7 @@ const CreateNewRulesPage = () => {
     const [selectedratiosRawpack, setratiosRawpack] = useState('');
     const [selectedratiosCopack, setratiosCopack] = useState('');
     const [selectedProcurementDepartment, setSelectedProcurementDepartment] = useState<any>(null);
-    const [selectedSupplierCategory, setSelectedSupplierCategory] = useState(null);
+    const [selectedSupplierCategory, setSelectedSupplierCategory] = useState<any>(null);
     const [procurementDepartment, setProcurementDepartment] = useState([]);
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
@@ -142,6 +142,7 @@ const CreateNewRulesPage = () => {
     };
 
     const handleSubmit = async (fields: Record<string, unknown>) => {
+        console.log('145',fields)
         const { valid, errors } = validateFormRuleData(fields);
         if (!valid) {
             setFormErrors(errors);
@@ -281,7 +282,7 @@ const CreateNewRulesPage = () => {
         }
     };
     const handleCategoryChange = (value: any) => {
-        setSelectedSupplierCategory(value);
+        setSelectedProcurementCategory(value);
         fetchprocurementCategories(value);
          // Clear the error for the field when a value is entered
          setFormErrors((prevErrors) => {
@@ -374,7 +375,7 @@ const CreateNewRulesPage = () => {
             };
     
             if (name === 'subCategoryId') {
-                setSelectedProcurementCategory(Number(value));
+                setSelectedSupplierCategory(Number(value));
                 updatedForm.subCategoryId = null;
             }
     
@@ -451,6 +452,7 @@ const CreateNewRulesPage = () => {
                                     optionLabel="name"
                                     optionValue="departmentId"
                                     className="w-full"
+                                    showClear={!!selectedProcurementDepartment}
                                 />
                                 {formErrors.departmentId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.departmentId}</p>}
                             </div>
@@ -458,13 +460,14 @@ const CreateNewRulesPage = () => {
                                 <label htmlFor="categoryId">Procurement Category</label>
                                 <Dropdown
                                     id="categoryId"
-                                    value={selectedSupplierCategory}
+                                    value={selectedProcurementCategory}
                                     options={supplierCategories}
                                     onChange={(e) => handleCategoryChange(e.value)}
                                     placeholder="Select Procurement Category"
                                     optionLabel="categoryName"
                                     optionValue="categoryId"
                                     className="w-full"
+                                    showClear={!!selectedProcurementCategory}
                                 />
                                 {formErrors.categoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.categoryId}</p>}
                             </div>
@@ -472,7 +475,7 @@ const CreateNewRulesPage = () => {
                                 <label htmlFor="subCategoryId">Supplier Category</label>
                                 <Dropdown
                                     id="subCategoryId"
-                                    value={selectedProcurementCategory}
+                                    value={selectedSupplierCategory}
                                     options={procurementCategories}
                                     // onChange={(e) => setSelectedProcurementCategory(e.value)}
                                     onChange={(e) => handleInputChange('subCategoryId', e.target.value)}
@@ -480,6 +483,7 @@ const CreateNewRulesPage = () => {
                                     optionValue="subCategoryId"
                                     placeholder="Select Supplier Category"
                                     className="w-full"
+                                    showClear={!!selectedSupplierCategory}
                                 />
                                 {formErrors.subCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.subCategoryId}</p>}
                             </div>
