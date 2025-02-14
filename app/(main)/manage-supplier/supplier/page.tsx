@@ -490,7 +490,7 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
-        console.log('290',form)
+
         const { valid, errors } = validateFormData(form);
         if (!valid) {
             setFormErrors(errors);

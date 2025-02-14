@@ -58,17 +58,6 @@ const AssignSuppliers = ({
         return null;
     }
 
-    console.log(userId);
-    console.log(role);
-    console.log(name);
-    console.log(department);
-
-
-    // const { departments } = useFetchDepartments();
-
-   
-
-
     const fetchData = async (currentPage = page, customFilters = {}) => {
 
         try {
@@ -203,8 +192,6 @@ const AssignSuppliers = ({
                 state: stateData?.name || "",
                 city: selectedCity || ""
             }));
-
-            console.log(payload);
 
             const response = await PostCall('/company/suppliers-mapped', payload);
 

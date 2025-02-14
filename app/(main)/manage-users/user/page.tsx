@@ -302,7 +302,6 @@ const selectedCity = allCity.find(
                     return;
                 }
                 setFormErrors({});
-                console.log('281',userId)
         setIsDetailLoading(true);
         
         try {
@@ -499,23 +498,6 @@ const selectedCity = allCity.find(
                 ...prevForm,
                 ...(typeof name === 'string' ? { [name]: val } : name),
             };
-    
-            if (name === 'departmentId') {
-                setForm((prev) => ({
-                    ...prev,
-                    departmentId: val || null,
-                }));
-                updatedForm.departmentId = null;
-            }
-            if (name === 'roleId') {   
-                setForm((prev) => ({
-                    ...prev,
-                    roleId: val || null,
-                    
-                }));
-                updatedForm.roleId = null;
-            }
-    
             return updatedForm;
         });
     

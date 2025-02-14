@@ -142,7 +142,6 @@ const CreateNewRulesPage = () => {
     };
 
     const handleSubmit = async (fields: Record<string, unknown>) => {
-        console.log('145',fields)
         const { valid, errors } = validateFormRuleData(fields);
         if (!valid) {
             setFormErrors(errors);
