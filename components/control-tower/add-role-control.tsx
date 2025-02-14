@@ -34,9 +34,8 @@ const AddRoleControl = () => {
     }, []);
 
     const fetchData = async (params?: any) => {
-        setLoading(true);
-
         try {
+            setLoading(true);
             const response = await GetCall('/company/roles');
             setRolesList(response.data);
             setTotalRecords(response.total);
@@ -48,8 +47,8 @@ const AddRoleControl = () => {
     };
 
     const handleSubmit = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const payload = { name: role };
             const response = await PostCall('/company/roles', payload);
 
@@ -66,9 +65,8 @@ const AddRoleControl = () => {
     };
 
     const onDelete = async () => {
-        setLoading(true);
-
         try {
+            setLoading(true);
             const response = await DeleteCall(`/company/roles/${selectedRoleId}`);
 
             if (response.code.toLowerCase() === 'success') {

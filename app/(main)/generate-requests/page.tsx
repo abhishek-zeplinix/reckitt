@@ -51,6 +51,8 @@ const GenerateRequestPage = () => {
         setLoading(true);
         try {
             await Promise.all([fetchCategories(), fetchSupplierData()]);
+        } catch (error) {
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -70,6 +72,7 @@ const GenerateRequestPage = () => {
         }
 
         try {
+            setLoading(true);
             const response = await GetCall(`/company/sub-category/${categoryId}`);
             if (response.code === 'SUCCESS') {
                 setSubCategories(response.data);
@@ -77,12 +80,14 @@ const GenerateRequestPage = () => {
         } catch (error) {
             setSubCategories([]);
             setAlert('error', 'Failed to fetch subcategories');
+        } finally {
+            setLoading(false);
         }
     };
 
     const fetchSupplierData = async (params?: any) => {
         try {
-
+            setLoading(true);
             const supId = get(user, 'supplierId');
 
             const params = { filters: { supId }, pagination: false };
@@ -118,12 +123,12 @@ const GenerateRequestPage = () => {
             }
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier data');
+        } finally {
+            setLoading(false);
         }
     };
 
-
     const handleSubmit = async (event: { files: File[] }) => {
-
         // get requested data based on checked fields
         const file = event.files[0];
 
@@ -133,7 +138,7 @@ const GenerateRequestPage = () => {
         }
 
         const requestedData: any = {
-            file,
+            file
         };
 
         Object.keys(selectedFields).forEach((field) => {
@@ -176,15 +181,9 @@ const GenerateRequestPage = () => {
             apiData.append('file', file);
 
             // Append requested fields to FormData
-            apiData.append(
-                'requestedData',
-                JSON.stringify(
-                    Object.fromEntries(Object.entries(requestedData).filter(([key]) => key !== 'file'))
-                )
-            );           
+            apiData.append('requestedData', JSON.stringify(Object.fromEntries(Object.entries(requestedData).filter(([key]) => key !== 'file'))));
 
             const supId = get(formData, 'supplierId');
-            
 
             const response = await PostCall(`/company/manageRequest/supplier/${supId}`, apiData);
 
@@ -194,7 +193,6 @@ const GenerateRequestPage = () => {
             } else {
                 setAlert('error', response.message);
             }
-
         } catch (error) {
             setAlert('error', 'Failed to submit request');
         } finally {
@@ -232,8 +230,6 @@ const GenerateRequestPage = () => {
         }));
     };
 
-
-
     const renderField = (fieldName: any, label: any, component: any) => {
         return (
             <div className="flexfield col-4">
@@ -255,10 +251,15 @@ const GenerateRequestPage = () => {
             <div className="flex justify-content-between align-items-center w-full">
                 <span>Attach valid proof to change information</span>
                 <p className="text-sm text-gray-500 mr-4">
-                    <p> Supported Formats: <span className='text-red-500'>jpg, png, pdf.</span></p>
-                    <p> Max File Size:  <span className='text-red-500'>5 MB</span></p>
+                    <p>
+                        {' '}
+                        Supported Formats: <span className="text-red-500">jpg, png, pdf.</span>
+                    </p>
+                    <p>
+                        {' '}
+                        Max File Size: <span className="text-red-500">5 MB</span>
+                    </p>
                 </p>
-
             </div>
         );
     };
@@ -360,7 +361,8 @@ const GenerateRequestPage = () => {
                     ) : (
                         <FileUpload
                             name="generate request proof"
-                            customUpload multiple={false}
+                            customUpload
+                            multiple={false}
                             accept=".pdf,image/*"
                             maxFileSize={5000000}
                             emptyTemplate={<p className="m-0">Drag and drop file here to upload.</p>}

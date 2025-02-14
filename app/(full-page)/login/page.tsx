@@ -57,6 +57,7 @@ const LoginPage = () => {
                 setAlert('error', 'OTP generation failed');
             }
         } catch (error) {
+            setAlert('error', 'Something went wrong');
         } finally {
             setLoading(false);
         }

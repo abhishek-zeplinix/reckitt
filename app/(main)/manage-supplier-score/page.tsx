@@ -60,8 +60,8 @@ const ManageSupplierScorePage = () => {
     const header = renderHeader();
 
     const fetchData = async (params?: any) => {
-        setIsDataLoading(true);
         try {
+            setLoading(true);
             if (!params) {
                 params = { limit: limit, page: page, sortBy: 'supplierScoreId', sortOrder: 'asc/desc' };
             }
@@ -90,16 +90,23 @@ const ManageSupplierScorePage = () => {
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
-            setIsDataLoading(false);
+            setLoading(false);
         }
     };
 
     const dataTableHeaderStyle = { fontSize: '14px' };
 
     const fetchCategory = async () => {
-        const response: CustomResponse = await GetCall(`/company/category`);
-        if (response.code === 'SUCCESS') {
-            setCategory(response.data);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`);
+            if (response.code === 'SUCCESS') {
+                setCategory(response.data);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to get category');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -130,6 +137,7 @@ const ManageSupplierScorePage = () => {
         setLoading(true);
 
         try {
+            setLoading(true);
             const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
 
             if (response.code === 'SUCCESS') {
@@ -148,7 +156,6 @@ const ManageSupplierScorePage = () => {
     };
 
     const handleFilterChange = (filters: any) => {
-
         setFilters(filters);
     };
 

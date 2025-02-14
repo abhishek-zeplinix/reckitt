@@ -79,20 +79,26 @@ const ManageUsersPage = () => {
     };
 
     const fetchData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/user?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setCompanyUsers(response.data);
-            if (response.total) {
-                setTotalRecords(response?.total);
+        try {
+            if (!params) {
+                params = { limit: limit, page: page };
             }
-        } else {
-            setCompanyUsers([]);
+            setLoading(true);
+            const queryString = buildQueryParams(params);
+            const response: CustomResponse = await GetCall(`/company/user?${queryString}`);
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setCompanyUsers(response.data);
+                if (response.total) {
+                    setTotalRecords(response?.total);
+                }
+            } else {
+                setCompanyUsers([]);
+            }
+        } catch (error) {
+            setAlert('error', 'An error occurred while submitting user data.');
+        } finally {
+            setLoading(false);
         }
     };
     const onRowSelect = async (perm: any, action: any) => {

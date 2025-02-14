@@ -54,8 +54,9 @@ const AddFeedBackPages = () => {
                 setAlert('error', response.message);
             }
         } catch (error) {
-            setIsDetailLoading(false);
             setAlert('error', 'An error occurred while submitting the feedback.');
+        } finally {
+            setIsDetailLoading(false);
         }
     };
 

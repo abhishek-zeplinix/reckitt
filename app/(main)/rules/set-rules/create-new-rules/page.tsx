@@ -77,7 +77,7 @@ const CreateNewRulesPage = () => {
                 });
             }
         }
-    
+
         // Clear the error for the field when a value is entered
         setFormErrors((prevErrors) => {
             const updatedErrors = { ...prevErrors };
@@ -86,7 +86,7 @@ const CreateNewRulesPage = () => {
             }
             return updatedErrors;
         });
-    
+
         setFields((prev) => {
             const updatedArray = [...prev[key]];
             updatedArray[index] = value;
@@ -116,7 +116,7 @@ const CreateNewRulesPage = () => {
     const handleAddFields = () => {
         // Access the latest state before updating
         if (fields.criteriaEvaluation.length === 0 || fields.score.length === 0 || fields.criteriaEvaluation[fields.criteriaEvaluation.length - 1].trim() === '' || fields.score[fields.score.length - 1].trim() === '') {
-            setAlert('Error', 'Please fill in the previous field before adding a new one.');
+            setAlert('error', 'Please fill in the previous field before adding a new one.');
             return;
         }
 
@@ -151,9 +151,11 @@ const CreateNewRulesPage = () => {
 
         setFormErrors({});
         try {
+            setLoading(true);
             if (isEditMode) {
                 const endpoint = `/company/rules/${ruleId}/rule-set/${ruleSetId}`;
                 try {
+                    setLoading(true);
                     const response: CustomResponse = await PutCall(endpoint, fields); // Call PUT API
                     if (response.code === 'SUCCESS') {
                         router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
@@ -163,12 +165,17 @@ const CreateNewRulesPage = () => {
                     }
                 } catch (error) {
                     setAlert('error', 'Failed to update rules. Please try again.');
+                } finally {
+                    setLoading(false);
                 }
             } else {
                 try {
+                    setLoading(true);
                     onNewAdd(fields); // Submit data for new addition
                 } catch (error) {
                     setAlert('error', 'Failed to add rules. Please try again.');
+                } finally {
+                    setLoading(false);
                 }
             }
         } catch (validationError) {
@@ -178,6 +185,8 @@ const CreateNewRulesPage = () => {
             } else {
                 setAlert('error', 'Unexpected error during validation.');
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -197,11 +206,11 @@ const CreateNewRulesPage = () => {
     }, []);
 
     const fetchUserDetails = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const response: CustomResponse = await GetCall(`/company/rules?filters.ruleId=${ruleId}&sortBy=ruleId`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
-                const userDetails = response.data[0]; 
+                const userDetails = response.data[0];
                 setorderBy(userDetails.orderBy || '');
                 setSelectedProcurementDepartment(userDetails.departmentId || null);
                 setSelectedProcurementCategory(userDetails.categoryId || '');
@@ -213,7 +222,7 @@ const CreateNewRulesPage = () => {
                     ...prev,
                     criteriaEvaluation: userDetails.criteriaEvaluation || [''],
                     score: userDetails.score || ['']
-                }));                
+                }));
                 setratiosRawpack(userDetails.ratiosRawpack || null);
                 setratiosCopack(userDetails.ratiosCopack || null);
                 const parsedDate = userDetails.effectiveFrom ? new Date(userDetails.effectiveFrom) : null;
@@ -222,7 +231,6 @@ const CreateNewRulesPage = () => {
                 setAlert('error', 'User details not found.');
             }
         } catch (error) {
-            console.error('Error fetching user details:', error);
             setAlert('error', 'Failed to fetch user details.');
         } finally {
             setLoading(false);
@@ -240,52 +248,76 @@ const CreateNewRulesPage = () => {
     const footerNewRules = renderNewRuleFooter();
 
     const fetchprocurementDepartment = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setProcurementDepartment(response.data);
-        } else {
-            setProcurementDepartment([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/department`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setProcurementDepartment(response.data);
+            } else {
+                setProcurementDepartment([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchprocurementCategories = async (categoryId: any) => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all t-he roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all t-he roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setprocurementCategories(response.data);
+            } else {
+                setprocurementCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
     const fetchsupplierCategories = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setsupplierCategories(response.data);
-        } else {
-            setsupplierCategories([]);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
+            setLoading(false);
+            if (response.code == 'SUCCESS') {
+                setsupplierCategories(response.data);
+            } else {
+                setsupplierCategories([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to load category');
+        } finally {
+            setLoading(false);
         }
     };
 
     const onNewAdd = async (userForm: any) => {
-        setIsDetailLoading(true);
-        const response: CustomResponse = await PostCall(`/company/rules/${ruleSetId}`, fields);
-        setIsDetailLoading(false);
-        if (response.code == 'SUCCESS') {
-            router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
-            setAlert('success', 'Successfully Added');
-        } else {
-            setAlert('error', response.message);
+        try {
+            setLoading(true);
+            const response: CustomResponse = await PostCall(`/company/rules/${ruleSetId}`, fields);
+
+            if (response.code == 'SUCCESS') {
+                router.push(`/rules/set-rules/?ruleSetId=${ruleSetId}`);
+                setAlert('success', 'Successfully Added');
+            } else {
+                setAlert('error', response.message);
+            }
+        } catch (error) {
+            setAlert('error', 'Failed to add new rule');
+        } finally {
+            setLoading(false);
         }
     };
     const handleCategoryChange = (value: any) => {
         setSelectedProcurementCategory(value);
         fetchprocurementCategories(value);
-         // Clear the error for the field when a value is entered
-         setFormErrors((prevErrors) => {
+        // Clear the error for the field when a value is entered
+        setFormErrors((prevErrors) => {
             const updatedErrors = { ...prevErrors };
             if (value && updatedErrors['categoryId']) {
                 delete updatedErrors['categoryId'];
@@ -346,7 +378,7 @@ const CreateNewRulesPage = () => {
             }
             setratiosCopack(value);
         }
-    
+
         // Clear the error for the field when a value is entered
         setFormErrors((prevErrors) => {
             const updatedErrors = { ...prevErrors };
@@ -358,66 +390,66 @@ const CreateNewRulesPage = () => {
         setFields((prevForm) => {
             const updatedForm = {
                 ...prevForm,
-                ...(typeof name === 'string' ? { [name]: value } : name),
+                ...(typeof name === 'string' ? { [name]: value } : name)
             };
-    
+
             if (name === 'departmentId') {
                 setSelectedProcurementDepartment(Number(value));
                 updatedForm.departmentId = null;
             }
-    
+
             return updatedForm;
         });
         setFields((prevForm) => {
             const updatedForm = {
                 ...prevForm,
-                ...(typeof name === 'string' ? { [name]: value } : name),
+                ...(typeof name === 'string' ? { [name]: value } : name)
             };
-    
+
             if (name === 'subCategoryId') {
                 setSelectedSupplierCategory(Number(value));
                 updatedForm.subCategoryId = null;
             }
-    
+
             return updatedForm;
         });
         setFields((prevForm) => {
             const updatedForm = {
                 ...prevForm,
-                ...(typeof name === 'string' ? { [name]: value } : name),
+                ...(typeof name === 'string' ? { [name]: value } : name)
             };
-    
+
             if (name === 'section') {
                 setSelectedsection(value);
                 updatedForm.section = '';
             }
-    
+
             return updatedForm;
         });
         setFields((prevForm) => {
             const updatedForm = {
                 ...prevForm,
-                ...(typeof name === 'string' ? { [name]: value } : name),
+                ...(typeof name === 'string' ? { [name]: value } : name)
             };
-    
+
             if (name === 'ratedCriteria') {
                 setCriteria(value);
                 updatedForm.ratedCriteria = '';
             }
-    
+
             return updatedForm;
         });
         setFields((prevForm) => {
             const updatedForm = {
                 ...prevForm,
-                ...(typeof name === 'string' ? { [name]: value } : name),
+                ...(typeof name === 'string' ? { [name]: value } : name)
             };
-    
+
             if (name === 'effectiveFrom') {
-                setDate(value ? new Date(value) : null); 
+                setDate(value ? new Date(value) : null);
                 updatedForm.effectiveFrom = null;
-            }            
-    
+            }
+
             return updatedForm;
         });
     };
@@ -430,8 +462,15 @@ const CreateNewRulesPage = () => {
                         <div className="p-fluid grid md:mx-7 pt-2">
                             <div className="field col-4">
                                 <label htmlFor="effectiveFrom">Select Effective Date:</label>
-                                <Calendar id="effectiveFrom" value={date} onChange={(e) =>handleInputChange('effectiveFrom', e.target.value ? e.target.value.toISOString() : '')}
- dateFormat="dd-mm-yy" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                <Calendar
+                                    id="effectiveFrom"
+                                    value={date}
+                                    onChange={(e) => handleInputChange('effectiveFrom', e.target.value ? e.target.value.toISOString() : '')}
+                                    dateFormat="dd-mm-yy"
+                                    placeholder="Select a date"
+                                    showIcon
+                                    style={{ borderRadius: '5px', borderColor: 'black' }}
+                                />
                                 {formErrors.effectiveFrom && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.effectiveFrom}</p>}
                             </div>
                             <div className="field col-4">
@@ -523,12 +562,12 @@ const CreateNewRulesPage = () => {
                                             onChange={(e) => handleChange(index, 'criteriaEvaluation', e.target.value)}
                                             className="p-inputtext w-full"
                                         />
-                                        {formErrors.criteriaEvaluation && <p style={{ color: 'red', fontSize: '10px' ,marginBottom: '0px'}}>{formErrors.criteriaEvaluation}</p>}
+                                        {formErrors.criteriaEvaluation && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.criteriaEvaluation}</p>}
                                     </div>
                                     <div className="field col-4">
                                         <label htmlFor={`score-${index}`}>Score</label>
                                         <input id={`score-${index}`} type="text" placeholder="Score" value={fields.score[index]} onChange={(e) => handleChange(index, 'score', e.target.value)} className="p-inputtext w-full" />
-                                        {formErrors.score && <p style={{ color: 'red', fontSize: '10px',marginBottom: '0px' }}>{formErrors.score}</p>}
+                                        {formErrors.score && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.score}</p>}
                                         {scoreerrors[`score-${index}`] && <p className="text-red-500 text-xs">{scoreerrors[`score-${index}`]}</p>}
                                     </div>
                                     {fields.score.length > 1 && (
