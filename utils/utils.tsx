@@ -257,6 +257,57 @@ export const validateManageUser = (data: unknown, isEditMode: boolean,showFields
     }
 };
 
+export const formSchemaUserGroup = () => {
+    const baseSchema = {
+        name: z.string().min(1, 'Role Name cannot be empty'),
+        email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
+        phone: z.string()
+            .min(10, "Phone number must be at least 10 digits")
+            .max(12, "Phone number cannot be more than 12 digits"),
+        address: z.string().min(1, 'Site address cannot be empty'),
+        assesorRoleId: z
+        .number()
+        .optional()
+        .nullable()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'Assesor Role cannot be empty'
+        }),
+        assesorTypeId: z
+        .number()
+        .optional()
+        .nullable()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'Assesor Type cannot be empty'
+        }),
+        positionId: z
+        .number()
+        .optional()
+        .nullable()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'position cannot be empty'
+        }),
+    };
+
+    return z.object(baseSchema);
+};
+
+export const validateUserGroup = (data: unknown) => {
+    try {
+        formSchemaUserGroup().parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
+
+
 export const validateSubdomain = (subdomain: string) => {
     const subdomainLower = subdomain.toLowerCase();
     const subdomainRegex = /^[a-z0-9-]{3,63}$/;

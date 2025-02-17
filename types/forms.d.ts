@@ -321,6 +321,14 @@ type EmptyManageUsers = {
       cityId: number | null;
     }
 };
+type EmptyUsersGroup = {
+  assesorTypeId?: number | null;
+  positionId?: number | null;
+  assesorRoleId?: number | null;
+  email:string;
+  name:string;
+  phone:string;
+};
 type EmptySupplier = {
     supId: number | null;
     supplierName: string;
@@ -403,5 +411,6 @@ export type {
     receivepurchaseItem,
     EmptyManageUsers,
     EmptySupplier,
-    EmptyFeedback
+    EmptyFeedback,
+    EmptyUsersGroup
 };
