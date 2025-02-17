@@ -8,7 +8,15 @@ import { InputText } from 'primereact/inputtext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, CompanyUsers } from '@/types';
-import { GetCall } from '@/app/api-config/ApiKit';
+import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
+import { Dialog } from 'primereact/dialog';
+import { ProgressSpinner } from 'primereact/progressspinner';
+const ACTIONS = {
+    ADD: 'add',
+    EDIT: 'edit',
+    VIEW: 'view',
+    DELETE: 'delete'
+};
 
 const ManageUsersPage = () => {
     const router = useRouter();
@@ -17,9 +25,12 @@ const ManageUsersPage = () => {
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const { setAlert, setLoading } = useAppContext();
     const [companyUsers, setCompanyUsers] = useState<CompanyUsers[]>([]);
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
+    const [action, setAction] = useState(null);
+    const [selectedUserId, setSelectedUserId] = useState<any>(null);
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const { isLoading, setLoading, setAlert } = useAppContext();
 
     useEffect(() => {
         fetchData();
@@ -89,6 +100,42 @@ const ManageUsersPage = () => {
         } finally {
             setLoading(false);
         }
+    };
+    const onRowSelect = async (perm: any, action: any) => {
+        setAction(action);
+
+        setSelectedUserId(perm.id);
+
+        if (action === ACTIONS.DELETE) {
+            openDeleteDialog(perm);
+        }
+    };
+    const openDeleteDialog = (items: any) => {
+        setIsDeleteDialogVisible(true);
+    };
+
+    const closeDeleteDialog = () => {
+        setIsDeleteDialogVisible(false);
+    };
+
+    const onDelete = async () => {
+        setLoading(true);
+            try {
+                const response = await DeleteCall(`/company/user/${selectedUserId}`);
+
+                if (response.code === 'SUCCESS') {
+                    closeDeleteDialog();
+                    setAlert('success', 'User successfully deleted!');
+                    fetchData();
+                } else {
+                    setAlert('error', 'Something went wrong!');
+                    closeDeleteDialog();
+                }
+            } catch (error) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
+            }
     };
 
     return (
@@ -162,10 +209,38 @@ const ManageUsersPage = () => {
                                         body: (rowData) => <span style={{ color: rowData.isActive ? '#15B097' : 'red' }}>{rowData.isActive ? 'Active' : 'Inactive'}</span>
                                     }
                                 ]}
+                                onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                         </div>
                     </div>
                 </div>
+                <Dialog
+                                    header="Delete confirmation"
+                                    visible={isDeleteDialogVisible}
+                                    style={{ width: layoutState.isMobile ? '90vw' : '35vw' }}
+                                    className="delete-dialog"
+                                    footer={
+                                        <div className="flex justify-content-center p-2">
+                                            <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                                            <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                                        </div>
+                                    }
+                                    onHide={closeDeleteDialog}
+                                >
+                                    {isLoading && (
+                                        <div className="center-pos">
+                                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                                        </div>
+                                    )}
+                                    <div className="flex flex-column w-full surface-border p-3 text-center gap-4">
+                                        <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
+                
+                                        <div className="flex flex-column align-items-center gap-1">
+                                            <span>Are you sure you want to delete selected user</span>
+                                            <span>This action cannot be undone. </span>
+                                        </div>
+                                    </div>
+                                </Dialog>
             </div>
         </div>
     );
