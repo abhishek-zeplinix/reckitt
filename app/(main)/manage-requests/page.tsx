@@ -12,6 +12,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { z } from 'zod';
 import { useAuth } from '@/layout/context/authContext';
 import { get, sortBy } from 'lodash';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const rejectionSchema = z.object({
     reason: z.string().max(250, 'Rejection reason cannot exceed 250 characters')
@@ -312,6 +313,9 @@ const ManageRequestsPage = () => {
                     <div className="left-panel mb-0">
                         <div className="header">{renderHeader()}</div>
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
+                        {isLoading ?(
+                                <TableSkeletonSimple columns={7} rows={limit} />
+                            ) : (
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -380,6 +384,7 @@ const ManageRequestsPage = () => {
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
                             />
+                            )}
                         </div>
                     </div>
                 </div>

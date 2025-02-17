@@ -10,6 +10,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { CustomResponse } from '@/types';
 import SubmitResetButtons from './submit-reset-buttons';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -182,6 +183,9 @@ const PermissionManagement = () => {
                     <SubmitResetButtons onSubmit={handlePermissionSubmit} onReset={resetInput} label="Add Permission" />
                 </div>
                 <div className="mt-4">
+                {isLoading ?(
+                <TableSkeletonSimple columns={2} rows={limit} />
+            ) : (
                     <CustomDataTable
                         ref={allPermissions}
                         page={page}
@@ -197,13 +201,6 @@ const PermissionManagement = () => {
                             description: item?.desc
                         }))}
                         columns={[
-                            // {
-                            //     header: 'Module Name',
-                            //     field: 'permissionId',
-                            //     filter: true,
-                            //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            //     filterPlaceholder: 'Role'
-                            // },
                             {
                                 header: 'Sr. No.',
                                 body: (data: any, options: any) => {
@@ -239,6 +236,7 @@ const PermissionManagement = () => {
                         onLoad={(params: any) => fetchData(params)}
                         onDelete={(item: any) => onRowSelect(item, 'delete')}
                     />
+            )}
                 </div>
                 <Dialog
                     header="Delete confirmation"
