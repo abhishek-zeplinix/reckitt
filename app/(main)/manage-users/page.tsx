@@ -11,6 +11,7 @@ import { CustomResponse, CompanyUsers } from '@/types';
 import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -149,6 +150,9 @@ const ManageUsersPage = () => {
                             className="bg-[#ffffff] border border-1  p-3  mt-4 shadow-lg"
                             style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}
                         >
+                             {isLoading ?(
+                                <TableSkeletonSimple columns={7} rows={limit} />
+                            ) : (
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -211,6 +215,7 @@ const ManageUsersPage = () => {
                                 ]}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
+                            )}
                         </div>
                     </div>
                 </div>

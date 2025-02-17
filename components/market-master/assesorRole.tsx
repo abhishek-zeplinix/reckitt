@@ -9,6 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -146,6 +147,9 @@ const AddAssesorRole = () => {
             </div>
 
             <div className="mt-4">
+            {isLoading ?(
+                    <TableSkeletonSimple columns={2} rows={limit} />
+                ) : (
                 <CustomDataTable
                     ref={assesorrole}
                     page={page}
@@ -189,6 +193,7 @@ const AddAssesorRole = () => {
                     onDelete={(item: any) => onRowSelect(item, 'delete')}
                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                 />
+                )}
             </div>
 
             <Dialog
