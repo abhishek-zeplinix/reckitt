@@ -57,7 +57,6 @@ const SupplierScoreboardTables = ({
     const decodedParams = useDecodeParams(params.encodedParams);
     const { supId, catId, subCatId } = decodedParams;
 
-    const [isBadgeLoading, setIsBadgeLoading] = useState(false);
 
     useEffect(() => {
         const captureTimer = setTimeout(async () => {

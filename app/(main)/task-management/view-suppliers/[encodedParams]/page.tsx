@@ -7,22 +7,27 @@ import { Button } from 'primereact/button';
 // import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
 import { CustomResponse, Supplier } from '@/types';
-import { GetCall } from '../app/api-config/ApiKit';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
 import { encodeRouteParams } from '@/utils/base64';
-import TableSkeletonSimple from './supplier-rating/skeleton/TableSkeletonSimple';
 import { get } from 'lodash';
+import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
+import { GetCall } from '@/app/api-config/ApiKit';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import useDecodeParams from '@/hooks/useDecodeParams';
 
-const SupplierDirectory = () => {
+const ViewAssignedSuppliers = ({
+    params,
+}: {
+    params: { encodedParams: string };
+}) => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
     const [categoryLoader, setCategoryLoader] = useState(false);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
-    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [suppliers, setSuppliers] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
@@ -32,12 +37,27 @@ const SupplierDirectory = () => {
     const [userRole, setUserRole] = useState<string | null>(null);
     const router = useRouter();
 
+    
+    const decodedParams = useDecodeParams(params.encodedParams);
+    const { userId, role, name, department } = decodedParams;
+
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
+    console.log(userId);
+    console.log(role);
+    console.log(name);
+    console.log(department);
+
+    
+    if (!userId || !role || !name || !department) {
+        router.replace('/404')
+        return null;
+    }
+  
     const roleConfig = {
         admin: {
-            endpoint: '/company/supplier',
-            getFilters: () => ({})
+            endpoint: '/company/suppliers-mapped-config',
+            getFilters: () => ({role: role, userId: userId})
         },
         approver: {
             endpoint: '/company/suppliers-mapped-config-login-user',
@@ -51,10 +71,10 @@ const SupplierDirectory = () => {
 
 
     useEffect(() => {
-        // const role = get(user, 'role.name', 'admin')?.toLowerCase();
-        // setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
+        const role = get(user, 'role.name', 'admin')?.toLowerCase();
+        setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
         
-        setUserRole('admin')
+        // setUserRole('admin')
         
     }, [user]);
 
@@ -108,49 +128,7 @@ const SupplierDirectory = () => {
             }
         };
 
-    // const fetchData = async (params?: any) => {
-    //     if (!params) {
-    //         params = { limit: limit, page: page };
-    //         // params = { limit: limit, page: page };
-    //     }
-    //     setLoading(true);
-    //     const queryString = buildQueryParams(params);
-    //     const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setSuppliers(response.data);
-    //         if (response.total) {
-    //             setTotalRecords(response?.total);
-    //         }
-    //     } else {
-    //         setSuppliers([]);
-    //     }
-    // };
 
-    const fetchprocurementCategories = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setsupplierCategories([]); // Clear subcategories if no category is selected
-            return;
-        }
-        setCategoryLoader(true);
-        const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`); // get all the roles
-        setCategoryLoader(false);
-        if (response.code == 'SUCCESS') {
-            setsupplierCategories(response.data);
-        } else {
-            setsupplierCategories([]);
-        }
-    };
-    const fetchsupplierCategories = async () => {
-        setCategoryLoader(true);
-        const response: CustomResponse = await GetCall(`/company/category`); // get all the roles
-        setCategoryLoader(false);
-        if (response.code == 'SUCCESS') {
-            setprocurementCategories(response.data);
-        } else {
-            setprocurementCategories([]);
-        }
-    };
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
 
         const params: any = { supId, catId, subCatId };
@@ -173,7 +151,6 @@ const SupplierDirectory = () => {
     useEffect(() => {
             if (userRole) {
                 fetchData();
-                fetchsupplierCategories();
             }
         }, [userRole]);
 
@@ -193,73 +170,42 @@ const SupplierDirectory = () => {
 
     const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
 
-    const onCategorychange = (e: any) => {
-        setSelectedCategory(e.value); // Update limit
-        fetchprocurementCategories(e.value);
-        fetchData({
-            filters: {
-                supplierCategoryId: e.value
-            }
-        });
-    };
-
-    const onSubCategorychange = (e: any) => {
-        setSelectedSubCategory(e.value); // Update limit
-        fetchData({
-            filters: {
-                procurementCategoryId: e.value
-            }
-        });
-    };
+  
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ search: e.target?.value });
     };
-    const dropdownCategory = () => {
-        return (
-            <Dropdown
-                value={selectedCategory}
-                onChange={onCategorychange}
-                options={procurementCategories}
-                optionValue="categoryId"
-                placeholder="Select Department"
-                optionLabel="categoryName"
-                className="w-full md:w-10rem"
-                showClear={!!selectedCategory}
-            />
-        );
-    };
+    
 
-    const dropdownFieldCategory = dropdownCategory();
-
-    const dropdownMenuSubCategory = () => {
-        return (
-            <Dropdown
-                value={SelectedSubCategory}
-                onChange={onSubCategorychange}
-                options={supplierCategories}
-                optionLabel="subCategoryName"
-                optionValue="subCategoryId"
-                placeholder="Select Sub Category"
-                className="w-full md:w-10rem"
-                showClear={!!SelectedSubCategory}
-            />
-        );
-    };
-    const dropdownFieldSubCategory = dropdownMenuSubCategory();
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
+
+    const transformedData = suppliers[0]?.supplierAssigment.map((assignment: any, index:any) => {
+        const supplier = assignment?.suppliers[0];
+        
+        return {
+            id: assignment.assignmentId, 
+            srNo: index + 1,
+            supplierName: supplier.supplierName,
+            status: supplier.isBlocked ? 'Inactive' : 'Active', 
+            country: supplier.country, 
+            state: supplier.state, 
+            city: supplier.city, 
+            supplierCategory: supplier.supplierCategoryId, 
+            history: 'View History', 
+            evaluate: 'Evaluate'
+        };
+    });
+
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
             <div className="flex justify-content-between items-center border-b">
                 <div>
-                    <h3>Supplier Directory</h3>
+                    <h3>Assigned Suppliers to {name}</h3>
                 </div>
                 <div className="flex gap-2 pb-3">
-                    <div className="">{dropdownFieldCategory}</div>
-                    <div className="">{dropdownFieldSubCategory}</div>
                     <div className="">{FieldGlobalSearch}</div>
                 </div>
             </div>
@@ -269,12 +215,10 @@ const SupplierDirectory = () => {
             ) : (
                 <CustomDataTable
                     ref={dataTableRef}
-                    // filter
                     page={page}
                     limit={limit}
                     totalRecords={totalRecords}
-                    // extraButtons={getExtraButtons}
-                    data={suppliers}
+                    data={transformedData}
                     columns={[
                         {
                             header: 'Sr. No',
@@ -298,31 +242,32 @@ const SupplierDirectory = () => {
                             bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
                             body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                         },
+                       
                         {
-                            header: 'Warehouse Location',
-                            field: 'warehouseLocation',
-                            style: { minWidth: 120 }
+                            header: 'Country',
+                            field: 'country',
+                            style: { minWidth: 120, maxWidth: 120 }
                         },
-
                         {
-                            header: 'Procurement Category',
-                            field: 'category.categoryName',
+                            header: 'State',
+                            field: 'state',
+                            style: { minWidth: 120, maxWidth: 120 }
+                        },
+                        {
+                            header: 'City',
+                            field: 'city',
                             style: { minWidth: 120, maxWidth: 120 }
                         },
 
+
+                        // {
+                        //     header: 'History',
+                        //     body: HistoryBodyTemplate,
+                        //     style: { minWidth: 70, maxWidth: 70 },
+                        //     className: 'text-center'
+                        // },
                         {
-                            header: 'Supplier Category',
-                            field: 'subCategories.subCategoryName',
-                            style: { minWidth: 120, maxWidth: 180 }
-                        },
-                        {
-                            header: 'History',
-                            body: HistoryBodyTemplate,
-                            style: { minWidth: 70, maxWidth: 70 },
-                            className: 'text-center'
-                        },
-                        {
-                            header: 'Evaluate',
+                            header: role.toLowerCase() === 'evaluator' ? 'Evaluator' : 'Approver',
                             body: evaluateBodyTemplate,
                             style: { minWidth: 70, maxWidth: 70 },
                             className: 'text-center'
@@ -333,6 +278,6 @@ const SupplierDirectory = () => {
             )}
         </div>
     );
-};
+}
 
-export default SupplierDirectory;
+export default ViewAssignedSuppliers;

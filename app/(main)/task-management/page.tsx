@@ -1,20 +1,13 @@
 'use client';
 import React, { useState } from 'react';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
 import Tasks from '@/components/task-management/Tasks';
+import AutoMapping from '@/components/task-management/AutoMapping';
 
 const TaskManagement = () => {
     const [activeTab, setActiveTab] = useState<'Approver' | 'Evaluator'>('Approver');
     const [filtersVisible, setFiltersVisible] = useState(false);
 
-    const cities = [
-        { label: 'All', value: 'all' },
-        { label: 'Pending', value: 'pending' },
-        { label: 'Completed', value: 'completed' },
-        { label: 'Overdue', value: 'overdue' }
-    ];
 
     const renderHeader = () => (
         <>
@@ -32,51 +25,8 @@ const TaskManagement = () => {
                     />
                 </div>
             </div>
-            {filtersVisible && (
-                <div className="mt-3 shadow-2 surface-card border-round-2xl mr-3 mb-3">
-                    <div className="px-4 py-4">
-                        <div className="relative border-bottom-1 border-300">
-                            <h3>Auto Mapping Configuration Settings</h3>
-                            <span 
-                                onClick={() => setFiltersVisible(false)} 
-                                className="absolute top-0 right-0 cursor-pointer"
-                            >
-                                <i className="pi pi-times text-sm"></i>
-                            </span>
-                        </div>
-                        <div className="grid mt-4 gap-4 px-2">
-                            {['User Type', 'Department', 'Country', 'State', 'City'].map((label) => (
-                                <div key={label} className="flex flex-column">
-                                    <label className="mb-1">{label}</label>
-                                    <Dropdown 
-                                        options={cities} 
-                                        optionLabel="name" 
-                                        showClear 
-                                        placeholder="" 
-                                        className="w-full md:w-15rem" 
-                                    />
-                                </div>
-                            ))}
-                            <div className="flex flex-column">
-                                <label className="mb-1">ZipCode</label>
-                                <InputText 
-                                    type="text" 
-                                    placeholder="Enter Zip Code" 
-                                    className="w-full md:w-15rem" 
-                                />
-                            </div>
-                        </div>
-                        <div className="flex justify-content-end">
-                            <Button 
-                                icon="pi pi-sync" 
-                                size="small" 
-                                label="Apply" 
-                                className="bg-primary-main border-primary-main hover:text-white" 
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+
+            <AutoMapping filtersVisible={filtersVisible} setFiltersVisible={setFiltersVisible}/>
         </>
     );
 

@@ -751,3 +751,15 @@ background-color: #3A60F8;
   box-shadow: none !important;
   color: black; /* Adjust text color */
 }
+
+//task mapping fitler 
+.filters-container {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.filters-container-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

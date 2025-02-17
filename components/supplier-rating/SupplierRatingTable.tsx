@@ -51,11 +51,7 @@ const SupplierEvaluationTable = ({ rules,
   const [noData, setNoData] = useState(false);
   const [isCompletionDialogVisible, setIsCompletionDialogVisible] = useState(false);
 
-
-  const urlParams = useParams();
-
   // const { supId } = urlParams;
-
   const dropdownRef = useRef<any>(null);
 
   const { setLoading, setAlert } = useAppContext();
@@ -451,7 +447,7 @@ const SupplierEvaluationTable = ({ rules,
         const selectedEval = evaluations[key];
         const currentPercentage = percentages[key];
 
-        if (selectedEval && selectedEval !== '' && currentPercentage !== 'NA') {
+        if (selectedEval !== undefined  && selectedEval !== '' && currentPercentage !== 'NA') {
           // add check for empty string
 
           const evaluation = (criteria.evaluations as any[]).find((e) => e.criteriaEvaluation === selectedEval);
@@ -471,7 +467,8 @@ const SupplierEvaluationTable = ({ rules,
 
   const handleEvaluationChange = (sectionIndex: number, criteriaIndex: number, value: string) => {
     const key = `${sectionIndex}-${criteriaIndex}`;
-
+    console.log(value);
+    
     const updatedEvals = {
       ...selectedEvaluations,
       [key]: value
@@ -774,7 +771,7 @@ const SupplierEvaluationTable = ({ rules,
                           options={[
                             // { label: "-- Select an Evaluation --", value: "" }, // for defaukt option, so user can select default again..
                             ...criteria.evaluations.map((evaluation: any) => ({
-                              label: evaluation.criteriaEvaluation,
+                              label: String(evaluation.criteriaEvaluation),
                               value: evaluation.criteriaEvaluation,
                             }))
                           ]}

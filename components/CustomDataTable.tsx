@@ -204,6 +204,7 @@ interface ColumnItem extends ColumnProps {
 
 interface ExtraButton {
     icon: any;
+    tooltip?:string;
     onClick?: (item: any) => void;
 }
 
@@ -261,7 +262,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                     props
                         .extraButtons(item)
                         .map((btn: ExtraButton, index: number) => (
-                            <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main" onClick={() => btn.onClick && btn.onClick(item)} />
+                            <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main" onClick={() => btn.onClick && btn.onClick(item) } tooltip={btn.tooltip}/>
                         ))}
             </div>
         );
