@@ -49,6 +49,23 @@ const ViewAssignedSuppliers = ({
     console.log(department);
 
     
+    useEffect(() => {
+        const role = get(user, 'role.name', 'admin')?.toLowerCase();
+        setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
+        
+        // setUserRole('admin')
+        
+    }, [user]);
+
+
+    useEffect(() => {
+        if (userRole) {
+            fetchData();
+        }
+    }, [userRole]);
+    
+
+
     if (!userId || !role || !name || !department) {
         router.replace('/404')
         return null;
@@ -68,18 +85,6 @@ const ViewAssignedSuppliers = ({
             getFilters: () => ({})
         }
     };
-
-
-    useEffect(() => {
-        const role = get(user, 'role.name', 'admin')?.toLowerCase();
-        setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
-        
-        // setUserRole('admin')
-        
-    }, [user]);
-
-    console.log(userRole);
-    
 
      const fetchData = async (params?: any) => {
             if (!userRole) return;
@@ -148,11 +153,6 @@ const ViewAssignedSuppliers = ({
     // }, []);
 
 
-    useEffect(() => {
-            if (userRole) {
-                fetchData();
-            }
-        }, [userRole]);
 
     // Render the status column
     const statusBodyTemplate = (rowData: any) => (
