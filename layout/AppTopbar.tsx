@@ -99,7 +99,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             <div className="flex items-center gap-2 ml-auto">
                 <div className="hidden md:flex flex-column items-end">
                     <span className="font-semibold">{get(user, 'name', 'User')}</span>
-                    <span className="text-sm text-blue-600">{get(user, 'role.name', 'Role not assigned')}</span>
+                    <span className="text-sm text-blue-600">{get(user, 'userRole', 'Role not assigned').toUpperCase()}</span>
                 </div>
 
                 <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={avatarClick}>

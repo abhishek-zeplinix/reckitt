@@ -19,6 +19,7 @@ import TileSkeleton from '@/components/supplier-rating/skeleton/DashboardCountSk
 import SupplierPerformanceSkeleton from '@/components/supplier-rating/skeleton/SupplierPerformanceSkeleton';
 import HistoricalPerformanceSkeleton from '@/components/supplier-rating/skeleton/DashboardWaveGraphSkeleton';
 import TotalAssessmentSkeleton from '@/components/supplier-rating/skeleton/DashboardDonutSkeleton';
+import { withAuth } from '@/layout/context/authContext';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [filtersVisible, setfiltersVisible] = useState(false);
@@ -955,4 +956,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard, undefined, "view_dashboard");

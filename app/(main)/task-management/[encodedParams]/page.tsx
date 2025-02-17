@@ -15,6 +15,7 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import CustomDialogBox from '@/components/dialog-box/CustomDialogBox';
+import { RadioButton } from 'primereact/radiobutton';
 
 const AssignSuppliers = ({
     params,
@@ -29,7 +30,6 @@ const AssignSuppliers = ({
     const [tasksList, setTasksList] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const { isLoading, setLoading, setAlert } = useAppContext();
-    const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedCountry, setSelectedCountry] = useState('');
     const [selectedState, setSelectedState] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
@@ -39,6 +39,7 @@ const AssignSuppliers = ({
     const [selectedSuppliers, setSelectedSuppliers] = useState<any[]>([]);
     const [showTable, setShowTable] = useState(false);
     const [isCompletionDialogVisible, setIsCompletionDialogVisible] = useState(false);
+    const [assignmentMode, setAssignmentMode] = useState('manual'); // 'manual' or 'all'
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { userId, role, name, department } = decodedParams;
@@ -57,6 +58,14 @@ const AssignSuppliers = ({
         router.replace('/404')
         return null;
     }
+
+    console.log(userId);
+    console.log(role);
+    console.log(name);
+    console.log(department);
+
+
+    // const { departments } = useFetchDepartments();
 
     const fetchData = async (currentPage = page, customFilters = {}) => {
 
@@ -168,14 +177,51 @@ const AssignSuppliers = ({
 
 
     const handleSubmit = async () => {
-        if (!selectedSuppliers.length) {
+        // if (!selectedSuppliers.length) {
+        //     setAlert('error', 'Please select at least one supplier');
+        //     return;
+        // }
+
+        if (assignmentMode === 'manual' && !selectedSuppliers.length) {
             setAlert('error', 'Please select at least one supplier');
             return;
         }
-
         // Show the confirmation dialog
         setIsCompletionDialogVisible(true);
     };
+
+
+    // const handleCompletionConfirm = async () => {
+    //     try {
+    //         setLoading(true);
+
+    //         const countryData = Country.getCountryByCode(selectedCountry);
+    //         const stateData = State.getStateByCodeAndCountry(selectedState, selectedCountry);
+
+    //         const payload = selectedSuppliers?.map(supplier => ({
+    //             userId: Number(userId),
+    //             supId: supplier.supId,
+    //             country: countryData?.name || "",
+    //             state: stateData?.name || "",
+    //             city: selectedCity || ""
+    //         }));
+
+    //         console.log(payload);
+
+    //         const response = await PostCall('/company/suppliers-mapped', payload);
+
+    //         if (response.code === 'SUCCESS') {
+    //             setAlert('success', 'Suppliers assigned successfully!');
+    //         }else{
+    //             setAlert('error', response.message);
+    //         }
+    //     } catch (error) {
+    //         setAlert('error', 'Failed to assign suppliers!');
+    //     } finally {
+    //         setLoading(false);
+    //         setIsCompletionDialogVisible(false); // Close the dialog after submission
+    //     }
+    // };
 
 
     const handleCompletionConfirm = async () => {
@@ -185,26 +231,45 @@ const AssignSuppliers = ({
             const countryData = Country.getCountryByCode(selectedCountry);
             const stateData = State.getStateByCodeAndCountry(selectedState, selectedCountry);
 
-            const payload = selectedSuppliers?.map(supplier => ({
-                userId: Number(userId),
-                supId: supplier.supId,
+            const filters = {
                 country: countryData?.name || "",
                 state: stateData?.name || "",
                 city: selectedCity || ""
-            }));
+            };
+
+            const payload = assignmentMode === 'all'
+                ? {
+                    userId: Number(userId),
+                    assignAll: true,
+                    ...filters
+                }
+                : selectedSuppliers?.map(supplier => ({
+                    userId: Number(userId),
+                    supId: supplier.supId,
+                    ...filters
+                }));
+
+            console.log(payload);
 
             const response = await PostCall('/company/suppliers-mapped', payload);
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Suppliers assigned successfully!');
+            } else {
+                setAlert('error', response.message);
             }
         } catch (error) {
             setAlert('error', 'Failed to assign suppliers!');
         } finally {
             setLoading(false);
-            setIsCompletionDialogVisible(false); // Close the dialog after submission
+            setIsCompletionDialogVisible(false);
         }
     };
+
+
+    const handleResetSelections = () => {
+        setSelectedSuppliers([]);
+    }
 
     const onPage = (event: any) => {
         setPage(event.first / event.rows);
@@ -233,7 +298,7 @@ const AssignSuppliers = ({
 
                     <div className="flex flex-column">
                         <label className="mb-2">{role}&apos; Department </label>
-                        <InputText name='departmnet' value={department} disabled />
+                        <InputText name='department' value={department} disabled />
                         {/* <Dropdown
                             value={department}
                             onChange={onDepartmentChange}
@@ -299,6 +364,32 @@ const AssignSuppliers = ({
         </div>
     );
 
+    const renderAssignmentOptions = () => (
+        <div className="flex gap-4 ">
+            <div className="flex align-items-center">
+                <RadioButton
+                    inputId="manual"
+                    name="assignmentMode"
+                    value="manual"
+                    onChange={(e) => setAssignmentMode(e.value)}
+                    checked={assignmentMode === 'manual'}
+                />
+                <label htmlFor="manual" className="ml-2">Assign Manually</label>
+            </div>
+            <div className="flex align-items-center">
+                <RadioButton
+                    inputId="all"
+                    name="assignmentMode"
+                    value="all"
+                    onChange={(e) => setAssignmentMode(e.value)}
+                    checked={assignmentMode === 'all'}
+                />
+                <label htmlFor="all" className="ml-2">Assign All</label>
+            </div>
+        </div>
+    );
+
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -309,8 +400,10 @@ const AssignSuppliers = ({
 
                         {showTable && (
                             <div className="bg-white border border-1 p-3 shadow-lg rounded-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}>
-                                <div className="flex justify-content-between align-items-center align-content-center border-b pb-3">
-                                    <div className='flex gap-3 align-items-center'>
+                                <div className="flex justify-content-between">
+
+                                    <div className="flex justify-content-between align-items-center align-content-center border-b pb-3 gap-3">
+
                                         <Dropdown
                                             value={limit}
                                             options={limitOptions}
@@ -318,18 +411,46 @@ const AssignSuppliers = ({
                                             placeholder="Limit"
                                             className="w-24 h-8"
                                         />
-                                    
-                                    <div className='font-italic'>
-                                        Total Selected Suppliers - {selectedSuppliers?.length}
-                                    </div>
-                                    </div>
-                                    <Button
-                                        label="Assign Selected Suppliers"
-                                        onClick={handleSubmit}
-                                        disabled={selectedSuppliers.length === 0 || !selectedCountry}
-                                        className="p-button-primary"
 
-                                    />
+
+                                            <div className=''>
+                                                {renderAssignmentOptions()}
+                                            </div>
+
+                                            <div className='flex gap-3 align-items-center'>
+
+                                                {assignmentMode === 'manual' && (
+                                                    <div className='font-italic font-bold'>
+                                                        Total Selected Suppliers - {selectedSuppliers?.length}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        {/* <div className='font-italic'>
+                                            Total Selected Suppliers - {selectedSuppliers?.length}
+                                        </div> */}
+                                    </div>
+
+
+                                    <div className='flex gap-3'>
+                                        {assignmentMode === 'manual' && (
+                                            <Button
+                                                label="Reset"
+                                                onClick={handleResetSelections}
+                                                disabled={selectedSuppliers.length === 0}
+                                                className="p-button-primary"
+                                            />
+                                        )}
+                                        <Button
+                                            label={assignmentMode === 'all' ? "Assign All Suppliers" : "Assign Selected Suppliers"}
+                                            onClick={handleSubmit}
+                                            disabled={
+                                                (assignmentMode === 'manual' && selectedSuppliers.length === 0) ||
+                                                !selectedCountry
+                                            }
+                                            className="p-button-primary"
+                                        />
+                                    </div>
+
                                 </div>
 
                                 <DataTable
@@ -348,7 +469,10 @@ const AssignSuppliers = ({
                                     scrollHeight="400px"
                                     className="mt-3"
                                 >
-                                    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
+                                    {/* <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} disabled={assignmentMode === 'all'}
+                                    /> */}
+                                    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}
+                                    />
                                     <Column
                                         header="Sr. No"
                                         body={(data, options) => options.rowIndex + 1 + (page * limit)}

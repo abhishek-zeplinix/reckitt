@@ -8,6 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall } from '@/app/api-config/ApiKit';
 import { encodeRouteParams } from '@/utils/base64';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 
 interface TasksProps {
     role: 'Approver' | 'Evaluator';
@@ -32,13 +33,24 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
         { label: '100', value: 100 }
     ];
 
+    const navigateToViewSuppliers = (rowData: any) => {
+        router.push(
+            `/task-management/view-suppliers/${encodeRouteParams({
+                userId: rowData?.userId,
+                role: role,
+                name: rowData?.user.name,
+                department: rowData?.department.name,
+            })}`
+        );
+    };
+    
     const navigateToAssign = (rowData: any) => {
         router.push(
             `/task-management/${encodeRouteParams({
                 userId: rowData?.userId,
                 role: role,
-                name: rowData?.users.name,
-                department:rowData?.department.name,
+                name: rowData?.user.name,
+                department: rowData?.department.name,
             })}`
         );
     };
@@ -83,7 +95,7 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
         },
         {
             header: `${role} Name`,
-            field: 'users.name',
+            field: 'user.name',
             bodyStyle: { minWidth: 150, maxWidth: 150 }
         },
         {
@@ -93,12 +105,12 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
         },
         {
             header: 'Email Address',
-            field: 'users.email',
+            field: 'user.email',
             bodyStyle: { minWidth: 150, maxWidth: 150 }
         },
         {
             header: 'Phone Number',
-            field: 'users.phone',
+            field: 'user.phone',
             bodyStyle: { minWidth: 150, maxWidth: 150 }
         },
         {
@@ -139,22 +151,36 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
                                     />
                                 </div>
                             </div>
+                            {
+                                isLoading ? 
+                                <div className='mt-3'>
+                                <TableSkeletonSimple columns={9} />
+                                </div>
+                                :
+                                    <CustomDataTable
+                                        ref={dataTableRef}
+                                        page={page}
+                                        limit={limit}
+                                        totalRecords={totalRecords}
+                                        extraButtons={(item) => [
+                                            {
+                                                icon: 'pi pi-eye',
+                                                tooltip: 'View Assigned Suppliers ',
+                                                onClick: () => navigateToViewSuppliers(item)
+                                            },
+                                            {
+                                                icon: 'pi pi-pencil',
+                                                tooltip: 'Assign Suppliers ',
+                                                onClick: () => navigateToAssign(item)
+                                            },
+                                           
+                                        ]}
+                                        data={tasksList}
+                                        columns={columns}
+                                        onLoad={fetchData}
+                                    />
+                            }
 
-                            <CustomDataTable
-                                ref={dataTableRef}
-                                page={page}
-                                limit={limit}
-                                totalRecords={totalRecords}
-                                extraButtons={(item) => [
-                                    {
-                                        icon: 'pi pi-eye',
-                                        onClick: () => navigateToAssign(item)
-                                    }
-                                ]}
-                                data={tasksList}
-                                columns={columns}
-                                onLoad={fetchData}
-                            />
                         </div>
                     </div>
                 </div>
