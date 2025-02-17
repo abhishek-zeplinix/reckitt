@@ -211,7 +211,7 @@ const ViewAssignedSuppliers = ({
             </div>
 
             {isLoading || categoryLoader ? (
-                <TableSkeletonSimple columns={6} rows={limit} />
+                <TableSkeletonSimple columns={11} rows={limit} />
             ) : (
                 <CustomDataTable
                     ref={dataTableRef}

@@ -164,8 +164,8 @@ const ManageSupplierScorePage = () => {
                             <div className="mt-3 ">
                                 <ScoreTiles />
                             </div>
-                            {isDataLoading ? (
-                                <TableSkeletonSimple columns={8} rows={limit} />
+                            {isLoading ? (
+                                <TableSkeletonSimple columns={3} rows={limit} />
                             ) : (
                                 <CustomDataTable
                                     ref={dataTableRef}
