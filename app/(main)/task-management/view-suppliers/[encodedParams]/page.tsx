@@ -2,15 +2,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-// import 'primeicons/primeicons.css';
-// import 'primereact/resources/themes/saga-blue/theme.css';
-// import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
-import { CustomResponse, Supplier } from '@/types';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { encodeRouteParams } from '@/utils/base64';
 import { get } from 'lodash';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
@@ -29,32 +24,21 @@ const ViewAssignedSuppliers = ({
     const [page, setPage] = useState<number>(1);
     const [suppliers, setSuppliers] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
-    const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedglobalSearch, setGlobalSearch] = useState('');
-    const [SelectedSubCategory, setSelectedSubCategory] = useState('');
-    const [procurementCategories, setprocurementCategories] = useState([]);
-    const [supplierCategories, setsupplierCategories] = useState([]);
     const [userRole, setUserRole] = useState<string | null>(null);
     const router = useRouter();
 
-    
+
+
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { userId, role, name, department } = decodedParams;
+    const { userId, role, name } = decodedParams;
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
-    console.log(userId);
-    console.log(role);
-    console.log(name);
-    console.log(department);
 
-    
     useEffect(() => {
         const role = get(user, 'role.name', 'admin')?.toLowerCase();
         setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
-        
-        // setUserRole('admin')
-        
     }, [user]);
 
 
@@ -63,18 +47,18 @@ const ViewAssignedSuppliers = ({
             fetchData();
         }
     }, [userRole]);
-    
 
 
-    if (!userId || !role || !name || !department) {
+
+    if (!userId || !role || !name) {
         router.replace('/404')
         return null;
     }
-  
+
     const roleConfig = {
         admin: {
             endpoint: '/company/suppliers-mapped-config',
-            getFilters: () => ({role: role, userId: userId})
+            getFilters: () => ({ role: role, userId: userId })
         },
         approver: {
             endpoint: '/company/suppliers-mapped-config-login-user',
@@ -86,52 +70,54 @@ const ViewAssignedSuppliers = ({
         }
     };
 
-     const fetchData = async (params?: any) => {
-            if (!userRole) return;
-    
-            try {
-                setLoading(true);
-    
-                const config = roleConfig[userRole as keyof typeof roleConfig];
-                if (!config) {
-                    throw new Error('Invalid user role');
-                }
-    
-                // merge default params with role-specific filters and any additional params
-                const defaultParams = {
-                    limit,
-                    page,
-                    filters: config.getFilters()
-                };
-    
-                const mergedParams = {
-                    ...defaultParams,
-                    ...params,
-                    filters: {
-                        ...defaultParams.filters,
-                        ...(params?.filters || {})
-                    }
-                };
-    
-                const queryString = buildQueryParams(mergedParams);
-                setPage(mergedParams.page);
-    
-                const response = await GetCall(`${config.endpoint}?${queryString}`);
-    
-                if (response.code === 'SUCCESS') {
-                    console.log(response?.data);
-                    
-                    setSuppliers(response?.data);
-                    setTotalRecords(response?.total);
-                } else {
-                    setSuppliers([]);
-                }
-            } catch (error) {
-                setAlert('error', 'Something went wrong!');
-            } finally {
-                setLoading(false);
+    const fetchData = async (params?: any) => {
+        if (!userRole) return;
+
+        try {
+            setLoading(true);
+
+            const config = roleConfig[userRole as keyof typeof roleConfig];
+            if (!config) {
+                throw new Error('Invalid user role');
             }
-        };
+
+            // merge default params with role-specific filters and any additional params
+            const defaultParams = {
+                limit,
+                page,
+                filters: config.getFilters()
+            };
+
+            const mergedParams = {
+                ...defaultParams,
+                ...params,
+                filters: {
+                    ...defaultParams.filters,
+                    ...(params?.filters || {})
+                }
+            };
+
+            const queryString = buildQueryParams(mergedParams);
+            setPage(mergedParams.page);
+
+            const response = await GetCall(`${config.endpoint}?${queryString}`);
+
+            if (response.code === 'SUCCESS') {
+                console.log(response?.data);
+
+                const suppliersData = Array.isArray(response?.data) ? response.data : [response.data];
+
+                setSuppliers(suppliersData);
+                setTotalRecords(response?.total);
+            } else {
+                setSuppliers([]);
+            }
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
@@ -143,16 +129,6 @@ const ViewAssignedSuppliers = ({
         // router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
         router.push(`/supplier-scoreboard-summary/${encodedParams}`);
     };
-
-
-    // useEffect(() => {
-    //     // setScroll(true);
-    //     fetchData();
-    //     fetchsupplierCategories();
-    //     // fetchRolesData();
-    // }, []);
-
-
 
     // Render the status column
     const statusBodyTemplate = (rowData: any) => (
@@ -170,31 +146,32 @@ const ViewAssignedSuppliers = ({
 
     const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
 
-  
+
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value); // Update limit
         fetchData({ search: e.target?.value });
     };
-    
+
 
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
 
-    const transformedData = suppliers[0]?.supplierAssigment.map((assignment: any, index:any) => {
+
+    const transformedData = suppliers[0]?.supplierAssigment.map((assignment: any, index: any) => {
         const supplier = assignment?.suppliers[0];
-        
+
         return {
-            id: assignment.assignmentId, 
+            id: assignment.assignmentId,
             srNo: index + 1,
             supplierName: supplier.supplierName,
-            status: supplier.isBlocked ? 'Inactive' : 'Active', 
-            country: supplier.country, 
-            state: supplier.state, 
-            city: supplier.city, 
-            supplierCategory: supplier.supplierCategoryId, 
-            history: 'View History', 
+            status: supplier.isBlocked ? 'Inactive' : 'Active',
+            country: supplier.country,
+            state: supplier.state,
+            city: supplier.city,
+            supplierCategory: supplier.supplierCategoryId,
+            history: 'View History',
             evaluate: 'Evaluate'
         };
     });
@@ -222,12 +199,7 @@ const ViewAssignedSuppliers = ({
                     columns={[
                         {
                             header: 'Sr. No',
-                            body: (data: any, options: any) => {
-                                const normalizedRowIndex = options.rowIndex % limit;
-                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-
-                                return <span>{srNo}</span>;
-                            },
+                            field: 'srNo',
                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
@@ -242,7 +214,7 @@ const ViewAssignedSuppliers = ({
                             bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
                             body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                         },
-                       
+
                         {
                             header: 'Country',
                             field: 'country',
@@ -267,7 +239,7 @@ const ViewAssignedSuppliers = ({
                         //     className: 'text-center'
                         // },
                         {
-                            header: role.toLowerCase() === 'evaluator' ? 'Evaluator' : 'Approver',
+                            header: role.toLowerCase() === 'evaluator' ? 'Evaluate' : 'Approve',
                             body: evaluateBodyTemplate,
                             style: { minWidth: 70, maxWidth: 70 },
                             className: 'text-center'

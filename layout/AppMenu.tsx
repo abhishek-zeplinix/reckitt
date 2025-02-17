@@ -125,15 +125,25 @@ const AppMenu = () => {
                     },
                     {
                         label: 'My Tasks',
-                        url: '/task-management',
+                        url: (() => {
+                            if (hasPermission('get_approver_evaluator_assigned_suppliers')) {
+                                const userId = get(user, 'id');
+                                const role = get(user, 'userRole');
+                                const name = get(user, 'name');
+
+                                console.log(userId, role, name);
+                                
+                                if (userId && role && name) {
+                                    return `/task-management/view-suppliers/${encodeRouteParams({ userId, role, name })}`;
+                                }
+                            }
+                            return '/task-management'; // Default if user doesn't have required fields
+                        })(),
                         check: (user: any) => {
-                            // Check if the user is a super admin
                             if (get(user, 'isSuperAdmin')) {
                                 return false;
                             }
-
                             return hasPermission('get_approver_evaluator_assigned_suppliers');
-                            
                         },
                         command: handleMenuClick
                     }
