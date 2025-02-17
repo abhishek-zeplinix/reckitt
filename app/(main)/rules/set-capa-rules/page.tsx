@@ -543,13 +543,13 @@ const ManageCapaRulesPage = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'PROCUREMENT CATEGORY',
+                                        header: 'PROC. CATEGORY',
                                         field: 'category.categoryName',
                                         // sortable: true,
                                         // filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 100, maxWidth: 100 }
+                                        style: { minWidth: 120, maxWidth: 120 }
                                     },
                                     {
                                         header: 'SUB CATEGORY',
