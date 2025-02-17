@@ -614,6 +614,32 @@ const MarketingTemplatesPage = () => {
                                     {
                                         header: 'Question',
                                         field: 'description',
+                                        body: (data: any, options: ColumnBodyOptions) => {
+                                        const rowIndex = options.rowIndex;
+                                        const isExpanded = expandedRows[rowIndex] || false;
+                                        
+                                        const words = data.description?.split(' ');
+                                        const isLongText = words.length > 5;
+                                        const displayText = isExpanded ? data.description : words.slice(0, 5).join(' ') + (isLongText ? '...' : '');
+                                        
+                                        const toggleExpand = () => {
+                                            setExpandedRows((prev) => ({
+                                                ...prev,
+                                                [rowIndex]: !isExpanded
+                                            }));
+                                        };
+                                        
+                                        return (
+                                            <span>
+                                                {displayText}
+                                                {isLongText && (
+                                                    <button onClick={toggleExpand} style={{ color: 'red', cursor: 'pointer', border: 'none', background: 'none', marginLeft: '5px', fontSize: '10px' }}>
+                                                        {isExpanded ? 'Read Less' : 'Read More'}
+                                                    </button>
+                                                )}
+                                            </span>
+                                        );
+                                    },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
