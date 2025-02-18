@@ -56,11 +56,7 @@ const AssignSuppliers = ({
     }, []);
 
 
-    if (!userId || !role || !name || !department) {
-        router.replace('/404')
-        return null;
-    }
-
+   
     console.log(userId);
     console.log(role);
     console.log(name);
@@ -103,6 +99,13 @@ const AssignSuppliers = ({
         }, 700),
         []
     );
+
+    if (!userId || !role || !name || !department) {
+        router.replace('/404')
+        return null;
+    }
+
+    
 
     const onLimitChange = (e: any) => {
         setLimit(e.value);
