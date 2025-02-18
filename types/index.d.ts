@@ -24,6 +24,7 @@ import {
     AppMenuItemProps,
     AppMenuItem
 } from './layout';
+import { Calendar } from 'primereact/calendar';
 
 type ChildContainerProps = {
     children: ReactNode;
@@ -163,6 +164,7 @@ interface Rules {
     score: string;
     ratiosRawpack: number;
     ratiosCopack: number;
+    effectiveFrom:string;
     subCategories?: {
         subCategoryName: string;
     }
