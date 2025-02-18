@@ -8,6 +8,7 @@ import { LayoutContext } from '@/layout/context/layoutcontext';
 import { useAuth } from '@/layout/context/authContext';
 import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 import { useAppContext } from '@/layout/AppWrapper';
+import DocumentViewer from '../viewer/DocumentViewer';
 
 const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: any) => {
     const [uploadedFiles, setUploadedFiles] = useState<any>({});
@@ -15,6 +16,11 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [isShowSplit, setIsShowSplit] = useState(false);
+
+    //for doc viewer
+    const [selectedFile, setSelectedFile] = useState<string | null>(null);
+    const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+    const [showViewer, setShowViewer] = useState(false);
 
     const { isLoading, setAlert } = useAppContext();
 
@@ -27,7 +33,7 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
         if (!event || !event.files || event.files.length === 0) {
             return;
         }
-        
+
         if (!file) {
             return;
         }
@@ -50,7 +56,7 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
             setAlert('error', 'Only PDF, images (JPEG, PNG), and DOC/DOCX files are allowed')
             return;
         }
-        
+
 
         setUploadedFiles((prev: any) => ({
             ...prev,
@@ -112,7 +118,21 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
     const fileUploadTemplate = (rowData: any) => {
         const hasFile = uploadedFiles[rowData.scoreCheckedDataId];
         const fileName = fileNames[rowData.scoreCheckedDataId];
-        const isFileAlreadyUploaded = !!rowData.file;
+
+        // if there's an existing file, show the download link
+        if (rowData.file) {
+            return (
+                <Button
+                label="View File"
+                className="p-button-link text-blue-500 p-button-sm"
+                onClick={() => {
+                    setSelectedFile(rowData.file);
+                    setSelectedFileName(rowData.fileName || 'Document');
+                    setShowViewer(true);
+                }}
+            />
+            );
+        }
 
         return (
             <div className="flex align-items-center gap-2">
@@ -123,11 +143,8 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
                     className={`p-button-${hasFile ? 'success' : 'primary'} p-button-sm`}
                     onSelect={handleFileUpload(rowData.scoreCheckedDataId)}
                     accept="image/*,application/pdf"
-                    // accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx"
-                    // maxFileSize={2000000}
-                    disabled={isFileAlreadyUploaded}
                     onError={onError}
-
+                    disabled={!isSupplier()}
                 />
                 {fileName && (
                     <span className="text-sm text-500 text-yellow-700">
@@ -139,6 +156,7 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
     };
 
 
+
     const renderHeader = () => (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left flex align-items-center">
@@ -146,26 +164,11 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
             </span>
             <div className="p-input-icon-left flex align-items-left flex-column text-sm font-bold">
                 <div> Allowed Formats: <span className='text-red-500'>jpeg, png, pdf, doc, docx</span></div>
-               <div>Max File Size:  <span className='text-red-500'>2 MB</span></div>
+                <div>Max File Size:  <span className='text-red-500'>2 MB</span></div>
             </div>
         </div>
     );
 
-    const fileDownloadTemplate = (rowData: any) => {
-        if (!rowData.file) return "Not Uploaded";
-
-        return (
-            <a
-                href={rowData.file}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-            >
-                View Document
-            </a>
-        );
-    };
 
     return (
         <div className="grid">
@@ -190,15 +193,14 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
                                         <Column field="ratio" header="Ratio" />
                                         <Column field="evaluation" header="Evaluation" />
                                         <Column field="score" header="Score" />
-                                        <Column field="file"
+                                        {/* <Column field="file"
                                             header="Uploaded Document"
                                             body={fileDownloadTemplate}
-                                        />
+                                        /> */}
                                         <Column
                                             body={fileUploadTemplate}
                                             header="Upload File"
-                                            style={{ width: '200px' }}
-                                            hidden={!isSupplier()}
+                                            style={{ width: '200px', placeItems: 'start'}}
                                         />
                                     </DataTable>
                                 </div>
@@ -231,6 +233,19 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
                     iconColor="#DF1740"
                     loading={loading}
                 />
+
+                {selectedFile && (
+                    <DocumentViewer
+                        fileUrl={selectedFile}
+                        fileName={selectedFileName || undefined}
+                        visible={showViewer}
+                        onHide={() => {
+                            setShowViewer(false);
+                            setSelectedFile(null);
+                            setSelectedFileName(null);
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

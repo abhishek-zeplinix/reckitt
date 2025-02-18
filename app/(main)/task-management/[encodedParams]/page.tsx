@@ -1,5 +1,5 @@
 'use client';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
@@ -16,6 +16,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import CustomDialogBox from '@/components/dialog-box/CustomDialogBox';
 import { RadioButton } from 'primereact/radiobutton';
+import { debounce } from 'lodash';
 
 const AssignSuppliers = ({
     params,
@@ -40,6 +41,7 @@ const AssignSuppliers = ({
     const [showTable, setShowTable] = useState(false);
     const [isCompletionDialogVisible, setIsCompletionDialogVisible] = useState(false);
     const [assignmentMode, setAssignmentMode] = useState('manual'); // 'manual' or 'all'
+    const [zipCode, setZipCode] = useState('');
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { userId, role, name, department } = decodedParams;
@@ -90,6 +92,17 @@ const AssignSuppliers = ({
         }
     };
 
+    const debouncedZipCodeSearch = useCallback(
+        debounce((zipValue: string, filters: any) => {
+            const updatedFilters = {
+                ...filters,
+                ...(zipValue && { zipCode: zipValue })
+            };
+            setPage(0);
+            fetchData(0, updatedFilters);
+        }, 700),
+        []
+    );
 
     const onLimitChange = (e: any) => {
         setLimit(e.value);
@@ -168,6 +181,21 @@ const AssignSuppliers = ({
         fetchData(0, filters);
     };
 
+    const onZipCodeChange = (e: any) => {
+        const zipValue = e.target.value;
+        setZipCode(zipValue);
+
+        const countryData = Country.getCountryByCode(selectedCountry);
+        const stateData = State.getStateByCodeAndCountry(selectedState, selectedCountry);
+
+        const currentFilters = {
+            ...(countryData && { country: countryData.name }),
+            ...(stateData && { state: stateData.name }),
+            ...(selectedCity && { city: selectedCity })
+        };
+
+        debouncedZipCodeSearch(zipValue, currentFilters);
+    };
     // const onDepartmentChange = (e: any) => {
     //     const departmentId = e.value;
     //     setSelectedDepartment(departmentId);
@@ -190,38 +218,6 @@ const AssignSuppliers = ({
         setIsCompletionDialogVisible(true);
     };
 
-
-    // const handleCompletionConfirm = async () => {
-    //     try {
-    //         setLoading(true);
-
-    //         const countryData = Country.getCountryByCode(selectedCountry);
-    //         const stateData = State.getStateByCodeAndCountry(selectedState, selectedCountry);
-
-    //         const payload = selectedSuppliers?.map(supplier => ({
-    //             userId: Number(userId),
-    //             supId: supplier.supId,
-    //             country: countryData?.name || "",
-    //             state: stateData?.name || "",
-    //             city: selectedCity || ""
-    //         }));
-
-    //         console.log(payload);
-
-    //         const response = await PostCall('/company/suppliers-mapped', payload);
-
-    //         if (response.code === 'SUCCESS') {
-    //             setAlert('success', 'Suppliers assigned successfully!');
-    //         }else{
-    //             setAlert('error', response.message);
-    //         }
-    //     } catch (error) {
-    //         setAlert('error', 'Failed to assign suppliers!');
-    //     } finally {
-    //         setLoading(false);
-    //         setIsCompletionDialogVisible(false); // Close the dialog after submission
-    //     }
-    // };
 
 
     const handleCompletionConfirm = async () => {
@@ -287,9 +283,9 @@ const AssignSuppliers = ({
     const renderFilters = () => (
         <div className="card mt-4 p-4 bg-white rounded-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}>
 
-            <div className="flex justify-content-between gap-4">
+            <div className="flex justify-content-between flex-wrap gap-4">
 
-                <div className='flex gap-3 align-items'>
+                <div className='flex flex-wrap gap-3 align-items'>
 
                     <div className="flex flex-column">
                         <label className="mb-2">{role} Name</label>
@@ -313,7 +309,7 @@ const AssignSuppliers = ({
                     </div>
                 </div>
 
-                <div className='flex gap-3 align-items justify-content-end'>
+                <div className='flex gap-3 align-items flex-wrap justify-content-end'>
 
                     <div className="flex flex-column">
                         <label className="mb-2">Country<span className='text-red-500'> *</span></label>
@@ -354,6 +350,17 @@ const AssignSuppliers = ({
                             disabled={!selectedState}
                             showClear={!!selectedCity}
                             filter
+                        />
+
+                    </div>
+
+                    <div className="flex flex-column">
+                        <label className="mb-2">Zip Code</label>
+                        <InputText
+                            value={zipCode}
+                            onChange={onZipCodeChange}
+                            placeholder="Zip Code"
+                            className="w-full"
                         />
 
                     </div>

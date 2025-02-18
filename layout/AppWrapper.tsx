@@ -143,9 +143,25 @@ export const AppWrapper = React.memo(({ children }: any) => {
       }, []);
 
 
+    // const setAlert = (type: string, message: string) => {
+    //     const id = Date.now();
+    //     setToasts((prev) => [...prev, { id, type, message }]);
+    //   };
+
     const setAlert = (type: string, message: string) => {
         const id = Date.now();
-        setToasts((prev) => [...prev, { id, type, message }]);
+        setToasts((prev) => {
+          // clear any existing timeout for previous toast
+          prev.forEach(toast => {
+            const existingToast = document.getElementById(`toast-${toast.id}`);
+            if (existingToast) {
+              existingToast.classList.add('fade-out');
+            }
+          });
+          
+          // new array with only the new toast
+          return [{ id, type, message }];
+        });
       };
 
 

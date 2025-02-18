@@ -31,7 +31,7 @@ const ViewAssignedSuppliers = ({
 
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { userId, role, name } = decodedParams;
+    const { userId, role, name, department} = decodedParams;
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -180,11 +180,14 @@ const ViewAssignedSuppliers = ({
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
             <div className="flex justify-content-between items-center border-b">
                 <div>
-                    <h3>Assigned Suppliers to {name}</h3>
+                    <h3>Assigned Suppliers to <span className='font-bold font-italic'> {name}</span></h3>
                 </div>
                 <div className="flex gap-2 pb-3">
                     <div className="">{FieldGlobalSearch}</div>
                 </div>
+            </div>
+            <div>
+                {role} Department - <span className='font-bold'>{department}</span>
             </div>
 
             {isLoading || categoryLoader ? (
