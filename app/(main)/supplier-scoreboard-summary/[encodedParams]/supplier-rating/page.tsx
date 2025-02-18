@@ -438,4 +438,4 @@ const SupplierRatingPage = ({
     );
 };
 
-export default withAuth(SupplierRatingPage, 'superAdmin', 'evaluate_score');
+export default withAuth(SupplierRatingPage, undefined, 'evaluate_score');
