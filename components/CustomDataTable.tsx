@@ -120,8 +120,8 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                 {(props.isEdit || props.isView || props.isDelete || props.extraButtons?.length) && (
                     <Column
                         header={
-                            <div className="flex items-center gap-2">
-                                <span>Actions</span>
+                            <div className="flex items-center gap-2 ">
+                                <span style={{ fontSize: '13px' }}>ACTIONS</span>
                                 <div>
                                     <input type="checkbox" checked={isActionsFrozen} onChange={toggleActionColumnFreeze} title="Freeze/Unfreeze Action Column" className="no-background-tooltip" />
                                 </div>
@@ -132,9 +132,8 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                         body={renderActions}
                     ></Column>
                 )}
-                {/* Remaining Columns */}
                 {props.columns.map((item: ColumnProps, index: any) => (
-                    <Column key={index} {...item}></Column>
+                    <Column key={index} {...item} header={<span style={{ fontSize: '13px' }}>{item.header?.toString().toUpperCase()}</span>}></Column>
                 ))}
             </DataTable>
         </div>

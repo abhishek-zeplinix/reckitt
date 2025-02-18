@@ -9,6 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -145,35 +146,28 @@ const AddWhitelistedDomain = () => {
                 </small>
                 <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Whitelisted Domain' : 'Add Whitelisted Domain'} />
             </div>
-
             <div className="mt-4">
+            {isLoading ?(
+                    <TableSkeletonSimple columns={2} rows={limit} />
+                ) : (
                 <CustomDataTable
                     ref={brandList}
                     page={page}
-                    limit={limit} // no of items per page
-                    totalRecords={totalRecords} // total records from api response
+                    limit={limit} 
+                    totalRecords={totalRecords} 
                     isView={false}
-                    isEdit={true} // show edit button
-                    isDelete={true} // show delete button
+                    isEdit={true} 
+                    isDelete={true} 
                     data={brandList?.map((item: any) => ({
                         brandId: item?.brandId,
                         brandName: item?.brandName
                     }))}
                     columns={[
-                        // {
-                        //     header: 'Role ID',
-                        //     field: 'roleId',
-                        //     filter: true,
-                        //     sortable: true,
-                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                        //     filterPlaceholder: 'Role ID'
-                        // },
                         {
                             header: 'Sr. No.',
                             body: (data: any, options: any) => {
                                 const normalizedRowIndex = options.rowIndex % limit;
                                 const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-
                                 return <span>{srNo}</span>;
                             },
                             bodyStyle: { minWidth: 50, maxWidth: 50 }
@@ -190,6 +184,7 @@ const AddWhitelistedDomain = () => {
                     onDelete={(item: any) => onRowSelect(item, 'delete')}
                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                 />
+                )}
             </div>
 
             <Dialog

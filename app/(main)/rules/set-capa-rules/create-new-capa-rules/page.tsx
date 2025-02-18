@@ -170,7 +170,7 @@ const CreateNewRulesPage = () => {
     const fetchUserDetails = async () => {
         try {
             setLoading(true);
-            const response: CustomResponse = await GetCall(`/company/caparule?id=${capaRuleId}`);
+            const response: CustomResponse = await GetCall(`/company/caparule-set/${ruleSetId}?filters.capaRuleId=${capaRuleId}&limit=10`);
             if (response.code === 'SUCCESS' && response.data.length > 0) {
                 const userDetails = response.data[0]; // Assuming the API returns an array of users
                 setorderBy(userDetails.orderBy || '');

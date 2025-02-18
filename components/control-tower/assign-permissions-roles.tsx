@@ -9,6 +9,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { CustomResponse } from '@/types';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubmitResetButtons from './submit-reset-buttons';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -284,6 +285,9 @@ const Permission = () => {
     return (
         <>
             <div className="mt-1">
+            {isLoading ?(
+                <TableSkeletonSimple columns={2} rows={6} />
+            ) : (
                 <CustomDataTable
                     ref={rolesList}
                     page={page}
@@ -297,14 +301,6 @@ const Permission = () => {
                         role: item?.name
                     }))}
                     columns={[
-                        // {
-                        //     header: 'Role ID',
-                        //     field: 'roleId',
-                        //     filter: true,
-                        //     sortable: true,
-                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                        //     filterPlaceholder: 'Role ID'
-                        // },
                         {
                             header: 'Sr. No.',
                             body: (data: any, options: any) => {
@@ -326,6 +322,7 @@ const Permission = () => {
                     onLoad={(params: any) => fetchData(params)}
                     onView={(item: any) => onRowSelect(item, 'view')}
                 />
+            )}
             </div>
 
             <Dialog

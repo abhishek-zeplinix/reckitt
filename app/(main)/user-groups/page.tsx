@@ -506,7 +506,7 @@ const UserGroups = () => {
                             </div>
 
                             {isLoading ? (
-                                <TableSkeletonSimple />
+                                <TableSkeletonSimple columns={7} rows={limit}/>
                             ) : (
                                 <CustomDataTable
                                     ref={dataTableRef}

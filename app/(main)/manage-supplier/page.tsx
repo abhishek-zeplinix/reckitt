@@ -20,6 +20,7 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { limitOptions } from '@/utils/constant';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',
@@ -587,6 +588,9 @@ const ManageSupplierPage = () => {
                                         <div className="mt-2">{FieldGlobalSearch}</div>
                                     </div>
                                 </div>
+                                {isLoading ?(
+                                <TableSkeletonSimple columns={6} rows={limit} />
+                            ) : (
                                 <CustomDataTable
                                     className="mb-3"
                                     ref={dataTableRef}
@@ -669,6 +673,7 @@ const ManageSupplierPage = () => {
                                     onLoad={(params: any) => fetchData(params)}
                                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                                 />
+                                )}
                             </div>
                         </div>
                     </div>

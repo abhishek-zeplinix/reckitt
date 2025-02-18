@@ -19,6 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 import { ColumnBodyOptions } from 'primereact/column';
 import { limitOptions } from '@/utils/constant';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -485,6 +486,9 @@ const ManageMembersPage = () => {
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
+                            {isLoading ?(
+                                <TableSkeletonSimple columns={7} rows={limit} />
+                            ) : (
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -553,6 +557,7 @@ const ManageMembersPage = () => {
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
+                            )}
                         </div>
                     </div>
                 </div>

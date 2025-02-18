@@ -20,6 +20,7 @@ import { Calendar } from 'primereact/calendar';
 // import { useLoaderContext } from '@/layout/context/LoaderContext';
 import { RadioButton } from 'primereact/radiobutton';
 import { limitOptions } from '@/utils/constant';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -511,6 +512,9 @@ const MainRules = () => {
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
+                            {isLoading ?(
+                                <TableSkeletonSimple columns={4} rows={limit} />
+                            ) : (
 
                             <CustomDataTable
                                 ref={dataTableRef}
@@ -574,6 +578,7 @@ const MainRules = () => {
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
+                            )}
                         </div>
                     </div>
                 </div>
