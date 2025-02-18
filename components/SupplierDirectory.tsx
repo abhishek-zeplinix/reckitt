@@ -162,14 +162,6 @@ const SupplierDirectory = () => {
     };
 
 
-    // useEffect(() => {
-    //     // setScroll(true);
-    //     fetchData();
-    //     fetchsupplierCategories();
-    //     // fetchRolesData();
-    // }, []);
-
-
     useEffect(() => {
             if (userRole) {
                 fetchData();

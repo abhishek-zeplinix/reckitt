@@ -1,7 +1,52 @@
+import html2canvas from 'html2canvas';
 import { Chart } from 'primereact/chart';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const GraphsPanel: any = React.memo(({ ratingData, memoizedOptions, lineData, memoizedBarOptions, chartRef }: any) => {
+const GraphsPanel = React.memo(({ ratingData, memoizedOptions, lineData, memoizedBarOptions, chartRef, chartImage, setChartImage, setPdfReady, pdfReady, selectedYear, ratingsData }: any) => {
+
+    const [ChartsLoaded, setChartsLoaded] = useState(false);
+    
+    useEffect(() => {
+        setChartsLoaded(true);
+    }, []);
+
+    
+    useEffect(() => {
+        const captureTimer = setTimeout(async () => {
+            if (!chartRef.current) return;
+
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+            const canvas = await html2canvas(chartRef.current, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
+
+            setChartImage(canvas.toDataURL('image/png'));
+        }, 1000); // Add debounce delay
+
+        return () => clearTimeout(captureTimer);
+    }, [ratingsData, selectedYear, pdfReady]);
+
+
+    useEffect(() => {
+        if (chartImage) {
+            setPdfReady(!!chartImage);
+        }
+    }, [chartImage]);
+
+
+    useEffect(() => {
+        return () => {
+            setChartImage(null);
+            setPdfReady(false);
+        };
+    }, [selectedYear]);
+
+    if (!ChartsLoaded) return null;
+
+    
     return (
         <>
             {/* first chart */}
