@@ -8,6 +8,7 @@ export const USER_ROLES = {
     SUPER_ADMIN: 'superAdmin',
     SUPPLIER: 'Supplier',
     APPROVER: 'Approver',
+    EVALUATOR: 'Evaluator',
     ADMIN: 'Admin',
     USER: 'User'
 } as const;
@@ -22,6 +23,8 @@ type AuthContextType = {
     hasAnyPermission: (requiredPermissions: string[]) => boolean;
     isSuperAdmin: () => boolean;
     isSupplier: () => boolean;
+    isEvaluator: () => boolean;
+    isApprover: () => boolean;
     userPermissions: string[];
     userId: string | null;
     isLoading: boolean;
@@ -84,7 +87,8 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
     // Common role checks
     const isSuperAdmin = useCallback(() => hasRole(USER_ROLES.SUPER_ADMIN), [hasRole]);
     const isSupplier = useCallback(() => hasRole(USER_ROLES.SUPPLIER), [hasRole]);
-
+    const isApprover = useCallback(()=> hasRole(USER_ROLES.APPROVER), [hasRole]);
+    const isEvaluator = useCallback(()=> hasRole(USER_ROLES.EVALUATOR), [hasRole]);
 
     //get user id
     const userId = useMemo(() => get(user, 'id', null) as string | null, [user]);
@@ -95,6 +99,8 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
         hasAnyPermission,
         isSuperAdmin,
         isSupplier,
+        isApprover,
+        isEvaluator,
         userPermissions,
         userId,
         isLoading

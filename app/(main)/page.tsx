@@ -19,6 +19,7 @@ import TileSkeleton from '@/components/supplier-rating/skeleton/DashboardCountSk
 import SupplierPerformanceSkeleton from '@/components/supplier-rating/skeleton/SupplierPerformanceSkeleton';
 import HistoricalPerformanceSkeleton from '@/components/supplier-rating/skeleton/DashboardWaveGraphSkeleton';
 import TotalAssessmentSkeleton from '@/components/supplier-rating/skeleton/DashboardDonutSkeleton';
+import { withAuth } from '@/layout/context/authContext';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [filtersVisible, setfiltersVisible] = useState(false);
@@ -932,6 +933,9 @@ const Dashboard = () => {
                     <div className="inline-flex gap-2 p-2 border border-1 border-round-xl bg-white shadow-sm ">
                         <Button label="Dashboard" icon="pi pi-th-large" className={`p-button-text ${activeTab === 'dashboard' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('dashboard')} />
                         <Button label="Supplier" icon="pi pi-box" className={`p-button-text ${activeTab === 'supplier' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
+                        <Button label="Evaluated" icon="pi pi-box" className={`p-button-text ${activeTab === 'evaluated' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
+                        <Button label="Approved" icon="pi pi-box" className={`p-button-text ${activeTab === 'approved' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
+                        <Button label="Completed" icon="pi pi-box" className={`p-button-text ${activeTab === 'completed' ? 'bgActiveBtn text-white' : 'bg-transparent text-gray-700'}`} onClick={() => setActiveTab('supplier')} />
                     </div>
                     <div className={`${activeTab === 'supplier' ? ' opacity-0 invisible' : 'opacity-100 visible'}`}>
                         <Button label="Filters" icon="pi pi-filter" className={`p-button-text bgActiveBtn text-whitebg-transparent text-white `} onClick={() => setfiltersVisible(!filtersVisible)} />
@@ -955,4 +959,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard, undefined, "view_dashboard");

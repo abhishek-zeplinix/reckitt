@@ -11,7 +11,8 @@ import { GetCall, PutCall } from '@/app/api-config/ApiKit';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { z } from 'zod';
 import { useAuth } from '@/layout/context/authContext';
-import { get } from 'lodash';
+import { get, sortBy } from 'lodash';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const rejectionSchema = z.object({
     reason: z.string().max(250, 'Rejection reason cannot exceed 250 characters')
@@ -42,7 +43,7 @@ const ManageRequestsPage = () => {
             setLoading(true);
 
             if (!params) {
-                params = { limit: limit, page: page };
+                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: 'manageReqId'};
             }
             const supId = get(user, 'supplierId');
             setPage(params.page);
@@ -312,13 +313,18 @@ const ManageRequestsPage = () => {
                     <div className="left-panel mb-0">
                         <div className="header">{renderHeader()}</div>
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
+                        {isLoading ?(
+                                <TableSkeletonSimple columns={7} rows={limit} />
+                            ) : (
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
+                                sortField='id'
+                                sortOrder={-1}
                                 limit={limit}
                                 totalRecords={totalRecords}
                                 data={requests?.map((item: any) => ({
-                                    id: item.manageRequestId,
+                                    id: item.manageReqId,
                                     supplierId: item.supplierId,
                                     supplierName: item.supplier.supplierName,
                                     requestedData: item.requestedData,
@@ -378,6 +384,7 @@ const ManageRequestsPage = () => {
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
                             />
+                            )}
                         </div>
                     </div>
                 </div>

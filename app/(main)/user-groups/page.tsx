@@ -202,6 +202,9 @@ const UserGroups = () => {
             </div>
         );
     };
+    const handleCreateNavigation = () => {
+        router.push('user-groups/create-user-group'); // Replace with the actual route for adding a new user
+    };
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
@@ -209,7 +212,7 @@ const UserGroups = () => {
                     <h3 className="mb-0">Manage User Groups</h3>
                 </span>
                 <div className="flex justify-content-end">
-                    <Button icon="pi pi-plus" size="small" label="Add Vendor" aria-label="Import Vendors" className="bg-primary-main border-primary-main hover:text-white" onClick={() => {}} style={{ marginLeft: 10 }} />
+                    <Button icon="pi pi-plus" size="small" label="Add Vendor" aria-label="Import Vendors" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
@@ -480,44 +483,6 @@ const UserGroups = () => {
         fetchData({ limit, page, sortBy: 'ruleSetId', filters: { ruleType: e.value } });
     };
 
-    const ManageUserGroups = [
-        {
-            reviewType: 'Creative',
-            templateType: 'Agency to Reckitt',
-            userGroup: 'Agency',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 5
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Agency to Reckitt',
-            userGroup: 'Asset production',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 4
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Reckitt to Agency',
-            userGroup: 'Global Marketing',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 1
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Reckitt to Agency',
-            userGroup: 'Local Marketing',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 0
-        },
-        {
-            reviewType: 'Creative',
-            templateType: 'Reckitt to Agency',
-            userGroup: 'Procurement',
-            whitelistedDomains: ['gmail.com', 'techmahindra.com'],
-            totalMembers: 3
-        }
-    ];
-
     return (
         <div className="grid">
             <div className="col-12">
@@ -541,7 +506,7 @@ const UserGroups = () => {
                             </div>
 
                             {isLoading ? (
-                                <TableSkeletonSimple />
+                                <TableSkeletonSimple columns={7} rows={limit}/>
                             ) : (
                                 <CustomDataTable
                                     ref={dataTableRef}
@@ -558,7 +523,7 @@ const UserGroups = () => {
                                             }
                                         }
                                     ]}
-                                    data={userGroups.map((item: any) => ({
+                                    data={userGroups?.map((item: any) => ({
                                         reviewType: item.reviewType?.reviewTypeName,
                                         templateType: item.templateType?.templateTypeName,
                                         userGroup: item.userGroupName,
@@ -588,13 +553,6 @@ const UserGroups = () => {
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                                             headerStyle: dataTableHeaderStyle
                                         },
-
-                                        // {
-                                        //     header: 'EFFECTIVE FROM ',
-                                        //     field: 'effectiveFrom',
-                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                        //     headerStyle: dataTableHeaderStyle
-                                        // },
                                         {
                                             header: 'User Group',
                                             field: 'userGroup',

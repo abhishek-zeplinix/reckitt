@@ -15,9 +15,10 @@ import { Dropdown } from 'primereact/dropdown';
 import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
 import { encodeRouteParams } from '@/utils/base64';
 import TableSkeletonSimple from './supplier-rating/skeleton/TableSkeletonSimple';
+import { get } from 'lodash';
 
 const SupplierDirectory = () => {
-    const { isLoading, setLoading } = useAppContext();
+    const { isLoading, setLoading, user, setAlert } = useAppContext();
     const [categoryLoader, setCategoryLoader] = useState(false);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
@@ -28,35 +29,103 @@ const SupplierDirectory = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
+    const [userRole, setUserRole] = useState<string | null>(null);
     const router = useRouter();
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
-    useEffect(() => {
-        // setScroll(true);
-        fetchData();
-        fetchsupplierCategories();
-        // fetchRolesData();
-    }, []);
-
-    const fetchData = async (params?: any) => {
-        if (!params) {
-            params = { limit: limit, page: page };
-            // params = { limit: limit, page: page };
-        }
-        setLoading(true);
-        const queryString = buildQueryParams(params);
-        const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
-        setLoading(false);
-        if (response.code == 'SUCCESS') {
-            setSuppliers(response.data);
-            if (response.total) {
-                setTotalRecords(response?.total);
-            }
-        } else {
-            setSuppliers([]);
+    const roleConfig = {
+        admin: {
+            endpoint: '/company/supplier',
+            getFilters: () => ({})
+        },
+        approver: {
+            endpoint: '/company/suppliers-mapped-config-login-user',
+            getFilters: () => ({})
+        },
+        evaluator: {
+            endpoint: '/company/suppliers-mapped-config-login-user',
+            getFilters: () => ({})
         }
     };
+
+
+    useEffect(() => {
+        // const role = get(user, 'role.name', 'admin')?.toLowerCase();
+        // setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
+        
+        setUserRole('admin')
+        
+    }, [user]);
+
+    console.log(userRole);
+    
+
+     const fetchData = async (params?: any) => {
+            if (!userRole) return;
+    
+            try {
+                setLoading(true);
+    
+                const config = roleConfig[userRole as keyof typeof roleConfig];
+                if (!config) {
+                    throw new Error('Invalid user role');
+                }
+    
+                // merge default params with role-specific filters and any additional params
+                const defaultParams = {
+                    limit,
+                    page,
+                    filters: config.getFilters()
+                };
+    
+                const mergedParams = {
+                    ...defaultParams,
+                    ...params,
+                    filters: {
+                        ...defaultParams.filters,
+                        ...(params?.filters || {})
+                    }
+                };
+    
+                const queryString = buildQueryParams(mergedParams);
+                setPage(mergedParams.page);
+    
+                const response = await GetCall(`${config.endpoint}?${queryString}`);
+    
+                if (response.code === 'SUCCESS') {
+                    console.log(response?.data);
+                    
+                    setSuppliers(response?.data);
+                    setTotalRecords(response?.total);
+                } else {
+                    setSuppliers([]);
+                }
+            } catch (error) {
+                setAlert('error', 'Something went wrong!');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+    // const fetchData = async (params?: any) => {
+    //     if (!params) {
+    //         params = { limit: limit, page: page };
+    //         // params = { limit: limit, page: page };
+    //     }
+    //     setLoading(true);
+    //     const queryString = buildQueryParams(params);
+    //     const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+    //     setLoading(false);
+    //     if (response.code == 'SUCCESS') {
+    //         setSuppliers(response.data);
+    //         if (response.total) {
+    //             setTotalRecords(response?.total);
+    //         }
+    //     } else {
+    //         setSuppliers([]);
+    //     }
+    // };
 
     const fetchprocurementCategories = async (categoryId: number | null) => {
         if (!categoryId) {
@@ -91,6 +160,22 @@ const SupplierDirectory = () => {
         // router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
         router.push(`/supplier-scoreboard-summary/${encodedParams}`);
     };
+
+
+    // useEffect(() => {
+    //     // setScroll(true);
+    //     fetchData();
+    //     fetchsupplierCategories();
+    //     // fetchRolesData();
+    // }, []);
+
+
+    useEffect(() => {
+            if (userRole) {
+                fetchData();
+                fetchsupplierCategories();
+            }
+        }, [userRole]);
 
     // Render the status column
     const statusBodyTemplate = (rowData: any) => (

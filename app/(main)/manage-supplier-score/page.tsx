@@ -10,12 +10,14 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Dialog } from 'primereact/dialog';
 import { useAppContext } from '@/layout/AppWrapper';
 import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
-import { CustomResponse, Rules, Scores } from '@/types';
+import { CustomResponse, SupplierData } from '@/types';
 import ScoreTiles from '@/components/supplier-score/score-tiles';
 import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { withAuth } from '@/layout/context/authContext';
 import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
 
 const ACTIONS = {
     ADD: 'add',
@@ -30,9 +32,8 @@ const ManageSupplierScorePage = () => {
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const [selectedRuleId, setSelectedRuleId] = useState();
+    const [selectedSupId, setSelectedSupId] = useState<SupplierData[]>([]);
     const [action, setAction] = useState(null);
-    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [rules, setRules] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState();
 
@@ -44,6 +45,7 @@ const ManageSupplierScorePage = () => {
     const { departments } = useFetchDepartments();
     const { isLoading, setLoading, setAlert } = useAppContext();
     const [isDataLoading, setIsDataLoading] = useState(false);
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     const renderHeader = () => {
         return (
@@ -115,38 +117,19 @@ const ManageSupplierScorePage = () => {
         fetchCategory();
     }, [filters]);
 
-    const onRowSelect = async (perm: Rules, action: any) => {
+    const onRowSelect = async (perm: any, action: any) => {
         setAction(action);
-
-        setSelectedRuleId(perm.ruleId);
-
-        if (action === ACTIONS.DELETE) {
-            openDeleteDialog(perm);
-        }
-    };
-
-    const openDeleteDialog = (items: Rules) => {
-        setIsDeleteDialogVisible(true);
-    };
-
-    const closeDeleteDialog = () => {
-        setIsDeleteDialogVisible(false);
-    };
-
-    const onDelete = async () => {
+        // console.log('121',perm)
         setLoading(true);
 
         try {
             setLoading(true);
-            const response = await DeleteCall(`/company/rules/${selectedRuleId}`);
+            const response = await GetCall(`/company/supplier-score/?filters.supId=${perm.supId}&sortBy=supplierScoreId`);
 
             if (response.code === 'SUCCESS') {
-                setRules((prevRules) => prevRules.filter((rule) => rule.ruleId !== selectedRuleId));
-                closeDeleteDialog();
-                setAlert('success', 'Rule successfully deleted!');
+                setSelectedSupId(response.data)
+                setDialogVisible(true);
             } else {
-                setAlert('error', 'Something went wrong!');
-                closeDeleteDialog();
             }
         } catch (error) {
             setAlert('error', 'Something went wrong!');
@@ -154,6 +137,11 @@ const ManageSupplierScorePage = () => {
             setLoading(false);
         }
     };
+    
+    const closeDeleteDialog = () => {
+        setDialogVisible(false);
+    };
+
 
     const handleFilterChange = (filters: any) => {
         setFilters(filters);
@@ -176,23 +164,25 @@ const ManageSupplierScorePage = () => {
                             <div className="mt-3 ">
                                 <ScoreTiles />
                             </div>
-                            {isDataLoading ? (
-                                <TableSkeletonSimple columns={8} rows={limit} />
+                            {isLoading ? (
+                                <TableSkeletonSimple columns={3} rows={limit} />
                             ) : (
                                 <CustomDataTable
                                     ref={dataTableRef}
                                     page={page}
                                     limit={limit} // no of items per page
+                                    isView={true}
                                     totalRecords={totalRecords} // total records from api response
                                     data={rules?.map((item: any) => ({
-                                        ruleId: item.ruleId,
+                                        supplierScoreId: item.supplierScoreId,
                                         supplierName: item.supplier?.supplierName,
-                                        depName: item.department?.name,
-                                        evalutionPeriod: item.evalutionPeriod,
-                                        totalScore: item.totalScore,
-                                        categoryName: item.category?.categoryName,
-                                        subCategoryName: item.subCategory?.subCategoryName,
-                                        status: item.status
+                                        // depName: item.department?.name,
+                                        // evalutionPeriod: item.evalutionPeriod,
+                                        // totalScore: item.totalScore,
+                                        // categoryName: item.category?.categoryName,
+                                        // subCategoryName: item.subCategory?.subCategoryName,
+                                        status: item.status,
+                                        supId: item.supId
                                     }))}
                                     columns={[
                                         {
@@ -213,53 +203,53 @@ const ManageSupplierScorePage = () => {
                                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                                             headerStyle: dataTableHeaderStyle
                                         },
-                                        {
-                                            header: 'Type',
-                                            field: 'depName',
-                                            sortable: true,
-                                            headerStyle: dataTableHeaderStyle,
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Quarter',
-                                            field: 'evalutionPeriod',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            headerStyle: dataTableHeaderStyle
-                                        },
-                                        {
-                                            header: 'Supplier Score',
-                                            field: 'totalScore',
-                                            body: (rowData) => {
-                                                const score = rowData.totalScore;
-                                                let color = '';
+                                        // {
+                                        //     header: 'Type',
+                                        //     field: 'depName',
+                                        //     sortable: true,
+                                        //     headerStyle: dataTableHeaderStyle,
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                        // },
+                                        // {
+                                        //     header: 'Quarter',
+                                        //     field: 'evalutionPeriod',
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        //     headerStyle: dataTableHeaderStyle
+                                        // },
+                                        // {
+                                        //     header: 'Supplier Score',
+                                        //     field: 'totalScore',
+                                        //     body: (rowData) => {
+                                        //         const score = rowData.totalScore;
+                                        //         let color = '';
 
-                                                if (score >= 0 && score <= 50) {
-                                                    color = '#F44336';
-                                                } else if (score >= 51 && score <= 70) {
-                                                    color = '#FF9800';
-                                                } else if (score >= 71 && score <= 90) {
-                                                    color = '#4CAF50';
-                                                } else if (score >= 91 && score <= 100) {
-                                                    color = '#2196F3';
-                                                }
+                                        //         if (score >= 0 && score <= 50) {
+                                        //             color = '#F44336';
+                                        //         } else if (score >= 51 && score <= 70) {
+                                        //             color = '#FF9800';
+                                        //         } else if (score >= 71 && score <= 90) {
+                                        //             color = '#4CAF50';
+                                        //         } else if (score >= 91 && score <= 100) {
+                                        //             color = '#2196F3';
+                                        //         }
 
-                                                return <div style={{ color: color, fontWeight: 'bold' }}>{score}</div>;
-                                            },
-                                            bodyStyle: { minWidth: 100, maxWidth: 100, textAlign: 'center' },
-                                            headerStyle: dataTableHeaderStyle
-                                        },
-                                        {
-                                            header: 'Procurement Category',
-                                            field: 'categoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            headerStyle: dataTableHeaderStyle
-                                        },
-                                        {
-                                            header: 'Supplier Category',
-                                            field: 'subCategoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                            headerStyle: dataTableHeaderStyle
-                                        },
+                                        //         return <div style={{ color: color, fontWeight: 'bold' }}>{score}</div>;
+                                        //     },
+                                        //     bodyStyle: { minWidth: 100, maxWidth: 100, textAlign: 'center' },
+                                        //     headerStyle: dataTableHeaderStyle
+                                        // },
+                                        // {
+                                        //     header: 'Procurement Category',
+                                        //     field: 'categoryName',
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        //     headerStyle: dataTableHeaderStyle
+                                        // },
+                                        // {
+                                        //     header: 'Supplier Category',
+                                        //     field: 'subCategoryName',
+                                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        //     headerStyle: dataTableHeaderStyle
+                                        // },
                                         {
                                             header: 'Status',
                                             field: 'status',
@@ -276,43 +266,39 @@ const ManageSupplierScorePage = () => {
                                         }
                                     ]}
                                     onLoad={(params: any) => fetchData(params)}
+                                    onView={(item: any) => onRowSelect(item, 'view')}
                                     onDelete={(item: any) => onRowSelect(item, 'delete')}
                                 />
                             )}
                         </div>
                     </div>
                 </div>
-
                 <Dialog
-                    header="Delete confirmation"
-                    visible={isDeleteDialogVisible}
-                    style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
-                    className="delete-dialog"
-                    headerStyle={{ backgroundColor: '#ffdddb', color: '#8c1d18' }}
-                    footer={
-                        <div className="flex justify-content-end p-2">
-                            <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
-                            <Button label="Delete" severity="danger" onClick={onDelete} />
-                        </div>
-                    }
-                    onHide={closeDeleteDialog}
-                >
-                    {isLoading && (
-                        <div className="center-pos">
-                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                        </div>
-                    )}
-                    <div className="flex flex-column w-full surface-border p-3">
-                        <div className="flex align-items-center">
-                            <i className="pi pi-info-circle text-6xl red" style={{ marginRight: 10 }}></i>
-                            <span>
-                                This will permanently delete the selected rule.
-                                <br />
-                                Do you still want to delete it? This action cannot be undone.
-                            </span>
-                        </div>
+                header="Supplier Details"
+                visible={dialogVisible}
+                style={{ width: "50vw" }}
+                footer={
+                    <div className="flex justify-content-end p-2">
+                        <Button label="Cancel" severity="secondary" text onClick={closeDeleteDialog} />
                     </div>
-                </Dialog>
+                }
+                onHide={closeDeleteDialog}
+            >
+                 
+                <div className="mb-4">
+                    <DataTable value={[selectedSupId[0]]} showGridlines>
+                        <Column field="supplier.supplierName" header="Supplier" />
+                        <Column field="category.categoryName" header="Category" />
+                        <Column field="subCategory.subCategoryName" header="Sub Category" />
+                    </DataTable>
+                </div>
+                <DataTable value={selectedSupId} showGridlines>
+                    <Column field="evalutionPeriod" header="Evaluation Period" />
+                    <Column field="department.name" header="Department" />
+                    <Column field="totalScore" header="Total Score" />
+                </DataTable>
+            </Dialog>
+
             </div>
         </div>
     );

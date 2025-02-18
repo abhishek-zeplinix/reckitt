@@ -18,18 +18,31 @@ export const formSchemaSupplier = z.object({
     procurementCategoryId: z
         .number()
         .nullable()
-        .refine((val) => val !== null, {
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Procurement category cannot be empty'
         }),
     supplierCategoryId: z
         .number()
         .nullable()
-        .refine((val) => val !== null, {
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Supplier category cannot be empty'
         }),
-    country: z.string().min(1, 'country cannot be empty'),
-    city: z.string().min(1, 'city cannot be empty'),
-    state: z.string().min(1, 'state cannot be empty')
+        country: z
+        .string({ required_error: "Country cannot be empty" }) 
+        .min(1, "Country cannot be empty") 
+        .refine((val) => val.trim() !== "", { message: "Country cannot be empty" }), 
+    
+      city: z
+        .string({ required_error: "City cannot be empty" })
+        .min(1, "City cannot be empty")
+        .refine((val) => val.trim() !== "", { message: "City cannot be empty" }),
+    
+      state: z
+        .string({ required_error: "State cannot be empty" })
+        .min(1, "State cannot be empty")
+        .refine((val) => val.trim() !== "", { message: "State cannot be empty" }),
 });
 
 export const validateFormData = (data: unknown) => {
@@ -58,7 +71,8 @@ const fieldsSchemaRules = z.object({
     departmentId: z
         .number()
         .nullable()
-        .refine((val) => val !== null, {
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Department cannot be empty'
         }),
     orderBy: z
@@ -71,13 +85,15 @@ const fieldsSchemaRules = z.object({
     categoryId: z
         .number()
         .nullable()
-        .refine((val) => val !== null, {
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Procurement category cannot be empty'
         }),
     subCategoryId: z
         .number()
         .nullable()
-        .refine((val) => val !== null, {
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Supplier category cannot be empty'
         }),
     ratedCriteria: z.string().min(1, 'Rated Criteria cannot be empty'),
@@ -126,20 +142,23 @@ const fieldsSchemaCapaRules = z.object({
         }),
     departmentId: z
         .number()
+        .optional()
         .nullable()
-        .refine((val) => val !== null, {
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Department cannot be empty'
         }),
     categoryId: z
         .number()
+        .optional()
         .nullable()
-        .refine((val) => val !== null, {
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Procurement Category cannot be empty'
         }),
     subCategoryId: z
         .number()
+        .optional()
         .nullable()
-        .refine((val) => val !== null, {
+        .refine((val) => val !== null && val !== undefined, {
             message: 'Supplier Category cannot be empty'
         }),
     orderBy: z
@@ -171,6 +190,123 @@ export const validateFormCapaRuleData = (data: unknown) => {
         return { valid: false, errors: { general: 'Unexpected error occurred' } };
     }
 };
+export const formSchemaManageUser = (isEditMode: boolean,showFields:boolean) => {
+    const baseSchema = {
+        name: z.string().min(1, 'Role Name cannot be empty'),
+        email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
+        phone: z.string()
+            .min(10, "Phone number must be at least 10 digits")
+            .max(12, "Phone number cannot be more than 12 digits"),
+        password: isEditMode
+            ? z.string().optional()
+            : z.string()
+                .min(8, "Password must be at least 8 characters long")
+                .max(50, "Password cannot exceed 50 characters")
+                .regex(/(?=.*[a-z])/, "Password must contain at least one lowercase letter")
+                .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
+                .regex(/(?=.*\d)/, "Password must contain at least one number")
+                .regex(/(?=.*[@$!%*?&])/, "Password must contain at least one special character (@, $, !, %, *, ?, &)")
+                .min(1, "Password cannot be empty"),
+        roleId: z.number()
+            .nullable()
+            .refine((val) => val !== null, {
+                message: 'Role cannot be empty'
+            }),
+    };
+
+    // Add these fields only if showFields is true
+    if (showFields) {
+        Object.assign(baseSchema, {
+            departmentId: z.number().nullable().refine((val) => val !== null, {
+                message: 'Department cannot be empty'
+            }),
+            country: z.string()
+                .min(1, "Country cannot be empty")
+                .refine((val) => val.trim() !== "", { message: "Country cannot be empty" }),
+            city: z.string()
+                .min(1, "City cannot be empty")
+                .refine((val) => val.trim() !== "", { message: "City cannot be empty" }),
+            state: z.string()
+                .min(1, "State cannot be empty")
+                .refine((val) => val.trim() !== "", { message: "State cannot be empty" }),
+            zip: z.union([z.string(), z.number()])
+                .transform((val) => String(val).trim())
+                .refine((val) => val.length > 0, {
+                    message: 'Zip code cannot be empty',
+                }),
+            address: z.string().min(1, 'Site address cannot be empty'),
+        });
+    }
+
+    return z.object(baseSchema);
+};
+
+export const validateManageUser = (data: unknown, isEditMode: boolean,showFields:boolean) => {
+    try {
+        formSchemaManageUser(isEditMode,showFields).parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
+
+export const formSchemaUserGroup = () => {
+    const baseSchema = {
+        name: z.string().min(1, 'Role Name cannot be empty'),
+        email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
+        phone: z.string()
+            .min(10, "Phone number must be at least 10 digits")
+            .max(12, "Phone number cannot be more than 12 digits"),
+        address: z.string().min(1, 'Site address cannot be empty'),
+        assesorRoleId: z
+        .number()
+        .optional()
+        .nullable()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'Assesor Role cannot be empty'
+        }),
+        assesorTypeId: z
+        .number()
+        .optional()
+        .nullable()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'Assesor Type cannot be empty'
+        }),
+        positionId: z
+        .number()
+        .optional()
+        .nullable()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'position cannot be empty'
+        }),
+    };
+
+    return z.object(baseSchema);
+};
+
+export const validateUserGroup = (data: unknown) => {
+    try {
+        formSchemaUserGroup().parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
+
 
 export const validateSubdomain = (subdomain: string) => {
     const subdomainLower = subdomain.toLowerCase();

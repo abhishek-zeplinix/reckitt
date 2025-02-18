@@ -295,6 +295,40 @@
 // type EmptyGradeToBin = {
 //     binGradeId? = number;
 // };
+type EmptyManageUsers = {
+  roleId: number | null;
+  country:string;
+  supplierId?: number | null;
+  departmentId?: number | null;
+  state:string;
+  email:string;
+  city:string;
+  name:string;
+  password:string;
+  phone:string;
+  address:string;
+  zip:string;
+  countries: {
+      name: string;
+      countryId: number | null;
+    },
+    states: {
+      name: string;
+      stateId: number | null;
+    },
+    cities: {
+      name: string;
+      cityId: number | null;
+    }
+};
+type EmptyUsersGroup = {
+  assesorTypeId?: number | null;
+  positionId?: number | null;
+  assesorRoleId?: number | null;
+  email:string;
+  name:string;
+  phone:string;
+};
 type EmptySupplier = {
     supId: number | null;
     supplierName: string;
@@ -375,6 +409,8 @@ export type {
     EmptyPallet,
     EmptyGradeToBin,
     receivepurchaseItem,
+    EmptyManageUsers,
     EmptySupplier,
-    EmptyFeedback
+    EmptyFeedback,
+    EmptyUsersGroup
 };

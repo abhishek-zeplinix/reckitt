@@ -71,114 +71,141 @@ const ManageSupplierAddEditPage = () => {
     const [allCity, setAllCity] = useState<any>([]);
     const [subCategory, setSubCategory] = useState<any>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [wordLimitErrors, setWordLimitErrors] = useState<{ [key: string]: string }>({});
     const [wordMaxLimitErrors, setWordMaxLimitErrors] = useState<{ [key: string]: string }>({});
     const [numberErrors, setNumberErrors] = useState<{ [key: string]: string }>({});
     const [alphabetErrors, setAlphabetErrors] = useState<{ [key: string]: string }>({});
     const [emailErrors, setEmailErrors] = useState<{ [key: string]: string }>({});
 
-    useEffect(() => {
-        const fetchCountries = async () => {
-            const countries = await Country.getAllCountries();
-            setAllCountry(countries);
-        };
-        fetchCountries();
-    }, []);
-
-    // Fetch states based on selected country
-    useEffect(() => {
-        const fetchStates = async () => {
-            if (form.country) {
-                const states = await State.getStatesOfCountry(form.country);
-                setAllState(states);
-            } else {
-                setAllState([]); // Reset states if no country is selected
-            }
-        };
-        fetchStates();
-    }, [form.country]);
-
     // Fetch cities based on selected state
     useEffect(() => {
         const fetchCities = async () => {
-            if (isEditMode) {
+            if(isEditMode){
                 const countries = await Country.getAllCountries();
-                if (form?.country) {
-                    const selectedCountryObj = countries.find((c) => c.isoCode.toLowerCase() === form.country.toLowerCase() || c.name.toLowerCase() === form.country.toLowerCase());
-                    if (selectedCountryObj) {
-                        if (form.state) {
-                            const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, form.state);
+                    if (form?.country) {
+                        const selectedCountryObj = countries.find(
+                            (c) =>
+                              c.isoCode.toLowerCase() === form.country.toLowerCase() ||
+                              c.name.toLowerCase() === form.country.toLowerCase()
+                          );
+                        if (selectedCountryObj) {
+                            const states = await State.getAllStates();
+                            const selectedStateObj = states.find(
+                                (c) =>
+                                c.isoCode.toLowerCase() === form.state.toLowerCase() ||
+                                c.name.toLowerCase() === form.state.toLowerCase()
+                            );
+                            if(selectedStateObj){
+                            const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, selectedStateObj.isoCode);
                             setAllCity(cities);
-                        } else {
-                            setAllCity([]); // Reset cities if no state is selected
-                        }
+                            } else {
+                                setAllCity([]); // Reset cities if no state is selected
+                            }
+                        }};
                     }
-                }
-            } else if (form.state) {
-                const cities = await City.getCitiesOfState(form.country, form.state);
-                setAllCity(cities);
+            else if (form.state) {
+                    const countries = await Country.getAllCountries();
+                        if (form?.country) {
+                            const selectedCountryObj = countries.find(
+                                (c) =>
+                                  c.isoCode.toLowerCase() === form.country.toLowerCase() ||
+                                  c.name.toLowerCase() === form.country.toLowerCase()
+                              );
+                            if (selectedCountryObj) {
+                                if (form.state) {
+                                    const states = await State.getAllStates();
+                                    const selectedStateObj = states.find(
+                                        (c) =>
+                                        c.isoCode.toLowerCase() === form.state.toLowerCase() ||
+                                        c.name.toLowerCase() === form.state.toLowerCase()
+                                    );
+                                    if(selectedStateObj){
+                                    const cities = await City.getCitiesOfState(selectedCountryObj.isoCode, selectedStateObj.isoCode);
+                                    setAllCity(cities);
+                                    }
+                                } else {
+                                    setAllCity([]); // Reset cities if no state is selected
+                                }
+                            }};
             } else {
-                setAllCity([]); // Reset cities if no state is selected
+                setAllCity([]); 
             }
         };
         fetchCities();
     }, [form.state]);
     // Fetch Countries
-    useEffect(() => {
-        const fetchCountries = async () => {
-            const countries = await Country.getAllCountries();
-            setAllCountry(countries);
+  useEffect(() => {
+    const fetchCountries = async () => {
+      const countries = await Country.getAllCountries();
+      setAllCountry(countries);
 
-            if (form?.country) {
-                const selectedCountryObj = countries.find((c) => c.isoCode.toLowerCase() === form.country.toLowerCase() || c.name.toLowerCase() === form.country.toLowerCase());
+      if (form?.country) {
+        const selectedCountryObj = countries.find(
+          (c) =>
+            c.isoCode.toLowerCase() === form.country.toLowerCase() ||
+            c.name.toLowerCase() === form.country.toLowerCase()
+        );
 
-                if (selectedCountryObj) {
-                    fetchStates(selectedCountryObj.isoCode);
-                }
-            }
-        };
-
-        fetchCountries();
-    }, [form?.country]);
-
-    // Fetch States
-
-    const fetchStates = async (countryCode: string) => {
-        if (countryCode) {
-            const states = await State.getStatesOfCountry(countryCode);
-            setAllState(states);
-
-            if (form?.state) {
-                const selectedStateObj = states.find((s) => s.isoCode.toLowerCase() === form.state.toLowerCase() || s.name.toLowerCase() === form.state.toLowerCase());
-
-                if (selectedStateObj) {
-                    fetchCities(countryCode, selectedStateObj.isoCode);
-                }
-            }
-        } else {
-            setAllState([]);
+        if (selectedCountryObj) {
+          fetchStates(selectedCountryObj.isoCode);
         }
+      }
     };
 
-    // Fetch Cities
-    const fetchCities = async (countryCode: string, stateCode: string) => {
-        if (countryCode && stateCode) {
-            const cities = await City.getCitiesOfState(countryCode, stateCode);
+    fetchCountries();
+  }, [form?.country]);
 
-            setAllCity(cities);
-        } else {
-            setAllCity([]);
+  // Fetch States
+  
+  const fetchStates = async (countryCode: string) => {
+ 
+    if (countryCode) {
+      const states = await State.getStatesOfCountry(countryCode);
+      setAllState(states);
+      if (form?.state) {
+        const selectedStateObj = states.find(
+          (s) =>
+            s.isoCode.toLowerCase() === form.state.toLowerCase() ||
+            s.name.toLowerCase() === form.state.toLowerCase()
+        );
+        
+        if (selectedStateObj) {
+          fetchCities(countryCode, selectedStateObj.isoCode);
         }
-    };
+      }
+    } else {
+      setAllState([]);
+    }
+  };
 
-    // Get Selected Values
-    const selectedCountry = allCountry.find((c: { isoCode: string; name: string }) => c.isoCode.toLowerCase() === form?.country?.toLowerCase() || c.name.toLowerCase() === form?.country?.toLowerCase());
+  // Fetch Cities
+  const fetchCities = async (countryCode: string, stateCode: string) => {
+    if (countryCode && stateCode) {
+      const cities = await City.getCitiesOfState(countryCode, stateCode);
+      
+      setAllCity(cities);
+    } else {
+      setAllCity([]);
+    }
+  };
 
-    const selectedState = allState.find((s: { isoCode: string; name: string }) => s.isoCode.toLowerCase() === form?.state?.toLowerCase() || s.name.toLowerCase() === form?.state?.toLowerCase());
+  // Get Selected Values
+  const selectedCountry = allCountry.find(
+    (c: { isoCode: string; name: string; }) =>
+      c.isoCode.toLowerCase() === form?.country?.toLowerCase() ||
+      c.name.toLowerCase() === form?.country?.toLowerCase()
+  );
 
-    const selectedCity = allCity.find((c: { name: string }) => c.name.toLowerCase() === form?.city?.toLowerCase());
+  const selectedState = allState.find(
+    (s: { isoCode: string; name: string; }) =>
+      s.isoCode.toLowerCase() === form?.state?.toLowerCase() ||
+      s.name.toLowerCase() === form?.state?.toLowerCase()
+  );
 
+  const selectedCity = allCity.find(
+    (c: { name: string; }) => c.name.toLowerCase() === form?.city?.toLowerCase()
+  );
+  
     // map API response to form structure
     const mapToForm = (incomingData: any) => {
         if (!incomingData) return defaultForm;
@@ -198,7 +225,7 @@ const ManageSupplierAddEditPage = () => {
                 // Fetch independent data first
                 await Promise.all([fetchCategory(), isEditMode && fetchSupplierData()]);
             } catch (error) {
-                setAlert('error', 'Failed to fetch data');
+                console.error('Error fetching initial data:', error);
             } finally {
                 setLoading(false);
             }
@@ -209,14 +236,13 @@ const ManageSupplierAddEditPage = () => {
 
     const fetchSupplierData = async () => {
         try {
-            setLoading(true);
             const params = { filters: { supId }, pagination: false };
             const queryString = buildQueryParams(params);
             const response = await GetCall(`/company/supplier?${queryString}`);
 
             if (response.data && response.data[0]) {
                 const mappedForm = mapToForm(response.data[0]);
-                setForm(mappedForm);
+                setForm(mappedForm);           
                 if (mappedForm.supplierCategoryId) {
                     await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
                 }
@@ -230,29 +256,19 @@ const ManageSupplierAddEditPage = () => {
             }
         } catch (error) {
             setAlert('error', 'Failed to fetch supplier data');
-        } finally {
-            setLoading(false);
         }
     };
 
     const fetchCategory = async () => {
-        try {
-            setLoading(true);
-            const response: CustomResponse = await GetCall(`/company/category`);
-            if (response.code === 'SUCCESS') {
-                setCategory(response.data);
-            }
-        } catch (error) {
-            setAlert('error', 'Failed to fetch category data');
-        } finally {
-            setLoading(false);
+        const response: CustomResponse = await GetCall(`/company/category`);
+        if (response.code === 'SUCCESS') {
+            setCategory(response.data);
         }
     };
 
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            setLoading(true);
             const response: CustomResponse = isEditMode ? await PutCall(`/company/supplier/${supId}`, form) : await PostCall(`/company/supplier`, form);
 
             if (response.code === 'SUCCESS') {
@@ -404,29 +420,28 @@ const ManageSupplierAddEditPage = () => {
                 }
             }
         }
-
         setForm((prevForm) => {
             const updatedForm = {
                 ...prevForm,
-                ...(typeof name === 'string' ? { [name]: val } : name)
+                ...(typeof name === 'string' ? { [name]: val } : name),
             };
-
+    
             if (name === 'supplierCategoryId') {
                 fetchSubCategoryByCategoryId(val);
                 updatedForm.procurementCategoryId = null;
             }
-
+    
             return updatedForm;
         });
-
+    
         // Real-time validation: Remove error if input is valid
         setFormErrors((prevErrors) => {
             const updatedErrors = { ...prevErrors };
-
+    
             if (val && updatedErrors[name]) {
-                delete updatedErrors[name]; // Remove error when the field is filled
+                delete updatedErrors[name]; 
             }
-
+    
             return updatedErrors;
         });
         setForm((prevForm) => {
@@ -450,7 +465,6 @@ const ManageSupplierAddEditPage = () => {
 
         setLoading(true);
         try {
-            setLoading(true);
             const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`);
             if (response.code === 'SUCCESS') {
                 setSubCategory(response.data);
@@ -476,6 +490,7 @@ const ManageSupplierAddEditPage = () => {
     };
     // navigation Handlers
     const handleNext = (form: Record<string, unknown>) => {
+
         const { valid, errors } = validateFormData(form);
         if (!valid) {
             setFormErrors(errors);
@@ -505,7 +520,7 @@ const ManageSupplierAddEditPage = () => {
     };
 
     // adjust title based on edit mode
-    const pageTitle = isEditMode ? 'Edit Supplier Information' : 'Add Supplier Information';
+    const pageTitle = isEditMode ? 'Edit Supplier Information' : 'Add Supplier Information';      
     const renderStepContent = () => {
         switch (currentStep) {
             case 1:
@@ -558,7 +573,7 @@ const ManageSupplierAddEditPage = () => {
                                         Factory Name
                                     </label>
                                     <InputText id="factoryName" value={get(form, 'factoryName')} type="text" onChange={(e) => onInputChange('factoryName', e.target.value)} placeholder="Enter Factory Name" className="p-inputtext w-full mb-1" />
-                                    {formErrors.factoryName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.factoryName}</p>}
+                                    {formErrors.factoryName && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.factoryName}</p>}
                                     {/* Display word limit errors separately */}
                                     {wordLimitErrors.factoryName && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordLimitErrors.factoryName}</p>}
                                 </div>
@@ -576,6 +591,7 @@ const ManageSupplierAddEditPage = () => {
                                         onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                         placeholder="Select Procurement Category"
                                         className="w-full mb-1"
+                                        showClear={!!get(form, 'supplierCategoryId')}
                                     />
                                     {formErrors.supplierCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.supplierCategoryId}</p>}
                                 </div>
@@ -593,9 +609,10 @@ const ManageSupplierAddEditPage = () => {
                                             onChange={(e) => onInputChange('procurementCategoryId', e.value)}
                                             placeholder="Select Supplier Category"
                                             className="w-full mb-1"
+                                            showClear={!!get(form, 'procurementCategoryId')}
                                         />
                                     ) : (
-                                        <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full" />
+                                        <Dropdown id="supplierCategory" placeholder="Please Select a  Category" className="w-full"  />
                                     )}
                                     {formErrors.procurementCategoryId && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.procurementCategoryId}</p>}
                                 </div>
@@ -605,7 +622,7 @@ const ManageSupplierAddEditPage = () => {
                                         Email Address
                                     </label>
                                     <InputText id="email" value={get(form, 'email')} type="email" onChange={(e) => onInputChange('email', e.target.value)} placeholder="Enter Email Address " className="p-inputtext w-full mb-1" />
-                                    {formErrors.email && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.email}</p>}
+                                    {formErrors.email && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.email}</p>}
                                     {emailErrors.email && <p style={{ color: 'red', fontSize: '10px' }}>{emailErrors.email}</p>}
                                 </div>
                                 <div className="field col-3">
@@ -620,77 +637,74 @@ const ManageSupplierAddEditPage = () => {
                                         placeholder="Enter Phone Number "
                                         className="p-inputtext w-full mb-1"
                                     />
-                                    {formErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.supplierNumber}</p>}
-                                    {numberErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{numberErrors.supplierNumber}</p>}
+                                    {formErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px', marginBottom:'0px'}}>{formErrors.supplierNumber}</p>}
+                                    {numberErrors.supplierNumber && <p style={{ color: 'red', fontSize: '10px' ,marginBottom:'0px'}}>{numberErrors.supplierNumber}</p>}
                                 </div>
-
+                                
                                 <div className="field col-3">
-                                    <label htmlFor="country" className="font-semibold">
-                                        Country
-                                    </label>
-                                    <Dropdown
-                                        id="country"
-                                        value={selectedCountry?.isoCode || ''}
-                                        options={allCountry}
-                                        optionLabel="name"
-                                        optionValue="isoCode"
-                                        filter
-                                        onChange={(e) => {
-                                            onInputChange('country', e.value);
-                                            onInputChange('state', ''); // Reset state when country changes
-                                            onInputChange('city', ''); // Reset city when country changes
-                                        }}
-                                        placeholder="Select Country"
-                                        className="w-full mb-1"
-                                    />
-                                    {formErrors.country && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.country}</p>}
-                                </div>
+  <label htmlFor="country" className="font-semibold">Country</label>
+  <Dropdown
+    id="country"
+    value={selectedCountry?.name  || ''}
+    options={allCountry}
+    optionLabel="name"
+    optionValue="name"
+    filter
+    onChange={(e) => {
+      onInputChange('country', e.value);
+      onInputChange('state', ''); // Reset state when country changes
+      onInputChange('city', ''); // Reset city when country changes
+    }}
+    placeholder="Select Country"
+    className="w-full mb-1"
+    showClear={!!selectedCountry}
+  />
+  {formErrors.country && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.country}</p>}
+</div>
 
-                                <div className="field col-3">
-                                    <label htmlFor="state" className="font-semibold">
-                                        State
-                                    </label>
-                                    <Dropdown
-                                        id="state"
-                                        value={selectedState?.isoCode || ''}
-                                        options={allState}
-                                        optionLabel="name"
-                                        optionValue="isoCode"
-                                        filter
-                                        onChange={(e) => {
-                                            onInputChange('state', e.value);
-                                            onInputChange('city', ''); // Reset city when state changes
-                                        }}
-                                        placeholder="Select State"
-                                        className="w-full mb-1"
-                                    />
-                                    {formErrors.state && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.state}</p>}
-                                </div>
+<div className="field col-3">
+  <label htmlFor="state" className="font-semibold">State</label>
+  <Dropdown
+    id="state"
+    value={selectedState?.name  || ''}
+    options={allState}
+    optionLabel="name"
+    optionValue="name"
+    filter
+    onChange={(e) => {
+      onInputChange('state', e.value);
+      onInputChange('city', ''); // Reset city when state changes
+    }}
+    placeholder="Select State"
+    className="w-full mb-1"
+    showClear={!!selectedState}
+  />
+  {formErrors.state && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.state}</p>}
+</div>
 
-                                <div className="field col-3">
-                                    <label htmlFor="city" className="font-semibold">
-                                        City
-                                    </label>
-                                    <Dropdown
-                                        id="city"
-                                        value={selectedCity?.name || ''}
-                                        options={allCity}
-                                        optionLabel="name"
-                                        optionValue="name"
-                                        filter
-                                        onChange={(e) => onInputChange('city', e.value)}
-                                        placeholder="Select City"
-                                        className="w-full mb-1"
-                                    />
-                                    {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
-                                </div>
+<div className="field col-3">
+  <label htmlFor="city" className="font-semibold">City</label>
+  <Dropdown
+    id="city"
+    value={selectedCity?.name || ''}
+    options={allCity}
+    optionLabel="name"
+    optionValue="name"
+    filter
+    onChange={(e) => onInputChange('city', e.value)}
+    placeholder="Select City"
+    className="w-full mb-1"
+    showClear={!!selectedCity}
+  />
+  {formErrors.city && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.city}</p>}
+</div>
                                 <div className="field col-3">
                                     <label htmlFor="Zip" className="font-semibold">
                                         ZipCode
                                     </label>
                                     <InputText id="Zip" value={get(form, 'Zip')} type="text" onChange={(e) => onInputChange('Zip', e.target.value)} placeholder="Enter ZipCode " className="p-inputtext w-full mb-1" />
-                                    {formErrors.Zip && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.Zip}</p>}
-                                    {numberErrors.Zip && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{numberErrors.Zip}</p>}
+                                    {formErrors.Zip && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.Zip}</p>}
+                                    {numberErrors.Zip && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{numberErrors.Zip}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="siteAddress" className="font-semibold">
@@ -698,9 +712,9 @@ const ManageSupplierAddEditPage = () => {
                                     </label>
                                     <InputTextarea id="siteAddress" value={get(form, 'siteAddress')} onChange={(e) => onInputChange('siteAddress', e.target.value)} className="p-inputtext w-full mb-1" placeholder="Enter Site Address" />
                                     {formErrors.siteAddress && (
-                                        <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.siteAddress}</p> // Display error message
+                                        <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.siteAddress}</p> // Display error message
                                     )}
-                                    {wordMaxLimitErrors.siteAddress && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordMaxLimitErrors.siteAddress}</p>}
+                                    {wordMaxLimitErrors.siteAddress && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{wordMaxLimitErrors.siteAddress}</p>}
                                 </div>
                                 <div className="field col-3">
                                     <label htmlFor="warehouseLocation" className="font-semibold">
@@ -715,10 +729,10 @@ const ManageSupplierAddEditPage = () => {
                                         className="p-inputtext w-full mb-1"
                                     />
                                     {formErrors.warehouseLocation && (
-                                        <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{formErrors.warehouseLocation}</p> // Display error message
+                                        <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{formErrors.warehouseLocation}</p> // Display error message
                                     )}
                                     {/* Display word limit errors separately */}
-                                    {wordMaxLimitErrors.warehouseLocation && <p style={{ color: 'red', fontSize: '10px', marginBottom: '0px' }}>{wordMaxLimitErrors.warehouseLocation}</p>}
+                                    {wordMaxLimitErrors.warehouseLocation && <p style={{ color: 'red', fontSize: '10px',marginBottom:'0px' }}>{wordMaxLimitErrors.warehouseLocation}</p>}
                                 </div>
                             </div>
                         </div>

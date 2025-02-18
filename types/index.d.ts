@@ -24,6 +24,7 @@ import {
     AppMenuItemProps,
     AppMenuItem
 } from './layout';
+import { Calendar } from 'primereact/calendar';
 
 type ChildContainerProps = {
     children: ReactNode;
@@ -163,6 +164,7 @@ interface Rules {
     score: string;
     ratiosRawpack: number;
     ratiosCopack: number;
+    effectiveFrom:string;
     subCategories?: {
         subCategoryName: string;
     }
@@ -268,6 +270,26 @@ interface SupplierScoreboardSummary {
         };
     }[];
 }
+interface SupplierData {
+    supplier: {
+        supId:number| null;
+        supplierName:string;
+    };
+    category: {
+        categoryId:number| null;
+        categoryName:string;
+    };
+    subCategory: {
+        subCategoryId:number| null;
+        subCategoryName:string;
+    };
+    evaluationPeriod: string;
+    department: {
+        departmentId:number| null;
+        name:string;
+    };
+    totalScore: number;
+}
 
 interface Tile {
     title: string;
@@ -346,5 +368,6 @@ export type {
     SupplierScoreboardSummary,
     Tile,
     SetRulesDir,
-    Field
+    Field,
+    SupplierData
 };

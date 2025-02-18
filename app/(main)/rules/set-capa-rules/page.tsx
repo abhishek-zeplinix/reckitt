@@ -19,6 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 import { ColumnBodyOptions } from 'primereact/column';
 import { limitOptions } from '@/utils/constant';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -206,7 +207,7 @@ const ManageCapaRulesPage = () => {
                         style={{ marginLeft: 10 }}
                         onClick={() => setVisible(true)} // Show dialog when button is clicked
                     /> */}
-                    <Dialog
+                    {/* <Dialog
                         header={dialogHeader}
                         visible={visible}
                         style={{ width: '50vw' }}
@@ -223,8 +224,22 @@ const ManageCapaRulesPage = () => {
                             </div>
                         </div>
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
-                    </Dialog>
-                    <Button icon="pi pi-plus" size="small" label="Add Capa Rules" aria-label="Add Rule" className="bg-primary-main border-primary-main hover:text-white" onClick={handleCreateNavigation} style={{ marginLeft: 10 }} />
+                    </Dialog> */}
+                    <label className="block mb-1 text-md mt-4 font-bold">
+                        Effective Date: {rules[0]?.effectiveFrom 
+                            ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(rules[0].effectiveFrom)) 
+                            : "N/A"}
+                    </label>
+                    <Button 
+                        icon="pi pi-plus" 
+                        size="small" 
+                        label="Add Capa Rules" 
+                        aria-label="Add Rule" 
+                        className="bg-primary-main border-primary-main hover:text-white ml-4 mt-2"
+                        onClick={handleCreateNavigation} 
+                    />
+
+
                     {/* <Button
                         icon="pi pi-plus"
                         size="small"
@@ -500,7 +515,9 @@ const ManageCapaRulesPage = () => {
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
-
+                            {isLoading ?(
+                                <TableSkeletonSimple columns={6} rows={limit} />
+                            ) : (
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -540,13 +557,13 @@ const ManageCapaRulesPage = () => {
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'PROCUREMENT CATEGORY',
+                                        header: 'PROC. CATEGORY',
                                         field: 'category.categoryName',
                                         // sortable: true,
                                         // filter: true,
                                         filterPlaceholder: 'Supplier Name',
                                         headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 100, maxWidth: 100 }
+                                        style: { minWidth: 120, maxWidth: 120 }
                                     },
                                     {
                                         header: 'SUB CATEGORY',
@@ -554,19 +571,19 @@ const ManageCapaRulesPage = () => {
                                         headerStyle: dataTableHeaderStyle,
                                         style: { minWidth: 180, maxWidth: 180 }
                                     },
-                                    {
-                                        header: 'EFFECTIVE FROM',
-                                        field: 'effectiveFrom',
-                                        body: (data: any) => {
-                                            if (data.effectiveFrom) {
-                                                const date = new Date(data.effectiveFrom);
-                                                return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                            }
-                                            return;
-                                        },
-                                        headerStyle: dataTableHeaderStyle,
-                                        style: { minWidth: 180, maxWidth: 180 }
-                                    },
+                                    // {
+                                    //     header: 'EFFECTIVE FROM',
+                                    //     field: 'effectiveFrom',
+                                    //     body: (data: any) => {
+                                    //         if (data.effectiveFrom) {
+                                    //             const date = new Date(data.effectiveFrom);
+                                    //             return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                    //         }
+                                    //         return;
+                                    //     },
+                                    //     headerStyle: dataTableHeaderStyle,
+                                    //     style: { minWidth: 180, maxWidth: 180 }
+                                    // },
                                     {
                                         header: 'CRITERIA CATEGORY',
                                         field: 'capaRulesName',
@@ -639,6 +656,7 @@ const ManageCapaRulesPage = () => {
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
+                            )}
                         </div>
                     </div>
                 </div>

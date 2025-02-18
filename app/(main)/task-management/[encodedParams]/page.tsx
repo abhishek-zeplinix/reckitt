@@ -1,5 +1,5 @@
 'use client';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
@@ -15,6 +15,8 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import CustomDialogBox from '@/components/dialog-box/CustomDialogBox';
+import { RadioButton } from 'primereact/radiobutton';
+import { debounce } from 'lodash';
 
 const AssignSuppliers = ({
     params,
@@ -29,7 +31,6 @@ const AssignSuppliers = ({
     const [tasksList, setTasksList] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const { isLoading, setLoading, setAlert } = useAppContext();
-    const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedCountry, setSelectedCountry] = useState('');
     const [selectedState, setSelectedState] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
@@ -39,6 +40,8 @@ const AssignSuppliers = ({
     const [selectedSuppliers, setSelectedSuppliers] = useState<any[]>([]);
     const [showTable, setShowTable] = useState(false);
     const [isCompletionDialogVisible, setIsCompletionDialogVisible] = useState(false);
+    const [assignmentMode, setAssignmentMode] = useState('manual'); // 'manual' or 'all'
+    const [zipCode, setZipCode] = useState('');
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { userId, role, name, department } = decodedParams;
@@ -53,11 +56,7 @@ const AssignSuppliers = ({
     }, []);
 
 
-    if (!userId || !role || !name || !department) {
-        router.replace('/404')
-        return null;
-    }
-
+   
     console.log(userId);
     console.log(role);
     console.log(name);
@@ -65,9 +64,6 @@ const AssignSuppliers = ({
 
 
     // const { departments } = useFetchDepartments();
-
-   
-
 
     const fetchData = async (currentPage = page, customFilters = {}) => {
 
@@ -92,6 +88,24 @@ const AssignSuppliers = ({
         }
     };
 
+    const debouncedZipCodeSearch = useCallback(
+        debounce((zipValue: string, filters: any) => {
+            const updatedFilters = {
+                ...filters,
+                ...(zipValue && { zipCode: zipValue })
+            };
+            setPage(0);
+            fetchData(0, updatedFilters);
+        }, 700),
+        []
+    );
+
+    if (!userId || !role || !name || !department) {
+        router.replace('/404')
+        return null;
+    }
+
+    
 
     const onLimitChange = (e: any) => {
         setLimit(e.value);
@@ -170,6 +184,21 @@ const AssignSuppliers = ({
         fetchData(0, filters);
     };
 
+    const onZipCodeChange = (e: any) => {
+        const zipValue = e.target.value;
+        setZipCode(zipValue);
+
+        const countryData = Country.getCountryByCode(selectedCountry);
+        const stateData = State.getStateByCodeAndCountry(selectedState, selectedCountry);
+
+        const currentFilters = {
+            ...(countryData && { country: countryData.name }),
+            ...(stateData && { state: stateData.name }),
+            ...(selectedCity && { city: selectedCity })
+        };
+
+        debouncedZipCodeSearch(zipValue, currentFilters);
+    };
     // const onDepartmentChange = (e: any) => {
     //     const departmentId = e.value;
     //     setSelectedDepartment(departmentId);
@@ -179,14 +208,19 @@ const AssignSuppliers = ({
 
 
     const handleSubmit = async () => {
-        if (!selectedSuppliers.length) {
+        // if (!selectedSuppliers.length) {
+        //     setAlert('error', 'Please select at least one supplier');
+        //     return;
+        // }
+
+        if (assignmentMode === 'manual' && !selectedSuppliers.length) {
             setAlert('error', 'Please select at least one supplier');
             return;
         }
-
         // Show the confirmation dialog
         setIsCompletionDialogVisible(true);
     };
+
 
 
     const handleCompletionConfirm = async () => {
@@ -196,13 +230,23 @@ const AssignSuppliers = ({
             const countryData = Country.getCountryByCode(selectedCountry);
             const stateData = State.getStateByCodeAndCountry(selectedState, selectedCountry);
 
-            const payload = selectedSuppliers?.map(supplier => ({
-                userId: Number(userId),
-                supId: supplier.supId,
+            const filters = {
                 country: countryData?.name || "",
                 state: stateData?.name || "",
                 city: selectedCity || ""
-            }));
+            };
+
+            const payload = assignmentMode === 'all'
+                ? {
+                    userId: Number(userId),
+                    assignAll: true,
+                    ...filters
+                }
+                : selectedSuppliers?.map(supplier => ({
+                    userId: Number(userId),
+                    supId: supplier.supId,
+                    ...filters
+                }));
 
             console.log(payload);
 
@@ -210,14 +254,21 @@ const AssignSuppliers = ({
 
             if (response.code === 'SUCCESS') {
                 setAlert('success', 'Suppliers assigned successfully!');
+            } else {
+                setAlert('error', response.message);
             }
         } catch (error) {
             setAlert('error', 'Failed to assign suppliers!');
         } finally {
             setLoading(false);
-            setIsCompletionDialogVisible(false); // Close the dialog after submission
+            setIsCompletionDialogVisible(false);
         }
     };
+
+
+    const handleResetSelections = () => {
+        setSelectedSuppliers([]);
+    }
 
     const onPage = (event: any) => {
         setPage(event.first / event.rows);
@@ -235,9 +286,9 @@ const AssignSuppliers = ({
     const renderFilters = () => (
         <div className="card mt-4 p-4 bg-white rounded-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}>
 
-            <div className="flex justify-content-between gap-4">
+            <div className="flex justify-content-between flex-wrap gap-4">
 
-                <div className='flex gap-3 align-items'>
+                <div className='flex flex-wrap gap-3 align-items'>
 
                     <div className="flex flex-column">
                         <label className="mb-2">{role} Name</label>
@@ -246,7 +297,7 @@ const AssignSuppliers = ({
 
                     <div className="flex flex-column">
                         <label className="mb-2">{role}&apos; Department </label>
-                        <InputText name='departmnet' value={department} disabled />
+                        <InputText name='department' value={department} disabled />
                         {/* <Dropdown
                             value={department}
                             onChange={onDepartmentChange}
@@ -261,7 +312,7 @@ const AssignSuppliers = ({
                     </div>
                 </div>
 
-                <div className='flex gap-3 align-items justify-content-end'>
+                <div className='flex gap-3 align-items flex-wrap justify-content-end'>
 
                     <div className="flex flex-column">
                         <label className="mb-2">Country<span className='text-red-500'> *</span></label>
@@ -306,11 +357,48 @@ const AssignSuppliers = ({
 
                     </div>
 
+                    <div className="flex flex-column">
+                        <label className="mb-2">Zip Code</label>
+                        <InputText
+                            value={zipCode}
+                            onChange={onZipCodeChange}
+                            placeholder="Zip Code"
+                            className="w-full"
+                        />
+
+                    </div>
+
                 </div>
 
             </div>
         </div>
     );
+
+    const renderAssignmentOptions = () => (
+        <div className="flex gap-4 ">
+            <div className="flex align-items-center">
+                <RadioButton
+                    inputId="manual"
+                    name="assignmentMode"
+                    value="manual"
+                    onChange={(e) => setAssignmentMode(e.value)}
+                    checked={assignmentMode === 'manual'}
+                />
+                <label htmlFor="manual" className="ml-2">Assign Manually</label>
+            </div>
+            <div className="flex align-items-center">
+                <RadioButton
+                    inputId="all"
+                    name="assignmentMode"
+                    value="all"
+                    onChange={(e) => setAssignmentMode(e.value)}
+                    checked={assignmentMode === 'all'}
+                />
+                <label htmlFor="all" className="ml-2">Assign All</label>
+            </div>
+        </div>
+    );
+
 
     return (
         <div className="grid">
@@ -322,8 +410,10 @@ const AssignSuppliers = ({
 
                         {showTable && (
                             <div className="bg-white border border-1 p-3 shadow-lg rounded-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px', WebkitBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', MozBoxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)', boxShadow: '0px 0px 2px -2px rgba(0,0,0,0.75)' }}>
-                                <div className="flex justify-content-between align-items-center align-content-center border-b pb-3">
-                                    <div className='flex gap-3 align-items-center'>
+                                <div className="flex justify-content-between">
+
+                                    <div className="flex justify-content-between align-items-center align-content-center border-b pb-3 gap-3">
+
                                         <Dropdown
                                             value={limit}
                                             options={limitOptions}
@@ -331,18 +421,46 @@ const AssignSuppliers = ({
                                             placeholder="Limit"
                                             className="w-24 h-8"
                                         />
-                                    
-                                    <div className='font-italic'>
-                                        Total Selected Suppliers - {selectedSuppliers?.length}
-                                    </div>
-                                    </div>
-                                    <Button
-                                        label="Assign Selected Suppliers"
-                                        onClick={handleSubmit}
-                                        disabled={selectedSuppliers.length === 0 || !selectedCountry}
-                                        className="p-button-primary"
 
-                                    />
+
+                                            <div className=''>
+                                                {renderAssignmentOptions()}
+                                            </div>
+
+                                            <div className='flex gap-3 align-items-center'>
+
+                                                {assignmentMode === 'manual' && (
+                                                    <div className='font-italic font-bold'>
+                                                        Total Selected Suppliers - {selectedSuppliers?.length}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        {/* <div className='font-italic'>
+                                            Total Selected Suppliers - {selectedSuppliers?.length}
+                                        </div> */}
+                                    </div>
+
+
+                                    <div className='flex gap-3'>
+                                        {assignmentMode === 'manual' && (
+                                            <Button
+                                                label="Reset"
+                                                onClick={handleResetSelections}
+                                                disabled={selectedSuppliers.length === 0}
+                                                className="p-button-primary"
+                                            />
+                                        )}
+                                        <Button
+                                            label={assignmentMode === 'all' ? "Assign All Suppliers" : "Assign Selected Suppliers"}
+                                            onClick={handleSubmit}
+                                            disabled={
+                                                (assignmentMode === 'manual' && selectedSuppliers.length === 0) ||
+                                                !selectedCountry
+                                            }
+                                            className="p-button-primary"
+                                        />
+                                    </div>
+
                                 </div>
 
                                 <DataTable
@@ -361,7 +479,10 @@ const AssignSuppliers = ({
                                     scrollHeight="400px"
                                     className="mt-3"
                                 >
-                                    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
+                                    {/* <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} disabled={assignmentMode === 'all'}
+                                    /> */}
+                                    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}
+                                    />
                                     <Column
                                         header="Sr. No"
                                         body={(data, options) => options.rowIndex + 1 + (page * limit)}

@@ -14,6 +14,7 @@ import { Dialog } from 'primereact/dialog';
 import { FileUpload } from 'primereact/fileupload';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { withAuth } from '@/layout/context/authContext';
+import { Tooltip } from 'primereact/tooltip';
 
 const GenerateRequestPage = () => {
     const router = useRouter();
@@ -23,7 +24,7 @@ const GenerateRequestPage = () => {
     const [formData, setFormData] = useState<any>({
         supplierId: null,
         supplierName: '',
-        supplierEmail: '',
+        // supplierEmail: '',
         supplierContact: '',
         supplierManufacturerName: '',
         factoryName: '',
@@ -234,7 +235,14 @@ const GenerateRequestPage = () => {
         return (
             <div className="flexfield col-4">
                 <div className="flex align-items-center gap-2 mb-1">
+                {fieldName === 'supplierEmail' ? (
+                    <>
+                        <i className="pi pi-exclamation-circle" data-pr-tooltip="You are not allowed to change email" data-pr-position="top"></i>
+                        <Tooltip target=".pi-exclamation-circle" />
+                    </>
+                ) : (
                     <Checkbox checked={selectedFields[fieldName] || false} onChange={() => toggleField(fieldName)} />
+                )}
                     <label className="font-semibold">{label}</label>
                 </div>
                 <div>

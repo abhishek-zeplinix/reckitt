@@ -12,6 +12,7 @@ import { CustomResponse } from '@/types';
 import SubmitResetButtons from './submit-reset-buttons';
 import Dashboard from '@/app/(main)/page';
 import { SortOrder } from 'primereact/api';
+import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -192,6 +193,9 @@ const Routes = () => {
     return (
         <>
             <div className="mt-1">
+            {isLoading ?(
+                <TableSkeletonSimple columns={2} rows={limit} />
+            ) : (
                 <CustomDataTable
                     ref={dataTableRef}
                     // filter
@@ -239,6 +243,7 @@ const Routes = () => {
                     onLoad={(params: any) => fetchData(params)}
                     onView={(item: any) => onRowSelect(item, 'view')}
                 />
+            )}
             </div>
 
             <Dialog

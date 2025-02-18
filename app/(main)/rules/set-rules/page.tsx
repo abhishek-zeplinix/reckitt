@@ -16,6 +16,7 @@ import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { ColumnBodyOptions } from 'primereact/column';
 import { limitOptions } from '@/utils/constant';
+import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
@@ -322,6 +323,9 @@ const SetRulesPage = () => {
                                     <div className="mt-2">{FieldGlobalSearch}</div>
                                 </div>
                             </div>
+                            {isLoading ?(
+                                <TableSkeletonSimple columns={4} rows={limit} />
+                            ) : (
                             <CustomDataTable
                                 ref={dataTableRef}
                                 page={page}
@@ -463,6 +467,7 @@ const SetRulesPage = () => {
                                 onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
+                            )}
                         </div>
                     </div>
                 </div>
