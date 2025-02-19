@@ -29,6 +29,7 @@ const getDomain = (): string => {
 };
 
 const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
+
     const domain: string = getDomain();
     const option: any = {
         path: '/',
@@ -41,10 +42,14 @@ const setAuthData = (token: string, refreshToken: string, userDetails: any) => {
     }
     Cookies.set('authToken', token, option);
     Cookies.set('authRefreshToken', refreshToken, option);
-    Cookies.set('userDetails', JSON.stringify(userDetails), option);
+
+    // Cookies.set('userDetails', JSON.stringify(userDetails), option);
+    localStorage.setItem('userDetails', JSON.stringify(userDetails));
 };
 
 const setUserDetails = (userDetails: any) => {
+
+
     const domain: string = getDomain();
     const option: any = {
         path: '/',
@@ -55,7 +60,11 @@ const setUserDetails = (userDetails: any) => {
     if (domain.indexOf('localhost') == -1) {
         option.domain = `reckittserver.${domain}`;
     }
-    Cookies.set('userDetails', JSON.stringify(userDetails), option);
+
+    localStorage.setItem('userDetails', JSON.stringify(userDetails));
+
+    // Cookies.set('userDetails', JSON.stringify(userDetails), option);
+
 };
 
 const getAuthToken = (): string => {
@@ -68,7 +77,8 @@ const getRefreshToken = (): string | undefined => {
 
 const getUserDetails = (): any => {
     const domain = getDomain();
-    const userDetails = Cookies.get('userDetails');
+    const userDetails = localStorage.getItem('userDetails');
+    console.log(userDetails);
     return userDetails ? JSON.parse(userDetails) : null;
 };
 
@@ -85,7 +95,9 @@ const removeAuthData = () => {
     }
     Cookies.remove('authToken', option);
     Cookies.remove('authRefreshToken', option);
-    Cookies.remove('userDetails', option);
+    // Cookies.remove('userDetails', option);
+    localStorage.removeItem('userDetails');
+
 };
 
 export { isTokenValid, setAuthData, setUserDetails, getAuthToken, getRefreshToken, getUserDetails, removeAuthData };
