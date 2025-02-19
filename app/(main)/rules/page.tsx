@@ -628,13 +628,13 @@ const MainRules = () => {
                             <h4>Not Found Data:</h4>
                             <ul>
                                 <li>
-                                    <strong>Departments:</strong> {responseData.missingDepartments.length > 0 ? responseData.missingDepartments.join(', ') : 'None'}
+                                    <strong>Departments:</strong> {responseData?.missingDepartments?.length > 0 ? responseData?.missingDepartments.join(', ') : 'None'}
                                 </li>
                                 <li>
-                                    <strong>Categories:</strong> {responseData.missingCategories.length > 0 ? responseData.missingCategories.join(', ') : 'None'}
+                                    <strong>Categories:</strong> {responseData?.missingCategories?.length > 0 ? responseData?.missingCategories.join(', ') : 'None'}
                                 </li>
                                 <li>
-                                    <strong>SubCategories:</strong> {responseData.missingSubCategories.length > 0 ? responseData.missingSubCategories.join(', ') : 'None'}
+                                    <strong>SubCategories:</strong> {responseData?.missingSubCategories?.length > 0 ? responseData?.missingSubCategories.join(', ') : 'None'}
                                 </li>
                             </ul>
                         </div>

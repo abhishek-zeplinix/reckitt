@@ -226,7 +226,7 @@ const ManageCapaRulesPage = () => {
                         <FileUpload name="demo[]" customUpload multiple={false} accept=".xls,.xlsx,image/*" maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files here to upload.</p>} uploadHandler={handleFileUpload} />
                     </Dialog> */}
                     <label className="block mb-1 text-md mt-4 font-bold">
-                        Effective Date: {rules[0]?.effectiveFrom 
+                        Effective From Date: {rules[0]?.effectiveFrom 
                             ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(rules[0].effectiveFrom)) 
                             : "N/A"}
                     </label>
