@@ -1,9 +1,10 @@
 import CustomToast from './Toast';
 
-
 const ToastContainer = ({ toasts, removeToast }: { toasts: any; removeToast: any }) => {
+
+
     return (
-      <div className="fixed top-0 left-0 right-0" style={{ maxWidth: '25rem', zIndex: 99999, margin: '0 auto' }}>
+      <div className="fixed top-0 left-0 right-0 mt-5" style={{ maxWidth: '25rem', zIndex: 99999, margin: '0 auto' }}>
         <div className="flex flex-column gap-2">
           {toasts.map((toast: any) => (
             <div 

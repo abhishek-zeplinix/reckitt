@@ -765,6 +765,8 @@ background-color: #3A60F8;
 }
 
 
+//fade in fade out transition
+
 @keyframes fadeOut {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(-20px); }
@@ -772,4 +774,23 @@ background-color: #3A60F8;
 
 .fade-out {
   animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(-20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.p-dialog {
+  animation: fadeIn 0.3s ease-out !important;
+}
+
+.p-dialog-mask-leave {
+  animation: fadeOut 0.3s ease-in forwards;
 }
