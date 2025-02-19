@@ -67,7 +67,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                     props
                         .extraButtons(item)
                         .map((btn: ExtraButton, index: number) => (
-                            <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main" onClick={() => btn.onClick && btn.onClick(item) } tooltip={btn.tooltip}/>
+                            <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main" onClick={() => btn.onClick && btn.onClick(item) } tooltip={btn.tooltip} tooltipOptions={{ style: { fontSize: '10px', padding: '2px 4px' } }}/>
                         ))}
             </div>
         );
