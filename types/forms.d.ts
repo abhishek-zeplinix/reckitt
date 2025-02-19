@@ -329,6 +329,26 @@ type EmptyUsersGroup = {
   name:string;
   phone:string;
 };
+type EmptyQuestion = {
+  segment?: string;
+  questionTitle?: string;
+  questionDescription?: string;
+  minRating?: number | null;
+  maxRating?: number | null;
+  compulsory?: string;
+  comment?: number | null;
+  na:boolean;
+};
+type EmptyCreatequestion = {
+  vendorId?: number | null;
+  reviewTypeId?: number | null;
+  templateTypeId?: number | null;
+  userGroupId?: number | null;
+  buId?: number | null;
+  regionId?: number | null;
+  masterCountryId?: number | null;
+  brand:string;
+};
 type EmptySupplier = {
     supId: number | null;
     supplierName: string;
@@ -412,5 +432,7 @@ export type {
     EmptyManageUsers,
     EmptySupplier,
     EmptyFeedback,
-    EmptyUsersGroup
+    EmptyUsersGroup,
+    EmptyCreatequestion,
+    EmptyQuestion
 };

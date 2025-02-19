@@ -133,6 +133,71 @@ export const validateFormRuleData = (data: unknown) => {
     }
 };
 
+const fieldsCreateQuestion = z.object({
+    vendorId: z
+        .number()
+        .nullable()
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'Vendor cannot be empty'
+        }),
+    reviewTypeId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Review Type cannot be empty'
+        }),
+    brand: z.string().min(1, 'Brands cannot be empty'),
+    templateTypeId: z
+        .number()
+        .nullable()
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'Template Type cannot be empty'
+        }),
+    userGroupId: z
+        .number()
+        .nullable()
+        .optional()
+        .refine((val) => val !== null && val !== undefined, {
+            message: 'User Group cannot be empty'
+        }),
+    buId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'BU cannot be empty'
+        }),
+    regionId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Region cannot be empty'
+        }),
+    masterCountryId: z
+        .number()
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Countries cannot be empty'
+        }),
+});
+
+export const validateFormCreateQuestion = (data: unknown) => {
+    try {
+        fieldsCreateQuestion.parse(data);
+        return { valid: true, errors: {} };
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            const errors = error.errors.reduce((acc, curr) => {
+                acc[curr.path[0]] = curr.message;
+                return acc;
+            }, {} as Record<string, string>);
+            return { valid: false, errors };
+        }
+        return { valid: false, errors: { general: 'Unexpected error occurred' } };
+    }
+};
+
 const fieldsSchemaCapaRules = z.object({
     effectiveFrom: z
         .date()
