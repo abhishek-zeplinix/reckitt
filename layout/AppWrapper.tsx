@@ -1,18 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { GetCall } from '@/app/api-config/ApiKit';
 import eventEmitter from '@/app/api-config/event';
 import Preloader from '@/components/Preloader';
-import { CONFIG } from '@/config/config';
 import { AppContextType, CustomResponse } from '@/types';
 import { getAuthToken, getUserDetails, isTokenValid, removeAuthData, setAuthData, setUserDetails } from '@/utils/cookies';
 import { get } from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Toast } from 'primereact/toast';
 import React, { useCallback } from 'react';
 import { createContext, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { AuthProvider } from './context/authContext';
-import CustomToast from '@/components/toast/Toast';
 import ToastContainer from '@/components/toast/ToastContainer';
 import { encodeRouteParams } from '@/utils/base64';
 
@@ -106,7 +102,6 @@ export const AppWrapper = React.memo(({ children }: any) => {
         console.log(userData);
         
         if (userData) {
-            
             try {
                 setUser(userData);
             } catch (error) { }
@@ -120,16 +115,13 @@ export const AppWrapper = React.memo(({ children }: any) => {
             }
         }
 
-
         eventEmitter.on('signOut', (data: any) => {
             removeAuthData();
             signOut();
             setAlert('info', 'Session expired');
         });
 
-        // return () => {
-        //     eventEmitter.off('signOut');
-        // };
+    
     }, []);
 
     const signOut = async () => {
