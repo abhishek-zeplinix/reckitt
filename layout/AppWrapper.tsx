@@ -103,8 +103,10 @@ export const AppWrapper = React.memo(({ children }: any) => {
         }
 
         const userData = getUserDetails();
+        console.log(userData);
         
         if (userData) {
+            
             try {
                 setUser(userData);
             } catch (error) { }

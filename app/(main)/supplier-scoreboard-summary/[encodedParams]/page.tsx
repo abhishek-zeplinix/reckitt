@@ -246,32 +246,17 @@ const SupplierScoreboardTables = ({
             (dept: any) => dept?.name.toLowerCase() === rowData.name.toLowerCase()
         )?.departmentId || '';
 
-        const isThisCellLoading = loadingCell?.departmentId === depId && loadingCell?.period === period;
 
         const handleIconClick = async (e: React.MouseEvent) => {
             e.stopPropagation();
-
-            setLoadingCell({ departmentId: depId, period });
-
-            try {
-                await fetchSpecificSupplierWithLessScore(depId, period);
-                setDialogVisible(true);
-            } finally {
-                setLoadingCell(null);
-            }
-
+            setDialogVisible(true);
+            await fetchSpecificSupplierWithLessScore(depId, period);
         };
 
         const handleAddFeedbackClick = async (e: React.MouseEvent) => {
             e.stopPropagation();
-            setLoadingCell({ departmentId: depId, period });
-
-            try {
-                await fetchSpecificSupplierCheckedData(depId, period);
-                setDialogVisible(true);
-            } finally {
-                setLoadingCell(null);
-            }
+            setDialogVisible(true);
+            await fetchSpecificSupplierCheckedData(depId, period);
         };
 
         return (
@@ -286,15 +271,11 @@ const SupplierScoreboardTables = ({
                     }}
                 />
                 {percentage <= 50 && percentage !== 0 && !isSupplier() && (
-                    isThisCellLoading ?
-                        <ProgressSpinner style={{ width: '21px', height: '21px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" /> :
-                        <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />
+                    <i className="pi pi-info-circle text-yellow-500 cursor-pointer" onClick={handleIconClick} />
                 )}
 
                 {percentage <= 50 && percentage !== 0 && isSupplier() && (
-                    isThisCellLoading ?
-                        <ProgressSpinner style={{ width: '21px', height: '21px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" /> :
-                        <Badge value="+ Feedback" severity="success" onClick={handleAddFeedbackClick} className="cursor-pointer" />
+                    <Badge value="+ Feedback" severity="success" onClick={handleAddFeedbackClick} className="cursor-pointer" />
                 )}
             </div>
         );
@@ -536,10 +517,9 @@ const SupplierScoreboardTables = ({
                 className="delete-dialog"
                 onHide={() => setDialogVisible(false)}
                 header={valuesPopupHeader}
-                transitionOptions={{ timeout: 200 }} // Add smooth transition
-                modal={true}
-                closeOnEscape={true}
-                dismissableMask={true}
+                modal
+                closeOnEscape
+                dismissableMask
             >
                 {isPopupLoading ? (
                     <div className="flex justify-content-center align-items-center" style={{ height: '200px' }}>
