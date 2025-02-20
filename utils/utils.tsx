@@ -693,6 +693,21 @@ export const getStatusClass = (status: string) => {
     }
 };
 
+
+
 export const renderColorStatus = (status: string) => {
     return <span className={`px-2 py-1 rounded-lg ${getStatusClass(status)}`}>{status}</span>;
 };
+
+export const getSeverity = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case 'IN_PROGRESS':
+        return 'warning';
+      case 'COMPLETED':
+        return 'success';
+      case 'PENDING':
+        return 'info';
+      default:
+        return 'info';
+    }
+  };

@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { useAppContext } from '@/layout/AppWrapper';
 // import { useRouter } from 'next/router';
 
 const AccessDenied = () => {
 //   const router = useRouter();
+const {setLoading, isLoading} = useAppContext();
+
+  useEffect(()=>{
+    if(isLoading){
+      setLoading(false);
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-content-center py-12 px-4">

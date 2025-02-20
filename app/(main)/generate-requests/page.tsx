@@ -235,9 +235,9 @@ const GenerateRequestPage = () => {
         return (
             <div className="flexfield col-4">
                 <div className="flex align-items-center gap-2 mb-1">
-                {fieldName === 'supplierEmail' ? (
+                {(fieldName === 'supplierEmail' || fieldName === 'supplierCategoryId' || fieldName === 'procurementCategoryId') ? (
                     <>
-                        <i className="pi pi-exclamation-circle" data-pr-tooltip="You are not allowed to change email" data-pr-position="top"></i>
+                        <i className="pi pi-exclamation-circle" data-pr-tooltip="You are not allowed to change this" data-pr-position="top"></i>
                         <Tooltip target=".pi-exclamation-circle" />
                     </>
                 ) : (

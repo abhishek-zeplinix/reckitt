@@ -17,8 +17,8 @@ import useDecodeParams from "@/hooks/useDecodeParams";
 const ApproverPage = ({
     params
 }: {
-    params: { 
-        encodedParams: string 
+    params: {
+        encodedParams: string
     }
 }) => {
     const { setAlert } = useAppContext();
@@ -32,13 +32,13 @@ const ApproverPage = ({
 
     // state management
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
-    const [selectedPeriod, setSelectedPeriod] = useState<string | null >();
+    const [selectedPeriod, setSelectedPeriod] = useState<string | null>();
     const [activeTab, setActiveTab] = useState('');
     const [scoreLoading, setScoreLoading] = useState(false);
     const [reload, setReload] = useState<boolean>(false);
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId, currentYear} = decodedParams;
+    const { supId, catId, subCatId, currentYear } = decodedParams;
 
     const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
 
@@ -124,19 +124,22 @@ const ApproverPage = ({
     return (
         <div className="grid" id="content-to-print">
             <div className="col-12">
-                <SupplierSummaryCard catId={catId} subCatId={subCatId} supId={supId}/>
+                <SupplierSummaryCard catId={catId} subCatId={subCatId} supId={supId} />
             </div>
             <div className="col-12">
                 <div className="border">
                     <div className="p-1">
-                        <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                        <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
                             {sortedDepartments.map((department: any) => (
                                 <div
                                     key={department.departmentId}
-                                    className={`px-4 py-2 font-bold cursor-pointer transition-all duration-300 ${activeTab === department.departmentId
-                                            ? 'text-primary-main border border-primary-main rounded-lg'
-                                            : 'text-gray-500'
+                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.departmentId
+                                        ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'
                                         }`}
+                                    style={{
+                                        border: activeTab === department.departmentId ? '1px solid #ec4899' : 'none',
+                                        borderRadius: activeTab === department.departmentId ? '12px' : '0'
+                                    }}
                                     onClick={() => setActiveTab(department.departmentId)}
                                 >
                                     {department.name.toUpperCase()}

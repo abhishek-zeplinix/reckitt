@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import 'primeflex/primeflex.css';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { encodeRouteParams } from '@/utils/base64';
@@ -12,13 +12,14 @@ import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTabl
 import { GetCall } from '@/app/api-config/ApiKit';
 import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
 import useDecodeParams from '@/hooks/useDecodeParams';
+import { Badge } from 'primereact/badge';
+import { useAuth } from '@/layout/context/authContext';
 
 const ViewAssignedSuppliers = ({
     params,
 }: {
     params: { encodedParams: string };
 }) => {
-    const { isLoading, setLoading, user, setAlert } = useAppContext();
     const [categoryLoader, setCategoryLoader] = useState(false);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
@@ -26,12 +27,14 @@ const ViewAssignedSuppliers = ({
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [department, setDepartment] = useState<string | null>(null);
     const router = useRouter();
-
-
+    
+    const { isLoading, setLoading, user, setAlert } = useAppContext();
+    const { isApprover, isEvaluator} = useAuth();
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { userId, role, name, department} = decodedParams;
+    const { userId, role, name} = decodedParams;
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -108,6 +111,7 @@ const ViewAssignedSuppliers = ({
                 const suppliersData = Array.isArray(response?.data) ? response.data : [response.data];
 
                 setSuppliers(suppliersData);
+                setDepartment(suppliersData[0]?.department?.name || 'N/A')
                 setTotalRecords(response?.total);
             } else {
                 setSuppliers([]);
@@ -166,7 +170,9 @@ const ViewAssignedSuppliers = ({
             id: assignment.assignmentId,
             srNo: index + 1,
             supplierName: supplier.supplierName,
-            status: supplier.isBlocked ? 'Inactive' : 'Active',
+            // status: supplier.isBlocked ? 'Inactive' : 'Active',
+            evaluationStatus: assignment.evaluationStatus,
+            approvalStatus: assignment.approvalStatus,
             country: supplier.country,
             state: supplier.state,
             city: supplier.city,
@@ -175,6 +181,8 @@ const ViewAssignedSuppliers = ({
             evaluate: 'Evaluate'
         };
     });
+
+    
 
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
@@ -191,8 +199,11 @@ const ViewAssignedSuppliers = ({
             </div>
 
             {isLoading || categoryLoader ? (
+
                 <TableSkeletonSimple columns={11} rows={limit} />
+
             ) : (
+
                 <CustomDataTable
                     ref={dataTableRef}
                     page={page}
@@ -211,13 +222,19 @@ const ViewAssignedSuppliers = ({
                             bodyStyle: { minWidth: 120 },
                             filterPlaceholder: 'Search Supplier Name'
                         },
+
                         {
                             header: 'Status',
-                            field: 'status',
+                            field: role.toLowerCase() === 'approver' ? 'approvalStatus' : 'evaluationStatus',
                             bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
-                            body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
+                            body: (rowData) => (
+                                <Badge 
+                                    value={role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus} 
+                                    severity={getSeverity(role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus)} 
+                                />
+                            )
                         },
-
+                                                
                         {
                             header: 'Country',
                             field: 'country',
@@ -234,13 +251,6 @@ const ViewAssignedSuppliers = ({
                             style: { minWidth: 120, maxWidth: 120 }
                         },
 
-
-                        // {
-                        //     header: 'History',
-                        //     body: HistoryBodyTemplate,
-                        //     style: { minWidth: 70, maxWidth: 70 },
-                        //     className: 'text-center'
-                        // },
                         {
                             header: role.toLowerCase() === 'evaluator' ? 'Evaluate' : 'Approve',
                             body: evaluateBodyTemplate,
