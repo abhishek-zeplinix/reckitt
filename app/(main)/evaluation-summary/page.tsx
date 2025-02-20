@@ -39,7 +39,7 @@ const MainRules = () => {
     const [rules, setRules] = useState<SetRulesDir[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    // const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
     const [selectedRuleSetId, setSelectedRuleSetId] = useState<any>([]);
     const [action, setAction] = useState(null);
@@ -56,8 +56,13 @@ const MainRules = () => {
     const [selectedRuleType, setSelectedRuleType] = useState<string | null>(null);
     const [bulkDialogVisible, setBulkDialogVisible] = useState(false);
     const [responseData, setResponseData] = useState<any>(null);
-    const [visible, setVisible] = useState(false); // State to control dialog visibility
-    const [dialogContent, setDialogContent] = useState({ title: '', message: '' });
+    const tableData = [
+        { serialNumber: 1, 	account: 'How satisfied are you with our service?', dec: 4.5 ,jan : 4.5,feb : 43.8,mar : 63.8,apr : 33.38  },
+        { serialNumber: 2,  account: 'How likely are you to recommend us to others?', dec: 13.8 ,jan: 33.8,feb: 43.8 ,mar: 3.86,apr: 3.8 },
+        { serialNumber: 3, 	account: 'How would you rate the quality of our product?', dec: 44.2,jan: 3.8,feb: 3.8 ,mar: 35.8,apr: 35.8  },
+        { serialNumber: 4, 	account: 'How easy was it to use our platform?', dec: 4.0 ,jan: 53.8,feb: 53.8,mar: 3.8 ,apr: 3.8 },
+        { serialNumber: 5,  account: 'How responsive was our support team?', dec: 4.7,jan: 33.8 ,feb: 36.8 ,mar: 53.8,apr: 35.8 },
+    ];
 
     const ruleTypeOptions = [
         { label: 'CAPA RULE', value: 'capa rule' },
@@ -78,10 +83,10 @@ const MainRules = () => {
     }, [limit, page]);
 
     const handleEditRules = (e: any) => {
-            router.push(`/mapping-evaluation/view-escalation`);
+            router.push(`/mapping-marketing/templates-question`);
     };
     const handleCreateNavigation = () => {
-        router.push('/mapping-evaluation/create-escalation');
+        router.push('/mapping-marketing/create-question');
     };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
@@ -90,17 +95,17 @@ const MainRules = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Escalation With Project Timeline</h3>
+                    <h3 className="mb-0">Trend Summary Reports</h3>
                 </span>
                 <div className="flex justify-content-end">
                     <Button
-                        icon="pi pi-plus"
+                        icon="pi pi-user-plus"
                         size="small"
-                        label="   Create Escalation With Timeline"
-                        aria-label="Create Escalation With Timeline "
+                        label="Export To Excel"
+                        aria-label="Mapping Template Question To Agencies"
                         className="bg-primary-main hover:text-white border-primary-main"
                         style={{ marginLeft: 10 }}
-                        onClick={handleCreateNavigation} // Show dialog when button is clicked
+                        onClick={()=>{}} // Show dialog when button is clicked
                     />
                 </div>
             </div>
@@ -141,14 +146,14 @@ const MainRules = () => {
     };
     const FieldGlobalSearch = globalSearch();
 
-    const onRowSelect = async (perm: any, action: any) => {
+    const onRowSelect = async (perm: SetRulesDir, action: any) => {
         setAction(action);
 
         setSelectedRuleSetId(perm);
 
-        if (action === ACTIONS.VIEW) {
-            handleEditRules(perm);
-        }
+        // if (action === ACTIONS.DELETE) {
+        //     openDeleteDialog(perm);
+        // }
     };
 
     // const openDeleteDialog = (items: SetRulesDir) => {
@@ -158,37 +163,6 @@ const MainRules = () => {
         setSelectedRuleType(e.value);
         fetchData({ limit, page, sortBy: 'ruleSetId', filters: { ruleType: e.value } });
     };
-    // Function to handle button clicks
-    const handleButtonClick = (action: string) => {
-        let title, message;
-        switch (action) {
-            case 'initialize':
-                title = 'INITIALIZER';
-                message = 'Are you sure? You are about to initialize the process.';
-                break;
-            case 'sendReminder':
-                title = 'SEND REMINDER';
-                message = 'Are you sure? You are about to send a reminder email.';
-                break;
-            case 'sendSuperior':
-                title = 'SEND SUPERIOR';
-                message = 'Are you sure? You are about to send an email to the superior.';
-                break;
-            default:
-                title = '';
-                message = '';
-        }
-        setDialogContent({ title, message });
-        setVisible(true); // Show the dialog
-    };
-
-    // Dialog footer with "Yes Proceed" and "Cancel" buttons
-    const dialogFooter = (
-        <div className='p-2'>
-            <Button label="Yes Proceed" icon="pi pi-check mt-2" onClick={() => setVisible(false)} autoFocus />
-            <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={() => setVisible(false)}  />
-        </div>
-    );
 
     return (
         <div className="grid">
@@ -228,97 +202,82 @@ const MainRules = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                isView={true} // show edit button
+                                // isEdit={true} // show edit button
                                 // isDelete={true} // show delete button
-                                extraButtons={(item) => [
-                                    {
-                                        icon: "pi pi-bell",
-                                        tooltip:'Initialize',
-                                        onClick: (e) => {
-                                            handleButtonClick('initialize'); // Pass the item (row data) instead of e
-                                        }
-                                    },
-                                    {
-                                        icon: "pi pi-send",
-                                        tooltip:'Send Reminder',
-                                        onClick: (e) => {
-                                            handleButtonClick('sendReminder'); // Pass the item (row data) instead of e
-                                        }
-                                    },
-                                    {
-                                        icon: "pi pi-envelope",
-                                        tooltip:'Send Superior',
-                                        onClick: (e) => {
-                                            handleButtonClick('sendSuperior'); // Pass the item (row data) instead of e
-                                        }
-                                    }
-                                ]}
-                                data={rules.map((item: any) => ({
-                                    ruleSetId: item.ruleSetId,
-                                    value: item.value?.split('_')[2].toUpperCase(),
-                                    ruleType: item.ruleType.toUpperCase(),
-                                    effectiveFrom: item.effectiveFrom?.split('T')[0]
-                                }))}
+                                // extraButtons={(item) => [
+                                //     {
+                                //         icon: 'pi pi-eye',
+                                //         onClick: (e) => {
+                                //             handleEditRules(item); // Pass the item (row data) instead of e
+                                //         }
+                                //     }
+                                // ]}
+                                data={tableData}
                                 columns={[
                                     {
                                         header: 'SR. NO',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                        field: 'serialNumber',
+                                        // body: (data: any, options: any) => {
+                                        //     const normalizedRowIndex = options.rowIndex % limit;
+                                        //     const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                            return <span>{srNo}</span>;
-                                        },
+                                        //     return <span>{srNo}</span>;
+                                        // },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'RULES TYPE ',
-                                        field: 'ruleType',
+                                        header: 'Agency / Account ',
+                                        field: 'account',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'EFFECTIVE FROM',
-                                        field: 'effectiveFrom',
-                                        body: (data: any) => {
-                                            if (data.effectiveFrom) {
-                                                const date = new Date(data.effectiveFrom);
-                                                return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                            }
-                                            return;
-                                        },
+                                        header: 'Dec 2024',
+                                        field: 'dec',
+                                        // body: (data: any) => {
+                                        //     if (data.effectiveFrom) {
+                                        //         const date = new Date(data.effectiveFrom);
+                                        //         return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                        //     }
+                                        //     return;
+                                        // },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
 
                                     {
-                                        header: 'RULES NAME ',
-                                        field: 'value',
+                                        header: 'Jan 2025 ',
+                                        field: 'jan',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Feb 2025 ',
+                                        field: 'feb',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Mar 2025 ',
+                                        field: 'mar',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Apr 2025 ',
+                                        field: 'apr',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
-                                onView={(item: any) => onRowSelect(item, 'view')}
+                                // onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                             )}
                         </div>
                     </div>
                 </div>
             </div>
-            {/* Dialog Box */}
-            <Dialog
-                header={dialogContent.title}
-                visible={visible}
-                style={{ width: '400px' }}
-                footer={dialogFooter}
-                onHide={() => setVisible(false)}
-            >
-                <div className="flex flex-column align-items-center gap-3">
-                    <i className="pi pi-exclamation-circle" style={{ fontSize: '3rem', color: 'var(--primary-color)' }} />
-                    <h3>Are you sure?</h3>
-                    <p>You are about to send the email.</p>
-                </div>
-            </Dialog>
         </div>
     );
 };

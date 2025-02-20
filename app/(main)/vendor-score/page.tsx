@@ -39,7 +39,7 @@ const MainRules = () => {
     const [rules, setRules] = useState<SetRulesDir[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    // const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(false);
     const [date, setDate] = useState<Date | null>(null);
     const [selectedRuleSetId, setSelectedRuleSetId] = useState<any>([]);
     const [action, setAction] = useState(null);
@@ -56,8 +56,73 @@ const MainRules = () => {
     const [selectedRuleType, setSelectedRuleType] = useState<string | null>(null);
     const [bulkDialogVisible, setBulkDialogVisible] = useState(false);
     const [responseData, setResponseData] = useState<any>(null);
-    const [visible, setVisible] = useState(false); // State to control dialog visibility
-    const [dialogContent, setDialogContent] = useState({ title: '', message: '' });
+
+
+    const tableData= [
+        {
+            serialNumber:1,
+            section: "Section 1",
+            criteria: "Criteria 1",
+            account: "Agency 1",
+            Score: 35,
+            assessorType: "Type 1",
+            assessorRole: "Role 1",
+            assessorName: "Name 1",
+            type: "Type 1",
+            region: "Region 1",
+            country: "Country 1",
+            division: "Division 1",
+            brand: "Brand 1",
+            location: "Location 1",
+            jobFunction: "Function 1",
+            segment: "Segment 1",
+            reportingMonth: "Month 1",
+            evaluationName: "Evaluation 1",
+            profile: "Profile 1"
+        },
+        {
+            serialNumber:2,
+            section: "Section 2",
+            criteria: "Criteria 2",
+            account: "Agency ",
+            Score: 35,
+            assessorType: "Type 2",
+            assessorRole: "Role 2",
+            assessorName: "Name 2",
+            type: "Type 2",
+            region: "Region 2",
+            country: "Country 2",
+            division: "Division 2",
+            brand: "Brand 2",
+            location: "Location 2",
+            jobFunction: "Function 2",
+            segment: "Segment 2",
+            reportingMonth: "Month 2",
+            evaluationName: "Evaluation 2",
+            profile: "Profile 2"
+        },
+        {
+            serialNumber:3,
+            section: "Section 3",
+            criteria: "Criteria 3",
+            account: "Agency 3",
+            Score: 35,
+            assessorType: "Type 3",
+            assessorRole: "Role 3",
+            assessorName: "Name 3",
+            type: "Type 3",
+            region: "Region 3",
+            country: "Country 3",
+            division: "Division 3",
+            brand: "Brand 3",
+            location: "Location 3",
+            jobFunction: "Function 3",
+            segment: "Segment 3",
+            reportingMonth: "Month 3",
+            evaluationName: "Evaluation 3",
+            profile: "Profile 3"
+        },
+            ]
 
     const ruleTypeOptions = [
         { label: 'CAPA RULE', value: 'capa rule' },
@@ -78,11 +143,11 @@ const MainRules = () => {
     }, [limit, page]);
 
     const handleEditRules = (e: any) => {
-            router.push(`/mapping-evaluation/view-escalation`);
+            router.push(`/vendor-score/view-vendor-score`);
     };
-    const handleCreateNavigation = () => {
-        router.push('/mapping-evaluation/create-escalation');
-    };
+    // const handleCreateNavigation = () => {
+    //     router.push('/mapping-marketing/create-question');
+    // };
 
     const { isLoading, setLoading, setAlert } = useAppContext();
 
@@ -90,17 +155,17 @@ const MainRules = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Escalation With Project Timeline</h3>
+                    <h3 className="mb-0">Evaluation Reports</h3>
                 </span>
                 <div className="flex justify-content-end">
                     <Button
-                        icon="pi pi-plus"
+                        icon="pi pi-user-plus"
                         size="small"
-                        label="   Create Escalation With Timeline"
-                        aria-label="Create Escalation With Timeline "
+                        label="Export To Excel"
+                        aria-label="Mapping Template Question To Agencies"
                         className="bg-primary-main hover:text-white border-primary-main"
                         style={{ marginLeft: 10 }}
-                        onClick={handleCreateNavigation} // Show dialog when button is clicked
+                        onClick={()=>{}} // Show dialog when button is clicked
                     />
                 </div>
             </div>
@@ -141,14 +206,14 @@ const MainRules = () => {
     };
     const FieldGlobalSearch = globalSearch();
 
-    const onRowSelect = async (perm: any, action: any) => {
+    const onRowSelect = async (perm: SetRulesDir, action: any) => {
         setAction(action);
 
         setSelectedRuleSetId(perm);
 
-        if (action === ACTIONS.VIEW) {
-            handleEditRules(perm);
-        }
+        // if (action === ACTIONS.DELETE) {
+        //     openDeleteDialog(perm);
+        // }
     };
 
     // const openDeleteDialog = (items: SetRulesDir) => {
@@ -158,37 +223,6 @@ const MainRules = () => {
         setSelectedRuleType(e.value);
         fetchData({ limit, page, sortBy: 'ruleSetId', filters: { ruleType: e.value } });
     };
-    // Function to handle button clicks
-    const handleButtonClick = (action: string) => {
-        let title, message;
-        switch (action) {
-            case 'initialize':
-                title = 'INITIALIZER';
-                message = 'Are you sure? You are about to initialize the process.';
-                break;
-            case 'sendReminder':
-                title = 'SEND REMINDER';
-                message = 'Are you sure? You are about to send a reminder email.';
-                break;
-            case 'sendSuperior':
-                title = 'SEND SUPERIOR';
-                message = 'Are you sure? You are about to send an email to the superior.';
-                break;
-            default:
-                title = '';
-                message = '';
-        }
-        setDialogContent({ title, message });
-        setVisible(true); // Show the dialog
-    };
-
-    // Dialog footer with "Yes Proceed" and "Cancel" buttons
-    const dialogFooter = (
-        <div className='p-2'>
-            <Button label="Yes Proceed" icon="pi pi-check mt-2" onClick={() => setVisible(false)} autoFocus />
-            <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={() => setVisible(false)}  />
-        </div>
-    );
 
     return (
         <div className="grid">
@@ -228,97 +262,126 @@ const MainRules = () => {
                                 page={page}
                                 limit={limit} // no of items per page
                                 totalRecords={totalRecords} // total records from api response
-                                isView={true} // show edit button
+                                // isEdit={true} // show edit button
                                 // isDelete={true} // show delete button
                                 extraButtons={(item) => [
                                     {
-                                        icon: "pi pi-bell",
-                                        tooltip:'Initialize',
+                                        icon: 'pi pi-eye',
                                         onClick: (e) => {
-                                            handleButtonClick('initialize'); // Pass the item (row data) instead of e
-                                        }
-                                    },
-                                    {
-                                        icon: "pi pi-send",
-                                        tooltip:'Send Reminder',
-                                        onClick: (e) => {
-                                            handleButtonClick('sendReminder'); // Pass the item (row data) instead of e
-                                        }
-                                    },
-                                    {
-                                        icon: "pi pi-envelope",
-                                        tooltip:'Send Superior',
-                                        onClick: (e) => {
-                                            handleButtonClick('sendSuperior'); // Pass the item (row data) instead of e
+                                            handleEditRules(item); // Pass the item (row data) instead of e
                                         }
                                     }
                                 ]}
-                                data={rules.map((item: any) => ({
-                                    ruleSetId: item.ruleSetId,
-                                    value: item.value?.split('_')[2].toUpperCase(),
-                                    ruleType: item.ruleType.toUpperCase(),
-                                    effectiveFrom: item.effectiveFrom?.split('T')[0]
-                                }))}
+                                data={tableData}
                                 columns={[
                                     {
                                         header: 'SR. NO',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                        field: 'serialNumber',
+                                        // body: (data: any, options: any) => {
+                                        //     const normalizedRowIndex = options.rowIndex % limit;
+                                        //     const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                            return <span>{srNo}</span>;
-                                        },
+                                        //     return <span>{srNo}</span>;
+                                        // },
                                         bodyStyle: { minWidth: 50, maxWidth: 50 }
                                     },
                                     {
-                                        header: 'RULES TYPE ',
-                                        field: 'ruleType',
+                                        header: 'Section',
+                                        field: 'section',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
                                     {
-                                        header: 'EFFECTIVE FROM',
-                                        field: 'effectiveFrom',
-                                        body: (data: any) => {
-                                            if (data.effectiveFrom) {
-                                                const date = new Date(data.effectiveFrom);
-                                                return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-                                            }
-                                            return;
-                                        },
+                                        header: 'Criteria',
+                                        field: 'criteria',
+                                        // body: (data: any) => {
+                                        //     if (data.effectiveFrom) {
+                                        //         const date = new Date(data.effectiveFrom);
+                                        //         return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                        //     }
+                                        //     return;
+                                        // },
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     },
 
                                     {
-                                        header: 'RULES NAME ',
-                                        field: 'value',
+                                        header: 'Account ',
+                                        field: 'account',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Score ',
+                                        field: 'Score',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Assessor Type ',
+                                        field: 'assessorType',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Assessor Role ',
+                                        field: 'assessorRole',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Assessor Name',
+                                        field: 'assessorName',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Type',
+                                        field: 'type',
+                                        // body: (data: any) => {
+                                        //     if (data.effectiveFrom) {
+                                        //         const date = new Date(data.effectiveFrom);
+                                        //         return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+                                        //     }
+                                        //     return;
+                                        // },
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+
+                                    {
+                                        header: 'Region ',
+                                        field: 'region',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Country',
+                                        field: 'country',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Division',
+                                        field: 'division',
+                                        bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                        headerStyle: dataTableHeaderStyle
+                                    },
+                                    {
+                                        header: 'Brand',
+                                        field: 'brand',
                                         bodyStyle: { minWidth: 150, maxWidth: 150 },
                                         headerStyle: dataTableHeaderStyle
                                     }
                                 ]}
                                 onLoad={(params: any) => fetchData(params)}
-                                onView={(item: any) => onRowSelect(item, 'view')}
+                                // onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                             )}
                         </div>
                     </div>
                 </div>
             </div>
-            {/* Dialog Box */}
-            <Dialog
-                header={dialogContent.title}
-                visible={visible}
-                style={{ width: '400px' }}
-                footer={dialogFooter}
-                onHide={() => setVisible(false)}
-            >
-                <div className="flex flex-column align-items-center gap-3">
-                    <i className="pi pi-exclamation-circle" style={{ fontSize: '3rem', color: 'var(--primary-color)' }} />
-                    <h3>Are you sure?</h3>
-                    <p>You are about to send the email.</p>
-                </div>
-            </Dialog>
         </div>
     );
 };
