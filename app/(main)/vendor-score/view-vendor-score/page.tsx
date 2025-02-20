@@ -264,14 +264,14 @@ const MainRules = () => {
                                 totalRecords={totalRecords} // total records from api response
                                 // isEdit={true} // show edit button
                                 // isDelete={true} // show delete button
-                                extraButtons={(item) => [
-                                    {
-                                        icon: 'pi pi-eye',
-                                        onClick: (e) => {
-                                            handleEditRules(item); // Pass the item (row data) instead of e
-                                        }
-                                    }
-                                ]}
+                                // extraButtons={(item) => [
+                                //     {
+                                //         icon: 'pi pi-eye',
+                                //         onClick: (e) => {
+                                //             handleEditRules(item); // Pass the item (row data) instead of e
+                                //         }
+                                //     }
+                                // ]}
                                 data={tableData}
                                 columns={[
                                     {
