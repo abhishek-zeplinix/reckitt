@@ -16,6 +16,7 @@ import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { genericTextSchema } from '@/utils/validationSchemas';
 import { z } from 'zod';
+import CustomDialogBox from '../dialog-box/CustomDialogBox';
 
 const SupplierEvaluationTableApprover = ({
   selectedPeriod,
@@ -43,19 +44,17 @@ const SupplierEvaluationTableApprover = ({
   const [checkedCriteria, setCheckedCriteria] = useState<any[]>([]);
   const [approverComment, setApproverComment] = useState('');
   const [isRejectDialogVisible, setIsRejectDialogVisible] = useState(false);
+  const [isApprovalDialogVisible, setIsApprovalDialogVisible] = useState(false);
 
   //validation
   const [rejectionError, setRejectionError] = useState('');
   const [remainingChars, setRemainingChars] = useState(250);
 
-  const [approvalStatusDisplay, setApprovalStatusDisplay] = useState<string | null>(null); 
+  const [approvalStatusDisplay, setApprovalStatusDisplay] = useState<string | null>(null);
   const [isAlreadyApprovedOrRejected, setIsAlreadyApprovedOrRejected] = useState(false); // to control button visibility
 
-
-  const urlParams = useParams();
-  // const { supId, catId, subCatId } = urlParams;
   const { userId } = useAuth();
-  const { setAlert } = useAppContext();
+  const { setAlert, setLoading, isLoading } = useAppContext();
 
   useEffect(() => {
     setApproverComment('')
@@ -85,7 +84,7 @@ const SupplierEvaluationTableApprover = ({
             setNoData(true)
           }
 
-          if(supplierScoreData[0]?.scoreApprovals){
+          if (supplierScoreData[0]?.scoreApprovals) {
             const approverStatus = supplierScoreData[0]?.scoreApprovals?.approvalStatus;
             const approverComment = supplierScoreData[0]?.scoreApprovals?.approverComment;
             if (approverStatus) {
@@ -93,10 +92,10 @@ const SupplierEvaluationTableApprover = ({
               setIsAlreadyApprovedOrRejected(true); // Disable buttons
             }
 
-            if(approverComment){
-                setApproverComment(approverComment);
+            if (approverComment) {
+              setApproverComment(approverComment);
             }
-          
+
             setCheckedCriteria(supplierScoreData[0]?.scoreApprovals.checkedData || []); // Ensure default to empty array if undefined
 
           } else {
@@ -125,36 +124,7 @@ const SupplierEvaluationTableApprover = ({
     }
   }, [supplierScoreData]);
 
-  // useEffect(() => {
-  //   if (tableData?.sections) {
-  //     const defaultChecked: any[] = [];
 
-  //     tableData.sections.forEach((section: any, sectionIndex: number) => {
-  //       section.ratedCriteria.forEach((criteria: any, criteriaIndex: number) => {
-  //         const key = `${sectionIndex}-${criteriaIndex}`;
-  //         const selectedEval = selectedEvaluations[key];
-  //         const evaluation = criteria.evaluations.find((e: any) => e.criteriaEvaluation === selectedEval);
-  //         const score = evaluation?.score;
-
-  //         // check if score is less than 5
-  //         if (score && Number(score) < 5) {
-  //           defaultChecked.push({
-  //             sectionName: section.sectionName,
-  //             ratedCriteria: criteria.criteriaName,
-  //             ratio: displayPercentages[key],
-  //             evaluation: selectedEval,
-  //             score: score
-  //           });
-  //         }
-  //       });
-  //     });
-
-  //     setCheckedCriteria(defaultChecked);
-  //   }
-  // }, [tableData, selectedEvaluations, displayPercentages]);
-
-  //capa rule visibility logic
-  //it is based on selectedEvaluations
 
   useEffect(() => {
 
@@ -180,11 +150,11 @@ const SupplierEvaluationTableApprover = ({
           }
         });
       });
-      
+
 
       // Only set defaultChecked if checkedCriteria is currently empty or hasn't been explicitly set from backend
       if (checkedCriteria.length === 0) { // Check if it's empty, meaning not initialized by backend data yet
-      
+
         setCheckedCriteria(defaultChecked);
       } else {
       }
@@ -270,13 +240,13 @@ const SupplierEvaluationTableApprover = ({
 
       if (exists) {
         // only remove if it was manually unchecked and not a default selection (score < 5)
-        if (Number(score) >= 5) {
+        // if (Number(score) >= 5) {
           return prev.filter(item =>
             !(item.sectionName === criteriaData.sectionName &&
               item.ratedCriteria === criteriaData.ratedCriteria)
           );
-        }
-        return prev;
+        // }
+        // return prev;
       } else {
         return [...prev, criteriaData];
       }
@@ -307,7 +277,12 @@ const SupplierEvaluationTableApprover = ({
   }
 
   const handleApprove = () => {
-    handleSubmit("Approved");
+    setIsApprovalDialogVisible(true);
+  };
+  const handleApprovalConfirm = async() => {
+    await handleSubmit("Approved");
+    setIsApprovalDialogVisible(false); 
+
   };
 
   const handleRejectDialogOpen = () => {
@@ -324,6 +299,7 @@ const SupplierEvaluationTableApprover = ({
   };
 
   const handleSubmit = async (status: string, keepData?: boolean) => {
+    setLoading(true);
     const payload = {
       approverId: userId,
       supplierScoreId: tableData?.supplierScoreId,
@@ -339,6 +315,7 @@ const SupplierEvaluationTableApprover = ({
     try {
       const response = await PostCall('/company/score-approval', payload);
       if (response.code === 'SUCCESS') {
+        setLoading(false);
         onSuccess();
         setAlert('success', `Evaluation has been ${status.toLowerCase()} successfully`);
       } else {
@@ -346,6 +323,8 @@ const SupplierEvaluationTableApprover = ({
       }
     } catch (error) {
       setAlert('error', 'An error occurred while processing your request');
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -420,6 +399,7 @@ const SupplierEvaluationTableApprover = ({
                                 )
                               }
                               className='mx-2'
+                              disabled={isAlreadyApprovedOrRejected}
                             />
 
 
@@ -515,17 +495,15 @@ const SupplierEvaluationTableApprover = ({
           </div>
 
 
-
           {
             (isEvaluatedData) ?
               <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-                {(totalScore <= 50) && <CapaRequiredTable catId={catId} subCatId ={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+                {(totalScore <= 50) && <CapaRequiredTable catId={catId} subCatId={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
               </div>
               :
               <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-                {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable catId={catId} subCatId ={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
+                {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable catId={catId} subCatId={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
               </div>
-
           }
 
 
@@ -592,12 +570,14 @@ const SupplierEvaluationTableApprover = ({
                   className="px-7"
                   text
                   onClick={() => handleReject(true)}
+                  loading={isLoading}
                 />
                 <Button
                   label="Delete Data"
                   style={{ backgroundColor: '#DF1740', border: 'none' }}
                   className="px-7 hover:text-white"
                   onClick={() => handleReject(false)}
+                  loading={isLoading}
                 />
               </div>
             }
@@ -611,6 +591,22 @@ const SupplierEvaluationTableApprover = ({
               </div>
             </div>
           </Dialog>
+
+          <CustomDialogBox
+            visible={isApprovalDialogVisible}
+            onHide={() => setIsApprovalDialogVisible(false)}
+            onConfirm={handleApprovalConfirm}
+            onCancel={() => setIsApprovalDialogVisible(false)}
+            header="Approval Confirmation"
+            message="Are you sure you want to approve this evaluation?"
+            subMessage="This action cannot be undone."
+            confirmLabel="Yes"
+            cancelLabel="Cancel"
+            icon="pi pi-exclamation-triangle"
+            iconColor="#DF1740"
+            loading={isLoading}
+          />
+
 
         </div>
       }

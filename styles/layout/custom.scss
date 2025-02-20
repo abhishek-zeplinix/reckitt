@@ -794,3 +794,9 @@ background-color: #3A60F8;
 .p-dialog-mask-leave {
   animation: fadeOut 0.3s ease-in forwards;
 }
+
+//checkbox - checked row colgroup
+.p-datatable .p-datatable-tbody > tr.p-highlight {
+  background-color: #ffe2e2; 
+  color: #000; 
+}

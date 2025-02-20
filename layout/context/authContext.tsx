@@ -2,6 +2,7 @@ import React, { createContext, useContext, useCallback, useMemo, useState, useEf
 import { get, intersection } from 'lodash';
 import AccessDenied from '@/components/access-denied/AccessDenied';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import TopLinerLoader from '@/components/TopLineLoader';
 
 // Simple role definition
 export const USER_ROLES = {
@@ -123,7 +124,7 @@ export const withAuth = (WrappedComponent: React.ComponentType<any>, requiredRol
         const { hasRole, hasPermission, isLoading } = useAuth();
 
         if (isLoading) {
-            return <ProgressSpinner />; // Or any other loading indicator
+            return <TopLinerLoader /> ; // Or any other loading indicator
         }
 
 
