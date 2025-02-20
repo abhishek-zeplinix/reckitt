@@ -96,8 +96,8 @@ const MainRules = () => {
                     <Button
                         icon="pi pi-plus"
                         size="small"
-                        label="Mapping Template Question To Agencies"
-                        aria-label="Mapping Template Question To Agencies"
+                        label="   Create Escalation With Timeline"
+                        aria-label="Create Escalation With Timeline "
                         className="bg-primary-main hover:text-white border-primary-main"
                         style={{ marginLeft: 10 }}
                         onClick={handleCreateNavigation} // Show dialog when button is clicked
