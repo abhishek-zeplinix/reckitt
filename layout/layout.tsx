@@ -125,6 +125,7 @@ const Layout = ({ children }: ChildContainerProps) => {
         'p-input-filled': layoutConfig.inputStyle === 'filled',
         'p-ripple-disabled': !layoutConfig.ripple
     });
+
     if (!user) {
         return (
             <>

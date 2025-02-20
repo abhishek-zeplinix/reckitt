@@ -10,6 +10,7 @@ import { LayoutContext } from '@/layout/context/layoutcontext';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { setAuthData, setUserDetails } from '@/utils/cookies';
+import { encryptPassword } from '@/utils/encryptions';
 
 const LoginPage = () => {
     const { isLoading, setAlert, setLoading, setUser, setAuthToken, setDisplayName } = useAppContext();
@@ -80,6 +81,10 @@ const LoginPage = () => {
         if (email && password) {
             setLoading(true);
 
+            // const encryptedPassword = await encryptPassword(password);
+
+            // console.log(encryptedPassword);
+            
             const response: any = await PostCall('/auth/sign-in', { email, password });
 
             setLoading(false);
