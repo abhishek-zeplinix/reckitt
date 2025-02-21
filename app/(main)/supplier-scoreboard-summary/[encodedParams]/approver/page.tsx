@@ -23,8 +23,6 @@ const ApproverPage = ({
 }) => {
     const { setAlert } = useAppContext();
     const { hasPermission } = useAuth();
-    const urlParams = useParams();
-    // const { supId, catId, subCatId, currentYear }: any = urlParams;
 
     // data fetching hooks
     const { departments } = useFetchDepartments();

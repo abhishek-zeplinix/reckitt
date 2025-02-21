@@ -38,8 +38,7 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
             `/task-management/view-suppliers/${encodeRouteParams({
                 userId: rowData?.userId,
                 role: role,
-                name: rowData?.user.name,
-                department: rowData?.department.name
+                name: rowData?.user.name
             })}`
         );
     };
@@ -49,8 +48,7 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
             `/task-management/${encodeRouteParams({
                 userId: rowData?.userId,
                 role: role,
-                name: rowData?.user.name,
-                department: rowData?.department.name
+                name: rowData?.user.name
             })}`
         );
     };
