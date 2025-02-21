@@ -19,6 +19,12 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const [height, setHeight] = useState<string>('0px');
     const contentRef = useRef<HTMLUListElement>(null);
     // const { setLoader } = useLoaderContext();
+    const [activeItem, setActiveItem] = useState<string | null>(pathname); // Track the active menu item
+
+
+    useEffect(() => {
+        setActiveItem(pathname); // Update when the route changes
+    }, [pathname]);
 
     useEffect(() => {
         // Keep dropdown open if the current path matches any child URL
@@ -39,23 +45,26 @@ const AppMenuitem = (props: AppMenuItemProps) => {
         }
     }, [isOpen]);
 
-    const isItemActive = () => {
-        return item?.url === pathname;
+    // const isItemActive = () => {
+    //     return item?.url === pathname;
+    // };
+
+    // const isSubItemActive = (subItemUrl: string) => {
+    //     return pathname === subItemUrl;
+    // };
+
+    const isItemActive = () => item?.url === activeItem;
+    const isSubItemActive = (subItemUrl: string) => subItemUrl === activeItem;
+
+
+    const isAnyChildActive = () => {
+        return item?.items?.some((child) => child.url === pathname);
     };
 
-    const isSubItemActive = (subItemUrl: string) => {
-        return pathname === subItemUrl;
-    };
-    // // Use useEffect to set loader when the page changes or the active state changes
-    // useEffect(() => {
-    //     if (getTextColorClass()) {
-    //         setTimeout(() => {
-    //             setLoader(false); // Set loader to false when the item is active
-    //         }, 500);
-    //     }
-    // }, [pathname, item, setLoader]);
 
     const itemClick = (event: React.MouseEvent, subItem?: any) => {
+        setActiveItem('')
+
         if (item!.disabled) {
             event.preventDefault();
             return;
@@ -64,6 +73,13 @@ const AppMenuitem = (props: AppMenuItemProps) => {
         if (!subItem && item?.items) {
             setIsOpen(!isOpen);
         }
+
+        if (subItem?.url) {
+            setActiveItem(subItem.url); // Instantly set active for subitems
+        } else if (item?.url) {
+            setActiveItem(item.url); // Instantly set active for main items
+        }
+
 
         if (layoutState.staticMenuDesktopInactive && menu.current) {
             menu.current.toggle(event); // Show popup menu in collapsed mode
@@ -81,21 +97,28 @@ const AppMenuitem = (props: AppMenuItemProps) => {
 
     const getItemClassName = (isSubItem = false, subItemUrl?: string) => {
         const baseClass = isSubItem
-            ? 'p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5'
-            : 'p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
+            ? 'p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5 mt-1 '
+            : 'p-ripple p-3 px-2 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
 
-        const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive();
-        // Adjust margins dynamically based on sidebar state
-        const marginClass = layoutState.staticMenuDesktopInactive
-            ? 'mx-collapsed' // Class for collapsed state
-            : 'mx-default'; // Class for default state
+        const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
+        const marginClass = layoutState.staticMenuDesktopInactive ? 'mx-collapsed' : 'mx-default';
 
-        return `${baseClass} ${marginClass} ${isActive ? 'bg-primary-main' : ''}`;
+        // bg-primary-light-main -if bg required for child
+        const bgClass = isSubItem
+            ? (isActive ? 'border-left-2 border-primary-main border-round-xs ' : '')  // different color for child items
+            : (isActive ? 'bg-primary-main' : '');
+
+        return `${baseClass} ${marginClass} ${bgClass}`;
     };
+
     const getTextColorClass = (isSubItem = false, subItemUrl?: string) => {
-        const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive();
-        return isActive ? 'text-white' : 'text-slate-400';
+        const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
+
+        return isSubItem
+            ? (isActive ? 'text-primary-main font-bold ' : 'text-slate-400')  // different text color for child items
+            : (isActive ? 'text-white' : 'text-slate-400');
     };
+
 
     if (item?.check && !item.check(user)) {
         return null;
@@ -106,7 +129,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
                 <>
                     <div className={getItemClassName()} onClick={(e) => itemClick(e)}>
                         <div className="flex align-items-center">
-                            {item.icon && <i className={`${item.icon} mr-2 text-base font-semibold ${getTextColorClass()}`}></i>}
+                            {item.icon && <i className={`${item.icon} ${layoutState.staticMenuDesktopInactive ? '-ml-1' : ''} mr-2 text-base font-semibold  ${getTextColorClass()}`}></i>}
                             {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className={`font-semibold text-base ${getTextColorClass()}`}>{item.label}</span>}
                         </div>
                         {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <i className={`pi pi-chevron-down transition-transform transition-duration-200 ${isOpen ? 'rotate-180' : ''} ${getTextColorClass()}`}></i>}
@@ -124,12 +147,12 @@ const AppMenuitem = (props: AppMenuItemProps) => {
                                     <li key={`item-${i}`}>
                                         {child.url ? (
                                             <Link
-                                                href={child.url as string} // Ensuring it's a valid string
+                                                href={child.url as string} // ensuring it's a valid string
                                                 className={getItemClassName(true, child.url)}
                                                 onClick={(event) => itemClick(event, child)}
                                             >
                                                 {child.icon && <i className={`${child.icon} mr-2 ${getTextColorClass(true, child.url)}`}></i>}
-                                                <span className={`font-semibold text-base ${getTextColorClass(true, child.url)}`}>{child.label}</span>
+                                                <span className={`text-base ${getTextColorClass(true, child.url)}`}>{child.label}</span>
                                                 <Ripple />
                                             </Link>
                                         ) : (
@@ -148,7 +171,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
             ) : item?.url ? (
                 <Link href={item.url} className={getItemClassName()} onClick={itemClick}>
                     <div className="flex align-items-center">
-                        {item.icon && <i className={`${item.icon} mr-2 text-base ${getTextColorClass()}`}></i>}
+                        {item.icon && <i className={`${item.icon} ${layoutState.staticMenuDesktopInactive ? '-ml-1' : ''}  mr-2 text-base ${getTextColorClass()}`}></i>}
                         <span className={`font-semibold text-base ${getTextColorClass()}`}>{item.label}</span>
                     </div>
                     <Ripple />
