@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from 'primereact/button';
 import Tasks from '@/components/task-management/Tasks';
 import AutoMapping from '@/components/task-management/AutoMapping';
+import { withAuth } from '@/layout/context/authContext';
 
 const TaskManagement = () => {
     const [activeTab, setActiveTab] = useState<'Approver' | 'Evaluator'>('Approver');
@@ -63,4 +64,4 @@ const TaskManagement = () => {
     );
 };
 
-export default TaskManagement;
+export default withAuth(TaskManagement, 'superAdmin', undefined);

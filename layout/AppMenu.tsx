@@ -27,15 +27,8 @@ const AppMenu = () => {
         if (originalEvent) {
             originalEvent.preventDefault();
         }
-
-        // Show the loade
-
-        // Simulate a delay of 1 second before routing
-        // setTimeout(() => {
         router.push(item.url);
-        // setLoader(true);
-        //     setLoader(false); // Hide the loader after 1 second
-        // }, 500);
+
     };
 
     const model: AppMenuItem[] = [
@@ -130,8 +123,6 @@ const AppMenu = () => {
                                 const userId = get(user, 'id');
                                 const role = get(user, 'userRole');
                                 const name = get(user, 'name');
-
-                                console.log(userId, role, name);
                                 
                                 if (userId && role && name) {
                                     return `/task-management/view-suppliers/${encodeRouteParams({ userId, role, name })}`;

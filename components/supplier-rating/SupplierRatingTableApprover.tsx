@@ -4,12 +4,10 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { useState, useEffect, useRef } from 'react';
 import CapaRequiredTable from './CapaRequiredTable';
-import { useParams } from 'next/navigation';
 import { Badge } from 'primereact/badge';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 import { Checkbox } from 'primereact/checkbox';
-import TableSkeleton from './skeleton/TableSkeleton';
 import { Dialog } from 'primereact/dialog';
 import { useAuth } from '@/layout/context/authContext';
 import { PostCall } from '@/app/api-config/ApiKit';
@@ -17,6 +15,8 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { genericTextSchema } from '@/utils/validationSchemas';
 import { z } from 'zod';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
+import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
+import CapaRequiredTableApprover from './CapaRequiredTableApprover';
 
 const SupplierEvaluationTableApprover = ({
   selectedPeriod,
@@ -241,10 +241,10 @@ const SupplierEvaluationTableApprover = ({
       if (exists) {
         // only remove if it was manually unchecked and not a default selection (score < 5)
         // if (Number(score) >= 5) {
-          return prev.filter(item =>
-            !(item.sectionName === criteriaData.sectionName &&
-              item.ratedCriteria === criteriaData.ratedCriteria)
-          );
+        return prev.filter(item =>
+          !(item.sectionName === criteriaData.sectionName &&
+            item.ratedCriteria === criteriaData.ratedCriteria)
+        );
         // }
         // return prev;
       } else {
@@ -279,9 +279,9 @@ const SupplierEvaluationTableApprover = ({
   const handleApprove = () => {
     setIsApprovalDialogVisible(true);
   };
-  const handleApprovalConfirm = async() => {
+  const handleApprovalConfirm = async () => {
     await handleSubmit("Approved");
-    setIsApprovalDialogVisible(false); 
+    setIsApprovalDialogVisible(false);
 
   };
 
@@ -323,14 +323,14 @@ const SupplierEvaluationTableApprover = ({
       }
     } catch (error) {
       setAlert('error', 'An error occurred while processing your request');
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <>
-      {isTableLoading ? <TableSkeleton /> :
+      {isTableLoading ? <TableSkeletonSimple columns={5} rows={12} /> :
 
         <div className=" w-full shadow-sm mt-3 overflow-x-auto">
 
@@ -496,14 +496,9 @@ const SupplierEvaluationTableApprover = ({
 
 
           {
-            (isEvaluatedData) ?
-              <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-                {(totalScore <= 50) && <CapaRequiredTable catId={catId} subCatId={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={supplierScoreData[0]?.capa} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
-              </div>
-              :
-              <div className=' right-0 bottom-0 flex justify-center gap-3 mt-4' >
-                {(totalScore <= 50 && isCapaRulesVisibleOnInitialRender) && <CapaRequiredTable catId={catId} subCatId={subCatId} onDataChange={handleCapaDataChange} depId={departmentId} existingSelections={[]} setCapaDataCount={setCapaDataCount} selectedPeriod={selectedPeriod} isCompleted={isCompleted} />}
-              </div>
+             (supplierScoreData && totalScore <= 50) && <CapaRequiredTableApprover
+              existingSelections={supplierScoreData[0]?.capa}
+              selectedPeriod={selectedPeriod} />
           }
 
 

@@ -1,15 +1,11 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Button } from 'primereact/button';
-import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
+import React, { useEffect, useState } from 'react';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Chart } from 'primereact/chart';
-import SupplierDirectory from '@/components/SupplierDirectory';
 import { Dropdown } from 'primereact/dropdown';
-import { Dialog } from 'primereact/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAppContext } from '@/layout/AppWrapper';
@@ -53,6 +49,10 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
     const [totalDonut, setTotalDonut] = useState<any>();
 
     const totalDonutt = 0;
+
+    const chartCustomoptions = {
+        animation: false
+    };
 
     useEffect(() => {
         fetchData();
@@ -272,6 +272,7 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
         },
         cutout: '70%', // Inner cutout for the donut chart
         responsive: true,
+        animation: false,
         maintainAspectRatio: false
     };
 
@@ -381,6 +382,7 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
 
     const Baroptions = {
         responsive: true,
+        animation: false,
         maintainAspectRatio: false,
         plugins: {
             legend: {
@@ -584,6 +586,7 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
     };
     const waveOptions = {
         responsive: true,
+        animation: false,
         plugins: {
             legend: {
                 display: true,

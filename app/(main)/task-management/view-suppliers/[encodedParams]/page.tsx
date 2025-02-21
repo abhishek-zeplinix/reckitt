@@ -31,7 +31,6 @@ const ViewAssignedSuppliers = ({
     const router = useRouter();
     
     const { isLoading, setLoading, user, setAlert } = useAppContext();
-    const { isApprover, isEvaluator} = useAuth();
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { userId, role, name} = decodedParams;

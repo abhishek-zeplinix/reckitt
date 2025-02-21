@@ -1,5 +1,6 @@
 export const memoizedOptions = {
     responsive: true,
+    animation: false,
     plugins: {
         legend: {
             position: 'none' // Hide legend
@@ -30,6 +31,7 @@ export const memoizedOptions = {
 
 export const memoizedBarOptions = {
     responsive: true,
+    animation: false,
     plugins: {
         legend: {
             position: 'bottom'
