@@ -98,7 +98,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
     const getItemClassName = (isSubItem = false, subItemUrl?: string) => {
         const baseClass = isSubItem
             ? 'p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5 mt-1 '
-            : 'p-ripple p-3 px-2 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
+            : 'p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
 
         const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
         const marginClass = layoutState.staticMenuDesktopInactive ? 'mx-collapsed' : 'mx-default';
@@ -129,7 +129,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
                 <>
                     <div className={getItemClassName()} onClick={(e) => itemClick(e)}>
                         <div className="flex align-items-center">
-                            {item.icon && <i className={`${item.icon} ${layoutState.staticMenuDesktopInactive ? '-ml-1' : ''} mr-2 text-base font-semibold  ${getTextColorClass()}`}></i>}
+                            {item.icon && <i className={`${item.icon} mr-2 text-base font-semibold ${getTextColorClass()}`}></i>}
                             {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <span className={`font-semibold text-base ${getTextColorClass()}`}>{item.label}</span>}
                         </div>
                         {(layoutState.isMobile || !layoutState.staticMenuDesktopInactive) && <i className={`pi pi-chevron-down transition-transform transition-duration-200 ${isOpen ? 'rotate-180' : ''} ${getTextColorClass()}`}></i>}
@@ -171,7 +171,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
             ) : item?.url ? (
                 <Link href={item.url} className={getItemClassName()} onClick={itemClick}>
                     <div className="flex align-items-center">
-                        {item.icon && <i className={`${item.icon} ${layoutState.staticMenuDesktopInactive ? '-ml-1' : ''}  mr-2 text-base ${getTextColorClass()}`}></i>}
+                        {item.icon && <i className={`${item.icon} mr-2 text-base ${getTextColorClass()}`}></i>}
                         <span className={`font-semibold text-base ${getTextColorClass()}`}>{item.label}</span>
                     </div>
                     <Ripple />
