@@ -91,7 +91,7 @@ const ManageSupplierAddEditPage = () => {
         }
     };
     const fetchBU = async () => {
-        const response: CustomResponse = await GetCall(`/company/bu`);
+        const response: CustomResponse = await GetCall(`/company/marketingBU`);
         if (response.code === 'SUCCESS') {
             setBu(response.data);
         }
