@@ -95,30 +95,58 @@ const AppMenuitem = (props: AppMenuItemProps) => {
         }
     };
 
+    // const getItemClassName = (isSubItem = false, subItemUrl?: string) => {
+    //     const baseClass = isSubItem
+    //         ? 'p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5 mt-1 '
+    //         : 'p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
+
+    //     const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
+    //     const marginClass = layoutState.staticMenuDesktopInactive ? 'mx-collapsed' : 'mx-default';
+
+    //     // bg-primary-light-main -if bg required for child
+    //     const bgClass = isSubItem
+    //         ? (isActive ? 'border-left-2 border-primary-main border-round-xs ' : '')  // different color for child items
+    //         : (isActive ? 'bg-primary-main' : '');
+
+    //     return `${baseClass} ${marginClass} ${bgClass}`;
+    // };
+
+    // const getTextColorClass = (isSubItem = false, subItemUrl?: string) => {
+    //     const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
+
+    //     return isSubItem
+    //         ? (isActive ? 'text-primary-main font-bold ' : 'text-slate-400')  // different text color for child items
+    //         : (isActive ? 'text-white' : 'text-slate-400');
+    // };
+
     const getItemClassName = (isSubItem = false, subItemUrl?: string) => {
         const baseClass = isSubItem
-            ? 'p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5 mt-1 '
+            ? 'p-ripple flex align-items-center cursor-pointer p-3 border-round transition-duration-150 transition-colors pl-5 mt-1'
             : 'p-ripple p-3 pl-1 flex align-items-center justify-content-between border-round cursor-pointer custom-menu-item';
-
+    
         const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
         const marginClass = layoutState.staticMenuDesktopInactive ? 'mx-collapsed' : 'mx-default';
-
-        // bg-primary-light-main -if bg required for child
-        const bgClass = isSubItem
-            ? (isActive ? 'border-left-2 border-primary-main border-round-xs ' : '')  // different color for child items
+    
+        // Remove background color when the sidebar is collapsed
+        const bgClass = layoutState.staticMenuDesktopInactive
+            ? '' // No background color when collapsed
+            : isSubItem
+            ? (isActive ? 'border-left-2 border-primary-main border-round-xs' : '')
             : (isActive ? 'bg-primary-main' : '');
-
+    
         return `${baseClass} ${marginClass} ${bgClass}`;
     };
-
     const getTextColorClass = (isSubItem = false, subItemUrl?: string) => {
         const isActive = isSubItem ? isSubItemActive(subItemUrl!) : isItemActive() || isAnyChildActive();
-
+    
+        if (layoutState.staticMenuDesktopInactive) {
+            return isActive ? 'text-primary-main' : 'text-slate-400'; // Only active icon gets primary color
+        }
+    
         return isSubItem
-            ? (isActive ? 'text-primary-main font-bold ' : 'text-slate-400')  // different text color for child items
+            ? (isActive ? 'text-primary-main font-bold' : 'text-slate-400')
             : (isActive ? 'text-white' : 'text-slate-400');
     };
-
 
     if (item?.check && !item.check(user)) {
         return null;
