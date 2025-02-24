@@ -213,6 +213,7 @@ const ManageUsersPage = () => {
                                         body: (rowData) => <span style={{ color: rowData.isActive ? '#15B097' : 'red' }}>{rowData.isActive ? 'Active' : 'Inactive'}</span>
                                     }
                                 ]}
+                                onLoad={(params: any) => fetchData(params)}
                                 onDelete={(item: any) => onRowSelect(item, 'delete')}
                             />
                             )}
