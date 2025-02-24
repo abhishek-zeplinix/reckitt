@@ -35,7 +35,7 @@ const SupplierDirectory = () => {
 
     const roleConfig = {
         admin: {
-            endpoint: '/company/supplier',
+            endpoint: '/company/supplier-by-status',
             getFilters: () => ({})
         },
         approver: {
@@ -290,21 +290,26 @@ const SupplierDirectory = () => {
                             body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                         },
                         {
-                            header: 'Warehouse Location',
-                            field: 'warehouseLocation',
-                            style: { minWidth: 120 }
+                            header: 'No. of Dept.',
+                            field: 'totalDepartments',
+                            style: { minWidth: 120 },
+                            className: 'text-center'
                         },
-
                         {
-                            header: 'Procurement Category',
-                            field: 'category.categoryName',
-                            style: { minWidth: 120, maxWidth: 120 }
-                        },
-
-                        {
-                            header: 'Supplier Category',
-                            field: 'subCategories.subCategoryName',
-                            style: { minWidth: 120, maxWidth: 180 }
+                            header: 'Supplier Status',
+                            field: '',
+                            style: { minWidth: 150, maxWidth: 150 },
+                            body: (rowData: any) => {
+                                const isCompleted = rowData.isEvaluated && rowData.isApproved;
+                                return (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <span style={{ color: isCompleted ? 'green' : 'orange', fontWeight: 'bold' }}>
+                                            {isCompleted ? 'Completed' : 'Pending'}
+                                        </span>
+                                        <i className="pi pi-info-circle" style={{ color: 'red', cursor: 'pointer' }} title="Supplier evaluation status"></i>
+                                    </div>
+                                );
+                            }
                         },
                         {
                             header: 'History',

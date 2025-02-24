@@ -116,6 +116,9 @@ interface Supplier {
     blockReason:any;
     blockStartDate:any;
     blockEndDate:any;
+    totalDepartments: number;
+    isEvaluated: boolean;
+    isApproved: boolean;
     category?: {
         categoryId: number;
         categoryName: string;
@@ -141,6 +144,32 @@ interface Supplier {
         name: string;
         cityId: number | null;
       }
+      departments:[
+        {
+          departmentId: number | null,
+          name: string,
+          evaluationType: string,
+          isQ1Evaluated: boolean,
+          isQ2Evaluated: boolean,
+          isQ3Evaluated: boolean,
+          isQ4Evaluated: boolean,
+          isQ1Approved: boolean,
+          isQ2Approved: boolean,
+          isQ3Approved: boolean,
+          isQ4Approved: boolean
+        },
+        {
+          departmentId: number | null,
+          name: string,
+          evaluationType: string,
+          h1Value: string,
+          h2Value: string,
+          isH1Evaluated: boolean,
+          isH2Evaluated: boolean,
+          isH1Approved: boolean,
+          isH2Approved: boolean
+        }
+      ]
 };
 interface Field {
     effectiveFrom: Date | null;
