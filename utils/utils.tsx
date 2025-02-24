@@ -7,7 +7,7 @@ export const formSchemaSupplier = z.object({
     factoryName: z.string().min(1, 'Factory name cannot be empty'),
     email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
     supplierNumber: z.string().min(10, "Phone number must be at least 10 digits")
-                                .max(12, "Phone number cannot be more than 12 digits"),
+        .max(12, "Phone number cannot be more than 12 digits"),
     Zip: z.union([z.string(), z.number()])
         .transform((val) => String(val).trim())
         .refine((val) => val.length > 0, {
@@ -29,17 +29,17 @@ export const formSchemaSupplier = z.object({
         .refine((val) => val !== null && val !== undefined, {
             message: 'Supplier category cannot be empty'
         }),
-        country: z
-        .string({ required_error: "Country cannot be empty" }) 
-        .min(1, "Country cannot be empty") 
-        .refine((val) => val.trim() !== "", { message: "Country cannot be empty" }), 
-    
-      city: z
+    country: z
+        .string({ required_error: "Country cannot be empty" })
+        .min(1, "Country cannot be empty")
+        .refine((val) => val.trim() !== "", { message: "Country cannot be empty" }),
+
+    city: z
         .string({ required_error: "City cannot be empty" })
         .min(1, "City cannot be empty")
         .refine((val) => val.trim() !== "", { message: "City cannot be empty" }),
-    
-      state: z
+
+    state: z
         .string({ required_error: "State cannot be empty" })
         .min(1, "State cannot be empty")
         .refine((val) => val.trim() !== "", { message: "State cannot be empty" }),
@@ -100,21 +100,21 @@ const fieldsSchemaRules = z.object({
     ratiosRawpack: z.preprocess(
         (val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val),
         z.number().min(1, "Ratios Raw Pack cannot be empty")
-      ),
-      ratiosCopack: z.preprocess(
+    ),
+    ratiosCopack: z.preprocess(
         (val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val),
         z.number().min(1, "Ratios Co Pack cannot be empty")
-      ),
+    ),
     criteriaEvaluation: z.array(z.string().min(1, 'Criteria Evaluation cannot be empty')),
     score: z.array(
         z
-          .union([
-            z.string().refine((val) => val.trim() !== "", { message: "Score cannot be empty" }), // Ensures no empty strings
-            z.number().min(0, "Score must be 0 or higher"),
-            z.literal("NA"),
-          ])
-          .transform((val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val)) // Converts valid number strings to numbers
-      )
+            .union([
+                z.string().refine((val) => val.trim() !== "", { message: "Score cannot be empty" }), // Ensures no empty strings
+                z.number().min(0, "Score must be 0 or higher"),
+                z.literal("NA"),
+            ])
+            .transform((val) => (typeof val === "string" && !isNaN(Number(val)) ? Number(val) : val)) // Converts valid number strings to numbers
+    )
 });
 
 export const validateFormRuleData = (data: unknown) => {
@@ -255,7 +255,7 @@ export const validateFormCapaRuleData = (data: unknown) => {
         return { valid: false, errors: { general: 'Unexpected error occurred' } };
     }
 };
-export const formSchemaManageUser = (isEditMode: boolean,showFields:boolean) => {
+export const formSchemaManageUser = (isEditMode: boolean, showFields: boolean) => {
     const baseSchema = {
         name: z.string().min(1, 'Role Name cannot be empty'),
         email: z.string().email('Email must be in proper format').min(1, 'Email cannot be empty'),
@@ -306,9 +306,9 @@ export const formSchemaManageUser = (isEditMode: boolean,showFields:boolean) => 
     return z.object(baseSchema);
 };
 
-export const validateManageUser = (data: unknown, isEditMode: boolean,showFields:boolean) => {
+export const validateManageUser = (data: unknown, isEditMode: boolean, showFields: boolean) => {
     try {
-        formSchemaManageUser(isEditMode,showFields).parse(data);
+        formSchemaManageUser(isEditMode, showFields).parse(data);
         return { valid: true, errors: {} };
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -331,26 +331,26 @@ export const formSchemaUserGroup = () => {
             .max(12, "Phone number cannot be more than 12 digits"),
         address: z.string().min(1, 'Site address cannot be empty'),
         assesorRoleId: z
-        .number()
-        .optional()
-        .nullable()
-        .refine((val) => val !== null && val !== undefined, {
-            message: 'Assesor Role cannot be empty'
-        }),
+            .number()
+            .optional()
+            .nullable()
+            .refine((val) => val !== null && val !== undefined, {
+                message: 'Assesor Role cannot be empty'
+            }),
         assesorTypeId: z
-        .number()
-        .optional()
-        .nullable()
-        .refine((val) => val !== null && val !== undefined, {
-            message: 'Assesor Type cannot be empty'
-        }),
+            .number()
+            .optional()
+            .nullable()
+            .refine((val) => val !== null && val !== undefined, {
+                message: 'Assesor Type cannot be empty'
+            }),
         positionId: z
-        .number()
-        .optional()
-        .nullable()
-        .refine((val) => val !== null && val !== undefined, {
-            message: 'position cannot be empty'
-        }),
+            .number()
+            .optional()
+            .nullable()
+            .refine((val) => val !== null && val !== undefined, {
+                message: 'position cannot be empty'
+            }),
     };
 
     return z.object(baseSchema);
@@ -580,7 +580,7 @@ export const buildQueryParams = (params: any) => {
 
 export const getRowLimitWithScreenHeight = ({ headerHeight = 250, footerHeight = 50 } = { headerHeight: 250, footerHeight: 50 }) => {
     if (typeof window === "undefined") {
-        return 10; 
+        return 10;
     }
 
     const availableHeight = window.innerHeight - headerHeight - footerHeight;
@@ -701,13 +701,15 @@ export const renderColorStatus = (status: string) => {
 
 export const getSeverity = (status: string) => {
     switch (status?.toUpperCase()) {
-      case 'IN_PROGRESS':
-        return 'warning';
-      case 'COMPLETED':
-        return 'success';
-      case 'PENDING':
-        return 'info';
-      default:
-        return 'info';
+        case 'IN_PROGRESS':
+            return 'warning';
+        case 'APPROVED':
+            return 'success';
+        case 'PENDING':
+            return 'info';
+        case 'REJECTED':
+            return 'danger';
+        default:
+            return 'info';
     }
-  };
+};

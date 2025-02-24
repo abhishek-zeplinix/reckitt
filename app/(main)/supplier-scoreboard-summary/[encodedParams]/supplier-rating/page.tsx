@@ -9,6 +9,8 @@ import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import React, { useEffect, useState } from 'react';
 import useDecodeParams from '@/hooks/useDecodeParams';
+import SupplierSummaryCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryCard';
+import { categoriesMap } from '@/utils/constant';
 
 
 const SupplierRatingPage = ({
@@ -18,7 +20,7 @@ const SupplierRatingPage = ({
         encodedParams: string 
     }
 }) => {
-    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
     const [activeTab, setActiveTab] = useState('PROCUREMENT');
     const [selectedPeriod, setSelectedPeriod] = useState();
     const [rules, setRules] = useState([]);
@@ -29,23 +31,14 @@ const SupplierRatingPage = ({
     const [reload, setReload] = useState<boolean>(false);
 
     const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
-
-    // const urlParams = useParams();
-    // const { supId, catId, subCatId, currentYear } = urlParams;
     
     const { isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
-    const {isSuperAdmin } = useAuth();
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { supId, catId, subCatId, currentYear} = decodedParams;
     
-    const categoriesMap: any = {
-        'raw & pack': 'ratiosRawpack',
-        copack: 'ratiosCopack'
-    };
-
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
@@ -111,6 +104,7 @@ const SupplierRatingPage = ({
 
     //fetch rules
     const fetchRules = async () => {
+        setLoading(true)
         if (!selectedPeriod || !selectedDepartment) return;
 
         try {
@@ -123,7 +117,7 @@ const SupplierRatingPage = ({
         } catch (error) {
             setAlert('error', 'Failed to fetch rules');
         }finally{
-
+            setLoading(false)
         }
     };
 
@@ -181,18 +175,7 @@ const SupplierRatingPage = ({
         fetchRulesData();
     }, [selectedDepartment, selectedPeriod, reload]);
 
-    // Screen size effect
-    useEffect(() => {
-        const handleResize = () => {
-            setIsSmallScreen(window.innerWidth <= 768);
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize();
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
+   
     useEffect(() => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
@@ -251,103 +234,6 @@ const SupplierRatingPage = ({
         return null;
     };
 
-    const leftPanelData = [
-        {
-            label: 'Category :',
-            value: `${supplierData?.category?.categoryName}`
-        },
-        {
-            label: 'Sub-Category :',
-            value: `${supplierData?.subCategories?.subCategoryName}`
-        },
-        {
-            label: 'Supplier Name :',
-            value: `${supplierData?.supplierName}`
-        }
-    ];
-    const RightPanelData = [
-        { label: 'Supplier Id :', value: `${supplierData?.supId}` },
-        { label: 'Warehouse Location :', value: `${supplierData?.warehouseLocation}` }
-    ];
-
-
-    const summoryCards = () => {
-        return (
-            <>
-                <div className="flex justify-content-between align-items-start flex-wrap gap-4">
-                    <div
-                        className="card shadow-lg  "
-                        style={{
-                            flexBasis: '48%',
-                            minWidth: '48%',
-                            width: isSmallScreen ? '100%' : '100%',
-                            flexGrow: 1,
-                            height: isSmallScreen ? 'auto' : '151px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            padding: '1rem'
-                        }}
-                    >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {leftPanelData?.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
-                                            </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center " style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0 ">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < leftPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div
-                        className="card shadow-lg  "
-                        style={{
-                            flexBasis: '48%',
-                            minWidth: '48%',
-                            width: isSmallScreen ? '100%' : '100%',
-                            flexGrow: 1,
-                            height: isSmallScreen ? 'auto' : '151px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            padding: '1rem'
-                        }}
-                    >
-                        <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
-                            {RightPanelData?.map((item, index) => (
-                                <>
-                                    <li key={index} className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-2 " style={{ flex: '1' }}>
-                                        <div>
-                                            <div className="mt-1 text-600" style={{ fontSize: '0.9rem' }}>
-                                                {item.label}
-                                            </div>
-                                        </div>
-                                        <div className="mt-2 md:mt-0 flex align-items-center" style={{ fontSize: '0.9rem' }}>
-                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{item.value}</span>
-                                        </div>
-                                    </li>
-                                    {index < RightPanelData.length - 1 && <hr style={{ borderColor: '#CBD5E1', borderWidth: '0.1px', opacity: '0.4' }} />}
-                                </>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            </>
-        );
-    };
-
-    const renderSummoryInfo = summoryCards();
-    // useEffect(() => {
-    //     // Clear existing score data when period changes
-    //     setSupplierScoreData(null);
-    //   }, [selectedPeriod]);
 
     const dataPanel = () => {
         return (
@@ -380,15 +266,10 @@ const SupplierRatingPage = ({
 
                     <div className="flex justify-content-between">
                         <Dropdown value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.value)} options={periodOptions} optionLabel="label" placeholder="Select Period" className="w-full md:w-14rem" />
-
-                        {/* <div className="flex justify-content-end">
-                            <Button icon="pi pi-upload" size="small" label="Export" aria-label="Add Supplier" className="default-button" style={{ marginLeft: 10 }} />
-                            <Button icon="pi pi-print" size="small" label="Print" aria-label="Import Supplier" className="bg-primary-main border-primary-main hover:text-white" style={{ marginLeft: 10 }} onClick={() => window.print()} />
-                        </div> */}
+                      
                     </div>
                         <SupplierEvaluationTable
                             rules={rules} // Always pass rules
-                            // supplierScoreData={supplierScoreData} // Pass the score data separately
                             supplierScoreData={supplierScoreData}
                             category={category}
                             evaluationPeriod={selectedPeriod}
@@ -426,13 +307,10 @@ const SupplierRatingPage = ({
     return (
         <div className="grid" id="content-to-print">
             <div className="col-12">
-                <div>{renderSummoryInfo}</div>
+                <SupplierSummaryCard catId={catId} subCatId={subCatId} supId={supId} />
             </div>
             <div className="col-12">
-            {
-                scoreDataLoading ? <TableSkeleton /> :
                 <div>{renderDataPanel}</div>
-            }
             </div>
         </div>
     );
