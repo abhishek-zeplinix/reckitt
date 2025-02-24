@@ -1,3 +1,4 @@
+import SupplierSummmarySkeletonCustom from "@/components/skeleton/SupplierSummmarySkeletonCustom";
 import useFetchSingleSupplierDetails from "@/hooks/useFetchSingleSupplierDetails";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -7,8 +8,13 @@ const SupplierSummaryCard = ({catId, subCatId, supId}: any) => {
     const urlParams = useParams();
     const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId })
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    
 
     const leftPanelData = [
+        {
+            label: 'Supplier Name :',
+            value: `${suppliers?.supplierName}`
+        },
         {
             label: 'Category :',
             value: `${suppliers?.category?.categoryName}`
@@ -16,10 +22,6 @@ const SupplierSummaryCard = ({catId, subCatId, supId}: any) => {
         {
             label: 'Sub-Category :',
             value: `${suppliers?.subCategories?.subCategoryName}`
-        },
-        {
-            label: 'Supplier Name :',
-            value: `${suppliers?.supplierName}`
         }
     ];
     const RightPanelData = [
@@ -103,7 +105,8 @@ const SupplierSummaryCard = ({catId, subCatId, supId}: any) => {
     const renderSummoryInfo = summoryCards();
     return (
         <>
-        {renderSummoryInfo}
+        {suppliers.supplierName  ? renderSummoryInfo : <SupplierSummmarySkeletonCustom /> }
+
         </>
     )
 }

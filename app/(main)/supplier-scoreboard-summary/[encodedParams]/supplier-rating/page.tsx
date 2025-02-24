@@ -1,6 +1,6 @@
 'use client';
 import { GetCall } from '@/app/api-config/ApiKit';
-import TableSkeleton from '@/components/supplier-rating/skeleton/TableSkeleton';
+import TableSkeleton from '@/components/skeleton/TableSkeleton';
 import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import SupplierSummaryCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryCard';
 import { categoriesMap } from '@/utils/constant';
+import SupplierSummmarySkeletonCustom from '@/components/skeleton/SupplierSummmarySkeletonCustom';
 
 
 const SupplierRatingPage = ({

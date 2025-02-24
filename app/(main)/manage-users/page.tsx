@@ -11,7 +11,7 @@ import { CustomResponse, CompanyUsers } from '@/types';
 import { DeleteCall, GetCall } from '@/app/api-config/ApiKit';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',

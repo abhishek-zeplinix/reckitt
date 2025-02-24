@@ -20,7 +20,7 @@ import { Calendar } from 'primereact/calendar';
 // import { useLoaderContext } from '@/layout/context/LoaderContext';
 import { RadioButton } from 'primereact/radiobutton';
 import { limitOptions } from '@/utils/constant';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',

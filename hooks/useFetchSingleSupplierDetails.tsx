@@ -6,13 +6,13 @@ import { buildQueryParams } from '@/utils/utils';
 
 const useFetchSingleSupplierDetails = ({catId, subCatId, supId}: any) => {
     const [suppliers, setSuppliers] = useState([]);
-    const { setLoading, setAlert } = useAppContext();
+    const { isLoading, setLoading, setAlert } = useAppContext();
 
 
     const fetchSupplier = useCallback(async () => {
 
         if (!supId) return;
-
+        setLoading(true)
         try {
 
             const params = {
@@ -37,7 +37,7 @@ const useFetchSingleSupplierDetails = ({catId, subCatId, supId}: any) => {
             setAlert('error', 'Failed to fetch supplier');
 
         } finally {
-
+            setLoading(false)
         }
 
     }, [catId, subCatId, supId]);
@@ -50,7 +50,7 @@ const useFetchSingleSupplierDetails = ({catId, subCatId, supId}: any) => {
         fetchSupplier();
     }, []);
 
-    return { suppliers: memoizedSuppliers, fetchSupplier };
+    return { suppliers: memoizedSuppliers, fetchSupplier};
 };
 
 export default useFetchSingleSupplierDetails;

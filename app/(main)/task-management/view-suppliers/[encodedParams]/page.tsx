@@ -10,7 +10,7 @@ import { encodeRouteParams } from '@/utils/base64';
 import { get } from 'lodash';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { GetCall } from '@/app/api-config/ApiKit';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { Badge } from 'primereact/badge';
 import { useAuth } from '@/layout/context/authContext';
@@ -170,12 +170,12 @@ const ViewAssignedSuppliers = ({
             srNo: index + 1,
             supplierName: supplier.supplierName,
             // status: supplier.isBlocked ? 'Inactive' : 'Active',
-            evaluationStatus: assignment.evaluationStatus,
             approvalStatus: assignment.approvalStatus,
             country: supplier.country,
             state: supplier.state,
             city: supplier.city,
             supplierCategory: supplier.supplierCategoryId,
+            evaluationStatus: assignment.evaluationStatus,
             history: 'View History',
             evaluate: 'Evaluate'
         };
@@ -222,17 +222,6 @@ const ViewAssignedSuppliers = ({
                             filterPlaceholder: 'Search Supplier Name'
                         },
 
-                        {
-                            header: 'Status',
-                            field: role.toLowerCase() === 'approver' ? 'approvalStatus' : 'evaluationStatus',
-                            bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
-                            body: (rowData) => (
-                                <Badge 
-                                    value={role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus} 
-                                    severity={getSeverity(role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus)} 
-                                />
-                            )
-                        },
                                                 
                         {
                             header: 'Country',
@@ -248,6 +237,18 @@ const ViewAssignedSuppliers = ({
                             header: 'City',
                             field: 'city',
                             style: { minWidth: 120, maxWidth: 120 }
+                        },
+
+                        {
+                            header: 'Status',
+                            field: role.toLowerCase() === 'approver' ? 'approvalStatus' : 'evaluationStatus',
+                            bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
+                            body: (rowData) => (
+                                <Badge 
+                                    value={role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus} 
+                                    severity={getSeverity(role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus)} 
+                                />
+                            )
                         },
 
                         {

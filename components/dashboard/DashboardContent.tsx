@@ -10,10 +10,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse, Tile } from '@/types';
-import TileSkeleton from '@/components/supplier-rating/skeleton/DashboardCountSkeleton';
-import SupplierPerformanceSkeleton from '@/components/supplier-rating/skeleton/SupplierPerformanceSkeleton';
-import HistoricalPerformanceSkeleton from '@/components/supplier-rating/skeleton/DashboardWaveGraphSkeleton';
-import TotalAssessmentSkeleton from '@/components/supplier-rating/skeleton/DashboardDonutSkeleton';
+import TileSkeleton from '@/components/skeleton/DashboardCountSkeleton';
+import SupplierPerformanceSkeleton from '@/components/skeleton/SupplierPerformanceSkeleton';
+import HistoricalPerformanceSkeleton from '@/components/skeleton/DashboardWaveGraphSkeleton';
+import TotalAssessmentSkeleton from '@/components/skeleton/DashboardDonutSkeleton';
 import { GetCall } from '@/app/api-config/ApiKit';
 
 interface DashboardContentProps {

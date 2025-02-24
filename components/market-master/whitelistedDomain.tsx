@@ -9,7 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',

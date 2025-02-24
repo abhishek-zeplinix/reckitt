@@ -19,7 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 // import { useLoaderContext } from '@/layout/context/LoaderContext';
 import { RadioButton } from 'primereact/radiobutton';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import { limitOptions } from '@/utils/constant';
 
 const ACTIONS = {

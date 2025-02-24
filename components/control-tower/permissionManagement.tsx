@@ -10,7 +10,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { CustomResponse } from '@/types';
 import SubmitResetButtons from './submit-reset-buttons';
-import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',

@@ -1,5 +1,5 @@
 import ReadMoreText from "@/components/read-more-text/ReadMoreText";
-import SupplierSummaryRightLeftPanelSkeleton from "../skeleton/SupplierSummaryLeftRightPanelSkeleton";
+import SupplierSummaryRightLeftPanelSkeleton from "../../skeleton/SupplierSummaryLeftRightPanelSkeleton";
 import { useState } from "react";
 
 const SupplierScoreboardSummaryCard = ({ suppliers, isLoading }: any) => {
@@ -47,9 +47,7 @@ const SupplierScoreboardSummaryCard = ({ suppliers, isLoading }: any) => {
                         padding: '1rem'
                     }}
                 >
-                    {isLoading ? (
-                        <SupplierSummaryRightLeftPanelSkeleton itemCount={5} />
-                    ) : (
+               
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
                             {leftPanelData.map((item, index) => (
                                 <>
@@ -67,7 +65,6 @@ const SupplierScoreboardSummaryCard = ({ suppliers, isLoading }: any) => {
                                 </>
                             ))}
                         </ul>
-                    )}
                 </div>
 
                 <div
@@ -83,9 +80,7 @@ const SupplierScoreboardSummaryCard = ({ suppliers, isLoading }: any) => {
                         padding: '1rem'
                     }}
                 >
-                    {isLoading ? (
-                        <SupplierSummaryRightLeftPanelSkeleton itemCount={4} />
-                    ) : (
+                   
                         <ul className="list-none p-0 m-0" style={{ flexGrow: 1, padding: '0' }}>
                             {rightPanelData?.map((item, index) => (
                                 <>
@@ -103,7 +98,6 @@ const SupplierScoreboardSummaryCard = ({ suppliers, isLoading }: any) => {
                                 </>
                             ))}
                         </ul>
-                    )}
                 </div>
             </div>
         </>

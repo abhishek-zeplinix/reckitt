@@ -8,7 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall } from '@/app/api-config/ApiKit';
 import { encodeRouteParams } from '@/utils/base64';
-import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 
 interface TasksProps {
     role: 'Approver' | 'Evaluator';
@@ -48,7 +48,8 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
             `/task-management/${encodeRouteParams({
                 userId: rowData?.userId,
                 role: role,
-                name: rowData?.user.name
+                name: rowData?.user.name,
+                department:rowData?.department.name
             })}`
         );
     };

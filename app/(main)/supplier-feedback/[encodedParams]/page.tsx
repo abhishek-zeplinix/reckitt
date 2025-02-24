@@ -7,7 +7,9 @@ import { useAppContext } from '@/layout/AppWrapper';
 import SupplierSummaryFeedbackCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryFeedbackCard';
 import { buildQueryParams } from '@/utils/utils';
 import { useAuth } from '@/layout/context/authContext';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
+import Supplier from '@/components/skeleton/SupplierSummarySkeleton';
+import SupplierSummmarySkeletonCustom from '@/components/skeleton/SupplierSummmarySkeletonCustom';
 
 const SupplierFeedback = ({
     params,
@@ -110,7 +112,7 @@ const SupplierFeedback = ({
 
             <div className="col-12">
                 {
-                    isLoading ? (<TableSkeletonSimple columns={5} />) :
+                    isLoading ? (<SupplierSummmarySkeletonCustom />) :
                         <>
                             {scoreData && <SupplierSummaryFeedbackCard data={scoreData} />}
 

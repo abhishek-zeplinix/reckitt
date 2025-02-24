@@ -1,7 +1,7 @@
 import { useAppContext } from "@/layout/AppWrapper";
 import { formatEvaluationPeriod } from "@/utils/utils";
 import { useState } from "react";
-import SupplierSummaryRightLeftPanelSkeleton from "../skeleton/SupplierSummaryLeftRightPanelSkeleton";
+import SupplierSummaryRightLeftPanelSkeleton from "../../skeleton/SupplierSummaryLeftRightPanelSkeleton";
 
 const SupplierSummaryFeedbackCard = (data: any) => {
 

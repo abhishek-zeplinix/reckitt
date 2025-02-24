@@ -12,7 +12,7 @@ import { CustomResponse } from '@/types';
 import SubmitResetButtons from './submit-reset-buttons';
 import Dashboard from '@/app/(main)/page';
 import { SortOrder } from 'primereact/api';
-import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',

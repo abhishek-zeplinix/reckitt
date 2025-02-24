@@ -16,7 +16,7 @@ import { DeleteCall, GetCall, PostCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, Rules } from '@/types';
 import { ColumnBodyOptions } from 'primereact/column';
 import { limitOptions } from '@/utils/constant';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',
