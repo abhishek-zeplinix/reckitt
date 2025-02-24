@@ -2,10 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-// import 'primeicons/primeicons.css';
-// import 'primereact/resources/themes/saga-blue/theme.css';
-// import 'primereact/resources/primereact.min.css';
-import 'primeflex/primeflex.css';
 import { CustomResponse, Supplier } from '@/types';
 import { GetCall } from '../app/api-config/ApiKit';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
@@ -15,6 +11,7 @@ import { Dropdown } from 'primereact/dropdown';
 import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
 import { encodeRouteParams } from '@/utils/base64';
 import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
+import { get } from 'lodash';
 
 const SupplierDirectory = () => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
@@ -50,81 +47,89 @@ const SupplierDirectory = () => {
 
 
     useEffect(() => {
-        // const role = get(user, 'role.name', 'admin')?.toLowerCase();
-        // setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
-        
-        setUserRole('admin')
-        
+        const role = get(user, 'role.name', 'admin')?.toLowerCase();
+        setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
+
+        // setUserRole('admin')
+
     }, [user]);
 
     console.log(userRole);
-    
 
-     const fetchData = async (params?: any) => {
-            if (!userRole) return;
-    
-            try {
-                setLoading(true);
-    
-                const config = roleConfig[userRole as keyof typeof roleConfig];
-                if (!config) {
-                    throw new Error('Invalid user role');
+
+    const fetchData = async (params?: any) => {
+        if (!userRole) return;
+
+        try {
+            setLoading(true);
+
+            const config = roleConfig[userRole as keyof typeof roleConfig];
+            if (!config) {
+                throw new Error('Invalid user role');
+            }
+
+            // merge default params with role-specific filters and any additional params
+            const defaultParams = {
+                limit,
+                page,
+                filters: config.getFilters()
+            };
+
+            const mergedParams = {
+                ...defaultParams,
+                ...params,
+                filters: {
+                    ...defaultParams.filters,
+                    ...(params?.filters || {})
                 }
-    
-                // merge default params with role-specific filters and any additional params
-                const defaultParams = {
-                    limit,
-                    page,
-                    filters: config.getFilters()
-                };
-    
-                const mergedParams = {
-                    ...defaultParams,
-                    ...params,
-                    filters: {
-                        ...defaultParams.filters,
-                        ...(params?.filters || {})
-                    }
-                };
-    
-                const queryString = buildQueryParams(mergedParams);
-                setPage(mergedParams.page);
-    
-                const response = await GetCall(`${config.endpoint}?${queryString}`);
-    
-                if (response.code === 'SUCCESS') {
-                    console.log(response?.data);
-                    
+            };
+
+            const queryString = buildQueryParams(mergedParams);
+            setPage(mergedParams.page);
+
+            const response = await GetCall(`${config.endpoint}?${queryString}`);
+
+            if (response.code === 'SUCCESS') {
+
+                if (userRole === 'approver' || userRole === 'evaluator') {
+                    const transformedData = transformSupplierData(response);
+                    setSuppliers(transformedData);
+                    setTotalRecords(transformedData.length);
+                } else {
                     setSuppliers(response?.data);
                     setTotalRecords(response?.total);
-                } else {
-                    setSuppliers([]);
                 }
-            } catch (error) {
-                setAlert('error', 'Something went wrong!');
-            } finally {
-                setLoading(false);
+            } else {
+                setSuppliers([]);
             }
-        };
+        } catch (error) {
+            setAlert('error', 'Something went wrong!');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    // const fetchData = async (params?: any) => {
-    //     if (!params) {
-    //         params = { limit: limit, page: page };
-    //         // params = { limit: limit, page: page };
-    //     }
-    //     setLoading(true);
-    //     const queryString = buildQueryParams(params);
-    //     const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
-    //     setLoading(false);
-    //     if (response.code == 'SUCCESS') {
-    //         setSuppliers(response.data);
-    //         if (response.total) {
-    //             setTotalRecords(response?.total);
-    //         }
-    //     } else {
-    //         setSuppliers([]);
-    //     }
-    // };
+    const transformSupplierData = (responseData: any) => {
+        if (!responseData?.data?.supplierAssigment) return [];
+
+        return responseData.data.supplierAssigment.map((assignment: any) => {
+            const supplier = assignment.suppliers[0];
+            return {
+                supId: supplier.supId,
+                supplierName: supplier.supplierName,
+                isBlocked: false, // you may need to adjust this based on your requirements
+                totalDepartments: 1, // since it's mapped to specific department
+                isEvaluated: assignment.evaluationStatus !== 'Pending',
+                isApproved: assignment.approvalStatus !== 'Pending',
+                category: {
+                    categoryId: supplier.supplierCategoryId
+                },
+                subCategories: {
+                    subCategoryId: supplier.procurementCategoryId
+                }
+            };
+        });
+    };
 
     const fetchprocurementCategories = async (categoryId: number | null) => {
         if (!categoryId) {
@@ -162,11 +167,11 @@ const SupplierDirectory = () => {
 
 
     useEffect(() => {
-            if (userRole) {
-                fetchData();
-                fetchsupplierCategories();
-            }
-        }, [userRole]);
+        if (userRole) {
+            fetchData();
+            fetchsupplierCategories();
+        }
+    }, [userRole]);
 
     // Render the status column
     const statusBodyTemplate = (rowData: any) => (
@@ -181,8 +186,6 @@ const SupplierDirectory = () => {
     );
 
     const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
-
-    const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
 
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit
@@ -289,12 +292,7 @@ const SupplierDirectory = () => {
                             bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
                             body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                         },
-                        {
-                            header: 'No. of Dept.',
-                            field: 'totalDepartments',
-                            style: { minWidth: 120 },
-                            className: 'text-center'
-                        },
+        
                         {
                             header: 'Supplier Status',
                             field: '',
@@ -310,12 +308,6 @@ const SupplierDirectory = () => {
                                     </div>
                                 );
                             }
-                        },
-                        {
-                            header: 'History',
-                            body: HistoryBodyTemplate,
-                            style: { minWidth: 70, maxWidth: 70 },
-                            className: 'text-center'
                         },
                         {
                             header: 'Evaluate',
