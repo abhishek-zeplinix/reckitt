@@ -78,7 +78,6 @@ const getRefreshToken = (): string | undefined => {
 const getUserDetails = (): any => {
     const domain = getDomain();
     const userDetails = localStorage.getItem('userDetails');
-    console.log(userDetails);
     return userDetails ? JSON.parse(userDetails) : null;
 };
 

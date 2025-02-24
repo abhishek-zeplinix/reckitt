@@ -9,7 +9,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { CustomResponse } from '@/types';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubmitResetButtons from './submit-reset-buttons';
-import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',

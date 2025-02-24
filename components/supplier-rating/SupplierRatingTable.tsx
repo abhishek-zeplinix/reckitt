@@ -10,7 +10,7 @@ import { Badge } from 'primereact/badge';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
-import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 
 
 const SupplierEvaluationTable = ({ rules,

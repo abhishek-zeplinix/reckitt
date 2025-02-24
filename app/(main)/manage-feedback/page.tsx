@@ -10,7 +10,7 @@ import { encodeRouteParams } from '@/utils/base64';
 import { Button } from 'primereact/button';
 import { get } from 'lodash';
 import { useRouter } from 'next/navigation';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import { useAuth } from '@/layout/context/authContext';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { Dropdown } from 'primereact/dropdown';

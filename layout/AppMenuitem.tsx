@@ -63,7 +63,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
 
 
     const itemClick = (event: React.MouseEvent, subItem?: any) => {
-        setActiveItem('')
+        // setActiveItem('')
 
         if (item!.disabled) {
             event.preventDefault();

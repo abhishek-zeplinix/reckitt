@@ -19,7 +19,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 import { ColumnBodyOptions } from 'primereact/column';
 import { limitOptions } from '@/utils/constant';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 
 const ACTIONS = {
     ADD: 'add',

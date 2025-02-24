@@ -20,7 +20,7 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { limitOptions } from '@/utils/constant';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 const ACTIONS = {
     ADD: 'add',
     EDIT: 'edit',

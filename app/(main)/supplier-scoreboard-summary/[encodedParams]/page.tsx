@@ -20,12 +20,13 @@ import GraphsPanel from '@/components/supplier-scoreboard/GraphPanel';
 import { encodeRouteParams, extractRouteParams } from '@/utils/base64';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import useFetchSingleSupplierDetails from '@/hooks/useFetchSingleSupplierDetails';
-import SupplierSummaryTableSkeleton from '@/components/supplier-rating/skeleton/SupplierSummarySkeleton';
-import PerformanceRatingSkeleton from '@/components/supplier-rating/skeleton/OverallPerformanceSkeleton';
+import SupplierSummaryTableSkeleton from '@/components/skeleton/SupplierSummarySkeleton';
+import PerformanceRatingSkeleton from '@/components/skeleton/OverallPerformanceSkeleton';
 
 import SupplierScoreboardSummaryCard from '@/components/supplier-rating/supplier-summary/SupplierScoreboardSummaryCard';
 import { memoizedBarOptions, memoizedOptions } from '@/utils/graph-constants';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import SupplierSummmarySkeletonCustom from '@/components/skeleton/SupplierSummmarySkeletonCustom';
 
 const SupplierScoreboardTables = ({
     params
@@ -489,7 +490,11 @@ const SupplierScoreboardTables = ({
         <>
             <div className="grid">
                 <div className="col-12">
-                    <div><SupplierScoreboardSummaryCard suppliers={suppliers} isLoading={isLoading} /></div>
+                    {
+                        isLoading ? <SupplierSummmarySkeletonCustom leftPanelRows={5} rightPanelRows={4} height='250px'/> :
+                            <div><SupplierScoreboardSummaryCard suppliers={suppliers} isLoading={isLoading} /></div>
+                    }
+
                 </div>
                 <div className="col-12">
                     <div>{renderDataPanel}</div>

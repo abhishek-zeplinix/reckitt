@@ -15,7 +15,7 @@ import ScoreTiles from '@/components/supplier-score/score-tiles';
 import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { withAuth } from '@/layout/context/authContext';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 

@@ -12,7 +12,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { z } from 'zod';
 import { useAuth } from '@/layout/context/authContext';
 import { get, sortBy } from 'lodash';
-import TableSkeletonSimple from '@/components/supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 
 const rejectionSchema = z.object({
     reason: z.string().max(250, 'Rejection reason cannot exceed 250 characters')

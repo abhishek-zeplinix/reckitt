@@ -14,8 +14,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
 import { encodeRouteParams } from '@/utils/base64';
-import TableSkeletonSimple from './supplier-rating/skeleton/TableSkeletonSimple';
-import { get } from 'lodash';
+import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
 
 const SupplierDirectory = () => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();

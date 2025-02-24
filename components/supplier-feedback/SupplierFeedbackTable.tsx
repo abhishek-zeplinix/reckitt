@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { useAuth } from '@/layout/context/authContext';
-import TableSkeletonSimple from '../supplier-rating/skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 import { useAppContext } from '@/layout/AppWrapper';
 import DocumentViewer from '../viewer/DocumentViewer';
 

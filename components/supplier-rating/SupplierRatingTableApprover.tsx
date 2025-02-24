@@ -15,7 +15,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { genericTextSchema } from '@/utils/validationSchemas';
 import { z } from 'zod';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
-import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
+import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 import CapaRequiredTableApprover from './CapaRequiredTableApprover';
 
 const SupplierEvaluationTableApprover = ({
