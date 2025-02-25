@@ -117,7 +117,7 @@ const SupplierDirectory = () => {
             return {
                 supId: supplier.supId,
                 supplierName: supplier.supplierName,
-                isBlocked: false, // you may need to adjust this based on your requirements
+                isBlocked: false, // You may need to adjust this based on your requirements
                 totalDepartments: 1, // since it's mapped to specific department
                 isEvaluated: assignment.evaluationStatus !== 'Pending',
                 isApproved: assignment.approvalStatus !== 'Pending',
@@ -173,19 +173,23 @@ const SupplierDirectory = () => {
         }
     }, [userRole]);
 
-    // Render the status column
-    const statusBodyTemplate = (rowData: any) => (
-        <span
-            style={{
-                color: rowData.status === 'Active' ? '#15B097' : 'red',
-                fontWeight: 'bold'
-            }}
-        >
-            {rowData.status}
-        </span>
-    );
+  
 
-    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
+    // const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
+    // const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.supplierCategoryId, rowData?.procurementCategoryId)} />;
+
+    const evaluateBodyTemplate = (rowData: any) => {
+        const categoryId = rowData?.category?.categoryId || rowData?.supplierCategoryId;
+        const subCategoryId = rowData?.subCategories?.subCategoryId || rowData?.procurementCategoryId;
+        
+        return (
+          <Button 
+            icon="pi pi-plus" 
+            className="p-button-rounded p-button-pink-400" 
+            onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId)} 
+          />
+        );
+      };
 
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit

@@ -701,7 +701,7 @@ export const renderColorStatus = (status: string) => {
 
 export const getSeverity = (status: string) => {
     switch (status?.toUpperCase()) {
-        case 'IN_PROGRESS':
+        case 'IN PROGRESS':
             return 'warning';
         case 'APPROVED':
             return 'success';
@@ -709,7 +709,34 @@ export const getSeverity = (status: string) => {
             return 'info';
         case 'REJECTED':
             return 'danger';
+        case 'COMPLETED':
+            return 'success';
         default:
             return 'info';
     }
+};
+
+
+export const getStatusOptions = (role: string) => {
+    if (role.toLowerCase() === 'evaluator') {
+        return [
+            { label: 'Completed', value: 'Completed' },
+            { label: 'Pending', value: 'Pending' },
+            { label: 'In Progress', value: 'In Progress' }
+        ];
+    } else if (role.toLowerCase() === 'approver') {
+        return [
+            { label: 'Approved', value: 'Approved' },
+            { label: 'Rejected', value: 'Rejected' },
+            { label: 'Pending', value: 'Pending' },
+            { label: 'In Progress', value: 'In Progress' }
+        ];
+    }
+    
+    // Default options for other roles
+    return [
+        { label: 'Completed', value: 'Completed' },
+        { label: 'Pending', value: 'Pending' },
+        { label: 'Rejected', value: 'Rejected' }
+    ];
 };
