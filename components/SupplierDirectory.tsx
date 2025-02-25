@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { CustomResponse, Supplier } from '@/types';
+import { Category, CustomResponse, Supplier } from '@/types';
 import { GetCall } from '../app/api-config/ApiKit';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
@@ -32,7 +32,7 @@ const SupplierDirectory = () => {
 
     const roleConfig = {
         admin: {
-            endpoint: '/company/supplier-by-status',
+            endpoint: '/company/supplier',
             getFilters: () => ({})
         },
         approver: {
@@ -116,17 +116,21 @@ const SupplierDirectory = () => {
             const supplier = assignment.suppliers[0];
             return {
                 supId: supplier.supId,
+                assignmentId: assignment.assignmentId,
                 supplierName: supplier.supplierName,
-                isBlocked: false, // You may need to adjust this based on your requirements
+                isBlocked: false, // you may need to adjust this based on your requirements
                 totalDepartments: 1, // since it's mapped to specific department
                 isEvaluated: assignment.evaluationStatus !== 'Pending',
                 isApproved: assignment.approvalStatus !== 'Pending',
                 category: {
-                    categoryId: supplier.supplierCategoryId
+                    categoryId: supplier.supplierCategoryId,
+                    categoryName: supplier.category.categoryName
                 },
                 subCategories: {
-                    subCategoryId: supplier.procurementCategoryId
-                }
+                    subCategoryId: supplier.procurementCategoryId,
+                    subCategoryName: supplier.subCategories.subCategoryName
+                },
+            
             };
         });
     };
@@ -155,9 +159,9 @@ const SupplierDirectory = () => {
             setprocurementCategories([]);
         }
     };
-    const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
+    const navigateToSummary = (supId: number, catId: number, subCatId: number, assignmentId: number) => {
 
-        const params: any = { supId, catId, subCatId };
+        const params: any = { supId, catId, subCatId, assignmentId};
 
         const encodedParams = encodeRouteParams(params);
 
@@ -181,12 +185,13 @@ const SupplierDirectory = () => {
     const evaluateBodyTemplate = (rowData: any) => {
         const categoryId = rowData?.category?.categoryId || rowData?.supplierCategoryId;
         const subCategoryId = rowData?.subCategories?.subCategoryId || rowData?.procurementCategoryId;
-        
+        const assignmentId = rowData?.assignmentId;
+
         return (
           <Button 
             icon="pi pi-plus" 
             className="p-button-rounded p-button-pink-400" 
-            onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId)} 
+            onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId, assignmentId)} 
           />
         );
       };
@@ -220,7 +225,7 @@ const SupplierDirectory = () => {
                 onChange={onCategorychange}
                 options={procurementCategories}
                 optionValue="categoryId"
-                placeholder="Select Department"
+                placeholder="Select Category"
                 optionLabel="categoryName"
                 className="w-full md:w-10rem"
                 showClear={!!selectedCategory}
@@ -297,21 +302,33 @@ const SupplierDirectory = () => {
                             body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                         },
         
+                        // {
+                        //     header: 'Supplier Status',
+                        //     field: '',
+                        //     style: { minWidth: 150, maxWidth: 150 },
+                        //     body: (rowData: any) => {
+                        //         const isCompleted = rowData.isEvaluated && rowData.isApproved;
+                        //         return (
+                        //             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        //                 <span style={{ color: isCompleted ? 'green' : 'orange', fontWeight: 'bold' }}>
+                        //                     {isCompleted ? 'Completed' : 'Pending'}
+                        //                 </span>
+                        //                 <i className="pi pi-info-circle" style={{ color: 'red', cursor: 'pointer' }} title="Supplier evaluation status"></i>
+                        //             </div>
+                        //         );
+                        //     }
+                        // },
                         {
-                            header: 'Supplier Status',
-                            field: '',
-                            style: { minWidth: 150, maxWidth: 150 },
-                            body: (rowData: any) => {
-                                const isCompleted = rowData.isEvaluated && rowData.isApproved;
-                                return (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <span style={{ color: isCompleted ? 'green' : 'orange', fontWeight: 'bold' }}>
-                                            {isCompleted ? 'Completed' : 'Pending'}
-                                        </span>
-                                        <i className="pi pi-info-circle" style={{ color: 'red', cursor: 'pointer' }} title="Supplier evaluation status"></i>
-                                    </div>
-                                );
-                            }
+                            header: 'Category',
+                            field: 'category.categoryName',
+                            bodyStyle: { minWidth: 120 },
+                            filterPlaceholder: 'Search Supplier Name'
+                        },
+                        {
+                            header: 'Sub Category',
+                            field: 'subCategories.subCategoryName',
+                            bodyStyle: { minWidth: 120 },
+                            filterPlaceholder: 'Search Supplier Name'
                         },
                         {
                             header: 'Evaluate',

@@ -11,7 +11,6 @@ import React, { useEffect, useState } from 'react';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import SupplierSummaryCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryCard';
 import { categoriesMap } from '@/utils/constant';
-import SupplierSummmarySkeletonCustom from '@/components/skeleton/SupplierSummmarySkeletonCustom';
 
 
 const SupplierRatingPage = ({
@@ -38,7 +37,7 @@ const SupplierRatingPage = ({
     const { departments } = useFetchDepartments();
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId, currentYear} = decodedParams;
+    const { supId, catId, subCatId, currentYear, assignmentId} = decodedParams;
     
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
 
@@ -291,6 +290,7 @@ const SupplierRatingPage = ({
                             catId={catId}
                             subCatId={subCatId}
                             supId={supId}
+                            assignmentId={assignmentId}
                             rulesLoading = {isLoading}
                             scoreLoading = {scoreDataLoading}
                         // key={`${selectedDepartment}-${selectedPeriod}`}

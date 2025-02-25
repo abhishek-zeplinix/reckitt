@@ -11,7 +11,8 @@ interface RouteParams {
   userId?: any;
   role?: string;
   name? : string,
-  department?: string
+  department?: string,
+  assignmentId? : string | number;
   // Add any other optional parameters you might need
 }
 
