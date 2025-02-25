@@ -673,7 +673,7 @@ const ManageVendorsPage = () => {
                                             placeholder="Start Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ borderRadius: '5px', borderColor: 'black' }}
+                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
                                         />
                                         <Calendar
                                             id="endDate"
@@ -683,7 +683,7 @@ const ManageVendorsPage = () => {
                                             placeholder="End Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ borderRadius: '5px', borderColor: 'black' }}
+                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
                                         />
                                     </div>
                                 </div>
