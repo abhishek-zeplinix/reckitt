@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import 'primeflex/primeflex.css';
 import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity, getStatusOptions } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
@@ -14,6 +13,10 @@ import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { Badge } from 'primereact/badge';
 import { Dropdown } from 'primereact/dropdown';
+import { years } from '@/utils/constant';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Dialog } from 'primereact/dialog';
 
 const ViewAssignedSuppliers = ({
     params,
@@ -29,6 +32,9 @@ const ViewAssignedSuppliers = ({
     const [userRole, setUserRole] = useState<string | null>(null);
     const [department, setDepartment] = useState<string | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
 
 
     const router = useRouter();
@@ -135,8 +141,20 @@ const ViewAssignedSuppliers = ({
     };
 
 
-    const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
+    // const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
 
+    const evaluateBodyTemplate = (rowData: any) => {
+        const categoryId = rowData?.category?.categoryId || rowData?.supplierCategoryId;
+        const subCategoryId = rowData?.subCategories?.subCategoryId || rowData?.procurementCategoryId;
+
+        return (
+            <Button
+                icon="pi pi-plus"
+                className="p-button-rounded p-button-pink-400"
+                onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId)}
+            />
+        );
+    };
 
     const onGlobalSearch = (e: any) => {
         setGlobalSearch(e.target?.value);
@@ -149,49 +167,139 @@ const ViewAssignedSuppliers = ({
     };
     const FieldGlobalSearch = globalSearch();
 
+    const showStatusDialog = (rowData: any) => {
+        // Find the original supplier data that matches this row
+        const supplierAssignment = suppliers[0]?.supplierAssigment?.find(
+            (assignment: any) => assignment.suppliers[0].supplierName === rowData.supplierName
+        );
 
-    const transformedData = suppliers[0]?.supplierAssigment.map((assignment: any, index: any) => {
+        if (supplierAssignment) {
+            setSelectedSupplier(supplierAssignment);
+            setDialogVisible(true);
+        }
+    };
+
+    const closeDialog = () => {
+        setDialogVisible(false);
+        setSelectedSupplier(null);
+    };
+
+
+    const transformStatusData = (statusData: any) => {
+        if (!statusData || !statusData.length) return [];
+        
+        const year = new Date(statusData[0]?.year).getFullYear();
+        
+        if (department === 'PROCUREMENT' || department === 'SUSTAINABILITY') {
+            return [
+                { period: `H1 ${year}`, status: statusData[0]?.h1 || 'Pending' },
+                { period: `H2 ${year}`, status: statusData[0]?.h2 || 'Pending' }
+            ];
+        } 
+        else {
+            return [
+                { period: `Q1 ${year}`, status: statusData[0]?.q1 || 'Pending' },
+                { period: `Q2 ${year}`, status: statusData[0]?.q2 || 'Pending' },
+                { period: `Q3 ${year}`, status: statusData[0]?.q3 || 'Pending' },
+                { period: `Q4 ${year}`, status: statusData[0]?.q4 || 'Pending' }
+            ];
+        }
+    };
+
+
+    const transformedData = suppliers[0]?.supplierAssigment?.map((assignment: any, index: any) => {
         const supplier = assignment?.suppliers[0];
+
+        //if not a single evaluation done..status will be 'Pending'
+        const evaluationStatus = assignment?.SupplierAssignmentStatus[0]?.evaluationStatus || 'Pending';
+        const approvalStatus = assignment?.SupplierAssignmentStatus[0]?.approvalStatus || 'Pending';
+
 
         return {
             id: assignment.assignmentId,
             srNo: index + 1,
             supplierName: supplier.supplierName,
             // status: supplier.isBlocked ? 'Inactive' : 'Active',
-            approvalStatus: assignment.approvalStatus,
+            approvalStatus: approvalStatus,
             country: supplier.country,
             state: supplier.state,
             city: supplier.city,
             supplierCategory: supplier.supplierCategoryId,
-            evaluationStatus: assignment.evaluationStatus,
+            evaluationStatus: evaluationStatus,
             history: 'View History',
             evaluate: 'Evaluate'
         };
     });
 
+
+    const statusBodyTemplate = (rowData: any) => {
+        const fieldName = role.toLowerCase() === 'approver' ? 'approvalStatus' : 'evaluationStatus';
+        return (
+            <div className="flex align-items-center">
+                <Badge
+                    value={rowData[fieldName]}
+                    severity={getSeverity(rowData[fieldName])}
+                />
+                <Button
+                    icon="pi pi-exclamation-circle"
+                    className="p-button-rounded p-button-text ml-1"
+                    onClick={() => showStatusDialog(rowData)}
+                />
+            </div>
+        );
+    };
+
+    const statusColumnTemplate = (status: string) => {
+        return <Badge value={status} severity={getSeverity(status)} />;
+    };
+
     const onStatusChange = (e: any) => {
         const status = e.value;
         setSelectedStatus(status);
 
-        fetchData({
-            filters: {
-                status: status
-            }
-        });
+        const filters: any = {};
+
+        if (status) {
+            filters.status = status;
+        }
+
+        if (selectedYear) {
+            filters.year = selectedYear;
+        }
+
+        fetchData({ filters });
+    };
+
+    const onYearChange = (e: any) => {
+        const year = e.value;
+        setSelectedYear(year);
+
+        const filters: any = {};
+
+        if (selectedStatus) {
+            filters.status = selectedStatus;
+        }
+
+        if (year) {
+            filters.year = year;
+        }
+
+        fetchData({ filters });
     };
 
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
-            <div className="flex justify-content-between items-center border-b">
+            <div className="flex flex-wrap justify-content-between items-center border-b">
                 <div>
                     <h3>Assigned Suppliers to <span className='font-bold font-italic'> {name}</span></h3>
                 </div>
 
-                <div className="flex gap-2 pb-3">
+                <div className="flex flex-wrap gap-2 pb-3">
+                    <Dropdown value={selectedYear} onChange={onYearChange} options={years} placeholder="Select Year" className="w-full md:w-10rem" showClear={!!selectedYear} />
                     <Dropdown value={selectedStatus} onChange={onStatusChange} options={getStatusOptions(role)} placeholder="Select Status" className="w-full md:w-10rem" showClear={!!selectedStatus} />
-                    <div className="">{FieldGlobalSearch}</div>
-
+                    <div className="w-full md:w-10rem">{FieldGlobalSearch}</div>
                 </div>
+
             </div>
             <div>
                 {role} Department - <span className='font-bold'>{department}</span>
@@ -244,12 +352,7 @@ const ViewAssignedSuppliers = ({
                             header: 'Status',
                             field: role.toLowerCase() === 'approver' ? 'approvalStatus' : 'evaluationStatus',
                             bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
-                            body: (rowData) => (
-                                <Badge
-                                    value={role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus}
-                                    severity={getSeverity(role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus)}
-                                />
-                            )
+                            body: statusBodyTemplate
                         },
 
                         {
@@ -262,8 +365,45 @@ const ViewAssignedSuppliers = ({
                     onLoad={(params: any) => fetchData(params)}
                 />
             )}
+
+            <Dialog
+                header="Supplier Status Details"
+                visible={dialogVisible}
+                style={{ width: "50vw" }}
+                onHide={closeDialog}
+            >
+                {selectedSupplier && (
+                    <>
+                        <div className="mb-4">
+                            <DataTable value={[selectedSupplier.suppliers[0]]} showGridlines>
+                                <Column field="supplierName" header="Supplier" />
+                                <Column field="category.categoryName" header="Category" />
+                                <Column field="subCategories.subCategoryName" header="Sub Category" />
+                            </DataTable>
+                        </div>
+                        <div className="mb-2 flex justify-content-between">
+                            <div><strong>Department:</strong> {department}</div>
+                            <div><strong>Year: </strong>  {new Date(selectedSupplier.SupplierAssignmentStatus[0]?.year).getFullYear() || 'N/A'}</div>
+                        </div>
+                        <DataTable
+                            value={transformStatusData(selectedSupplier.SupplierAssignmentStatus)}
+                            showGridlines
+                            className="mb-3"
+                        >
+                            <Column field="period" header="Period" />
+                            <Column
+                                field="status"
+                                header="Status"
+                                body={(rowData) => statusColumnTemplate(rowData.status)}
+                            />
+                        </DataTable>
+                      
+                    </>
+                )}
+            </Dialog>
         </div>
     );
 }
 
 export default ViewAssignedSuppliers;
+

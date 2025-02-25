@@ -53,10 +53,11 @@ const useDecodeParams = (encodedParams: string) => {
                 role: String(parsedParams.role || ''),
                 name: String(parsedParams.name || ''),
                 department: String(parsedParams.department || ''),
+                assignmentId: String(parsedParams.assignmentId || ''),
             };
         } catch (error) {
             console.error('Error decoding parameters:', error);
-            return { supId: '', catId: '', subCatId: '', currentYear: '', departmentId: '', period: '', userId: '', role: '', name: '', department: ''};
+            return { supId: '', catId: '', subCatId: '', currentYear: '', departmentId: '', period: '', userId: '', role: '', name: '', department: '', assignmentId: ''};
         }
     }, [encodedParams]);
 };

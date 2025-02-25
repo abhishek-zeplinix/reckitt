@@ -36,7 +36,7 @@ const ApproverPage = ({
     const [reload, setReload] = useState<boolean>(false);
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId, currentYear } = decodedParams;
+    const { supId, catId, subCatId, currentYear, assignmentId} = decodedParams;
 
     const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
 
@@ -186,6 +186,7 @@ const ApproverPage = ({
                             isTableLoading={scoreLoading}
                             catId={catId}
                             subCatId={subCatId}
+                            assignmentId={assignmentId}
                         />
                     )}
                 </div>
