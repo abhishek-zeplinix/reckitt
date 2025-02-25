@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import 'primeflex/primeflex.css';
-import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity, getStatusOptions } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { encodeRouteParams } from '@/utils/base64';
@@ -13,7 +13,7 @@ import { GetCall } from '@/app/api-config/ApiKit';
 import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { Badge } from 'primereact/badge';
-import { useAuth } from '@/layout/context/authContext';
+import { Dropdown } from 'primereact/dropdown';
 
 const ViewAssignedSuppliers = ({
     params,
@@ -28,12 +28,15 @@ const ViewAssignedSuppliers = ({
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [userRole, setUserRole] = useState<string | null>(null);
     const [department, setDepartment] = useState<string | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState('');
+
+
     const router = useRouter();
-    
+
     const { isLoading, setLoading, user, setAlert } = useAppContext();
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { userId, role, name} = decodedParams;
+    const { userId, role, name } = decodedParams;
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -128,30 +131,15 @@ const ViewAssignedSuppliers = ({
         const params: any = { supId, catId, subCatId };
 
         const encodedParams = encodeRouteParams(params);
-
-        // router.push(`/supplier-scoreboard-summary/${supId}/${catId}/${subCatId}`);
         router.push(`/supplier-scoreboard-summary/${encodedParams}`);
     };
 
-    // Render the status column
-    const statusBodyTemplate = (rowData: any) => (
-        <span
-            style={{
-                color: rowData.status === 'Active' ? '#15B097' : 'red',
-                fontWeight: 'bold'
-            }}
-        >
-            {rowData.status}
-        </span>
-    );
 
     const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
 
-    const HistoryBodyTemplate = (rowData: any) => <Button icon="pi pi-eye" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.categoryId, rowData?.subCategoryId)} />;
-
 
     const onGlobalSearch = (e: any) => {
-        setGlobalSearch(e.target?.value); // Update limit
+        setGlobalSearch(e.target?.value);
         fetchData({ search: e.target?.value });
     };
 
@@ -181,7 +169,16 @@ const ViewAssignedSuppliers = ({
         };
     });
 
-    
+    const onStatusChange = (e: any) => {
+        const status = e.value;
+        setSelectedStatus(status);
+
+        fetchData({
+            filters: {
+                status: status
+            }
+        });
+    };
 
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
@@ -189,8 +186,11 @@ const ViewAssignedSuppliers = ({
                 <div>
                     <h3>Assigned Suppliers to <span className='font-bold font-italic'> {name}</span></h3>
                 </div>
+
                 <div className="flex gap-2 pb-3">
+                    <Dropdown value={selectedStatus} onChange={onStatusChange} options={getStatusOptions(role)} placeholder="Select Status" className="w-full md:w-10rem" showClear={!!selectedStatus} />
                     <div className="">{FieldGlobalSearch}</div>
+
                 </div>
             </div>
             <div>
@@ -198,8 +198,9 @@ const ViewAssignedSuppliers = ({
             </div>
 
             {isLoading || categoryLoader ? (
-
-                <TableSkeletonSimple columns={11} rows={limit} />
+                <div className='mt-3'>
+                    <TableSkeletonSimple columns={11} rows={limit} />
+                </div>
 
             ) : (
 
@@ -222,7 +223,7 @@ const ViewAssignedSuppliers = ({
                             filterPlaceholder: 'Search Supplier Name'
                         },
 
-                                                
+
                         {
                             header: 'Country',
                             field: 'country',
@@ -244,9 +245,9 @@ const ViewAssignedSuppliers = ({
                             field: role.toLowerCase() === 'approver' ? 'approvalStatus' : 'evaluationStatus',
                             bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
                             body: (rowData) => (
-                                <Badge 
-                                    value={role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus} 
-                                    severity={getSeverity(role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus)} 
+                                <Badge
+                                    value={role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus}
+                                    severity={getSeverity(role.toLowerCase() === 'approver' ? rowData.approvalStatus : rowData.evaluationStatus)}
                                 />
                             )
                         },
