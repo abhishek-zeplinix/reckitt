@@ -13,6 +13,7 @@ import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import React, { useEffect, useMemo, useState } from "react";
 import useDecodeParams from "@/hooks/useDecodeParams";
+import { get } from "lodash";
 
 const ApproverPage = ({
     params
@@ -21,13 +22,15 @@ const ApproverPage = ({
         encodedParams: string
     }
 }) => {
-    const { setAlert } = useAppContext();
+    const { setAlert, user } = useAppContext();
     const { hasPermission } = useAuth();
 
     // data fetching hooks
     const { departments } = useFetchDepartments();
 
-
+       // get user's assigned department
+       const userDepartment = get(user, 'RoleSpecificDetails.department.name', 'all');
+    
     // state management
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
     const [selectedPeriod, setSelectedPeriod] = useState<string | null>();
@@ -36,10 +39,9 @@ const ApproverPage = ({
     const [reload, setReload] = useState<boolean>(false);
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId, currentYear, assignmentId} = decodedParams;
+    const { supId, catId, subCatId, currentYear, assignmentId } = decodedParams;
 
     const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
-
     //  values
     const sortedDepartments: any = useMemo(() =>
         departments?.sort((a: any, b: any) => a.orderBy - b.orderBy) || []
@@ -49,6 +51,8 @@ const ApproverPage = ({
         sortedDepartments.find((d: any) => d.departmentId === activeTab)
         , [sortedDepartments, activeTab]);
 
+ 
+    
     // period calculations
     const periodOptions = useMemo(() => {
         if (!currentDepartment || !currentYear) return [];
@@ -58,13 +62,36 @@ const ApproverPage = ({
         );
     }, [currentDepartment, currentYear]);
 
+
     // initialize department and period
+    // useEffect(() => {
+    //     if (sortedDepartments.length > 0 && !activeTab) {
+    //         const initialDept = sortedDepartments[0];
+    //         setActiveTab(initialDept.departmentId);
+    //     }
+    // }, [sortedDepartments, activeTab]);
+
+
     useEffect(() => {
         if (sortedDepartments.length > 0 && !activeTab) {
-            const initialDept = sortedDepartments[0];
-            setActiveTab(initialDept.departmentId);
+            if (userDepartment !== 'all') {
+                // If user has a specific department, find and set it
+                const userDept = sortedDepartments.find((dept: any) => 
+                    dept.name.toLowerCase() === userDepartment.toLowerCase()
+                );
+                if (userDept) {
+                    setActiveTab(userDept.departmentId);
+                } else {
+                    // Fallback to first department if user's department not found
+                    setActiveTab(sortedDepartments[0].departmentId);
+                }
+            } else {
+                // If user has 'all' access, use first department (original behavior)
+                setActiveTab(sortedDepartments[0].departmentId);
+            }
         }
-    }, [sortedDepartments, activeTab]);
+    }, [sortedDepartments, activeTab, userDepartment]);
+
 
     // Set default period when department changes
     useEffect(() => {
@@ -119,6 +146,12 @@ const ApproverPage = ({
 
     const categoryKey = categoryMap[suppliers?.category?.categoryName?.toLowerCase()] || null;
 
+     // check if a department should be disabled
+     const isDepartmentDisabled = (department: any) => {
+        if (userDepartment === 'all') return false;
+        return department.name.toLowerCase() !== userDepartment.toLowerCase();
+    };
+
     return (
         <div className="grid" id="content-to-print">
             <div className="col-12">
@@ -128,21 +161,32 @@ const ApproverPage = ({
                 <div className="border">
                     <div className="p-1">
                         <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
-                            {sortedDepartments.map((department: any) => (
-                                <div
-                                    key={department.departmentId}
-                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.departmentId
-                                        ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'
+                        {sortedDepartments.map((department: any) => {
+                                const isDisabled = isDepartmentDisabled(department);
+                                return (
+                                    <div
+                                        key={department.departmentId}
+                                        className={`px-4 py-2 font-bold transition-all duration-300 ${
+                                            isDisabled ? 'text-gray-300 cursor-not-allowed' : 'cursor-pointer'
+                                        } ${activeTab === department.departmentId
+                                            ? 'text-primary-main border border-primary-main rounded-lg' 
+                                            : 'text-gray-500 border-none'
                                         }`}
-                                    style={{
-                                        border: activeTab === department.departmentId ? '1px solid #ec4899' : 'none',
-                                        borderRadius: activeTab === department.departmentId ? '12px' : '0'
-                                    }}
-                                    onClick={() => setActiveTab(department.departmentId)}
-                                >
-                                    {department.name.toUpperCase()}
-                                </div>
-                            ))}
+                                        style={{
+                                            border: activeTab === department.departmentId ? '1px solid #ec4899' : 'none',
+                                            borderRadius: activeTab === department.departmentId ? '12px' : '0',
+                                            opacity: isDisabled ? 0.5 : 1
+                                        }}
+                                        onClick={() => {
+                                            if (!isDisabled) {
+                                                setActiveTab(department.departmentId);
+                                            }
+                                        }}
+                                    >
+                                        {department.name.toUpperCase()}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
