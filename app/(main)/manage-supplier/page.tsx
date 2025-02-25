@@ -171,13 +171,14 @@ const ManageSupplierPage = () => {
             if (!params) {
                 params = { limit: limit, page: page };
             }
+            setPage(params.page);
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
             if (response.code == 'SUCCESS') {
-                setSuppliers(response.data);
 
                 if (response.total) {
                     setTotalRecords(response?.total);
+                    setSuppliers(response.data);
                 }
             } else {
                 setSuppliers([]);
@@ -771,7 +772,7 @@ const ManageSupplierPage = () => {
                                             placeholder="Start Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ borderRadius: '5px', borderColor: 'black' }}
+                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
                                         />
                                         <Calendar
                                             id="endDate"
@@ -781,7 +782,7 @@ const ManageSupplierPage = () => {
                                             placeholder="End Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ borderRadius: '5px', borderColor: 'black' }}
+                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
                                         />
                                     </div>
                                 </div>

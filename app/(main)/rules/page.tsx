@@ -249,7 +249,7 @@ const MainRules = () => {
                                         <label htmlFor="calendarInput" className="block mb-2 text-md mt-2">
                                             Select Effective Date:
                                         </label>
-                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" showIcon style={{ borderRadius: '5px', borderColor: 'black' }} />
+                                        <Calendar id="calendarInput" value={date} onChange={(e) => setDate(e.value as Date)} dateFormat="yy-mm-dd" placeholder="Select a date" className="h-6 text-sm" showIcon style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }} />
                                     </div>
                                 </div>
                                 <div className="col-6">
