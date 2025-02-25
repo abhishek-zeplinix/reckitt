@@ -473,57 +473,6 @@ const CreateNewRulesPage = () => {
                                     showIcon
                                     className="text-sm"
                                 />
-
-                                <style>{`
-                                    /* Ensure the input field height is correct */
-                                    .p-calendar .p-inputtext {
-                                        height: 30px !important;
-                                        font-size: 12px !important;
-                                        padding: 4px 8px !important;
-                                    }
-
-                                    /* Make sure the button wrapper (calendar trigger) is small */
-                                    .p-calendar .p-calendar-trigger {
-                                        height: 30px !important;
-                                        width: 30px !important;
-                                        min-width: 30px !important;
-                                        display: flex !important;
-                                        align-items: center !important;
-                                        justify-content: center !important;
-                                    }
-
-                                    /* Ensure the button itself takes the correct size */
-                                    .p-calendar .p-calendar-trigger .p-button {
-                                        height: 30px !important;
-                                        width: 30px !important;
-                                        min-width: 30px !important;
-                                        border-radius: 5px !important;
-                                        padding: 0 !important;
-                                        display: flex !important;
-                                        align-items: center !important;
-                                        justify-content: center !important;
-                                    }
-
-                                    /* Reduce the size of the calendar icon */
-                                    .p-calendar .p-calendar-trigger .p-button .p-button-icon {
-                                        font-size: 14px !important; /* Adjust icon size */
-                                        width: 14px !important;
-                                        height: 14px !important;
-                                    }
-
-                                    /* If the button is still too large, try reducing margin & padding */
-                                    .p-calendar .p-button {
-                                        padding: 4px !important;
-                                        min-width: 30px !important;
-                                        width: 30px !important;
-                                        height: 30px !important;
-                                    }
-
-                                    /* Reduce gap between input field and calendar button */
-                                    .p-calendar {
-                                        gap: 0 !important;
-                                    }
-                                `}</style>
                                 {formErrors.effectiveFrom && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.effectiveFrom}</p>}
                             </div>
                             <div className="field col-4">

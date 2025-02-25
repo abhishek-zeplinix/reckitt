@@ -449,6 +449,53 @@
   .p-calendar.p-invalid.p-component > .p-inputtext {
     border-color: #FCA5A5;
   }
+  .p-calendar .p-inputtext {
+    height: 32px !important;
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+}
+
+/* Make sure the button wrapper (calendar trigger) is small */
+.p-calendar .p-calendar-trigger {
+    height: 32px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Ensure the button itself takes the correct size */
+.p-calendar .p-calendar-trigger .p-button {
+    height: 32px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    border-radius: 5px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Reduce the size of the calendar icon */
+.p-calendar .p-calendar-trigger .p-button .p-button-icon {
+    font-size: 14px !important; /* Adjust icon size */
+    width: 20px !important;
+    height: 14px !important;
+}
+
+/* If the button is still too large, try reducing margin & padding */
+.p-calendar .p-button {
+    padding: 4px !important;
+    min-width: 40px !important;
+    width: 40px !important;
+    height: 30px !important;
+}
+
+/* Reduce gap between input field and calendar button */
+.p-calendar {
+    gap: 0 !important;
+}
 
   .p-datepicker {
     padding: 0.5rem;
