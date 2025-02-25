@@ -171,13 +171,14 @@ const ManageSupplierPage = () => {
             if (!params) {
                 params = { limit: limit, page: page };
             }
+            setPage(params.page);
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
             if (response.code == 'SUCCESS') {
-                setSuppliers(response.data);
 
                 if (response.total) {
                     setTotalRecords(response?.total);
+                    setSuppliers(response.data);
                 }
             } else {
                 setSuppliers([]);

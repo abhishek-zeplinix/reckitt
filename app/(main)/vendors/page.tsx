@@ -168,6 +168,7 @@ const ManageVendorsPage = () => {
                 params = { limit: limit, page: page };
             }
             setLoading(true);
+            setPage(params.page);
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
             if (response.code == 'SUCCESS') {

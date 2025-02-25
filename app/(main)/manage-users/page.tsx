@@ -84,6 +84,7 @@ const ManageUsersPage = () => {
             if (!params) {
                 params = { limit: limit, page: page };
             }
+            setPage(params.page);
             setLoading(true);
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/user?${queryString}`);
