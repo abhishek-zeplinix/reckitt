@@ -27,7 +27,8 @@ const SupplierEvaluationTableApprover = ({
   isEvaluatedData,
   isTableLoading,
   catId,
-  subCatId
+  subCatId,
+  assignmentId
 }: any) => {
 
   const [tableData, setTableData] = useState<any>(supplierScoreData);
@@ -37,7 +38,6 @@ const SupplierEvaluationTableApprover = ({
   const [totalScore, setTotalScore] = useState<any>(0);
   const [comments, setComments] = useState('');
   const [capaData, setCapaData] = useState<any[]>([]);
-  const [capaDataCount, setCapaDataCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState<any>('pending');
   const [initializing, setInitializing] = useState(true);
   const [noData, setNoData] = useState(false);
@@ -302,6 +302,7 @@ const SupplierEvaluationTableApprover = ({
     setLoading(true);
     const payload = {
       approverId: userId,
+      assignmentId: Number(assignmentId),
       supplierScoreId: tableData?.supplierScoreId,
       depId: Number(departmentId),
       catId: Number(catId),

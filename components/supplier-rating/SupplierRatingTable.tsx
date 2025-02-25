@@ -7,7 +7,6 @@ import CapaRequiredTable from './CapaRequiredTable';
 import { PostCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import { Badge } from 'primereact/badge';
-import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
@@ -26,6 +25,7 @@ const SupplierEvaluationTable = ({ rules,
   catId,
   subCatId,
   supId,
+  assignmentId,
   rulesLoading,
   scoreLoading
 }: any) => {
@@ -500,6 +500,7 @@ const SupplierEvaluationTable = ({ rules,
 
     const apiData = {
       supId,
+      assignmentId,
       departmentId,
       department,
       categoryId: catId,

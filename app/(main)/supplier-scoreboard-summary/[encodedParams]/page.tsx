@@ -51,19 +51,17 @@ const SupplierScoreboardTables = ({
     const [evaluationData, setEvaluationData] = useState([]);
 
     const [isPopupLoading, setIsPopupLoading] = useState(false);
-    const [loadingCell, setLoadingCell] = useState<{ departmentId: string, period: string } | null>(null);
 
     const chartRef = useRef(null);
     const { hasPermission, isSupplier } = useAuth();
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId } = decodedParams;
+    const { supId, catId, subCatId,  assignmentId} = decodedParams;
     const { suppliers }: any = useFetchSingleSupplierDetails({ catId, subCatId, supId });
 
     useEffect(() => {
         fetchData();
     }, [selectedYear]);
-
-
+    
 
     const fetchData = async (params?: any) => {
         setLoading(false);
@@ -303,13 +301,13 @@ const SupplierScoreboardTables = ({
 
                 <div className="flex-1 justify-content-start gap-2">
                     {hasPermission('approve_score') && (
-                        <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, catId, subCatId, currentYear: selectedYear })}/approver`}>
+                        <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, assignmentId, catId, subCatId, currentYear: selectedYear })}/approver`}>
                             <Button label="View Inputs" outlined className="!font-light text-color-secondary ml-4" />
                         </Link>
                     )}
 
                     {hasPermission('evaluate_score') && (
-                        <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, catId, subCatId, currentYear: selectedYear })}/supplier-rating`}>
+                        <Link href={`/supplier-scoreboard-summary/${encodeRouteParams({ supId, assignmentId, catId, subCatId, currentYear: selectedYear })}/supplier-rating`}>
                             <Button label="Add Inputs" outlined className="!font-light text-color-secondary ml-4" />
                         </Link>
                     )}

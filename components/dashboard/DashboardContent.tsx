@@ -704,6 +704,7 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
                         </div>
                     </div>
                 </div>
+                <HistoricalPerformanceSkeleton />
                 <div>{isLoading ? <HistoricalPerformanceSkeleton /> : WaveGraphs}</div>
             </>
 
