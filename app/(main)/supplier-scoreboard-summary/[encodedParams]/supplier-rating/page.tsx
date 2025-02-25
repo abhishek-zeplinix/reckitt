@@ -22,10 +22,14 @@ const SupplierRatingPage = ({
     }
 }) => {
 
-    const [activeTab, setActiveTab] = useState('PROCUREMENT');
+    const [activeTab, setActiveTab] = useState('');
+    const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
+
+
+    // const [activeTab, setActiveTab] = useState('PROCUREMENT');
     const [selectedPeriod, setSelectedPeriod] = useState();
     const [rules, setRules] = useState([]);
-    const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
+    // const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
     const [supplierData, setSupplierData] = useState<any>();
     const [periodOptions, setPeriodOptions] = useState<any>([]);
     const [supplierScoreData, setSupplierScoreData] = useState<any>(null);
@@ -33,7 +37,7 @@ const SupplierRatingPage = ({
 
     const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
 
-    const {user, isLoading, setLoading, setAlert } = useAppContext();
+    const { user, isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
 
@@ -44,8 +48,31 @@ const SupplierRatingPage = ({
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-    console.log(get(user, 'RoleSpecificDetails.department.name', 'all'));
-    
+    const userDepartment = get(user, 'RoleSpecificDetails.department.name', 'all');
+
+
+    useEffect(() => {
+        if (departments && departments.length > 0 && !selectedDepartment) {
+            let deptToSelect: any;
+
+            if (userDepartment !== 'all') {
+                // Find the department that matches the user's department name
+                const userDept = departments.find((dept: any) =>
+                    dept.name.toLowerCase() === userDepartment.toLowerCase()
+                );
+
+                deptToSelect = userDept || departments.find((d: any) => d.orderBy === 1) || departments[0];
+            } else {
+                // Default to first department (original behavior)
+                deptToSelect = departments.find((d: any) => d.orderBy === 1) || departments[0];
+            }
+
+            setSelectedDepartment(deptToSelect.departmentId);
+            setActiveTab(deptToSelect.name);
+        }
+    }, [departments, userDepartment, selectedDepartment]);
+
+
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
@@ -236,6 +263,10 @@ const SupplierRatingPage = ({
         return null;
     };
 
+    const isDepartmentDisabled = (department: any) => {
+        if (userDepartment === 'all') return false;
+        return department.name.toLowerCase() !== userDepartment.toLowerCase();
+    };
 
     const dataPanel = () => {
         return (
@@ -244,24 +275,30 @@ const SupplierRatingPage = ({
                     <div className="p-1">
                         <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
                             {departments
-                                ?.sort((a: any, b: any) => a.orderBy - b.orderBy) // Sort by orderBy property
-                                .map((department: any) => (
-                                    <div
-                                        key={department.name}
-                                        className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === department.name ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'}`}
-                                        style={{
-                                            border: activeTab === department.name ? '1px solid #ec4899' : 'none',
-                                            borderRadius: activeTab === department.name ? '12px' : '0'
-                                        }}
-                                        onClick={() => {
-                                            setActiveTab(department.name); // Set activeTab state
-                                            setSelectedDepartment(department.departmentId); // Set departmentID state
-                                            // setSupplierScoreData(null);
-                                        }}
-                                    >
-                                        {department.name.toUpperCase()}
-                                    </div>
-                                ))}
+                                ?.sort((a: any, b: any) => a.orderBy - b.orderBy)
+                                .map((department: any) => {
+                                    const isDisabled = isDepartmentDisabled(department);
+                                    return (
+                                        <div
+                                            key={department.name}
+                                            className={`px-4 py-2 font-bold transition-all duration-300 ${isDisabled ? 'text-gray-300 cursor-not-allowed' : 'cursor-pointer'
+                                                } ${activeTab === department.name ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'}`}
+                                            style={{
+                                                border: activeTab === department.name ? '1px solid #ec4899' : 'none',
+                                                borderRadius: activeTab === department.name ? '12px' : '0',
+                                                opacity: isDisabled ? 0.5 : 1
+                                            }}
+                                            onClick={() => {
+                                                if (!isDisabled) {
+                                                    setActiveTab(department.name);
+                                                    setSelectedDepartment(department.departmentId);
+                                                }
+                                            }}
+                                        >
+                                            {department.name.toUpperCase()}
+                                        </div>
+                                    );
+                                })}
                         </div>
                     </div>
                     <hr />
