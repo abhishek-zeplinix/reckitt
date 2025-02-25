@@ -7,17 +7,18 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { useAuth, withAuth } from '@/layout/context/authContext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import SupplierSummaryCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryCard';
 import { categoriesMap } from '@/utils/constant';
+import { get } from 'lodash';
 
 
 const SupplierRatingPage = ({
     params
 }: {
-    params: { 
-        encodedParams: string 
+    params: {
+        encodedParams: string
     }
 }) => {
 
@@ -31,19 +32,20 @@ const SupplierRatingPage = ({
     const [reload, setReload] = useState<boolean>(false);
 
     const [scoreDataLoading, setScoreDataLoading] = useState<boolean>(false)
-    
-    const { isLoading, setLoading, setAlert } = useAppContext();
+
+    const {user, isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
 
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId, currentYear, assignmentId} = decodedParams;
-    
+    const { supId, catId, subCatId, currentYear, assignmentId } = decodedParams;
+
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
 
     const category: any = categoriesMap[categoryName] || null; // default to null if no match
 
-
+    console.log(get(user, 'RoleSpecificDetails.department.name', 'all'));
+    
     //fetch indivisual supplier data
     const fetchSupplierData = async () => {
         try {
@@ -116,7 +118,7 @@ const SupplierRatingPage = ({
             return response.data;
         } catch (error) {
             setAlert('error', 'Failed to fetch rules');
-        }finally{
+        } finally {
             setLoading(false)
         }
     };
@@ -175,7 +177,7 @@ const SupplierRatingPage = ({
         fetchRulesData();
     }, [selectedDepartment, selectedPeriod, reload]);
 
-   
+
     useEffect(() => {
         if (departments) {
             const currentDepartment = (departments as any[])?.find((dep) => dep.departmentId === selectedDepartment);
@@ -266,37 +268,37 @@ const SupplierRatingPage = ({
 
                     <div className="flex justify-content-between">
                         <Dropdown value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.value)} options={periodOptions} optionLabel="label" placeholder="Select Period" className="w-full md:w-14rem" />
-                      
-                    </div>
-                        <SupplierEvaluationTable
-                            rules={rules} // Always pass rules
-                            supplierScoreData={supplierScoreData}
-                            category={category}
-                            evaluationPeriod={selectedPeriod}
-                            categoryName={categoryName}
-                            departmentId={selectedDepartment}
-                            department={activeTab}
-                            isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
-                            onSuccess={() => setReload(!reload)}
-                            selectedPeriod={selectedPeriod}
-                            totalScoreEvaluated={
-                                supplierData?.supplierScores?.find(
-                                    (score: any) =>
-                                        score.departmentId === selectedDepartment &&
-                                        score.evalutionPeriod === selectedPeriod
-                                )?.totalScore
-                                
-                            }
-                            catId={catId}
-                            subCatId={subCatId}
-                            supId={supId}
-                            assignmentId={assignmentId}
-                            rulesLoading = {isLoading}
-                            scoreLoading = {scoreDataLoading}
-                        // key={`${selectedDepartment}-${selectedPeriod}`}
 
-                        />
-                             
+                    </div>
+                    <SupplierEvaluationTable
+                        rules={rules} // Always pass rules
+                        supplierScoreData={supplierScoreData}
+                        category={category}
+                        evaluationPeriod={selectedPeriod}
+                        categoryName={categoryName}
+                        departmentId={selectedDepartment}
+                        department={activeTab}
+                        isEvaluatedData={!!supplierScoreData?.length} // Determine if we have evaluated data
+                        onSuccess={() => setReload(!reload)}
+                        selectedPeriod={selectedPeriod}
+                        totalScoreEvaluated={
+                            supplierData?.supplierScores?.find(
+                                (score: any) =>
+                                    score.departmentId === selectedDepartment &&
+                                    score.evalutionPeriod === selectedPeriod
+                            )?.totalScore
+
+                        }
+                        catId={catId}
+                        subCatId={subCatId}
+                        supId={supId}
+                        assignmentId={assignmentId}
+                        rulesLoading={isLoading}
+                        scoreLoading={scoreDataLoading}
+                    // key={`${selectedDepartment}-${selectedPeriod}`}
+
+                    />
+
 
                 </div>
             </>
