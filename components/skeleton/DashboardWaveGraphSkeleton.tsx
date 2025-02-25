@@ -30,8 +30,8 @@ const HistoricalPerformanceSkeleton = () => {
                 <div className="flex gap-6 px-4">
                     {[...Array(4)].map((_, index) => (
                         <div key={index} className="flex align-items-center mr-4 border-right-1 pr-12 p-2 w-full mb-2 border-gray-400">
-                            <Skeleton width="2rem" height="2rem" className="border-round-md mr-2" />
-                            <Skeleton width="180px" height="16px" />
+                            <Skeleton width="5rem" height="2rem" className="border-round-md mr-2" />
+                            <Skeleton width="5rem" height="16px" />
                         </div>
                     ))}
                 </div>

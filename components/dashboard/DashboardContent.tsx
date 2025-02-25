@@ -1,9 +1,6 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Chart } from 'primereact/chart';
 import { Dropdown } from 'primereact/dropdown';
 import Image from 'next/image';
@@ -15,6 +12,7 @@ import SupplierPerformanceSkeleton from '@/components/skeleton/SupplierPerforman
 import HistoricalPerformanceSkeleton from '@/components/skeleton/DashboardWaveGraphSkeleton';
 import TotalAssessmentSkeleton from '@/components/skeleton/DashboardDonutSkeleton';
 import { GetCall } from '@/app/api-config/ApiKit';
+import SupplierPerformance from './SupplierPerformanceTopBottom';
 
 interface DashboardContentProps {
     filtersVisible: boolean;
@@ -22,19 +20,16 @@ interface DashboardContentProps {
 
 }
 
-const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentProps) => {
+const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardContentProps) => {
 
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [selectedCity, setSelectedCity] = useState(null);
     const { isLoading, setLoading, setScroll, setAlert } = useAppContext();
     const [tilesData, setTilesData] = useState<Tile[]>([]);
     const [secondTilesData, setSecondTilesData] = useState<Tile[]>([]);
     const [thirdTilesData, setThirdTilesData] = useState<Tile[]>([]);
     const [chartData, setChartData] = useState<Tile[]>([]);
-    const [topSupplierData, setTopSupplierData] = useState([]);
-    const [bottomSupplierData, setBottomSupplierData] = useState([]);
 
     const [pieData, setPieData] = useState({
         labels: ['Pending', 'In-progress', 'Completed'],
@@ -56,9 +51,8 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
 
     useEffect(() => {
         fetchData();
-        fetchTopData();
-        fetchBottomData();
     }, []);
+
     const fetchData = async (params?: any) => {
         try {
             if (!params) {
@@ -96,9 +90,6 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
                     ]
                 }));
 
-                if (response.total) {
-                    setTotalRecords(response?.total);
-                }
             } else {
                 setTilesData([]);
             }
@@ -108,53 +99,7 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
             setLoading(false);
         }
     };
-    const fetchTopData = async (params?: any) => {
-        try {
-            if (!params) {
-                params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'desc' };
-            }
-            setLoading(true);
-            const queryString = buildQueryParams(params);
 
-            const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
-            if (response.code == 'SUCCESS') {
-                setTopSupplierData(response.data);
-
-                if (response.total) {
-                    setTotalRecords(response?.total);
-                }
-            } else {
-                setTopSupplierData([]);
-            }
-        } catch (e) {
-            setAlert('error', 'Something went wrong');
-        } finally {
-            setLoading(false);
-        }
-    };
-    const fetchBottomData = async (params?: any) => {
-        try {
-            if (!params) {
-                params = { limit: '5', page: page, sortBy: 'asc', sortOrder: 'asc' };
-            }
-            setLoading(true);
-            const queryString = buildQueryParams(params);
-            const response: CustomResponse = await GetCall(`/company/dashboard-data/supplier-performance?${queryString}`);
-            if (response.code == 'SUCCESS') {
-                setBottomSupplierData(response.data);
-
-                if (response.total) {
-                    setTotalRecords(response?.total);
-                }
-            } else {
-                setBottomSupplierData([]);
-            }
-        } catch (e) {
-            setAlert('error', 'Something went wrong');
-        } finally {
-            setLoading(false);
-        }
-    };
     const mapApiDataToTiles = (apiData: any): Tile[] => {
         const evaluationData = apiData.EvaluationData?.[0] || {}; // Get the first item in the EvaluationData array or an empty object
 
@@ -214,15 +159,8 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
             }
         ];
     };
-    const fourthData = [
-        {
-            title: 'Task Management',
-            value: 'Click here to view tasks',
-            change: `+ 0`,
-            changeClass: 'good-text',
-            link: '/manage-supplier'
-        }
-    ];
+
+
     const cities = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -240,27 +178,6 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
         { label: 'Supplier Name', placeholder: 'Select Supplier' }
     ];
 
-    const dashes = Array(22).fill('-');
-
-    const thirdDataa = (apiData: any) => {
-        const evaluationData = apiData.EvaluationData?.[0] || {};
-        return [evaluationData.pendingAssessments || 0, evaluationData.inProgressAssessments || 0, evaluationData.completedAssessments || 0];
-    };
-
-    // const data = {
-    //     labels: ['Pending ', 'In-progress', 'Completed '],
-    //     datasets: [
-    //         {
-    //             data: [
-    //                 parseInt(pieData[0].pendingAssessments),
-    //                 parseInt(pieData[0].inProgressAssessments),
-    //                 parseInt(pieData[0].completedAssessments)
-    //             ], // Values for the donut chart
-    //             backgroundColor: ['#FFE434', '#3A60F8', '#78C47B'], // Corresponding colors
-    //             hoverBackgroundColor: ['#FFE434', '#3A60F8', '#78C47B']
-    //         }
-    //     ]
-    // };
 
     const options = {
         plugins: {
@@ -276,19 +193,7 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
         maintainAspectRatio: false
     };
 
-    const getScoreColor = (score: any) => {
-        const scoreValue = parseInt(score); // Assuming score is a percentage string like '100%'
 
-        if (scoreValue >= 90) {
-            return '#2196F3';
-        } else if (scoreValue >= 70) {
-            return '#4CAF50';
-        } else if (scoreValue >= 50) {
-            return '#FF9800';
-        } else {
-            return '#F44336';
-        }
-    };
     const donutGraph = () => {
         return (
             <div className="surface-0 p-4 border-round shadow-2">
@@ -661,7 +566,7 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
 
     const dataFilters = () => {
         return (
-            <div className={`px-4 py-4  p-m-3 transition-all ${filtersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} `}>
+            <div className={`px-4 py-4  p-m-3 filters-container ${filtersVisible ? 'filters-container-visible' : ''} `}>
                 <div className="relative border-bottom-1 border-300">
                     <h3>Filters</h3>
                     <span onClick={() => setFiltersVisible(false)} className="absolute top-0 right-0 border-0 bg-transparent">
@@ -790,136 +695,15 @@ const DashboardContent = ({filtersVisible, setFiltersVisible}: DashboardContentP
                             <div className="py-3">
                                 <div className=" gap-3 pr-2">
                                     {/* Top 5 Suppliers */}
-                                    {isLoading ? (
-                                        <SupplierPerformanceSkeleton />
-                                    ) : (
-                                        <div className="col-12 px-2 p-0 py-2 ">
-                                            <div className="p-4 border-round-xl shadow-2 surface-card ">
-                                                <h3 className="text-900 font-bold mb-0">Top 5 Suppliers</h3>
-                                                <div className="">
-                                                    <DataTable
-                                                        className="mb-3 mt-3"
-                                                        value={topSupplierData}
-                                                        paginator={false} // Enable pagination
-                                                        rows={limit} // Items per page
-                                                        totalRecords={totalRecords} // Total records from API response
-                                                        responsiveLayout="scroll" // Makes the table responsive
-                                                        showGridlines={false} // Optional: Adds gridlines for better readability
-                                                        style={{ fontSize: '12px' }}
-                                                    >
-                                                        <Column
-                                                            header="Sr.No."
-                                                            body={(data: any, options: any) => {
-                                                                const normalizedRowIndex = options.rowIndex % limit;
-                                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                                                return <span>{srNo}</span>;
-                                                            }}
-                                                            style={{ minWidth: '50px', maxWidth: '50px' }}
-                                                        />
-                                                        <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                        <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
-                                                        <Column
-                                                            header="Score"
-                                                            field="Score"
-                                                            style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                            body={(rowData) => {
-                                                                const roundedScore = Math.round(rowData.Score);
-                                                                return (
-                                                                    <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
-                                                                        {roundedScore}%
-                                                                    </span>
-                                                                );
-                                                            }}
-                                                            className="text-center"
-                                                        />
-                                                    </DataTable>
-                                                </div>
-                                                <Link href="/manage-supplier">
-                                                    <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
-                                                        <span className="flex align-items-center gap-2">View All</span>
-                                                        <span className="flex flex-row gap-2">
-                                                            {dashes.map((dash, index) => (
-                                                                <span key={index}>{dash}</span>
-                                                            ))}
-                                                        </span>
-                                                        <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
-                                                            <i className="pi pi-arrow-right"></i>
-                                                        </span>
-                                                    </button>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Bottom 5 Suppliers */}
-                                    {isLoading ? (
-                                        <SupplierPerformanceSkeleton />
-                                    ) : (
-                                        <div className="col-12 px-2 p-0 py-2 ">
-                                            <div className="p-4 border-round-xl shadow-2 surface-card ">
-                                                <h3 className="text-900 font-bold mb-0">Bottom 5 Suppliers</h3>
-                                                <div className="">
-                                                    <DataTable
-                                                        className="mb-3 mt-3"
-                                                        value={bottomSupplierData}
-                                                        paginator={false} // Enable pagination
-                                                        rows={limit} // Items per page
-                                                        totalRecords={totalRecords} // Total records from API response
-                                                        responsiveLayout="scroll" // Makes the table responsive
-                                                        showGridlines={false} // Optional: Adds gridlines for better readability
-                                                        style={{ fontSize: '12px' }}
-                                                    >
-                                                        <Column
-                                                            header="Sr.No."
-                                                            body={(data: any, options: any) => {
-                                                                const normalizedRowIndex = options.rowIndex % limit;
-                                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                                                return <span>{srNo}</span>;
-                                                            }}
-                                                            style={{ minWidth: '60px', maxWidth: '60px' }}
-                                                        />
-                                                        <Column header="Name" field="supplier.supplierName" style={{ minWidth: '100px', maxWidth: '100px' }} />
-                                                        <Column header="Region" field="supplier.location" style={{ minWidth: '60px', maxWidth: '60px' }} />
-                                                        <Column
-                                                            header="Score"
-                                                            field="Score"
-                                                            style={{ minWidth: '40px', maxWidth: '40px' }}
-                                                            body={(rowData) => {
-                                                                const roundedScore = Math.round(rowData.Score);
-                                                                return (
-                                                                    <span className="font-bold" style={{ color: getScoreColor(roundedScore) }}>
-                                                                        {roundedScore}%
-                                                                    </span>
-                                                                );
-                                                            }}
-                                                            className="text-center"
-                                                        />
-                                                    </DataTable>
-                                                </div>
-                                                <Link href="/manage-suppliers">
-                                                    <button className="flex align-items-center justify-content-between p-2 px-4 border-round-5xl border-transparent text-white w-full dashboardButton shadow-2 hover:shadow-4 transition-duration-300 cursor-pointer">
-                                                        <span className="flex align-items-center gap-2">View All</span>
-                                                        <span className="flex flex-row gap-2">
-                                                            {dashes.map((dash, index) => (
-                                                                <span key={index}>{dash}</span>
-                                                            ))}
-                                                        </span>
-                                                        <span className="ml-3 flex align-items-center justify-content-center w-2rem h-2rem bg-white text-primary-main border-circle shadow-2">
-                                                            <i className="pi pi-arrow-right"></i>
-                                                        </span>
-                                                    </button>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    )}
-
+                                    <SupplierPerformance
+                                        limit={5}
+                                    />
                                     <div className="col-12 px-2 p-0 py-2  ">{isLoading ? <TotalAssessmentSkeleton /> : DonutGraph}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div>{isLoading ? <HistoricalPerformanceSkeleton /> : WaveGraphs}</div>
             </>
 
