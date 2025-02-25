@@ -53,9 +53,9 @@ const SupplierEvaluationTableApprover = ({
   const [approvalStatusDisplay, setApprovalStatusDisplay] = useState<string | null>(null);
   const [isAlreadyApprovedOrRejected, setIsAlreadyApprovedOrRejected] = useState(false); // to control button visibility
 
-  const { userId } = useAuth();
+  const { userId, isSuperAdmin } = useAuth();
   const { setAlert, setLoading, isLoading } = useAppContext();
-
+  
   useEffect(() => {
     setApproverComment('')
     setRemainingChars(250)
@@ -525,7 +525,7 @@ const SupplierEvaluationTableApprover = ({
                 }}
                 value={approverComment}
                 placeholder='Add comments'
-                disabled={isAlreadyApprovedOrRejected}
+                disabled={isAlreadyApprovedOrRejected || isSuperAdmin()}
               />
               <div className="flex justify-between mt-1">
                 <small className="text-red-500">{rejectionError}</small>
@@ -546,8 +546,8 @@ const SupplierEvaluationTableApprover = ({
               <Badge value={`Status: ${approvalStatusDisplay}`} severity={getSeverity(approvalStatusDisplay || 'info')} className="mr-3 mb-2" />
             ) : (
               <>
-                <Button label="Approve" className='good border-none  hover:text-white' onClick={handleApprove} disabled={remainingChars <= 0} />
-                <Button label="Reject" className='critical border-none hover:text-white' onClick={handleRejectDialogOpen} disabled={remainingChars <= 0} />
+                <Button label="Approve" className='good border-none  hover:text-white' onClick={handleApprove} disabled={remainingChars <= 0 || isSuperAdmin()} />
+                <Button label="Reject" className='critical border-none hover:text-white' onClick={handleRejectDialogOpen} disabled={remainingChars <= 0 || isSuperAdmin()} />
               </>
             )}
           </div>
