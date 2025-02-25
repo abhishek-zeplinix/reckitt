@@ -148,19 +148,19 @@ const FilterDropdowns = ({ onFilterChange, suppliers, departments, category }: a
     return (
         <div style={containerStyle}>
             <div style={itemStyle}>
-                <Dropdown value={selectedSupplier} onChange={handleSupplierChange} options={suppliersToList} optionLabel="supplierName" optionValue="supId" placeholder="-- Select Supplier --" style={fixedDropdown} />
+                <Dropdown value={selectedSupplier} onChange={handleSupplierChange} options={suppliersToList} optionLabel="supplierName" optionValue="supId" placeholder="Select Supplier" style={fixedDropdown} showClear={!!selectedSupplier}/>
             </div>
             <div style={itemStyle}>
-                <Dropdown value={selectedDepartment} onChange={handleDepartmentChange} options={departments} optionLabel="name" placeholder="-- Select Department --" style={fixedDropdown} />
+                <Dropdown value={selectedDepartment} onChange={handleDepartmentChange} options={departments} optionLabel="name" placeholder="Select Department" style={fixedDropdown} showClear={!!selectedDepartment}/>
             </div>
             <div style={itemStyle}>
-                <Dropdown value={selectedPeriod} onChange={handlePeriodChange} options={periodOptions} optionLabel="label" placeholder="-- Select Quarter --" style={fixedDropdown} />
+                <Dropdown value={selectedPeriod} onChange={handlePeriodChange} options={periodOptions} optionLabel="label" placeholder="Select Quarter" style={fixedDropdown} showClear={!!selectedPeriod}/>
             </div>
             <div style={itemStyle}>
-                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="-- Select Category --" style={fixedDropdown} />
+                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="Select Category" style={fixedDropdown} showClear={!!selectedCategory}/>
             </div>
             <div style={itemStyle}>
-                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="-- Select Status --" style={fixedDropdown} />
+                <Dropdown value={selectedCategory} onChange={handleCategoryChange} options={categoryOptions} placeholder="Select Status" style={fixedDropdown} showClear={!!selectedCategory}/>
             </div>
         </div>
     );
