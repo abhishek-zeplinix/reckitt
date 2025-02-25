@@ -244,7 +244,6 @@ const ManageSupplierAddEditPage = () => {
                                         dateFormat="dd-mm-yy"
                                         placeholder="Select a date"
                                         showIcon
-                                        style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
                                     />
                                     {formErrors.reportingMonth && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.reportingMonth}</p>}
                                 </div>
@@ -306,7 +305,6 @@ const ManageSupplierAddEditPage = () => {
                                         dateFormat="dd-mm-yy"
                                         placeholder="Select a date"
                                         showIcon
-                                        style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
                                     />
                                     {formErrors.reportingMonth && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.reportingMonth}</p>}
                                 </div>
@@ -318,8 +316,7 @@ const ManageSupplierAddEditPage = () => {
                                         onChange={(e) => onInputChange('reportingMonth', e.target.value ? e.target.value.toISOString() : '')}
                                         dateFormat="dd-mm-yy"
                                         placeholder="Select a date"
-                                        showIcon
-                                        style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
+                                        showIcon                 
                                     />
                                     {formErrors.reportingMonth && <p style={{ color: 'red', fontSize: '10px' }}>{formErrors.reportingMonth}</p>}
                                 </div>
