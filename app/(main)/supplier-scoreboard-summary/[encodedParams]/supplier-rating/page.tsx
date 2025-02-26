@@ -1,10 +1,9 @@
 'use client';
 import { GetCall } from '@/app/api-config/ApiKit';
-import TableSkeleton from '@/components/skeleton/TableSkeleton';
 import SupplierEvaluationTable from '@/components/supplier-rating/SupplierRatingTable';
 import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { useAppContext } from '@/layout/AppWrapper';
-import { useAuth, withAuth } from '@/layout/context/authContext';
+import { withAuth } from '@/layout/context/authContext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -40,7 +39,7 @@ const SupplierRatingPage = ({
     const { user, isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
-
+    
     const decodedParams = useDecodeParams(params.encodedParams);
     const { supId, catId, subCatId, currentYear, assignmentId } = decodedParams;
 

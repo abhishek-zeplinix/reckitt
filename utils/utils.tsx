@@ -700,6 +700,7 @@ export const renderColorStatus = (status: string) => {
 };
 
 export const getSeverity = (status: string) => {
+    
     switch (status?.toUpperCase()) {
         case 'IN PROGRESS':
             return 'warning';
