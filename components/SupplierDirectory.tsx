@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Category, CustomResponse, Supplier } from '@/types';
 import { GetCall } from '../app/api-config/ApiKit';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
@@ -12,6 +12,7 @@ import CustomDataTable, { CustomDataTableRef } from './CustomDataTable';
 import { encodeRouteParams } from '@/utils/base64';
 import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
 import { get } from 'lodash';
+import { Badge } from 'primereact/badge';
 
 const SupplierDirectory = () => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
@@ -130,7 +131,7 @@ const SupplierDirectory = () => {
                     subCategoryId: supplier.procurementCategoryId,
                     subCategoryName: supplier.subCategories.subCategoryName
                 },
-            
+
             };
         });
     };
@@ -161,7 +162,7 @@ const SupplierDirectory = () => {
     };
     const navigateToSummary = (supId: number, catId: number, subCatId: number, assignmentId: number) => {
 
-        const params: any = { supId, catId, subCatId, assignmentId};
+        const params: any = { supId, catId, subCatId, assignmentId };
 
         const encodedParams = encodeRouteParams(params);
 
@@ -177,10 +178,6 @@ const SupplierDirectory = () => {
         }
     }, [userRole]);
 
-  
-
-    // const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
-    // const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.supplierCategoryId, rowData?.procurementCategoryId)} />;
 
     const evaluateBodyTemplate = (rowData: any) => {
         const categoryId = rowData?.category?.categoryId || rowData?.supplierCategoryId;
@@ -188,13 +185,13 @@ const SupplierDirectory = () => {
         const assignmentId = rowData?.assignmentId;
 
         return (
-          <Button 
-            icon="pi pi-plus" 
-            className="p-button-rounded p-button-pink-400" 
-            onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId, assignmentId)} 
-          />
+            <Button
+                icon="pi pi-plus"
+                className="p-button-rounded p-button-pink-400"
+                onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId, assignmentId)}
+            />
         );
-      };
+    };
 
     const onCategorychange = (e: any) => {
         setSelectedCategory(e.value); // Update limit
@@ -254,6 +251,19 @@ const SupplierDirectory = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
+
+    const statusBodyTemplate = (rowData: any, field: 'isEvaluatedStatus' | 'isApprovalStatus') => {
+        return (
+            <div className="flex align-items-center">
+                <Badge
+                    value={rowData?.[field]}
+                    severity={getSeverity(rowData?.[field])}
+                />
+            </div>
+        );
+    };
+
+
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
             <div className="flex justify-content-between items-center border-b">
@@ -292,43 +302,38 @@ const SupplierDirectory = () => {
                         {
                             header: 'Supplier Name',
                             field: 'supplierName',
-                            bodyStyle: { minWidth: 120 },
+                            bodyStyle: { minWidth: 30, maxWidth: 50 },
                             filterPlaceholder: 'Search Supplier Name'
                         },
                         {
                             header: 'Status',
                             field: 'status',
-                            bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
+                            bodyStyle: { minWidth: 30, maxWidth: 50, fontWeight: 'bold' },
                             body: (rowData) => <span style={{ color: rowData.isBlocked ? 'red' : '#15B097' }}>{rowData.isBlocked ? 'Inactive' : 'Active'}</span>
                         },
-        
-                        // {
-                        //     header: 'Supplier Status',
-                        //     field: '',
-                        //     style: { minWidth: 150, maxWidth: 150 },
-                        //     body: (rowData: any) => {
-                        //         const isCompleted = rowData.isEvaluated && rowData.isApproved;
-                        //         return (
-                        //             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        //                 <span style={{ color: isCompleted ? 'green' : 'orange', fontWeight: 'bold' }}>
-                        //                     {isCompleted ? 'Completed' : 'Pending'}
-                        //                 </span>
-                        //                 <i className="pi pi-info-circle" style={{ color: 'red', cursor: 'pointer' }} title="Supplier evaluation status"></i>
-                        //             </div>
-                        //         );
-                        //     }
-                        // },
                         {
                             header: 'Category',
                             field: 'category.categoryName',
-                            bodyStyle: { minWidth: 120 },
+                            bodyStyle: { minWidth: 30, maxWidth: 50 },
                             filterPlaceholder: 'Search Supplier Name'
                         },
                         {
                             header: 'Sub Category',
                             field: 'subCategories.subCategoryName',
-                            bodyStyle: { minWidth: 120 },
+                            bodyStyle: { minWidth: 60, maxWidth: 70 },
                             filterPlaceholder: 'Search Supplier Name'
+                        },
+                        {
+                            header: 'Evaluation',
+                            body: (rowData) => statusBodyTemplate(rowData, 'isEvaluatedStatus'),
+                            style: { minWidth: 80, maxWidth: 90 },
+                            className: 'text-center'
+                        },
+                        {
+                            header: 'Approval',
+                            body: (rowData) => statusBodyTemplate(rowData, 'isApprovalStatus'),
+                            style: { minWidth: 80, maxWidth: 90 },
+                            className: 'text-center'
                         },
                         {
                             header: 'Evaluate',

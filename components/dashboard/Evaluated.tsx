@@ -202,7 +202,8 @@ const Evaluated = ({status}: any) => {
     const transformDepartmentData = (departments: any, status: string) => {
         if (!departments || !departments.length) return [];
     
-        const currentYear = new Date().getFullYear();
+        // const currentYear = new Date().getFullYear();
+        const yearFromAPI = selectedSupplier?.year ? new Date(selectedSupplier.year).getFullYear() : 'N/A';
         let result: any = [];
     
         departments.forEach((dept: any) => {
@@ -213,7 +214,7 @@ const Evaluated = ({status}: any) => {
             Object.entries(dept[statusKey]).forEach(([period, value]) => {
                 result.push({
                     department: dept.name,
-                    period: `${period} ${currentYear}`,
+                    period: `${period} ${yearFromAPI}`,
                     status: value, // The actual status value from dept[statusKey]
                 });
             });
@@ -318,9 +319,15 @@ const Evaluated = ({status}: any) => {
                 onHide={closeDialog}
             >
                 {selectedSupplier && (
+
+                    
                     <>
                         <div className='flex justify-content-between mb-2'>
-                           <div><span className='font-normal'>Supplier Name: </span><span className='font-bold font-italic text-primary-main'>{selectedSupplier?.supplierName || 'N/A'}</span></div> 
+                           <div>
+                            <span className='font-normal'>Supplier Name: </span><span className='font-bold font-italic text-primary-main'>{selectedSupplier?.supplierName || 'N/A'}</span>
+                            <span className='font-normal ml-4'>Year: </span><span className='font-bold font-italic text-primary-main'>{selectedSupplier?.year ? new Date(selectedSupplier.year).getFullYear() : 'N/A'}</span>
+
+                            </div> 
                            <div>Total Departments: <span className='font-bold font-italic text-primary-main'> {selectedSupplier.totalAssignedDepartments} </span></div> 
                         </div>
 
