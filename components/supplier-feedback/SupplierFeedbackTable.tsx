@@ -156,7 +156,6 @@ const SupplierFeedbackTable = ({ data, loading, onSubmit, setUploadLoading }: an
     };
 
 
-
     const renderHeader = () => (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left flex align-items-center">
