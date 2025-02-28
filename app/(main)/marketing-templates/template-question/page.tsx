@@ -65,7 +65,8 @@ const TemplateQuestionPage = () => {
         iso: false
     });
     const [form, setForm] = useState<EmptySupplier>(defaultForm);
-    const [category, setCategory] = useState<any>([]);
+    const [reviewType, setReviewType] = useState<any>([]);
+    const [templateType, setTemplateType] = useState<any>([]);
     const [allCountry, setAllCountry] = useState<any>([]);
     const [allState, setAllState] = useState<any>([]);
     const [allCity, setAllCity] = useState<any>([]);
@@ -121,7 +122,8 @@ const TemplateQuestionPage = () => {
             ...incomingData,
             // ensure correct mapping for dropdown values
             procurementCategoryId: incomingData.procurementCategoryId || get(incomingData, 'subCategories.subCategoryId'),
-            supplierCategoryId: incomingData.supplierCategoryId || get(incomingData, 'category.categoryId')
+            reviewTypeId: incomingData.reviewTypeId || get(incomingData, 'reviewType.reviewTypeId'),
+            templateTypeId: incomingData.templateTypeId || get(incomingData, 'templateType.templateTypeId')
         };
     };
     useEffect(() => {
@@ -129,7 +131,7 @@ const TemplateQuestionPage = () => {
             setLoading(true);
             try {
                 // Fetch independent data first
-                await Promise.all([fetchCategory(), isEditMode && fetchSupplierData()]);
+                await Promise.all([fetchReviewType(), fetchTemplateType(), isEditMode && fetchSupplierData()]);
             } catch (error) {
                 console.error('Error fetching initial data:', error);
             } finally {
@@ -150,7 +152,7 @@ const TemplateQuestionPage = () => {
                 const mappedForm = mapToForm(response.data[0]);
                 setForm(mappedForm);
 
-                // Fetch subcategories dynamically based on the selected category
+                // Fetch subcategories dynamically based on the selected reviewType
                 if (mappedForm.supplierCategoryId) {
                     await fetchSubCategoryByCategoryId(mappedForm.supplierCategoryId);
                 }
@@ -167,10 +169,16 @@ const TemplateQuestionPage = () => {
         }
     };
 
-    const fetchCategory = async () => {
-        const response: CustomResponse = await GetCall(`/company/category`);
+    const fetchReviewType = async () => {
+        const response: CustomResponse = await GetCall(`/company/reviewTypes`);
         if (response.code === 'SUCCESS') {
-            setCategory(response.data);
+            setReviewType(response.data);
+        }
+    };
+    const fetchTemplateType = async () => {
+        const response: CustomResponse = await GetCall(`/company/templateType`);
+        if (response.code === 'SUCCESS') {
+            setTemplateType(response.data);
         }
     };
 
@@ -349,15 +357,15 @@ const TemplateQuestionPage = () => {
         });
     };
 
-    const fetchSubCategoryByCategoryId = async (categoryId: number | null) => {
-        if (!categoryId) {
-            setSubCategory([]); // Clear subcategories if no category is selected
+    const fetchSubCategoryByCategoryId = async (reviewTypeId: number | null) => {
+        if (!reviewTypeId) {
+            setSubCategory([]); // Clear subcategories if no reviewType is selected
             return;
         }
 
         setLoading(true);
         try {
-            const response: CustomResponse = await GetCall(`/company/sub-category/${categoryId}`);
+            const response: CustomResponse = await GetCall(`/company/sub-reviewType/${reviewTypeId}`);
             if (response.code === 'SUCCESS') {
                 setSubCategory(response.data);
             } else {
@@ -426,9 +434,9 @@ const TemplateQuestionPage = () => {
                             <Dropdown
                                 id="supplierCategory"
                                 value={get(form, 'supplierCategoryId')}
-                                options={category}
-                                optionLabel="categoryName"
-                                optionValue="categoryId"
+                                options={reviewType}
+                                optionLabel="reviewTypeName"
+                                optionValue="reviewTypeId"
                                 onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                 placeholder="Select Review Type"
                                 className="w-full mb-1"
@@ -442,9 +450,9 @@ const TemplateQuestionPage = () => {
                             <Dropdown
                                 id="supplierCategory"
                                 value={get(form, 'supplierCategoryId')}
-                                options={category}
-                                optionLabel="categoryName"
-                                optionValue="categoryId"
+                                options={templateType}
+                                optionLabel="templateTypeName"
+                                optionValue="templateTypeId"
                                 onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                 placeholder="Select Template Type"
                                 className="w-full mb-1"
@@ -458,9 +466,9 @@ const TemplateQuestionPage = () => {
                             <Dropdown
                                 id="supplierCategory"
                                 value={get(form, 'supplierCategoryId')}
-                                options={category}
-                                optionLabel="categoryName"
-                                optionValue="categoryId"
+                                options={reviewType}
+                                optionLabel="reviewTypeName"
+                                optionValue="reviewTypeId"
                                 onChange={(e) => onInputChange('supplierCategoryId', e.value)}
                                 placeholder="Select User Groups"
                                 className="w-full mb-1"

@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { useAppContext } from '@/layout/AppWrapper';
 import { LayoutContext } from '@/layout/context/layoutcontext';
-import { CustomResponse } from '@/types';
+import { CustomResponse, Vendors } from '@/types';
 import { InputText } from 'primereact/inputtext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
@@ -85,7 +85,7 @@ const ManageVendorsPage = () => {
     const [subLocationDetails, setSubLocationDetails] = useState<any>([]);
     const { layoutState } = useContext(LayoutContext);
     const [isShowSplit, setIsShowSplit] = useState<boolean>(false);
-    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [vendors, setVendors] = useState<Vendors[]>([]);
     const [page, setPage] = useState<number>(1);
     const dataTableRef = useRef<CustomDataTableRef>(null);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
@@ -170,15 +170,15 @@ const ManageVendorsPage = () => {
             setLoading(true);
             setPage(params.page);
             const queryString = buildQueryParams(params);
-            const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
+            const response: CustomResponse = await GetCall(`/company/vendors?${queryString}`);
             if (response.code == 'SUCCESS') {
-                setSuppliers(response.data);
+                setVendors(response.data);
 
                 if (response.total) {
                     setTotalRecords(response?.total);
                 }
             } else {
-                setSuppliers([]);
+                setVendors([]);
             }
         } catch (error) {
             setAlert('error', 'Something went wrong!');
@@ -303,7 +303,7 @@ const ManageVendorsPage = () => {
             setIsDetailLoading(false);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Suppliers imported successfully');
+                setAlert('success', 'vendors imported successfully');
                 setVisible(false);
                 fetchData();
             } else {
@@ -543,7 +543,7 @@ const ManageVendorsPage = () => {
                                         totalRecords={totalRecords} // total records from api response
                                         isEdit={true} // show edit button
                                         isDelete={true}
-                                        data={suppliers}
+                                        data={vendors}
                                         columns={[
                                             {
                                                 header: 'Sr. No',
@@ -555,23 +555,23 @@ const ManageVendorsPage = () => {
                                             },
                                             {
                                                 header: 'Name',
-                                                field: 'supplierName',
+                                                field: 'vendorName',
                                                 style: { minWidth: 150 }
                                             },
 
                                             {
                                                 header: 'Email',
-                                                field: 'email',
+                                                field: 'vendorEmail',
                                                 bodyStyle: { minWidth: 200, maxWidth: 200 }
                                             },
 
                                             {
                                                 header: 'Mobile',
-                                                field: 'Zip',
+                                                field: 'vendorPhoneNumber',
                                                 bodyStyle: { minWidth: 150, maxWidth: 150 }
                                             }
                                         ]}
-                                        rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
+                                        rowClassName={(data) => (data.vendorBlockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
                                         onLoad={(params: any) => fetchData(params)}
                                         onEdit={(item: any) => onRowSelect(item, 'edit')}
                                     />
@@ -673,7 +673,7 @@ const ManageVendorsPage = () => {
                                             placeholder="Start Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
+                                            style={{ height: '40px', borderRadius: '5px', borderColor: 'black', padding: '6px 10px', fontSize: '14px' }}
                                         />
                                         <Calendar
                                             id="endDate"
@@ -683,7 +683,7 @@ const ManageVendorsPage = () => {
                                             placeholder="End Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
+                                            style={{ height: '40px', borderRadius: '5px', borderColor: 'black', padding: '6px 10px', fontSize: '14px' }}
                                         />
                                     </div>
                                 </div>

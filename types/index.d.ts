@@ -112,10 +112,10 @@ interface Supplier {
     gdpFile?: any;
     reachFile: any;
     isoFile: any;
-    blockType:any;
-    blockReason:any;
-    blockStartDate:any;
-    blockEndDate:any;
+    blockType: any;
+    blockReason: any;
+    blockStartDate: any;
+    blockEndDate: any;
     totalDepartments: number;
     isEvaluated: boolean;
     isApproved: boolean;
@@ -135,41 +135,41 @@ interface Supplier {
     countries: {
         name: string;
         countryId: number | null;
-      },
-      states: {
+    },
+    states: {
         name: string;
         stateId: number | null;
-      },
-      cities: {
+    },
+    cities: {
         name: string;
         cityId: number | null;
-      }
-      departments:[
+    }
+    departments: [
         {
-          departmentId: number | null,
-          name: string,
-          evaluationType: string,
-          isQ1Evaluated: boolean,
-          isQ2Evaluated: boolean,
-          isQ3Evaluated: boolean,
-          isQ4Evaluated: boolean,
-          isQ1Approved: boolean,
-          isQ2Approved: boolean,
-          isQ3Approved: boolean,
-          isQ4Approved: boolean
+            departmentId: number | null,
+            name: string,
+            evaluationType: string,
+            isQ1Evaluated: boolean,
+            isQ2Evaluated: boolean,
+            isQ3Evaluated: boolean,
+            isQ4Evaluated: boolean,
+            isQ1Approved: boolean,
+            isQ2Approved: boolean,
+            isQ3Approved: boolean,
+            isQ4Approved: boolean
         },
         {
-          departmentId: number | null,
-          name: string,
-          evaluationType: string,
-          h1Value: string,
-          h2Value: string,
-          isH1Evaluated: boolean,
-          isH2Evaluated: boolean,
-          isH1Approved: boolean,
-          isH2Approved: boolean
+            departmentId: number | null,
+            name: string,
+            evaluationType: string,
+            h1Value: string,
+            h2Value: string,
+            isH1Evaluated: boolean,
+            isH2Evaluated: boolean,
+            isH1Approved: boolean,
+            isH2Approved: boolean
         }
-      ]
+    ]
 };
 interface Field {
     effectiveFrom: Date | null;
@@ -183,9 +183,9 @@ interface Field {
     score: string;
     ratiosRawpack: string;
     ratiosCopack: string;
-  }
+}
 interface Rules {
-    capaRuleId:any
+    capaRuleId: any
     ruleId: any;
     section: string;
     ratedCriteria: string;
@@ -193,13 +193,13 @@ interface Rules {
     score: string;
     ratiosRawpack: number;
     ratiosCopack: number;
-    effectiveFrom:string;
+    effectiveFrom: string;
     subCategories?: {
         subCategoryName: string;
     }
 }
 interface SetRulesDir {
-    ruleSetId:any
+    ruleSetId: any
     value: any;
     ruleType: string;
     createdAt: any;
@@ -301,21 +301,21 @@ interface SupplierScoreboardSummary {
 }
 interface SupplierData {
     supplier: {
-        supId:number| null;
-        supplierName:string;
+        supId: number | null;
+        supplierName: string;
     };
     category: {
-        categoryId:number| null;
-        categoryName:string;
+        categoryId: number | null;
+        categoryName: string;
     };
     subCategory: {
-        subCategoryId:number| null;
-        subCategoryName:string;
+        subCategoryId: number | null;
+        subCategoryName: string;
     };
     evaluationPeriod: string;
     department: {
-        departmentId:number| null;
-        name:string;
+        departmentId: number | null;
+        name: string;
     };
     totalScore: number;
 }
@@ -326,6 +326,30 @@ interface Tile {
     change: string;
     changeClass: string;
     link?: string; // Optional
+}
+
+interface Vendors {
+    vendorId: number;
+    vendorFactoryName: string;
+    vendorName: string;
+    vendorPhoneNumber: string;
+    vendorManufacturerName: string;
+    vendorSiteAddress: string;
+    vendorWarehouseLocation: string;
+    createdAt: string; // Consider using Date if you plan to parse it
+    vendorZip: number;
+    vendorEmail: string;
+    vendorIsBlocked: boolean;
+    vendorBlockType: string | null;
+    vendorBlockStartDate: string | null;
+    vendorBlockEndDate: string | null;
+    vendorBlockReason: string | null;
+    vendorOtp: string | null;
+    vendorOtpExpiration: string | null;
+    vendorCountry: string;
+    vendorState: string;
+    vendorCity: string;
+    vendorStatus: boolean;
 }
 export type {
     Page,
@@ -398,5 +422,6 @@ export type {
     Tile,
     SetRulesDir,
     Field,
-    SupplierData
+    SupplierData,
+    Vendors
 };
