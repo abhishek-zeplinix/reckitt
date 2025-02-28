@@ -1,12 +1,9 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { Supplier } from '@/types';
 import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity } from '@/utils/utils';
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
-import { encodeRouteParams } from '@/utils/base64';
 import { get } from 'lodash';
 import CustomDataTable, { CustomDataTableRef } from '../CustomDataTable';
 import { GetCall } from '@/app/api-config/ApiKit';
@@ -17,12 +14,13 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { years } from '@/utils/constant';
+import { useAuth } from '@/layout/context/authContext';
 
-const Evaluated = ({status}: any) => {
+const StatusRoleSpecific = ({ status }: any) => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
-    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [suppliers, setSuppliers] = useState<any>([]);
     const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
     const [selectedglobalSearch, setGlobalSearch] = useState('');
     const [userRole, setUserRole] = useState<string | null>(null);
@@ -30,23 +28,9 @@ const Evaluated = ({status}: any) => {
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
     const [selectedYear, setSelectedYear] = useState('');
 
-    const router = useRouter();
+    const { isApprover, isEvaluator } = useAuth();
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
-    
-    const getStatusFilter = (status: any) => {
-        const statusMap: any= {
-            'approved': 'approvalStatus',
-            'evaluated': 'evaluationStatus',
-            'completed': 'approvalStatus',
-            'rejected': 'approvalStatus'
-        };
-    
-        return statusMap[status] || 'NA';
-    };
-
-    console.log(status);
-    
 
     const getStatusLabel = () => {
         switch (status.toUpperCase()) {
@@ -59,23 +43,21 @@ const Evaluated = ({status}: any) => {
     };
 
     const roleConfig = {
-        admin: {
-            endpoint: '/company/supplier-by-status',
-            getFilters: () => ({status})
-        },
         approver: {
             endpoint: '/company/supplier-by-status/login-user',
-            getFilters: () => ({})
+            getFilters: () => ({ status })
         },
         evaluator: {
             endpoint: '/company/supplier-by-status/login-user',
-            getFilters: () => ({})
+            getFilters: () => ({ status })
         }
     };
 
     useEffect(() => {
-        const role = get(user, 'role.name', 'admin')?.toLowerCase();
-        setUserRole(role === 'approver' || role === 'evaluator' ? role : 'admin');
+        const role = get(user, 'role.name', '')?.toLowerCase();
+        if (role === 'approver' || role === 'evaluator') {
+            setUserRole(role);
+        }
     }, [user]);
 
     const fetchData = async (params?: any) => {
@@ -111,17 +93,9 @@ const Evaluated = ({status}: any) => {
             const response = await GetCall(`${config.endpoint}?${queryString}`);
 
             if (response.code === 'SUCCESS') {
-                if (userRole === 'approver' || userRole === 'evaluator') {
-                    const transformedData = transformSupplierData(response);
-
-                        console.log(transformedData);
-                        
-                    setSuppliers(transformedData);
-                    setTotalRecords(transformedData.length);
-                } else {
-                    setSuppliers(response?.data);
-                    setTotalRecords(response?.total);
-                }
+                const suppliersData = Array.isArray(response?.data) ? response.data : [response.data];
+                setSuppliers(suppliersData);
+                setTotalRecords(response?.total);
             } else {
                 setSuppliers([]);
             }
@@ -131,48 +105,32 @@ const Evaluated = ({status}: any) => {
             setLoading(false);
         }
     };
-    
 
-    const transformSupplierData = (responseData: any) => {
-        if (!responseData?.data?.supplierAssigment) return [];
+    const transformedData = suppliers[0]?.supplierAssigment?.map((assignment: any, index: any) => {
+        const supplier = assignment?.suppliers[0];
 
-        return responseData.data.supplierAssigment.map((assignment: any) => {
-            const supplier = assignment.suppliers[0];
-            const assignmentStatus = assignment.SupplierAssignmentStatus[0];
-            return {
-                supId: supplier.supId,
-                assignmentId: assignment.assignmentId,
-                supplierName: supplier.supplierName,
-                isBlocked: false,
-                totalDepartments: 1,
-                isEvaluated: assignmentStatus.evaluationStatus !== 'Pending',
-                isApproved: assignmentStatus.approvalStatus !== 'Pending',
-                category: {
-                    categoryId: supplier.supplierCategoryId,
-                    categoryName: supplier.category.categoryName
-                },
-                subCategories: {
-                    subCategoryId: supplier.procurementCategoryId,
-                    subCategoryName: supplier.subCategories.subCategoryName
-                },
-            };
-        });
-    };
+        //if not a single evaluation done..status will be 'Pending'
+        const evaluationStatus = assignment?.SupplierAssignmentStatus[0]?.evaluationStatus || 'Pending';
+        const approvalStatus = assignment?.SupplierAssignmentStatus[0]?.approvalStatus || 'Pending';
 
-
-    
-    const navigateToSummary = (supId: number, catId: number, subCatId: number, assignmentId: number) => {
-        const params: any = { supId, catId, subCatId, assignmentId };
-        const encodedParams = encodeRouteParams(params);
-        router.push(`/supplier-scoreboard-summary/${encodedParams}`);
-    };
+        return {
+            id: assignment.assignmentId,
+            srNo: index + 1,
+            supplierName: supplier.supplierName,
+            approvalStatus: approvalStatus,
+            evaluationStatus: evaluationStatus,
+            history: 'View History',
+            evaluate: 'Evaluate',
+            suppliers: supplier,
+            SupplierAssignmentStatus: assignment.SupplierAssignmentStatus
+        };
+    });
 
     useEffect(() => {
         if (userRole) {
             fetchData();
         }
     }, [userRole, status]);
-
 
     const showStatusDialog = (rowData: any) => {
         setSelectedSupplier(rowData);
@@ -185,9 +143,6 @@ const Evaluated = ({status}: any) => {
     };
 
     const statusColumnTemplate = (status: string) => {
-
-        console.log(status);
-        
         return (
             <Badge
                 value={status}
@@ -196,37 +151,43 @@ const Evaluated = ({status}: any) => {
         );
     };
 
-  
-    const transformDepartmentData = (departments: any, status: string) => {
-        if (!departments || !departments.length) return [];
-    
-        // const currentYear = new Date().getFullYear();
-        const yearFromAPI = selectedSupplier?.year ? new Date(selectedSupplier.year).getFullYear() : 'N/A';
-        let result: any = [];
-    
-        departments.forEach((dept: any) => {
-            const statusKey = getStatusFilter(status); // Get the actual property key (e.g., 'approvalStatus' or 'evaluationStatus')
-    
-            if (!statusKey || !dept[statusKey]) return; // Skip if the key is invalid or doesn't exist in dept
-    
-            Object.entries(dept[statusKey]).forEach(([period, value]) => {
+    const transformStatusData = (statusData: any) => {
+        if (!statusData || !statusData.length) return [];
+
+        const status = statusData[0];
+        const year = status.year ? new Date(status.year).getFullYear() : 'N/A';
+        const result: any = [];
+
+        //check for quarterly periods (q1, q2, q3, q4)
+        ['q1', 'q2', 'q3', 'q4'].forEach(quarter => {
+            if (status[quarter] !== null) {
                 result.push({
-                    department: dept.name,
-                    period: `${period} ${yearFromAPI}`,
-                    status: value, // The actual status value from dept[statusKey]
+                    period: `Q${quarter.charAt(1)} ${year}`,
+                    status: status[quarter]
                 });
-            });
+            }
         });
-    
+
+        // Check for half-yearly periods (h1, h2)
+        ['h1', 'h2'].forEach(halfYear => {
+            if (status[halfYear] !== null) {
+                result.push({
+                    period: `H${halfYear.charAt(1)} ${year}`,
+                    status: status[halfYear]
+                });
+            }
+        });
+
         return result;
     };
 
     const statusBodyTemplate = (rowData: any) => {
+        const fieldName = isApprover() ? 'approvalStatus' : 'evaluationStatus'
         return (
             <div className="flex align-items-center">
                 <Badge
-                    value={rowData?.isEvaluated || rowData?.isApproved}
-                    severity={getSeverity(rowData?.isEvaluated || rowData?.isApproved)}
+                    value={rowData[fieldName]}
+                    severity={getSeverity(rowData[fieldName])}
                 />
                 <Button
                     icon="pi pi-exclamation-circle"
@@ -248,10 +209,6 @@ const Evaluated = ({status}: any) => {
 
         const filters: any = {};
 
-        // if (selectedStatus) {
-        //     filters.status = selectedStatus;
-        // }
-
         if (year) {
             filters.year = year;
         }
@@ -259,11 +216,11 @@ const Evaluated = ({status}: any) => {
         fetchData({ filters });
     };
 
-
     const globalSearch = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
+
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
             <div className="flex justify-content-between items-center border-b">
@@ -272,7 +229,7 @@ const Evaluated = ({status}: any) => {
                 </div>
                 <div className="flex gap-2 pb-3">
                     <Dropdown value={selectedYear} onChange={onYearChange} options={years} placeholder="Select Year" className="w-full md:w-10rem" showClear={!!selectedYear} />
-                    <div className="">{FieldGlobalSearch}</div>
+                    {/* <div className="">{FieldGlobalSearch}</div> */}
                 </div>
             </div>
 
@@ -284,7 +241,7 @@ const Evaluated = ({status}: any) => {
                     page={page}
                     limit={limit}
                     totalRecords={totalRecords}
-                    data={suppliers}
+                    data={transformedData}
                     columns={[
                         {
                             header: 'Sr. No',
@@ -302,8 +259,9 @@ const Evaluated = ({status}: any) => {
                         },
                         {
                             header: getStatusLabel(),
-                            body: statusBodyTemplate,
-                            bodyStyle: { minWidth: 120 },
+                            field: isApprover() ? 'approvalStatus' : 'evaluationStatus',
+                            bodyStyle: { minWidth: 120, maxWidth: 120, fontWeight: 'bold' },
+                            body: statusBodyTemplate
                         },
                     ]}
                     onLoad={(params: any) => fetchData(params)}
@@ -311,38 +269,41 @@ const Evaluated = ({status}: any) => {
             )}
 
             <Dialog
-                header={`${getStatusLabel()} Details`}
+                header="Supplier Status Details"
                 visible={dialogVisible}
-                style={{ width: "70vw" }}
+                style={{ width: "50vw" }}
                 onHide={closeDialog}
             >
                 {selectedSupplier && (
-
-                    
                     <>
-                        <div className='flex justify-content-between mb-2'>
-                           <div>
-                            <span className='font-normal'>Supplier Name: </span><span className='font-bold font-italic text-primary-main'>{selectedSupplier?.supplierName || 'N/A'}</span>
-                            <span className='font-normal ml-4'>Year: </span><span className='font-bold font-italic text-primary-main'>{selectedSupplier?.year ? new Date(selectedSupplier.year).getFullYear() : 'N/A'}</span>
+                        {/* <div className="mb-4">
+                            <DataTable value={[selectedSupplier.suppliers]} showGridlines>
+                                <Column field="supplierName" header="Supplier" />
+                                <Column field="category.categoryName" header="Category" />
+                                <Column field="subCategories.subCategoryName" header="Sub Category" />
+                            </DataTable>
+                        </div>
+                        <div className="mb-2 flex justify-content-between">
+                            <div><strong>Year: </strong> {selectedSupplier.SupplierAssignmentStatus[0]?.year ? 
+                                new Date(selectedSupplier.SupplierAssignmentStatus[0]?.year).getFullYear() : 'N/A'}</div>
+                        </div> */}
 
-                            </div> 
-                           <div>Total Departments: <span className='font-bold font-italic text-primary-main'> {selectedSupplier.totalAssignedDepartments} </span></div> 
+
+                        <div className='flex justify-content-between mb-2'>
+                            <div>
+                                <span className='font-normal'>Supplier Name: </span><span className='font-bold font-italic text-primary-main'>{selectedSupplier?.supplierName || 'N/A'}</span>
+
+                            </div>
+                            <div> <span className='font-normal ml-4'>Year: </span><span className='font-bold font-italic text-primary-main'> {selectedSupplier.SupplierAssignmentStatus[0]?.year ?
+                                new Date(selectedSupplier.SupplierAssignmentStatus[0]?.year).getFullYear() : 'N/A'}</span>
+                            </div>
                         </div>
 
                         <DataTable
-                            value={transformDepartmentData(selectedSupplier.departments, status)}
+                            value={transformStatusData(selectedSupplier.SupplierAssignmentStatus)}
                             showGridlines
                             className="mb-3"
-                            rowGroupMode="subheader"
-                            groupRowsBy="department"
-                            sortMode="single"
-                            sortField="department"
-                            sortOrder={1}
-                            rowGroupHeaderTemplate={(data) => (
-                                <strong>{data.department}</strong>
-                            )}
                         >
-                            <Column field="department" header="Department" hidden />
                             <Column field="period" header="Period" />
                             <Column
                                 field="status"
@@ -357,4 +318,4 @@ const Evaluated = ({status}: any) => {
     );
 };
 
-export default Evaluated;
+export default StatusRoleSpecific;

@@ -2,25 +2,56 @@
 
 import { JSXElementConstructor, PromiseLikeOfReactNode, ReactElement, ReactNode, ReactPortal, useState } from 'react';
 import SupplierDirectory from '@/components/SupplierDirectory';
-import { withAuth } from '@/layout/context/authContext';
+import { useAuth, withAuth } from '@/layout/context/authContext';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import Evaluated from '@/components/dashboard/Evaluated';
+import StatusRoleSpecific from '@/components/dashboard/StatusRoleSpecific'; // Assuming this component exists
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [filtersVisible, setFiltersVisible] = useState(false);
+  const { isApprover, isEvaluator, isSuperAdmin } = useAuth();
 
-  const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'pi pi-th-large' },
-    { id: 'supplier', label: 'Supplier', icon: 'pi pi-box' },
-    { id: 'evaluated', label: 'Evaluated', icon: 'pi pi-pencil' },
-    // { id: 'approved', label: 'Approved', icon: 'pi pi-check-circle' },
-    { id: 'completed', label: 'Completed', icon: 'pi pi-check-circle' },
-    { id: 'rejected', label: 'Rejected', icon: 'pi pi-question-circle' },
+  // Define tabs based on user roles
+  const getTabs = () => {
+    const baseTabs = [
+      { id: 'dashboard', label: 'Dashboard', icon: 'pi pi-th-large' },
+      { id: 'supplier', label: 'Supplier', icon: 'pi pi-box' },
+    ];
 
-  ];
+    if (isSuperAdmin()) {
+      return [
+        ...baseTabs,
+        { id: 'evaluated', label: 'Evaluated', icon: 'pi pi-pencil' },
+        { id: 'completed', label: 'Completed', icon: 'pi pi-check-circle' },
+        { id: 'rejected', label: 'Rejected', icon: 'pi pi-question-circle' },
+      ];
+    } else if (isApprover()) {
+      return [
+        ...baseTabs,
+        { id: 'completed', label: 'Completed', icon: 'pi pi-check-circle' },
+        { id: 'rejected', label: 'Rejected', icon: 'pi pi-question-circle' },
+      ];
+    } else if (isEvaluator()) {
+      return [
+        ...baseTabs,
+        { id: 'evaluated', label: 'Evaluated', icon: 'pi pi-pencil' },
+      ];
+    }
+
+    return baseTabs;
+  };
+
+  const tabs = getTabs();
+
+  // Set active tab to first available tab if current tab is not available for the user's role
+  useState(() => {
+    if (!tabs.some(tab => tab.id === activeTab)) {
+      setActiveTab(tabs[0]?.id || 'dashboard');
+    }
+  });
 
   const renderContent = () => {
     switch (activeTab) {
@@ -29,13 +60,23 @@ const Dashboard = () => {
       case 'supplier':
         return <SupplierDirectory />;
       case 'evaluated':
-        return <Evaluated status="evaluated" />;
-      // case 'approved':
-      //   return <Evaluated status="approved" />;
+        return isSuperAdmin() ? (
+          <Evaluated status="evaluated" />
+        ) : (
+          <StatusRoleSpecific status="evaluated" />
+        );
       case 'rejected':
-        return <Evaluated status="rejected" />;
+        return isApprover() ? (
+          <StatusRoleSpecific status="rejected" />
+        ) : (
+          <Evaluated status="rejected" />
+        );
       case 'completed':
-        return <Evaluated status="approved" />;
+        return isApprover() ? (
+          <StatusRoleSpecific status="approved" />
+        ) : (
+          <Evaluated status="approved" />
+        );
       default:
         return <DashboardContent filtersVisible={filtersVisible} setFiltersVisible={setFiltersVisible} />;
     }
