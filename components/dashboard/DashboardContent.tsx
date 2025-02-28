@@ -136,14 +136,14 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
         return [
             {
                 title: 'Completed Assessment',
-                value: evaluationData.completedAssessments || 0,
-                change: `+ ${evaluationData.completedAssessments}`,
+                value: evaluationData.completedSuppliers || 0,
+                change: `+ ${evaluationData.completedSuppliers}`,
                 changeClass: 'good-text'
             },
             {
                 title: 'In Progress Assessment',
-                value: evaluationData.inProgressAssessments || 0,
-                change: `+ ${evaluationData.inProgressAssessments}`,
+                value: evaluationData.inProgressSuppliers || 0,
+                change: `+ ${evaluationData.inProgressSuppliers}`,
                 changeClass: 'good-text'
             }
         ];
@@ -153,8 +153,8 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
         return [
             {
                 title: 'Pending Assessment',
-                value: evaluationData.pendingAssessments || 0,
-                change: `+ ${evaluationData.pendingAssessments}`,
+                value: evaluationData.pendingSuppliers || 0,
+                change: `+ ${evaluationData.pendingSuppliers}`,
                 changeClass: 'good-text'
             }
         ];

@@ -13,6 +13,7 @@ import { encodeRouteParams } from '@/utils/base64';
 import TableSkeletonSimple from './skeleton/TableSkeletonSimple';
 import { get } from 'lodash';
 import { Badge } from 'primereact/badge';
+import { useAuth } from '@/layout/context/authContext';
 
 const SupplierDirectory = () => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
@@ -28,6 +29,7 @@ const SupplierDirectory = () => {
     const [supplierCategories, setsupplierCategories] = useState([]);
     const [userRole, setUserRole] = useState<string | null>(null);
     const router = useRouter();
+    const {isApprover, isEvaluator} = useAuth();
 
     const dataTableRef = useRef<CustomDataTableRef>(null);
 
@@ -326,14 +328,16 @@ const SupplierDirectory = () => {
                         {
                             header: 'Evaluation',
                             body: (rowData) => statusBodyTemplate(rowData, 'isEvaluatedStatus'),
-                            style: { minWidth: 80, maxWidth: 90 },
-                            className: 'text-center'
+                            style: { minWidth: 80, maxWidth: 90},
+                            className: 'text-center',
+                            hidden:  isApprover() || isEvaluator()
                         },
                         {
                             header: 'Approval',
                             body: (rowData) => statusBodyTemplate(rowData, 'isApprovalStatus'),
                             style: { minWidth: 80, maxWidth: 90 },
-                            className: 'text-center'
+                            className: 'text-center',
+                            hidden:  isApprover() || isEvaluator()
                         },
                         {
                             header: 'Evaluate',
