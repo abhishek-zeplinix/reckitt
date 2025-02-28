@@ -18,7 +18,7 @@ import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { years } from '@/utils/constant';
 
-const Evaluated = ({status}: any) => {
+const StatusAdminSpecific = ({status}: any) => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [page, setPage] = useState<number>(1);
@@ -357,4 +357,4 @@ const Evaluated = ({status}: any) => {
     );
 };
 
-export default Evaluated;
+export default StatusAdminSpecific;

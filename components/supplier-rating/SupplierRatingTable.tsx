@@ -11,6 +11,12 @@ import { getBackgroundColor } from '@/utils/utils';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
 import { useAuth } from '@/layout/context/authContext';
+import { Tooltip } from 'primereact/tooltip';
+import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { Dialog } from 'primereact/dialog';
+import FeedbackRead from './FeedbackRead';
+import DocumentViewer from '../viewer/DocumentViewer';
 
 
 const SupplierEvaluationTable = ({ rules,
@@ -50,11 +56,23 @@ const SupplierEvaluationTable = ({ rules,
   const [noData, setNoData] = useState(false);
   const [isCompletionDialogVisible, setIsCompletionDialogVisible] = useState(false);
 
-  // const { supId } = urlParams;
+  //feedback
+  const [isFileDialogVisible, setIsFileDialogVisible] = useState(false);
+  const [selectedCheckedData, setSelectedCheckedData] = useState<any>(null);
+  const [fileLoading, setFileLoading] = useState(false);
+
+  //for doc viewer
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [showViewer, setShowViewer] = useState(false);
+
+  console.log(showViewer);
+
+
   const dropdownRef = useRef<any>(null);
 
-  const { setLoading, setAlert, isLoading} = useAppContext();
-  const { isSuperAdmin} = useAuth();
+  const { setLoading, setAlert, isLoading } = useAppContext();
+  const { isSuperAdmin } = useAuth();
 
 
   // update function to check CAPA data status
@@ -601,6 +619,27 @@ const SupplierEvaluationTable = ({ rules,
   }
 
 
+  const handleFileIconClick = (checkedItem: any) => {
+    setSelectedCheckedData(checkedItem);
+    setIsFileDialogVisible(true);
+  };
+
+  const openFile = (fileUrl: string) => {
+    console.log(fileUrl);
+    if (fileUrl) {
+      setSelectedFile(fileUrl);
+      setSelectedFileName('Document');
+      setShowViewer(true);
+    }
+  };
+
+  // close dialog function
+  const closeFileDialog = () => {
+    setIsFileDialogVisible(false);
+    setSelectedCheckedData(null);
+  };
+
+
   return (
     // <div className=" w-full overflow-x-auto shadow-sm mt-5 relative">
 
@@ -608,7 +647,7 @@ const SupplierEvaluationTable = ({ rules,
     <div className=" w-full shadow-sm mt-3 overflow-x-auto">
 
       {
-       ( rulesLoading || scoreLoading) ? <TableSkeletonSimple columns={5} rows={12} /> :
+        (rulesLoading || scoreLoading) ? <TableSkeletonSimple columns={5} rows={12} /> :
 
           <div className="min-w-[800px]">
             <div className='flex justify-content-start'>
@@ -701,22 +740,45 @@ const SupplierEvaluationTable = ({ rules,
                           </td>
 
 
-                          <td className="px-4 py-2">
+                          <td className="px-4 py-2 flex">
                             {score === 'NA' ? (
-                              <InputText type="text" size={1} value={score} readOnly className="m-auto bg-gray-400 font-bold border-none text-white text-center" />
+                              <InputText type="text" size={1} value={score} readOnly className="bg-gray-400 font-bold border-none text-white text-center" />
                             ) : Number(score) >= 9 ? (
-                              <InputText type="text" size={1} value={score} readOnly className="m-auto excellent font-bold border-none text-white text-center" />
+                              <InputText type="text" size={1} value={score} readOnly className=" excellent font-bold border-none text-white text-center" />
                             ) : Number(score) >= 7 ? (
-                              <InputText type="text" size={1} value={score} readOnly className="m-auto good font-bold border-none text-white text-center" />
+                              <InputText type="text" size={1} value={score} readOnly className=" good font-bold border-none text-white text-center" />
                             ) : score >= 'empty' ? (
-                              <InputText type="text" size={1} value="" readOnly className="m-auto bg-white text-center text-transparent" />
+                              <InputText type="text" size={1} value="" readOnly className=" bg-white text-center text-transparent" />
                             ) : Number(score) >= 5 ? (
-                              <InputText type="text" size={1} value={score} readOnly className="m-auto improvement font-bold border-none text-white text-center" />
+                              <InputText type="text" size={1} value={score} readOnly className=" improvement font-bold border-none text-white text-center" />
                             ) : (
-                              <InputText type="text" size={1} value={score} readOnly className="m-auto critical font-bold border-none text-white text-center" />
+                              <InputText type="text" size={1} value={score} readOnly className=" critical font-bold border-none text-white text-center" />
                             )}
-                          </td>
 
+                            {supplierScoreData && supplierScoreData[0]?.scoreApprovals?.checkedData?.some(
+                              (item: any) =>
+                                item.sectionName === section.sectionName &&
+                                item.ratedCriteria === criteria.criteriaName
+                            ) && (
+                                <>
+                                  <Button
+                                    icon="pi pi-exclamation-circle"
+                                    className="p-button-rounded p-button-text ml-2 top-2 right-2"
+                                    onClick={() => {
+                                      const checkedItem = supplierScoreData[0]?.scoreApprovals?.checkedData?.find(
+                                        (item: any) =>
+                                          item.sectionName === section.sectionName &&
+                                          item.ratedCriteria === criteria.criteriaName
+                                      );
+                                      handleFileIconClick(checkedItem);
+
+                                    }}
+                                    tooltip="view supplier feedback doc"
+                                    tooltipOptions={{ position: 'left', mouseTrack: true, mouseTrackTop: 15 }}
+                                  />
+                                </>
+                              )}
+                          </td>
                         </tr>
                       );
                     })}
@@ -737,7 +799,6 @@ const SupplierEvaluationTable = ({ rules,
             </table>
           </div>
       }
-
 
 
 
@@ -775,7 +836,7 @@ const SupplierEvaluationTable = ({ rules,
       }
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
-        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed' || isSuperAdmin()}  loading={isLoading} />
+        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed' || isSuperAdmin()} loading={isLoading} />
 
       </div>
 
@@ -794,7 +855,23 @@ const SupplierEvaluationTable = ({ rules,
         iconColor="#DF1740"
         loading={isLoading}
       />
+      {
+        supplierScoreData &&
+        <FeedbackRead isFileDialogVisible={isFileDialogVisible} closeFileDialog={closeFileDialog} selectedCheckedData={selectedCheckedData} openFile={openFile} supplierScoreData={supplierScoreData} />
+      }
 
+      {selectedFile && (
+        <DocumentViewer
+          fileUrl={selectedFile}
+          fileName={selectedFileName || undefined}
+          visible={showViewer}
+          onHide={() => {
+            setShowViewer(false);
+            setSelectedFile(null);
+            setSelectedFileName(null);
+          }}
+        />
+      )}
     </div>
   );
 };

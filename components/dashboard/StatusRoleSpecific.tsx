@@ -49,7 +49,7 @@ const StatusRoleSpecific = ({ status }: any) => {
         },
         evaluator: {
             endpoint: '/company/supplier-by-status/login-user',
-            getFilters: () => ({ status })
+            getFilters: () => ({  })
         }
     };
 

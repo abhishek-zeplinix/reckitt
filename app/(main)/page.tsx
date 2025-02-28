@@ -6,7 +6,7 @@ import { useAuth, withAuth } from '@/layout/context/authContext';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import Evaluated from '@/components/dashboard/Evaluated';
+import StatusAdminSpecific from '@/components/dashboard/StatusAdminSpecific';
 import StatusRoleSpecific from '@/components/dashboard/StatusRoleSpecific'; // Assuming this component exists
 
 const Dashboard = () => {
@@ -31,7 +31,8 @@ const Dashboard = () => {
     } else if (isApprover()) {
       return [
         ...baseTabs,
-        { id: 'completed', label: 'Completed', icon: 'pi pi-check-circle' },
+        // { id: 'completed', label: 'Completed', icon: 'pi pi-check-circle' },
+        { id: 'approved', label: 'Approved', icon: 'pi pi-check-circle' },
         { id: 'rejected', label: 'Rejected', icon: 'pi pi-question-circle' },
       ];
     } else if (isEvaluator()) {
@@ -61,7 +62,7 @@ const Dashboard = () => {
         return <SupplierDirectory />;
       case 'evaluated':
         return isSuperAdmin() ? (
-          <Evaluated status="evaluated" />
+          <StatusAdminSpecific status="evaluated" />
         ) : (
           <StatusRoleSpecific status="evaluated" />
         );
@@ -69,13 +70,19 @@ const Dashboard = () => {
         return isApprover() ? (
           <StatusRoleSpecific status="rejected" />
         ) : (
-          <Evaluated status="rejected" />
+          <StatusAdminSpecific status="rejected" />
         );
       case 'completed':
         return isApprover() ? (
           <StatusRoleSpecific status="approved" />
         ) : (
-          <Evaluated status="approved" />
+          <StatusAdminSpecific status="approved" />
+        );
+      case 'approved':
+        return isApprover() ? (
+          <StatusRoleSpecific status=" " />
+        ) : (
+          <StatusAdminSpecific status="approved" />
         );
       default:
         return <DashboardContent filtersVisible={filtersVisible} setFiltersVisible={setFiltersVisible} />;
