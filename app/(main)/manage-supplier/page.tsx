@@ -175,7 +175,6 @@ const ManageSupplierPage = () => {
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
             if (response.code == 'SUCCESS') {
-
                 if (response.total) {
                     setTotalRecords(response?.total);
                     setSuppliers(response.data);
@@ -589,91 +588,91 @@ const ManageSupplierPage = () => {
                                         <div className="mt-2">{FieldGlobalSearch}</div>
                                     </div>
                                 </div>
-                                {isLoading ?(
-                                <TableSkeletonSimple columns={6} rows={limit} />
-                            ) : (
-                                <CustomDataTable
-                                    className="mb-3"
-                                    ref={dataTableRef}
-                                    page={page}
-                                    limit={limit} // no of items per page
-                                    totalRecords={totalRecords} // total records from api response
-                                    isEdit={true} // show edit button
-                                    data={suppliers}
-                                    extraButtons={(supplier) => [
-                                        {
-                                            icon: supplier.blockType === null ? 'pi pi-ban' : 'pi pi-unlock',
-                                            onClick: () => openDialog(supplier)
-                                        },
-                                        {
-                                            icon: supplier.blockType !== null ? 'pi pi-eye' : '',
-                                            onClick: () => openDetailsDialog(supplier) // Open dialog on click
-                                        }
-                                    ]}
-                                    columns={[
-                                        {
-                                            header: 'Sr. No',
-                                            body: (data: any, options: any) => {
-                                                const srNo = (page - 1) * limit + options.rowIndex + 1 - (page - 1) * 10;
-                                                return <span>{srNo}</span>;
+                                {isLoading ? (
+                                    <TableSkeletonSimple columns={6} rows={limit} />
+                                ) : (
+                                    <CustomDataTable
+                                        className="mb-3"
+                                        ref={dataTableRef}
+                                        page={page}
+                                        limit={limit} // no of items per page
+                                        totalRecords={totalRecords} // total records from api response
+                                        isEdit={true} // show edit button
+                                        data={suppliers}
+                                        extraButtons={(supplier) => [
+                                            {
+                                                icon: supplier.blockType === null ? 'pi pi-ban' : 'pi pi-unlock',
+                                                onClick: () => openDialog(supplier)
                                             },
-                                            bodyStyle: { minWidth: 50, maxWidth: 50 }
-                                        },
-                                        {
-                                            header: 'Name',
-                                            field: 'supplierName',
-                                            style: { minWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Procurement Category',
-                                            field: 'category.categoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Supplier Category',
-                                            field: 'subCategories.subCategoryName',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Manufacturer Name',
-                                            field: 'supplierManufacturerName',
-                                            bodyStyle: { minWidth: 200 }
-                                        },
-                                        {
-                                            header: 'Email',
-                                            field: 'email',
-                                            bodyStyle: { minWidth: 200, maxWidth: 200 }
-                                        },
-                                        {
-                                            header: 'Site Address',
-                                            field: 'siteAddress',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Country',
-                                            field: 'countries.name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'State',
-                                            field: 'states.name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'City',
-                                            field: 'cities.name',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        },
-                                        {
-                                            header: 'Zip',
-                                            field: 'Zip',
-                                            bodyStyle: { minWidth: 150, maxWidth: 150 }
-                                        }
-                                    ]}
-                                    rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
-                                    onLoad={(params: any) => fetchData(params)}
-                                    onEdit={(item: any) => onRowSelect(item, 'edit')}
-                                />
+                                            {
+                                                icon: supplier.blockType !== null ? 'pi pi-eye' : '',
+                                                onClick: () => openDetailsDialog(supplier) // Open dialog on click
+                                            }
+                                        ]}
+                                        columns={[
+                                            {
+                                                header: 'Sr. No',
+                                                body: (data: any, options: any) => {
+                                                    const srNo = (page - 1) * limit + options.rowIndex + 1 - (page - 1) * 10;
+                                                    return <span>{srNo}</span>;
+                                                },
+                                                bodyStyle: { minWidth: 50, maxWidth: 50 }
+                                            },
+                                            {
+                                                header: 'Name',
+                                                field: 'supplierName',
+                                                style: { minWidth: 150 }
+                                            },
+                                            {
+                                                header: 'Procurement Category',
+                                                field: 'category.categoryName',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'Supplier Category',
+                                                field: 'subCategories.subCategoryName',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'Manufacturer Name',
+                                                field: 'supplierManufacturerName',
+                                                bodyStyle: { minWidth: 200 }
+                                            },
+                                            {
+                                                header: 'Email',
+                                                field: 'email',
+                                                bodyStyle: { minWidth: 200, maxWidth: 200 }
+                                            },
+                                            {
+                                                header: 'Site Address',
+                                                field: 'siteAddress',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'Country',
+                                                field: 'country',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'State',
+                                                field: 'state',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'City',
+                                                field: 'city',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            },
+                                            {
+                                                header: 'Zip',
+                                                field: 'Zip',
+                                                bodyStyle: { minWidth: 150, maxWidth: 150 }
+                                            }
+                                        ]}
+                                        rowClassName={(data) => (data.blockType !== null ? 'text-gray-300' : '')} // Apply light gray color if blockType is not null
+                                        onLoad={(params: any) => fetchData(params)}
+                                        onEdit={(item: any) => onRowSelect(item, 'edit')}
+                                    />
                                 )}
                             </div>
                         </div>
@@ -772,7 +771,7 @@ const ManageSupplierPage = () => {
                                             placeholder="Start Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
+                                            style={{ height: '40px', borderRadius: '5px', borderColor: 'black', padding: '6px 10px', fontSize: '14px' }}
                                         />
                                         <Calendar
                                             id="endDate"
@@ -782,7 +781,7 @@ const ManageSupplierPage = () => {
                                             placeholder="End Date"
                                             showIcon
                                             minDate={new Date()}
-                                            style={{ height: '40px',borderRadius: '5px',borderColor: 'black',padding: '6px 10px',fontSize: '14px' }}
+                                            style={{ height: '40px', borderRadius: '5px', borderColor: 'black', padding: '6px 10px', fontSize: '14px' }}
                                         />
                                     </div>
                                 </div>
