@@ -98,7 +98,7 @@ const Tasks: React.FC<TasksProps> = ({ role }) => {
             bodyStyle: { minWidth: 150, maxWidth: 150 }
         },
         {
-            header: 'Department Name',
+            header: 'Department',
             field: 'department.name',
             bodyStyle: { minWidth: 150, maxWidth: 150 }
         },

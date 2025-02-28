@@ -6,7 +6,7 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { withAuth } from '@/layout/context/authContext';
 import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dropdown } from 'primereact/dropdown';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import SupplierSummaryCard from '@/components/supplier-rating/supplier-summary/SupplierSummaryCard';
 import { categoriesMap } from '@/utils/constant';
@@ -26,7 +26,7 @@ const SupplierRatingPage = ({
 
 
     // const [activeTab, setActiveTab] = useState('PROCUREMENT');
-    const [selectedPeriod, setSelectedPeriod] = useState();
+    const [selectedPeriod, setSelectedPeriod] = useState<any>();
     const [rules, setRules] = useState([]);
     // const [selectedDepartment, setSelectedDepartment] = useState<number>(4);
     const [supplierData, setSupplierData] = useState<any>();
@@ -39,9 +39,9 @@ const SupplierRatingPage = ({
     const { user, isLoading, setLoading, setAlert } = useAppContext();
 
     const { departments } = useFetchDepartments();
-    
+
     const decodedParams = useDecodeParams(params.encodedParams);
-    const { supId, catId, subCatId, currentYear, assignmentId } = decodedParams;
+    const { supId, catId, subCatId, currentYear, assignmentId, departmentId, period } = decodedParams;
 
     const categoryName = supplierData?.category?.categoryName?.toLowerCase();
 
@@ -51,6 +51,26 @@ const SupplierRatingPage = ({
 
 
     useEffect(() => {
+
+        // check for URL parameters first
+
+        if (departmentId && period) {
+            setSelectedDepartment(Number(departmentId));
+            setSelectedPeriod(period);
+
+            // Set the activeTab based on the department
+            if (departments && departments.length > 0) {
+                const selectedDept: any = departments.find((dept: any) =>
+                    dept.departmentId === Number(departmentId)
+                );
+                if (selectedDept) {
+                    setActiveTab(selectedDept.name);
+                }
+            }
+            setReload(prev => !prev);
+        }
+
+
         if (departments && departments.length > 0 && !selectedDepartment) {
             let deptToSelect: any;
 
@@ -69,7 +89,7 @@ const SupplierRatingPage = ({
             setSelectedDepartment(deptToSelect.departmentId);
             setActiveTab(deptToSelect.name);
         }
-    }, [departments, userDepartment, selectedDepartment]);
+    }, [departments, userDepartment]);
 
 
     //fetch indivisual supplier data
@@ -171,7 +191,7 @@ const SupplierRatingPage = ({
         };
 
         initializeData();
-    }, [reload]);
+    }, [reload, departmentId, period]);
 
     useEffect(() => {
         const fetchRulesData = async () => {

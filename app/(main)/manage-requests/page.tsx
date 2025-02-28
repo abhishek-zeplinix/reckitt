@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { useAuth } from '@/layout/context/authContext';
 import { get, sortBy } from 'lodash';
 import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
+import DocumentViewer from '@/components/viewer/DocumentViewer';
 
 const rejectionSchema = z.object({
     reason: z.string().max(250, 'Rejection reason cannot exceed 250 characters')
@@ -35,6 +36,11 @@ const ManageRequestsPage = () => {
     const [rejectionError, setRejectionError] = useState('');
     const [remainingChars, setRemainingChars] = useState(250);
 
+    //for doc viewer
+    const [selectedFile, setSelectedFile] = useState<string | null>(null);
+    const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+    const [showViewer, setShowViewer] = useState(false);
+
     const { isSupplier } = useAuth();
     const { user } = useAppContext();
 
@@ -43,7 +49,7 @@ const ManageRequestsPage = () => {
             setLoading(true);
 
             if (!params) {
-                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: 'manageReqId'};
+                params = { limit: limit, page: page, sortOrder: 'desc', sortBy: 'manageReqId' };
             }
             const supId = get(user, 'supplierId');
             setPage(params.page);
@@ -306,6 +312,23 @@ const ManageRequestsPage = () => {
         return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
     };
 
+    const proofViewerTemplate = (rowData: any) => {
+
+        if (rowData?.doc) {
+            return (
+                <Button
+                    label='View Proof'
+                    className='p-button-link text-blue-500 p-button-sm'
+                    onClick={() => {
+                        setSelectedFile(rowData?.doc);
+                        setSelectedFileName(rowData?.fileName || 'Document');
+                        setShowViewer(true);
+                    }}
+                />
+            )
+        }
+    }
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -313,77 +336,77 @@ const ManageRequestsPage = () => {
                     <div className="left-panel mb-0">
                         <div className="header">{renderHeader()}</div>
                         <div className="bg-[#ffffff] border border-1 p-3 mt-4 shadow-lg" style={{ borderColor: '#CBD5E1', borderRadius: '10px' }}>
-                        {isLoading ?(
+                            {isLoading ? (
                                 <TableSkeletonSimple columns={7} rows={limit} />
                             ) : (
-                            <CustomDataTable
-                                ref={dataTableRef}
-                                page={page}
-                                sortField='id'
-                                sortOrder={-1}
-                                limit={limit}
-                                totalRecords={totalRecords}
-                                data={requests?.map((item: any) => ({
-                                    id: item.manageReqId,
-                                    supplierId: item.supplierId,
-                                    supplierName: item.supplier.supplierName,
-                                    requestedData: item.requestedData,
-                                    oldData: item?.oldData,
-                                    createdAtFormatted: formatDate(item.createdAt),
-                                    status: item.status,
-                                    rejectedReason: item.rejectedReason || 'No Reason',
-                                    doc: item.doc || 'https//s3.aws.amazon.com/file/e3f923922/proof.pdf',
-                                    ...item
-                                }))}
-                                columns={[
-                                    {
-                                        header: 'Sr. No',
-                                        body: (data: any, options: any) => {
-                                            const normalizedRowIndex = options.rowIndex % limit;
-                                            const srNo = (page - 1) * limit + normalizedRowIndex + 1;
-                                            return <span>{srNo}</span>;
+                                <CustomDataTable
+                                    ref={dataTableRef}
+                                    page={page}
+                                    sortField='id'
+                                    sortOrder={-1}
+                                    limit={limit}
+                                    totalRecords={totalRecords}
+                                    data={requests?.map((item: any) => ({
+                                        id: item.manageReqId,
+                                        supplierId: item.supplierId,
+                                        supplierName: item.supplier.supplierName,
+                                        requestedData: item.requestedData,
+                                        oldData: item?.oldData,
+                                        createdAtFormatted: formatDate(item.createdAt),
+                                        status: item.status,
+                                        rejectedReason: item.rejectedReason || 'No Reason',
+                                        doc: item.doc || 'https//s3.aws.amazon.com/file/e3f923922/proof.pdf',
+                                        ...item
+                                    }))}
+                                    columns={[
+                                        {
+                                            header: 'Sr. No',
+                                            body: (data: any, options: any) => {
+                                                const normalizedRowIndex = options.rowIndex % limit;
+                                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                                                return <span>{srNo}</span>;
+                                            },
+                                            bodyStyle: { width: '120px' }
                                         },
-                                        bodyStyle: { width: '120px' }
-                                    },
-                                    {
-                                        header: 'Supplier Name',
-                                        field: 'supplierName',
-                                        filter: true,
-                                        bodyStyle: { width: '120px' }
-                                    },
-                                    {
-                                        header: 'Requested At',
-                                        field: 'createdAtFormatted',
-                                        filter: true,
-                                        bodyStyle: { width: '150px' }
-                                    },
-                                    {
-                                        header: 'Status',
-                                        field: 'status',
-                                        filter: true,
-                                        bodyStyle: { width: '150px' },
-                                        body: (rowData: any) => renderColorStatus(rowData.status)
-                                    },
-                                    {
-                                        header: 'Proof Document',
-                                        field: 'doc',
-                                        filter: true,
-                                        bodyStyle: { width: '150px' }
-                                    },
-                                    {
-                                        header: 'Rejected Reason',
-                                        field: 'rejectedReason',
-                                        filter: true,
-                                        bodyStyle: { width: '200px' }
-                                    },
-                                    {
-                                        header: 'Actions',
-                                        body: buttonRenderer,
-                                        bodyStyle: { width: '100px' }
-                                    }
-                                ]}
-                                onLoad={(params: any) => fetchData(params)}
-                            />
+                                        {
+                                            header: 'Supplier Name',
+                                            field: 'supplierName',
+                                            filter: true,
+                                            bodyStyle: { width: '120px' }
+                                        },
+                                        {
+                                            header: 'Requested At',
+                                            field: 'createdAtFormatted',
+                                            filter: true,
+                                            bodyStyle: { width: '150px' }
+                                        },
+                                        {
+                                            header: 'Status',
+                                            field: 'status',
+                                            filter: true,
+                                            bodyStyle: { width: '150px' },
+                                            body: (rowData: any) => renderColorStatus(rowData.status)
+                                        },
+                                        {
+                                            header: 'Proof Document',
+                                            body: proofViewerTemplate,
+                                            filter: true,
+                                            bodyStyle: { width: '150px' }
+                                        },
+                                        {
+                                            header: 'Rejected Reason',
+                                            field: 'rejectedReason',
+                                            filter: true,
+                                            bodyStyle: { width: '200px' }
+                                        },
+                                        {
+                                            header: 'Actions',
+                                            body: buttonRenderer,
+                                            bodyStyle: { width: '100px' }
+                                        }
+                                    ]}
+                                    onLoad={(params: any) => fetchData(params)}
+                                />
                             )}
                         </div>
                     </div>
@@ -398,6 +421,19 @@ const ManageRequestsPage = () => {
                 >
                     {renderDialogContent()}
                 </Dialog>
+
+                {selectedFile && (
+                    <DocumentViewer
+                        fileUrl={selectedFile}
+                        fileName={selectedFileName || undefined}
+                        visible={showViewer}
+                        onHide={() => {
+                            setShowViewer(false);
+                            setSelectedFile(null);
+                            setSelectedFileName(null);
+                        }}
+                    />
+                )}
 
             </div>
         </div>

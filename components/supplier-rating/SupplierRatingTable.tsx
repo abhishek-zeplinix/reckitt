@@ -10,6 +10,7 @@ import { Badge } from 'primereact/badge';
 import { getBackgroundColor } from '@/utils/utils';
 import CustomDialogBox from '../dialog-box/CustomDialogBox';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
+import { useAuth } from '@/layout/context/authContext';
 
 
 const SupplierEvaluationTable = ({ rules,
@@ -53,6 +54,7 @@ const SupplierEvaluationTable = ({ rules,
   const dropdownRef = useRef<any>(null);
 
   const { setLoading, setAlert, isLoading} = useAppContext();
+  const { isSuperAdmin} = useAuth();
 
 
   // update function to check CAPA data status
@@ -773,7 +775,7 @@ const SupplierEvaluationTable = ({ rules,
       }
       <div className='flex justify-content-end gap-3 mt-1 p-3'>
 
-        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed'} loading={isLoading} />
+        <Button label="Save" className='bg-pink-500 hover:text-white' onClick={handleSubmit} disabled={isCompleted?.toLowerCase() === 'completed' || isSuperAdmin()}  loading={isLoading} />
 
       </div>
 
