@@ -142,8 +142,6 @@
 
 // // export default CustomDataTable;
 
-
-
 // import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 // import { Button } from 'primereact/button';
 // import { DataTable, DataTableBaseProps, DataTableFilterEvent, DataTablePageEvent, DataTableValueArray } from 'primereact/datatable';
@@ -287,11 +285,11 @@
 
 // export default CustomDataTable;
 
-
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Button } from 'primereact/button';
 import { DataTable, DataTableBaseProps, DataTableFilterEvent, DataTablePageEvent, DataTableValueArray } from 'primereact/datatable';
 import { Column, ColumnProps } from 'primereact/column';
+import { Tooltip } from 'primereact/tooltip';
 
 interface ColumnItem extends ColumnProps {
     dbField?: string;
@@ -357,7 +355,15 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                     props
                         .extraButtons(item)
                         .map((btn: ExtraButton, index: number) => (
-                            <Button key={`ExtraButton${index}`} type="button" icon={btn.icon} className="p-button-md p-button-text hover:bg-primary-main text-primary-main" onClick={() => btn.onClick && btn.onClick(item)} tooltip={btn.tooltip} tooltipOptions={{ style: { fontSize: '10px', padding: '2px 4px' } }} />
+                            <Button
+                                key={`ExtraButton${index}`}
+                                type="button"
+                                icon={btn.icon}
+                                className="p-button-md p-button-text hover:bg-primary-main text-primary-main"
+                                onClick={() => btn.onClick && btn.onClick(item)}
+                                tooltip={btn.tooltip}
+                                tooltipOptions={{ style: { fontSize: '10px', padding: '2px 4px' } }}
+                            />
                         ))}
             </div>
         );
@@ -369,7 +375,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
             ...prevParams,
             first: (props.page - 1) * props.limit, // Calculate `first` based on `page` and `limit`
             rows: props.limit,
-            page: props.page,
+            page: props.page
         }));
     }, [props.page, props.limit]);
 
@@ -394,7 +400,7 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                         ...lazyParams,
                         first: event.first,
                         rows: event.rows,
-                        page: event.page ? event.page + 1 : 1, // Update `page` based on `event.page`
+                        page: event.page ? event.page + 1 : 1 // Update `page` based on `event.page`
                     };
 
                     setLazyParams(newLazyParams);
@@ -422,7 +428,8 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                             <div className="flex items-center gap-2 ">
                                 <span style={{ fontSize: '13px' }}>ACTIONS</span>
                                 <div>
-                                    <input type="checkbox" checked={isActionsFrozen} onChange={toggleActionColumnFreeze} title="Freeze/Unfreeze Action Column" className="no-background-tooltip" />
+                                    <input type="checkbox" id="freezeCheckbox" checked={isActionsFrozen} onChange={toggleActionColumnFreeze} className="no-background-tooltip" />
+                                    <Tooltip target="#freezeCheckbox" content="Freeze/Unfreeze Action Column" position="top" />
                                 </div>
                             </div>
                         }
