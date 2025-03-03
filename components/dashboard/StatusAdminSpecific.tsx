@@ -156,7 +156,7 @@ const StatusAdminSpecific = ({status}: any) => {
                     subCategoryName: supplier.subCategories.subCategoryName
                 },
             };
-        });
+        })?.sort((a: any, b: any) => b.assignmentId - a.assignmentId);
     };
 
 

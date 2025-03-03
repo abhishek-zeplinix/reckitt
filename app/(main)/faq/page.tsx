@@ -8,10 +8,14 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse } from '@/types';
 import { GetCall, PostCall, PutCall, DeleteCall } from '@/app/api-config/ApiKit';
 import { Dialog } from 'primereact/dialog';
-import 'primeicons/primeicons.css';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { useAuth } from '@/layout/context/authContext';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
+import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
+import TableSkeleton from '@/components/skeleton/TableSkeleton';
+import SupplierSummaryRightLeftPanelSkeleton from '@/components/skeleton/SupplierSummaryLeftRightPanelSkeleton';
+import SupplierSummmarySkeletonCustom from '@/components/skeleton/SupplierSummmarySkeletonCustom';
+import FAQSkeleton from '@/components/skeleton/FAQSkeleton';
 
 interface FAQ {
     id: number;
@@ -24,12 +28,14 @@ const FaqPage = () => {
     const { layoutState } = useContext(LayoutContext);
     const { isSuperAdmin } = useAuth();
     const [faqData, setFaqData] = useState<FAQ[]>([]);
+    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [visible, setVisible] = useState(false);
     const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
     const [formData, setFormData] = useState({
         question: '',
         answer: ''
     });
+    const [page, setPage] = useState<number>(1);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [selectedFaqToDelete, setSelectedFaqToDelete] = useState<any | null>(null);
@@ -38,14 +44,26 @@ const FaqPage = () => {
         fetchFaq();
     }, []);
 
-    const fetchFaq = async () => {
-        setLoading(true);
-        const response: CustomResponse = await GetCall(`/company/faq`);
-        setLoading(false);
-        if (response.code === 'SUCCESS') {
-            setFaqData(response.data);
-        } else {
-            setFaqData([]);
+    const fetchFaq = async (params?: any) => {
+
+        if (!params) {
+            params = { limit: limit, page: page, sortBy: 'id', sortOrder: 'desc' };
+        }
+        setPage(params.page);
+        const queryString = buildQueryParams(params);
+
+        try {
+            setLoading(true);
+            const response: CustomResponse = await GetCall(`/company/faq/?${queryString}`);
+            if (response.code === 'SUCCESS') {
+                setFaqData(response.data);
+            } else {
+                setFaqData([]);
+            }
+        } catch (error) {
+            setAlert('error', 'An error occurred while fetching FAQs.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -175,16 +193,12 @@ const FaqPage = () => {
                         footer={
                             <div className="flex justify-content-center p-2">
                                 <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
-                                <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} />
+                                <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={confirmDelete} loading={isLoading} />
                             </div>
                         }
                         onHide={closeDeleteDialog}
                     >
-                        {isLoading && (
-                            <div className="center-pos">
-                                <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                            </div>
-                        )}
+
                         <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                             <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
@@ -195,69 +209,71 @@ const FaqPage = () => {
                         </div>
                     </Dialog>
 
-                    <div className="p-card-body">
-                        {isLoading ? (
-                            <p>Loading FAQs...</p>
-                        ) : faqData.length > 0 ? (
-                            <div className="w-full">
-                                <Accordion>
-                                    {faqData.map((faq) => (
-                                        <AccordionTab
-                                            key={faq.id}
-                                            headerTemplate={(options: any) => (
-                                                <button className={options.className} onClick={options.onClick} style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}>
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between',
-                                                            width: '100%'
-                                                        }}
-                                                    >
-                                                        <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
-                                                            {faq.question}
-                                                        </span>
-                                                        {isSuperAdmin() && (
-                                                            <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                                <i
-                                                                    className="pi pi-file-edit"
-                                                                    style={{
-                                                                        color: '#64748B',
-                                                                        padding: '5px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleEditClick(faq);
-                                                                    }}
-                                                                />
-                                                                <i
-                                                                    className="pi pi-trash"
-                                                                    style={{
-                                                                        color: '#F56565',
-                                                                        padding: '5px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        openDeleteDialog(faq.id);
-                                                                    }}
-                                                                />
+                    {
+                        isLoading ? <FAQSkeleton rows={10}/> :
+                            <div className="p-card-body">
+                              { faqData.length > 0 ? (
+                                    <div className="w-full">
+                                        <Accordion>
+                                            {faqData.map((faq) => (
+                                                <AccordionTab
+                                                    key={faq.id}
+                                                    headerTemplate={(options: any) => (
+                                                        <button className={options.className} onClick={options.onClick} style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}>
+                                                            <div
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'space-between',
+                                                                    width: '100%'
+                                                                }}
+                                                            >
+                                                                <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
+                                                                    {faq.question}
+                                                                </span>
+                                                                {isSuperAdmin() && (
+                                                                    <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                                                                        <i
+                                                                            className="pi pi-file-edit"
+                                                                            style={{
+                                                                                color: '#64748B',
+                                                                                padding: '5px',
+                                                                                cursor: 'pointer'
+                                                                            }}
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleEditClick(faq);
+                                                                            }}
+                                                                        />
+                                                                        <i
+                                                                            className="pi pi-trash"
+                                                                            style={{
+                                                                                color: '#F56565',
+                                                                                padding: '5px',
+                                                                                cursor: 'pointer'
+                                                                            }}
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                openDeleteDialog(faq.id);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                </button>
-                                            )}
-                                        >
-                                            <p className="m-0">{faq.answer}</p>
-                                        </AccordionTab>
-                                    ))}
-                                </Accordion>
+                                                        </button>
+                                                    )}
+                                                >
+                                                    <p className="m-0">{faq.answer}</p>
+                                                </AccordionTab>
+                                            ))}
+                                        </Accordion>
+                                    </div>
+                                ) : (
+                                    <p>No FAQs available at the moment.</p>
+                                )}
                             </div>
-                        ) : (
-                            <p>No FAQs available at the moment.</p>
-                        )}
-                    </div>
+                    }
+
                 </div>
             </div>
         </div>

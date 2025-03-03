@@ -15,6 +15,7 @@ import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { years } from '@/utils/constant';
 import { useAuth } from '@/layout/context/authContext';
+import { any } from 'zod';
 
 const StatusRoleSpecific = ({ status }: any) => {
     const { isLoading, setLoading, user, setAlert } = useAppContext();
@@ -124,7 +125,7 @@ const StatusRoleSpecific = ({ status }: any) => {
             suppliers: supplier,
             SupplierAssignmentStatus: assignment.SupplierAssignmentStatus
         };
-    });
+    })?.sort((a: any, b: any) => b.id - a.id);
 
     useEffect(() => {
         if (userRole) {

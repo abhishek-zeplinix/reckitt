@@ -118,7 +118,7 @@ const ManageSupplierPage = () => {
     useEffect(() => {
         setScroll(true);
         fetchData();
-        return () => {};
+        return () => { };
     }, []);
 
     useEffect(() => {
@@ -831,26 +831,26 @@ const ManageSupplierPage = () => {
                                     (
                                         supplier: {
                                             supplierName:
-                                                | string
-                                                | number
-                                                | boolean
-                                                | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-                                                | Iterable<React.ReactNode>
-                                                | React.ReactPortal
-                                                | React.PromiseLikeOfReactNode
-                                                | null
-                                                | undefined;
+                                            | string
+                                            | number
+                                            | boolean
+                                            | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+                                            | Iterable<React.ReactNode>
+                                            | React.ReactPortal
+                                            | React.PromiseLikeOfReactNode
+                                            | null
+                                            | undefined;
                                             email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined;
                                             supplierNumber:
-                                                | string
-                                                | number
-                                                | boolean
-                                                | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-                                                | Iterable<React.ReactNode>
-                                                | React.ReactPortal
-                                                | React.PromiseLikeOfReactNode
-                                                | null
-                                                | undefined;
+                                            | string
+                                            | number
+                                            | boolean
+                                            | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+                                            | Iterable<React.ReactNode>
+                                            | React.ReactPortal
+                                            | React.PromiseLikeOfReactNode
+                                            | null
+                                            | undefined;
                                         },
                                         index: React.Key | null | undefined
                                     ) => (

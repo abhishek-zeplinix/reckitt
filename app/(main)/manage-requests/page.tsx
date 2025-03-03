@@ -347,15 +347,15 @@ const ManageRequestsPage = () => {
                                     limit={limit}
                                     totalRecords={totalRecords}
                                     data={requests?.map((item: any) => ({
-                                        id: item.manageReqId,
-                                        supplierId: item.supplierId,
-                                        supplierName: item.supplier.supplierName,
-                                        requestedData: item.requestedData,
+                                        id: item?.manageReqId,
+                                        supplierId: item?.supplierId,
+                                        supplierName: item?.supplier?.supplierName,
+                                        requestedData: item?.requestedData,
                                         oldData: item?.oldData,
                                         createdAtFormatted: formatDate(item.createdAt),
-                                        status: item.status,
-                                        rejectedReason: item.rejectedReason || 'No Reason',
-                                        doc: item.doc || 'https//s3.aws.amazon.com/file/e3f923922/proof.pdf',
+                                        status: item?.status,
+                                        rejectedReason: item?.rejectedReason || 'No Reason',
+                                        doc: item?.doc || 'https//s3.aws.amazon.com/file/e3f923922/proof.pdf',
                                         ...item
                                     }))}
                                     columns={[

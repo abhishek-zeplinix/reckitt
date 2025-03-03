@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { Dialog } from 'primereact/dialog';
-import { ProgressSpinner } from 'primereact/progressspinner';
 
 interface DocumentViewerProps {
     fileUrl: string;
@@ -10,8 +9,9 @@ interface DocumentViewerProps {
 }
 
 const DocumentViewer = ({ fileUrl, visible, onHide, fileName }: DocumentViewerProps) => {
-    const [loading, setLoading] = useState(true);
 
+
+    
     const fileType = useMemo(() => {
         const extension = fileUrl.split('.').pop()?.toLowerCase();
         if (!extension) return 'unknown';
@@ -27,9 +27,11 @@ const DocumentViewer = ({ fileUrl, visible, onHide, fileName }: DocumentViewerPr
         <iframe
             src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
             style={{ width: '100%', height: '80vh', border: 'none' }}
-            onLoad={() => setLoading(false)}
+            // onLoad={() => setLoading(false)}
+            // onError={() => setLoading(false)}
             className="shadow-2"
         />
+
     );
 
     const renderContent = () => {
@@ -41,7 +43,7 @@ const DocumentViewer = ({ fileUrl, visible, onHide, fileName }: DocumentViewerPr
                             src={fileUrl}
                             alt={fileName || 'Document'}
                             style={{ maxWidth: '100%', maxHeight: '80vh' }}
-                            onLoad={() => setLoading(false)}
+                            // onLoad={() => setLoading(false)}
                             className="shadow-2"
                         />
                     </div>
@@ -65,11 +67,7 @@ const DocumentViewer = ({ fileUrl, visible, onHide, fileName }: DocumentViewerPr
             contentClassName="relative"
             style={{ maxWidth: '90vw' }}
         >
-            {loading && (
-                <div className="absolute top-50 left-50 z-1 flex align-items-center justify-content-center">
-                    <ProgressSpinner />
-                </div>
-            )}
+           
             {renderContent()}
         </Dialog>
     );
