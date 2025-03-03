@@ -158,6 +158,25 @@ const PermissionManagement = () => {
             setSelectedPermissionId(perm.permissionId);
         }
     };
+
+    const deleteFooter = () => {
+        return (
+            <div>
+                {isLoading ? (
+                    <div className="flex justify-content-center p-2">
+                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                    </div>
+                ) : (
+                    <div className="flex justify-content-center p-2">
+                        <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const renderDeleteFooter = deleteFooter();
     return (
         <>
             <div className="mt-1">
@@ -183,79 +202,62 @@ const PermissionManagement = () => {
                     <SubmitResetButtons onSubmit={handlePermissionSubmit} onReset={resetInput} label="Add Permission" />
                 </div>
                 <div className="mt-4">
-                {isLoading ?(
-                <TableSkeletonSimple columns={2} rows={limit} />
-            ) : (
-                    <CustomDataTable
-                        ref={allPermissions}
-                        page={page}
-                        limit={limit} // no of items per page
-                        totalRecords={totalRecords} // total records from api response
-                        isView={false}
-                        isEdit={false} // show edit button
-                        isDelete={true} // show delete button
-                        data={allPermissions?.map((item: any) => ({
-                            permissionId: item?.permissionId,
-                            module: item?.module,
-                            permission: item?.permission,
-                            description: item?.desc
-                        }))}
-                        columns={[
-                            {
-                                header: 'Sr. No.',
-                                body: (data: any, options: any) => {
-                                    const normalizedRowIndex = options.rowIndex % limit;
-                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                    {isLoading ? (
+                        <TableSkeletonSimple columns={2} rows={limit} />
+                    ) : (
+                        <CustomDataTable
+                            ref={allPermissions}
+                            page={page}
+                            limit={limit} // no of items per page
+                            totalRecords={totalRecords} // total records from api response
+                            isView={false}
+                            isEdit={false} // show edit button
+                            isDelete={true} // show delete button
+                            data={allPermissions?.map((item: any) => ({
+                                permissionId: item?.permissionId,
+                                module: item?.module,
+                                permission: item?.permission,
+                                description: item?.desc
+                            }))}
+                            columns={[
+                                {
+                                    header: 'Sr. No.',
+                                    body: (data: any, options: any) => {
+                                        const normalizedRowIndex = options.rowIndex % limit;
+                                        const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                    return <span>{srNo}</span>;
+                                        return <span>{srNo}</span>;
+                                    },
+                                    bodyStyle: { minWidth: 50, maxWidth: 50 }
                                 },
-                                bodyStyle: { minWidth: 50, maxWidth: 50 }
-                            },
-                            {
-                                header: 'Module Name',
-                                field: 'module',
-                                filter: true,
-                                bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                filterPlaceholder: 'Role'
-                            },
-                            {
-                                header: 'Permission Name',
-                                field: 'permission',
-                                filter: true,
-                                bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                filterPlaceholder: 'Role'
-                            },
-                            {
-                                header: 'Description',
-                                field: 'description',
-                                filter: true,
-                                bodyStyle: { minWidth: 150, maxWidth: 150 },
-                                filterPlaceholder: 'Role'
-                            }
-                        ]}
-                        onLoad={(params: any) => fetchData(params)}
-                        onDelete={(item: any) => onRowSelect(item, 'delete')}
-                    />
-            )}
-                </div>
-                <Dialog
-                    header="Delete confirmation"
-                    visible={isDeleteDialogVisible}
-                    style={{ width: layoutState.isMobile ? '90vw' : '50vw' }}
-                    className="delete-dialog"
-                    footer={
-                        <div className="flex justify-content-center p-2">
-                            <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
-                            <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
-                        </div>
-                    }
-                    onHide={closeDeleteDialog}
-                >
-                    {isLoading && (
-                        <div className="center-pos">
-                            <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                        </div>
+                                {
+                                    header: 'Module Name',
+                                    field: 'module',
+                                    filter: true,
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    filterPlaceholder: 'Role'
+                                },
+                                {
+                                    header: 'Permission Name',
+                                    field: 'permission',
+                                    filter: true,
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    filterPlaceholder: 'Role'
+                                },
+                                {
+                                    header: 'Description',
+                                    field: 'description',
+                                    filter: true,
+                                    bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                    filterPlaceholder: 'Role'
+                                }
+                            ]}
+                            onLoad={(params: any) => fetchData(params)}
+                            onDelete={(item: any) => onRowSelect(item, 'delete')}
+                        />
                     )}
+                </div>
+                <Dialog header="Delete confirmation" visible={isDeleteDialogVisible} style={{ width: layoutState.isMobile ? '90vw' : '50vw' }} className="delete-dialog" footer={renderDeleteFooter} onHide={closeDeleteDialog}>
                     <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                         <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 

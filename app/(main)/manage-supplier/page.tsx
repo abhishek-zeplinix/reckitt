@@ -175,7 +175,6 @@ const ManageSupplierPage = () => {
             const queryString = buildQueryParams(params);
             const response: CustomResponse = await GetCall(`/company/supplier?${queryString}`);
             if (response.code == 'SUCCESS') {
-
                 if (response.total) {
                     setTotalRecords(response?.total);
                     setSuppliers(response.data);
@@ -590,9 +589,7 @@ const ManageSupplierPage = () => {
                                     </div>
                                 </div>
                                 {isLoading ? (
-                                    <div className='mt-3'>
-                                        <TableSkeletonSimple columns={6} rows={limit} />
-                                    </div>
+                                    <TableSkeletonSimple columns={6} rows={limit} />
                                 ) : (
                                     <CustomDataTable
                                         className="mb-3"
@@ -653,17 +650,17 @@ const ManageSupplierPage = () => {
                                             },
                                             {
                                                 header: 'Country',
-                                                field: 'countries.name',
+                                                field: 'country',
                                                 bodyStyle: { minWidth: 150, maxWidth: 150 }
                                             },
                                             {
                                                 header: 'State',
-                                                field: 'states.name',
+                                                field: 'state',
                                                 bodyStyle: { minWidth: 150, maxWidth: 150 }
                                             },
                                             {
                                                 header: 'City',
-                                                field: 'cities.name',
+                                                field: 'city',
                                                 bodyStyle: { minWidth: 150, maxWidth: 150 }
                                             },
                                             {
