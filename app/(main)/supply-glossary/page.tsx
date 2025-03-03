@@ -8,10 +8,10 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { CustomResponse } from '@/types';
 import { GetCall, PostCall, PutCall, DeleteCall } from '@/app/api-config/ApiKit';
 import { Dialog } from 'primereact/dialog';
-import 'primeicons/primeicons.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import { useAuth } from '@/layout/context/authContext';
+import FAQSkeleton from '@/components/skeleton/FAQSkeleton';
 
 interface Glossary {
     id: number;
@@ -196,67 +196,70 @@ const SupplyGlossaryPage = () => {
                         </div>
                     </Dialog>
 
-                    <div className="p-card-body">
-                        {isLoading ? (
-                            <p>Loading Supply Glossary...</p>
-                        ) : glossaryData.length > 0 ? (
-                            <Accordion>
-                                {glossaryData.map((glossary) => (
-                                    <AccordionTab
-                                        key={glossary.id}
-                                        headerTemplate={(options: any) => (
-                                            <button className={options.className} onClick={options.onClick} style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}>
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'space-between',
-                                                        width: '100%'
-                                                    }}
-                                                >
-                                                    <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
-                                                        {glossary.name}
-                                                    </span>
-                                                    {isSuperAdmin() && (
-                                                        <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
-                                                            <i
-                                                                className="pi pi-file-edit"
-                                                                style={{
-                                                                    color: '#64748B',
-                                                                    padding: '5px',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleEditClick(glossary);
-                                                                }}
-                                                            />
-                                                            <i
-                                                                className="pi pi-trash"
-                                                                style={{
-                                                                    color: '#F56565',
-                                                                    padding: '5px',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    openDeleteDialog(glossary.id);
-                                                                }}
-                                                            />
+                    {
+                        isLoading ? <FAQSkeleton rows={10} /> :
+
+                            <div className="p-card-body">
+                                { glossaryData.length > 0 ? (
+                                    <Accordion>
+                                        {glossaryData.map((glossary) => (
+                                            <AccordionTab
+                                                key={glossary.id}
+                                                headerTemplate={(options: any) => (
+                                                    <button className={options.className} onClick={options.onClick} style={{ width: '100%', border: 'none', background: 'none', padding: '7px', cursor: 'pointer' }}>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'space-between',
+                                                                width: '100%'
+                                                            }}
+                                                        >
+                                                            <span className="font-bold" style={{ color: '#333333', fontSize: '14px', fontWeight: '500' }}>
+                                                                {glossary.name}
+                                                            </span>
+                                                            {isSuperAdmin() && (
+                                                                <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                                                                    <i
+                                                                        className="pi pi-file-edit"
+                                                                        style={{
+                                                                            color: '#64748B',
+                                                                            padding: '5px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleEditClick(glossary);
+                                                                        }}
+                                                                    />
+                                                                    <i
+                                                                        className="pi pi-trash"
+                                                                        style={{
+                                                                            color: '#F56565',
+                                                                            padding: '5px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            openDeleteDialog(glossary.id);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            </button>
-                                        )}
-                                    >
-                                        <p className="m-0">{glossary.description}</p>
-                                    </AccordionTab>
-                                ))}
-                            </Accordion>
-                        ) : (
-                            <p>No data available at the moment.</p>
-                        )}
-                    </div>
+                                                    </button>
+                                                )}
+                                            >
+                                                <p className="m-0">{glossary.description}</p>
+                                            </AccordionTab>
+                                        ))}
+                                    </Accordion>
+                                ) : (
+                                    <p>No data available at the moment.</p>
+                                )}
+                            </div>
+                    }
+
                 </div>
             </div>
         </div>

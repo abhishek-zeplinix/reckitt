@@ -11,8 +11,6 @@ import { useAppContext } from '@/layout/AppWrapper';
 import { GetCall } from '@/app/api-config/ApiKit';
 import { CustomResponse, SupplierData } from '@/types';
 import ScoreTiles from '@/components/supplier-score/score-tiles';
-import FilterDropdowns from '@/components/supplier-score/filter-dropdown';
-import useFetchDepartments from '@/hooks/useFetchDepartments';
 import { withAuth } from '@/layout/context/authContext';
 import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import { DataTable } from 'primereact/datatable';
@@ -20,9 +18,9 @@ import { Column } from 'primereact/column';
 import { Badge } from 'primereact/badge';
 import { Tag } from 'primereact/tag';
 import { encodeRouteParams } from '@/utils/base64';
-import { useRouter } from 'next/navigation';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
+import * as XLSX from 'xlsx';
 
 
 const ManageSupplierScorePage = () => {
@@ -34,8 +32,6 @@ const ManageSupplierScorePage = () => {
     const [rules, setRules] = useState<any[]>([]);
     const [totalRecords, setTotalRecords] = useState();
     const [filters, setFilters] = useState<any>();
-    const [allSuppliers, setAllSuppliers] = useState<any[]>([]);
-    const { departments } = useFetchDepartments();
     const { isLoading, setLoading, setAlert } = useAppContext();
     const [dialogVisible, setDialogVisible] = useState(false);
     const [ratingDialogVisible, setRatingDialogVisible] = useState(false);
@@ -47,7 +43,6 @@ const ManageSupplierScorePage = () => {
     const [SelectedSubCategory, setSelectedSubCategory] = useState('');
     const [procurementCategories, setprocurementCategories] = useState([]);
     const [supplierCategories, setsupplierCategories] = useState([]);
-    const router = useRouter();
 
 
     const fetchData = async (params?: any) => {
@@ -75,10 +70,6 @@ const ManageSupplierScorePage = () => {
 
             setTotalRecords(response.total);
             setRules(response.data);
-
-            if (!filters) {
-                setAllSuppliers(response.data);
-            }
         } catch (error) {
             setAlert('error', 'Something went wrong!');
         } finally {
@@ -175,6 +166,60 @@ const ManageSupplierScorePage = () => {
     };
 
 
+    const exportToExcel = () => {
+        try {
+            setLoading(true);
+
+            if (!rules || rules.length === 0) {
+                setAlert('warn', 'No data available to export');
+                return;
+            }
+
+            // format data for export
+            const exportData = rules.map((item, index) => {
+                const baseData: any = {
+                    'Sr. No.': index + 1,
+                    'Name': item.supplierName,
+                    'Category': item.category?.categoryName || '',
+                    'Sub Category': item.subCategories?.subCategoryName || ''
+                };
+
+                // ratings data
+                if (item.ratings && item.ratings.length > 0) {
+                    item.ratings.forEach((rating: any) => {
+                        baseData[`${rating.period} Rating`] = rating.rating || 0;
+                        // baseData[`${rating.period} Status`] = rating.status || 'N/A';
+                    });
+                }
+
+                return baseData;
+            });
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Supplier Scores');
+
+            // generate Excel file
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+
+            // save file
+            const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const fileName = `Supplier_Scores_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+            //create download link and trigger download
+            const url = window.URL.createObjectURL(data);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setAlert('success', 'Data exported successfully');
+        } catch (error) {
+            setAlert('error', 'Error exporting data');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const renderHeader = () => {
         return (
@@ -183,6 +228,17 @@ const ManageSupplierScorePage = () => {
                     <span className="p-input-icon-left flex align-items-center">
                         <h3 className="mb-0">Suppliers Assessment List</h3>
                     </span>
+
+                    <Button
+                        icon="pi pi-file-excel"
+                        className="bg-primary-main border-primary-main hover:text-white"
+                        label='Export'
+                        tooltip="Export to Excel"
+                        tooltipOptions={{ position: 'bottom' }}
+                        onClick={exportToExcel}
+                        loading={isLoading}
+                    />
+
                 </div>
             </>
         );
@@ -281,7 +337,7 @@ const ManageSupplierScorePage = () => {
 
     const navigateToCompletedEvaluation = (supId: number, catId: number, subCatId: number, year: any, departmentId: number, rawYear: string) => {
 
-        const params: any = { supId, catId, subCatId, currentYear: year, departmentId, period: rawYear};
+        const params: any = { supId, catId, subCatId, currentYear: year, departmentId, period: rawYear };
 
         const encodedParams = encodeRouteParams(params);
         const url = `/supplier-scoreboard-summary/${encodedParams}/supplier-rating`;
@@ -357,6 +413,7 @@ const ManageSupplierScorePage = () => {
         return <InputText value={selectedglobalSearch} onChange={onGlobalSearch} placeholder="Search" className="w-full md:w-10rem" />;
     };
     const FieldGlobalSearch = globalSearch();
+
 
 
     return (

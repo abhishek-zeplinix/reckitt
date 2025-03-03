@@ -416,6 +416,20 @@ const CustomDataTable = forwardRef<CustomDataTableRef, CustomTableOption>((props
                         first: 0
                     });
                 }}
+                onSort={(event) => {
+                    const newLazyParams = {
+                        ...lazyParams,
+                        sortField: event.sortField,
+                        sortOrder: event.sortOrder
+                    };
+            
+                    setLazyParams(newLazyParams);
+            
+                    // Call onLoad to fetch sorted data
+                    if (props.onLoad) {
+                        props.onLoad(newLazyParams);
+                    }
+                }}
                 sortField={lazyParams.sortField}
                 sortOrder={lazyParams.sortOrder}
                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"

@@ -29,6 +29,7 @@ type AuthContextType = {
     userPermissions: string[];
     userId: string | null;
     isLoading: boolean;
+    role: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -104,7 +105,8 @@ export const AuthProvider = ({ user, children }: { user: any | null; children: R
         isEvaluator,
         userPermissions,
         userId,
-        isLoading
+        isLoading,
+        role: get(user, 'userRole', null)?.toLowerCase() || null,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

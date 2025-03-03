@@ -253,10 +253,15 @@ const AssignSuppliers = ({
             const response = await PostCall('/company/suppliers-mapped', payload);
 
             if (response.code === 'SUCCESS') {
-                setAlert('success', 'Suppliers assigned successfully!');
+                if (response.skipped > 0 && response.invalidEntries.length > 0) {
+                    setAlert('error', response.invalidEntries[0].reason);
+                } else {
+                    setAlert('success', 'Suppliers assigned successfully!');
+                }
             } else {
                 setAlert('error', response.message);
             }
+            
         } catch (error) {
             setAlert('error', 'Failed to assign suppliers!');
         } finally {
@@ -278,7 +283,7 @@ const AssignSuppliers = ({
     const renderHeader = () => (
         <div className="flex justify-content-between mb-3">
             <span className="p-input-icon-left flex align-items-center">
-                <h3 className="mb-0">Assign Suppliers to {role}</h3>
+                <h3 className="mb-0">Assign Suppliers to {name}</h3>
             </span>
         </div>
     );

@@ -6,17 +6,17 @@ import { buildQueryParams, getRowLimitWithScreenHeight, getSeverity, getStatusOp
 import { useAppContext } from '@/layout/AppWrapper';
 import { InputText } from 'primereact/inputtext';
 import { encodeRouteParams } from '@/utils/base64';
-import { get } from 'lodash';
+import { get, sortBy } from 'lodash';
 import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
 import { GetCall } from '@/app/api-config/ApiKit';
 import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
 import useDecodeParams from '@/hooks/useDecodeParams';
 import { Badge } from 'primereact/badge';
 import { Dropdown } from 'primereact/dropdown';
-import { years } from '@/utils/constant';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
+import useCategories from '@/hooks/useCategories';
 
 const ViewAssignedSuppliers = ({
     params,
@@ -36,10 +36,20 @@ const ViewAssignedSuppliers = ({
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
 
+    const [SelectedSubCategory, setSelectedSubCategory] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    // const [procurementCategories, setprocurementCategories] = useState([]);
 
     const router = useRouter();
 
     const { isLoading, setLoading, user, setAlert } = useAppContext();
+    const {
+        procurementCategories,
+        supplierCategories,
+        error,
+        fetchProcurementCategories,
+        fetchSupplierCategories,
+    } = useCategories();
 
     const decodedParams = useDecodeParams(params.encodedParams);
     const { userId, role, name } = decodedParams;
@@ -56,6 +66,7 @@ const ViewAssignedSuppliers = ({
     useEffect(() => {
         if (userRole) {
             fetchData();
+            fetchSupplierCategories();
         }
     }, [userRole]);
 
@@ -132,26 +143,29 @@ const ViewAssignedSuppliers = ({
     };
 
 
-    const navigateToSummary = (supId: number, catId: number, subCatId: number) => {
+    const navigateToSummary = (supId: number, catId: number, subCatId: number, assignmentId: number) => {
 
-        const params: any = { supId, catId, subCatId };
+        const params: any = { supId, catId, subCatId, assignmentId};
 
         const encodedParams = encodeRouteParams(params);
         router.push(`/supplier-scoreboard-summary/${encodedParams}`);
     };
 
 
-    // const evaluateBodyTemplate = (rowData: any) => <Button icon="pi pi-plus" className="p-button-rounded p-button-pink-400" onClick={() => navigateToSummary(rowData?.supId, rowData?.category.categoryId, rowData?.subCategories.subCategoryId)} />;
-
     const evaluateBodyTemplate = (rowData: any) => {
-        const categoryId = rowData?.category?.categoryId || rowData?.supplierCategoryId;
-        const subCategoryId = rowData?.subCategories?.subCategoryId || rowData?.procurementCategoryId;
+        const supId = rowData?.supId;
+        const categoryId = rowData?.catId;
+        const subCategoryId = rowData?.subCatId;
+        const assignmentId = rowData?.id;
+        
+        console.log(supId, categoryId, subCategoryId, assignmentId);
+        
 
         return (
             <Button
                 icon="pi pi-plus"
                 className="p-button-rounded p-button-pink-400"
-                onClick={() => navigateToSummary(rowData?.supId, categoryId, subCategoryId)}
+                onClick={() => navigateToSummary(supId, categoryId, subCategoryId, assignmentId)}
             />
         );
     };
@@ -187,15 +201,15 @@ const ViewAssignedSuppliers = ({
 
     const transformStatusData = (statusData: any) => {
         if (!statusData || !statusData.length) return [];
-        
+
         const year = new Date(statusData[0]?.year).getFullYear();
-        
+
         if (department === 'PROCUREMENT' || department === 'SUSTAINABILITY') {
             return [
                 { period: `H1 ${year}`, status: statusData[0]?.h1 || 'Pending' },
                 { period: `H2 ${year}`, status: statusData[0]?.h2 || 'Pending' }
             ];
-        } 
+        }
         else {
             return [
                 { period: `Q1 ${year}`, status: statusData[0]?.q1 || 'Pending' },
@@ -213,10 +227,13 @@ const ViewAssignedSuppliers = ({
         //if not a single evaluation done..status will be 'Pending'
         const evaluationStatus = assignment?.SupplierAssignmentStatus[0]?.evaluationStatus || 'Pending';
         const approvalStatus = assignment?.SupplierAssignmentStatus[0]?.approvalStatus || 'Pending';
-
+        
+        const supId = supplier?.supId;
+        const catId = supplier?.category?.supplierCategoryId || supplier?.supplierCategoryId;
+        const subCatId = supplier?.category?.procurementCategoryId || supplier?.procurementCategoryId;
 
         return {
-            id: assignment.assignmentId,
+            id: assignment?.assignmentId,
             srNo: index + 1,
             supplierName: supplier.supplierName,
             // status: supplier.isBlocked ? 'Inactive' : 'Active',
@@ -224,12 +241,15 @@ const ViewAssignedSuppliers = ({
             country: supplier.country,
             state: supplier.state,
             city: supplier.city,
-            supplierCategory: supplier.supplierCategoryId,
+            // supplierCategory: supplier.supplierCategoryId,
             evaluationStatus: evaluationStatus,
+            catId: catId,
+            subCatId: subCatId,
+            supId: supId,
             history: 'View History',
             evaluate: 'Evaluate'
         };
-    });
+    })?.sort((a: any, b:any) => b.id - a.id);
 
 
     const statusBodyTemplate = (rowData: any) => {
@@ -270,22 +290,77 @@ const ViewAssignedSuppliers = ({
         fetchData({ filters });
     };
 
-    const onYearChange = (e: any) => {
-        const year = e.value;
-        setSelectedYear(year);
+    // const onYearChange = (e: any) => {
+    //     const year = e.value;
+    //     setSelectedYear(year);
 
-        const filters: any = {};
+    //     const filters: any = {};
 
-        if (selectedStatus) {
-            filters.status = selectedStatus;
-        }
+    //     if (selectedStatus) {
+    //         filters.status = selectedStatus;
+    //     }
 
-        if (year) {
-            filters.year = year;
-        }
+    //     if (year) {
+    //         filters.year = year;
+    //     }
 
-        fetchData({ filters });
+    //     fetchData({ filters });
+    // };
+
+    
+    const onCategorychange = (e: any) => {
+        setSelectedCategory(e.value);
+        fetchProcurementCategories(e.value)
+        fetchData({
+            filters: {
+                supplierCategoryId: e.value
+            }
+        });
     };
+
+    const onSubCategorychange = (e: any) => {
+        setSelectedSubCategory(e.value);
+        fetchData({
+            filters: {
+                procurementCategoryId: e.value
+            }
+        });
+    };
+    
+
+    const dropdownCategory = () => {
+        return (
+            <Dropdown
+                value={selectedCategory}
+                onChange={onCategorychange}
+                options={procurementCategories}
+                optionValue="categoryId"
+                placeholder="Select Category"
+                optionLabel="categoryName"
+                className="w-full md:w-10rem"
+                showClear={!!selectedCategory}
+            />
+        );
+    };
+
+    const dropdownFieldCategory = dropdownCategory();
+
+    const dropdownMenuSubCategory = () => {
+        return (
+            <Dropdown
+                value={SelectedSubCategory}
+                onChange={onSubCategorychange}
+                options={supplierCategories}
+                optionLabel="subCategoryName"
+                optionValue="subCategoryId"
+                placeholder="Select Sub Category"
+                className="w-full md:w-10rem"
+                showClear={!!SelectedSubCategory}
+            />
+        );
+    };
+    const dropdownFieldSubCategory = dropdownMenuSubCategory();
+
 
     return (
         <div className="p-m-4 border-round-xl shadow-2 surface-card p-3">
@@ -295,8 +370,11 @@ const ViewAssignedSuppliers = ({
                 </div>
 
                 <div className="flex flex-wrap gap-2 pb-3">
-                    <Dropdown value={selectedYear} onChange={onYearChange} options={years} placeholder="Select Year" className="w-full md:w-10rem" showClear={!!selectedYear} />
+                    {/* <Dropdown value={selectedYear} onChange={onYearChange} options={years} placeholder="Select Year" className="w-full md:w-10rem" showClear={!!selectedYear} /> */}
                     <Dropdown value={selectedStatus} onChange={onStatusChange} options={getStatusOptions(role)} placeholder="Select Status" className="w-full md:w-10rem" showClear={!!selectedStatus} />
+                    
+                    <div className="w-full md:w-10rem">{dropdownFieldCategory}</div>
+                    <div className="w-full md:w-10rem">{dropdownFieldSubCategory}</div>
                     <div className="w-full md:w-10rem">{FieldGlobalSearch}</div>
                 </div>
 
@@ -328,7 +406,6 @@ const ViewAssignedSuppliers = ({
                             header: 'Supplier Name',
                             field: 'supplierName',
                             bodyStyle: { minWidth: 120 },
-                            filterPlaceholder: 'Search Supplier Name'
                         },
 
 
@@ -397,7 +474,7 @@ const ViewAssignedSuppliers = ({
                                 body={(rowData) => statusColumnTemplate(rowData.status)}
                             />
                         </DataTable>
-                      
+
                     </>
                 )}
             </Dialog>

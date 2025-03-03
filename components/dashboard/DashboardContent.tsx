@@ -13,6 +13,7 @@ import HistoricalPerformanceSkeleton from '@/components/skeleton/DashboardWaveGr
 import TotalAssessmentSkeleton from '@/components/skeleton/DashboardDonutSkeleton';
 import { GetCall } from '@/app/api-config/ApiKit';
 import SupplierPerformance from './SupplierPerformanceTopBottom';
+import HistoricalPerformanceGraph from './graphs/HistoricalPerformanceGraph';
 
 interface DashboardContentProps {
     filtersVisible: boolean;
@@ -73,11 +74,11 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
                 setThirdTilesData(ThirdTilesData);
                 setChartData(chartData);
 
-                const { pendingAssessments, inProgressAssessments, completedAssessments } = response.data.evasupa.EvaluationData[0];
+                const { pendingAssessment, inProgressAssessment, completedAssessment } = response.data.evasupa.EvaluationData[0];
 
-                const pending = parseInt(pendingAssessments);
-                const inProgress = parseInt(inProgressAssessments);
-                const completed = parseInt(completedAssessments);
+                const pending = parseInt(pendingAssessment);
+                const inProgress = parseInt(inProgressAssessment);
+                const completed = parseInt(completedAssessment);
                 const total = pending + inProgress + completed;
                 setTotalDonut(total);
                 setPieData((prev) => ({
@@ -85,7 +86,7 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
                     datasets: [
                         {
                             ...prev.datasets[0],
-                            data: [parseInt(pendingAssessments), parseInt(inProgressAssessments), parseInt(completedAssessments)]
+                            data: [parseInt(pendingAssessment), parseInt(inProgressAssessment), parseInt(completedAssessment)]
                         }
                     ]
                 }));
@@ -136,14 +137,14 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
         return [
             {
                 title: 'Completed Assessment',
-                value: evaluationData.completedSuppliers || 0,
-                change: `+ ${evaluationData.completedSuppliers}`,
+                value: evaluationData.completedAssessment || 0,
+                change: `+ ${evaluationData.completedAssessment}`,
                 changeClass: 'good-text'
             },
             {
                 title: 'In Progress Assessment',
-                value: evaluationData.inProgressSuppliers || 0,
-                change: `+ ${evaluationData.inProgressSuppliers}`,
+                value: evaluationData.inProgressAssessment || 0,
+                change: `+ ${evaluationData.inProgressAssessment}`,
                 changeClass: 'good-text'
             }
         ];
@@ -153,10 +154,17 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
         return [
             {
                 title: 'Pending Assessment',
-                value: evaluationData.pendingSuppliers || 0,
-                change: `+ ${evaluationData.pendingSuppliers}`,
+                value: evaluationData.pendingAssessment || 0,
+                change: `+ ${evaluationData.pendingAssessment}`,
                 changeClass: 'good-text'
-            }
+            },
+            {
+                title: 'Assigned Suppliers',
+                value: evaluationData.assignedSupplierCount || 0,
+                change: `+ ${evaluationData.assignedSupplierCount}`,
+                changeClass: 'good-text'
+            },
+            
         ];
     };
 
@@ -197,12 +205,12 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
     const donutGraph = () => {
         return (
             <div className="surface-0 p-4 border-round shadow-2">
-                <h3 className="text-left mb-2">Total Assessment Summaryyy</h3>
+                <h3 className="text-left mb-2">Total Assessment Summary</h3>
                 <p className="text-left text-sm mb-4">Lorem ipsum dummy text In Progress Assessment Lorem ipsum</p>
 
-                <div className="grid align-items-center">
+                <div className="grid align-items-center grid-wrap">
                     {/* Donut Chart Section */}
-                    <div className="col-7 flex justify-content-center">
+                    <div className="col-12 md:col-7 flex justify-content-center">
                         <div className="relative">
                             <Chart type="doughnut" data={pieData} options={options} />
                             <div
@@ -224,25 +232,25 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
                     </div>
 
                     {/* Legend Section */}
-                    <div className="col-5">
-                        <div className=" justify-content-center score-bg ">
-                            <div style={{ height: '130px', width: '100%' }} className="flex flex-column gap-3 p-5 border-round-2xl">
-                                <div className="flex align-items-center gap-2 ">
+                    <div className="col-12 md:col-5 mt-4 md:mt-0">
+                        <div className="justify-content-center score-bg">
+                            <div style={{ height: '150px', width: '100%' }} className="flex flex-column gap-3 p-5 justify-content-center border-round-2xl">
+                                <div className="flex align-items-center gap-2">
                                     <div className="border-round pending" style={{ width: '25px', height: '25px' }}></div>
                                     <span className="ml-2 text-md">
-                                        Pending <br /> Assessment
+                                        Pending <br />
                                     </span>
                                 </div>
                                 <div className="flex align-items-center gap-2">
                                     <div className="border-round inProgress" style={{ width: '25px', height: '25px' }}></div>
                                     <span className="ml-2 text-md">
-                                        In Progress <br /> Assessment
+                                        In Progress <br />
                                     </span>
                                 </div>
                                 <div className="flex align-items-center gap-2">
                                     <div className="border-round completed" style={{ width: '25px', height: '25px' }}></div>
                                     <span className="ml-2 text-md">
-                                        Completed <br /> Assessment
+                                        Completed <br />
                                     </span>
                                 </div>
                             </div>
@@ -418,151 +426,6 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
     };
 
     const BarGraphSupplierTiers = barGraphSupplierTiers();
-    const sections = [
-        { label: 'Sustainability', image: '/images/waves/blue.svg' },
-        { label: 'Development', image: '/images/waves/yellow.svg' },
-        { label: 'Procurement', image: '/images/waves/green.svg' },
-        { label: 'Planning', image: '/images/waves/red.svg' },
-        { label: 'Quality', image: '/images/waves/purple.svg' }
-    ];
-
-    const waveSideGraphs = () => {
-        return (
-            <div className="p-4 border-round-md shadow-1 w-2xl">
-                {sections.map((section, index) => (
-                    <div key={index} className="p-flex p-ai-center p-jc-between py-1 border-bottom-1 border-gray-300 last:border-none">
-                        {/* Icon */}
-                        <div className="flex items-center pt-2">
-                            <Image src={section.image} alt={section.label} width={30} height={30} className="pb-2" />
-                            {/* Label */}
-                            <span className="text-gray-700 text-lg ml-3">{section.label}</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-    const WaveSideGraphs = waveSideGraphs();
-    const dataWaveGraphs = {
-        labels: ['Q1/2025', 'Q2/H1 2025', 'Q3 2025', 'Q4/H2 2025', 'Q1 2025', 'Q2/H1 2025'],
-        datasets: [
-            {
-                label: 'Sustainability',
-                data: [60, 45, 70, 95, 88, 92],
-                borderColor: '#2196F3',
-                backgroundColor: 'rgba(0, 122, 217, 0.2)',
-                fill: false,
-                tension: 0
-            },
-            {
-                label: 'Development',
-                data: [90, 68, 30, 82, 68, 22],
-                borderColor: '#FF9800',
-                backgroundColor: 'rgba(240, 200, 8, 0.2)',
-                fill: false,
-                tension: 0
-            },
-            {
-                label: 'Procurement',
-                data: [50, 55, 45, 60, 58, 62],
-                borderColor: '#4CAF50',
-                backgroundColor: 'rgba(0, 166, 82, 0.2)',
-                fill: false,
-                tension: 0
-            },
-            {
-                label: 'Planning',
-                data: [30, 35, 25, 40, 38, 42],
-                borderColor: '#F44336',
-                backgroundColor: 'rgba(214, 48, 49, 0.2)',
-                fill: false,
-                tension: 0
-            },
-            {
-                label: 'Quality',
-                data: [0, 25, 15, 30, 28, 85],
-                borderColor: '#9b59b6',
-                backgroundColor: 'rgba(155, 89, 182, 0.2)',
-                fill: false,
-                tension: 0
-            }
-        ]
-    };
-    const waveOptions = {
-        responsive: true,
-        animation: false,
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top'
-            }
-        },
-        scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: 'Quarter'
-                }
-            },
-            y: {
-                min: 0,
-                max: 100,
-                ticks: {
-                    stepSize: 10
-                },
-                title: {
-                    display: true,
-                    text: 'Score'
-                }
-            }
-        }
-    };
-    const waveGraphs = () => {
-        return (
-            <div className="p-flex px-4 py-4 p-flex-column p-ai-center p-p-4 border-round-xl shadow-2 surface-card">
-                <div className="flex justify-content-between align-items-center">
-                    <div className="mb-5">
-                        <h3>Historical Performance Per Function</h3>
-                        <p>Lorem ipsum dummy text in progress assessment</p>
-                    </div>
-                    <div>
-                        <Dropdown value={selectedCity} onChange={(e) => setSelectedCity(e.value)} options={cities} optionLabel="name" placeholder="All Supplier" className="w-full md:w-14rem bgActiveBtn bgActiveBtnText custom-dropdown px-2 py-1 " />
-                    </div>
-                </div>
-                <div className="flex justify-content-between">
-                    <div style={{ width: '70%', height: 'auto' }} className="">
-                        <Chart type="line" data={dataWaveGraphs} options={waveOptions} />
-                    </div>
-                    <div style={{ background: '#F8FAFC' }}>{WaveSideGraphs}</div>
-                </div>
-                <div>
-                    <div className="grid mt-3 score-bg p-4">
-                        <div className="flex gap-6 px-4 ">
-                            <div className="flex align-items-center mr-4 border-right-1 pr-12 p-2 w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem critical  border-round-md  mr-2 "></span>
-                                <span className="text-sm"> Critical (0-50)</span>
-                            </div>
-                            <div className="flex align-items-center mr-4 border-right-1 pr-12 w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem improvement border-round-md  mr-2 "></span>
-                                <span className="text-sm"> Improvement Needed (51-70)</span>
-                            </div>
-                            <div className="flex align-items-center mr-4 border-right-1 pr-12 w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem good  border-round-md  mr-2 "></span>
-                                <span className="text-sm">Good (71-90)</span>
-                            </div>
-                            <div className="flex align-items-center  w-full mb-2 border-gray-400">
-                                <span className="w-2rem h-2rem excellent border-round-md  mr-2 "></span>
-                                <span className="text-sm">Excellent (91-100)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const WaveGraphs = waveGraphs();
 
     const dataFilters = () => {
         return (
@@ -704,7 +567,7 @@ const DashboardContent = ({ filtersVisible, setFiltersVisible }: DashboardConten
                         </div>
                     </div>
                 </div>
-                <div>{isLoading ? <HistoricalPerformanceSkeleton /> : WaveGraphs}</div>
+                <div>{isLoading ? <HistoricalPerformanceSkeleton /> : <HistoricalPerformanceGraph />}</div>
             </>
 
 
