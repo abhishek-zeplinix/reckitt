@@ -135,7 +135,7 @@ const SupplierDirectory = () => {
                 },
 
             };
-        });
+        })?.sort((a: any, b: any) => b.supId - a.supId);;
     };
 
     const fetchprocurementCategories = async (categoryId: number | null) => {

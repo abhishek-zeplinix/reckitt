@@ -3,7 +3,6 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { useState, useEffect, useRef } from 'react';
-import CapaRequiredTable from './CapaRequiredTable';
 import { Badge } from 'primereact/badge';
 import { Skeleton } from 'primereact/skeleton';
 import { getBackgroundColor } from '@/utils/utils';
@@ -51,8 +50,8 @@ const SupplierEvaluationTableApprover = ({
   const [remainingChars, setRemainingChars] = useState(250);
 
   const [approvalStatusDisplay, setApprovalStatusDisplay] = useState<string | null>(null);
-  const [isAlreadyApprovedOrRejected, setIsAlreadyApprovedOrRejected] = useState(false); // to control button visibility
-
+  const [isAlreadyApprovedOrRejected, setIsAlreadyApprovedOrRejected] = useState(false); 
+  const [isAlreadyRejected, setIsAlreadyRejected] = useState(false); 
   const { userId, isSuperAdmin } = useAuth();
   const { setAlert, setLoading, isLoading } = useAppContext();
   
@@ -79,6 +78,7 @@ const SupplierEvaluationTableApprover = ({
             setTableData(supplierScoreData[0]);
             setTotalScore(supplierScoreData[0].totalScore)
             initializeCompletedData();
+            setIsAlreadyRejected(false)
 
           } else {
             setNoData(true)
@@ -87,9 +87,17 @@ const SupplierEvaluationTableApprover = ({
           if (supplierScoreData[0]?.scoreApprovals) {
             const approverStatus = supplierScoreData[0]?.scoreApprovals?.approvalStatus;
             const approverComment = supplierScoreData[0]?.scoreApprovals?.approverComment;
-            if (approverStatus) {
-              setApprovalStatusDisplay(approverStatus); // Set the status for display
-              setIsAlreadyApprovedOrRejected(true); // Disable buttons
+
+            if (approverStatus.toLowerCase() === 'approved') {
+              setApprovalStatusDisplay(approverStatus); // set the status for display
+              setIsAlreadyApprovedOrRejected(true);
+            }
+
+            if(approverStatus.toLowerCase() === 'rejected' && status?.toLowerCase() === 'in progress') {
+              setIsAlreadyRejected(true);
+              // setTableData(supplierScoreData[0]);
+              // setTotalScore(supplierScoreData[0].totalScore);
+              setNoData(false)
             }
 
             if (approverComment) {
@@ -161,7 +169,8 @@ const SupplierEvaluationTableApprover = ({
     }
   }, [tableData]); // ADD checkedCriteria to dependency array
 
-
+  console.log(checkedCriteria);
+  
 
   const isCapaRulesVisibleOnInitialRender = Object.entries(selectedEvaluations).some(([key, value]) => value !== undefined && value !== '');
 
@@ -266,7 +275,7 @@ const SupplierEvaluationTableApprover = ({
       </div>
     );
   }
-
+  
 
   if (noData) {
     return (
@@ -276,6 +285,17 @@ const SupplierEvaluationTableApprover = ({
     );
   }
 
+  if (isAlreadyRejected) {
+    return (
+      <div className="w-full p-6 text-center bg-primary-light-main border-round">
+        <p className="text-primary-main font-semibold">Evaluation Rejected</p>
+        <p className="text-gray-600 mt-2">
+          This evaluation has already been rejected. Once the evaluator reviews it again, you will have the option to approve or reject it.
+        </p>
+      </div>
+    );
+  }
+  
   const handleApprove = () => {
     setIsApprovalDialogVisible(true);
   };
@@ -545,10 +565,12 @@ const SupplierEvaluationTableApprover = ({
             {isAlreadyApprovedOrRejected ? (
               <Badge value={`Status: ${approvalStatusDisplay}`} severity={getSeverity(approvalStatusDisplay || 'info')} className="mr-3 mb-2" />
             ) : (
+
               <>
                 <Button label="Approve" className='good border-none  hover:text-white' onClick={handleApprove} disabled={remainingChars <= 0 || isSuperAdmin()} />
                 <Button label="Reject" className='critical border-none hover:text-white' onClick={handleRejectDialogOpen} disabled={remainingChars <= 0 || isSuperAdmin()} />
               </>
+              
             )}
           </div>
 
