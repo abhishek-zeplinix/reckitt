@@ -80,7 +80,7 @@ const Dashboard = () => {
         );
       case 'approved':
         return isApprover() ? (
-          <StatusRoleSpecific status=" " />
+          <StatusRoleSpecific status="approved" />
         ) : (
           <StatusAdminSpecific status="approved" />
         );
